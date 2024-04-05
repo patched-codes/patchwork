@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/patched-codes/patchwork/assets/126385808/e25f2994-20ac-404e-9089-cf070fb209fb" width="160" alt="PatchWork Logo">
+  <img src="https://github.com/patched-codes/patchwork/assets/126385808/a7adcf24-b615-43a0-a244-45789d184f0a" width="160" alt="PatchWork Logo">
 </p>
 
 # PatchWork
