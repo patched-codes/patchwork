@@ -1,0 +1,15 @@
+[
+  {
+    "id": "generateREADME",
+    "prompts": [
+      {
+        "role": "system",
+        "content": "Summarize the contents of the given code for documentation purposes in markdown. Make sure there is a heading, as well clear sections for inputs and outputs. Consider both what the code does and how it is likely to be used by someone. Use markdown formatting to make it look nice."
+      },
+      {
+        "role": "user",
+        "content": "{{fullContent}}"
+      }
+    ]
+  }
+]

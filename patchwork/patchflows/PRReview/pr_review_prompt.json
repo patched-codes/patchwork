@@ -1,0 +1,24 @@
+[
+  {
+    "id": "diffreview",
+    "prompts": [
+      {
+        "role": "system",
+        "content": "Summarize the following diffs in 1 to 3 sentences in the following schema:\n{{other_fields}}\nA. Summary:\n<Summary description>\n"
+      },
+      {
+        "role": "user",
+        "content": "Path:\n{{path}}\n\nDiff:\n{{diff}}\n"
+      }
+    ]
+  },
+  {
+    "id": "diffreview_summary",
+    "prompts": [
+      {
+        "role": "user",
+        "content": "Summarize the following code change descriptions in 1 paragraph. {{diffreviews}}"
+      }
+    ]
+  }
+]
