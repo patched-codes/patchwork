@@ -1,0 +1,88 @@
+name: Tests
+
+on:
+  push:
+    branches-ignore:
+      - main
+      - autofix-*
+      - dependencyupgrade-*
+      - generatereadme-*
+
+jobs:
+  test:
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+
+      - uses: jwalton/gh-find-current-pr@master
+        id: findPr
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+          installer-parallel: true
+
+      - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v3
+        with:
+          path: ./.venv
+          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('./poetry.lock') }}
+
+      - name: Install dependencies
+        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        run: poetry install --no-interaction
+
+      - name: AutoFix Patchwork
+        run: |
+          poetry run patchwork AutoFix --log debug \
+          --openai_api_key=${{ secrets.OPENAI_KEY }} \
+          --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
+          --force_pr_creation
+
+      - name: Dependency Upgrade
+        run: |
+          poetry run patchwork DependencyUpgrade --log debug \
+          --libraries_api_key=${{ secrets.LIBRARIES_KEY }} \
+          --openai_api_key=${{ secrets.OPENAI_KEY }} \
+          --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
+          --language=python \
+          --force_pr_creation
+
+      - name: PR Review
+        run: |
+          poetry run patchwork PRReview --log debug \
+          --openai_api_key=${{ secrets.OPENAI_KEY }} \
+          --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
+          --pr_url=https://github.com/patched-codes/patchwork/pull/${{ steps.findPr.outputs.number }}
+
+      - name: Generate README
+        run: |
+          # Specify the parent folder you want to check
+          PARENT_FOLDER="./patchwork/steps"
+          # Command to run if README.md is not found
+  
+          find "$PARENT_FOLDER" -mindepth 1 -maxdepth 1 -type d | grep -vE '/\.\.?/' | grep -vE '/__' | while read -r dir; do
+            if [[ ! -f "$dir/README.md" ]]; then
+              echo "No README.md in $dir"
+              # Extract the last part of the path to use as a base for the branch name
+              base_name=$(basename "$dir")
+              # Convert to a Git-friendly branch name: replace spaces with underscores, remove slashes, etc.
+              branch_name=$(echo "$base_name" | sed -e 's/[^a-zA-Z0-9]/_/g' -e 's/__*/_/g' -e 's/^_//g' -e 's/_$//g')
+        
+              poetry run patchwork GenerateREADME --log debug \
+              --openai_api_key=${{ secrets.OPENAI_KEY }} \
+              --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
+              --filter=*.py \
+              --folder_path=$dir \
+              --branch_prefix=generatereadme-$branch_name \
+            else
+              echo "Found README.md in $dir"
+            fi
+          done
