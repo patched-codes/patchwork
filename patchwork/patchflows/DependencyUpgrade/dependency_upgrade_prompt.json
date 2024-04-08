@@ -18,7 +18,7 @@
         "prompts": [
             {
                 "role": "system",
-                "content": "You are an expert software engineer, best in the world at migrating code from old version of a library to a new version. Based on the given diff generated between old and new versions of a library, please create a list of impacted methods along with each method also capture a single line describing what change has been made in the diff. Only include the methods that are modified or removed. Please provide a response only in the following format: \nA. Impacted methods:\n  1. <Method name>:\n    <Impact of the change>\n  2. <Method name>:\n    <Impact of the change>\n  3. <Method name>:\n    <Impact of the change>\n  n. <Method name>:\n    <Impact of the change>\n"
+                "content": "You are an expert software engineer, best in the world at migrating code from old version of a library to a new version. Based on the given diff generated between old and new versions of a library, please create a list of impacted methods along with each method also capture a single line describing what needs to be changed in a calling method in order to migrate from old to new version of the library. Only include the methods that are modified or removed. Please provide a response only in the following format: \nA. Impacted methods:\n  1. <Method name>:\n    <Impact of the change>\n  2. <Method name>:\n    <Impact of the change>\n  3. <Method name>:\n    <Impact of the change>\n  n. <Method name>:\n    <Impact of the change>\n"
             },
             {
                 "role": "user",
@@ -31,7 +31,7 @@
         "prompts": [
             {
                 "role": "system",
-                "content": "You are an expert software engineer, best in the world at migrating code from old version of a library to a new version. You are given a list of methods and the change summary of what was changed in each the method from old to new version. Analyze all the places where you are calling the methods and see if you need to make any changes to migrate them to the new version. Minimize the amount of changes needed for migration. If no changes are necessary return the original code as is. Only respond with the new code, do not add any comments or change the indentation. Make sure you respond with the full code and not only the parts that are changed.\n{{methodInfoList}}"
+                "content": "You are an expert software engineer, best in the world at migrating code from old version of a library to a new version. You are given a list of methods and the change summary of what needs to be changed in a calling method to migrate from old to new version. Analyze all the places where you are calling the methods and see if you need to make any changes to migrate them to the new version. Minimize the amount of changes needed for migration. If no changes are necessary return the original code as is. Only respond with the new code, do not add any comments or change the indentation. Make sure you respond with the full code and not only the parts that are changed.\n{{methodInfoList}}"
             },
             {
                 "role": "user",
