@@ -34,7 +34,7 @@ class ExtractModelResponse(Step):
                     _, _, extracted_response = extracted_response.partition(partition)
 
                 if partitions[-1] != "":
-                    extracted_response, _, _ = extracted_response.partition(partitions[-1])
+                    extracted_response, _, _ = extracted_response.rpartition(partitions[-1])
 
                 if extracted_response == "":
                     continue

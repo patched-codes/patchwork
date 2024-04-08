@@ -196,7 +196,7 @@ class ExtractCode(Step):
 
         self.extracted_code_contexts = [
             {
-                "uri": file_path,
+                "uri": str(file_path),
                 "startLine": start,
                 "endLine": end,
                 "affectedCode": context,
@@ -208,12 +208,11 @@ class ExtractCode(Step):
         # Save extracted data to JSON
         output_file = Path(tempfile.mktemp(".json"))
         with open(output_file, "w", encoding="utf-8") as f:
-            json.dump(self.extracted_data, f, indent=2)
+            json.dump(self.extracted_code_contexts, f, indent=2)
 
         logger.info(f"Run completed {self.__class__.__name__}")
 
         return dict(
-            prompt_value_file=output_file,
             code_file=output_file,
-            extracted_code_contexts=self.extracted_code_contexts,
+            prompt_values=self.extracted_code_contexts,
         )
