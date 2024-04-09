@@ -5,7 +5,7 @@ on:
 
 
 jobs:
-  build:
+  publish-to-pypi:
     runs-on: ubuntu-latest
 
     steps:
