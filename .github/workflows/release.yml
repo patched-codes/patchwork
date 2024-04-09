@@ -39,7 +39,7 @@ jobs:
       - name: Deploy to pypi
         id: "publish-to-pypi"
         if: steps.publish-to-test-pypi.outcome == 'success'
-        run: poetry publish --build --username '__token__' --password ${{ secrets.PYPI_PASSWORD }}
+        run: poetry publish --username '__token__' --password ${{ secrets.PYPI_PASSWORD }}
 
       - name: Store the distribution packages
         uses: actions/upload-artifact@v3
