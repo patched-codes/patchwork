@@ -73,9 +73,12 @@ def cli(log: str, patchflow: str, opts: list[str], config: str | None, output: s
         else:
             # treat --key=value as a key-value pair
             inputs[key] = value
-
-    patchflow_instance = patchflow_class(inputs)
-    patchflow_instance.run()
+    try:
+        patchflow_instance = patchflow_class(inputs)
+        patchflow_instance.run()
+    except Exception as e:
+        logger.error(f"Error running patchflow {patchflow}: {e}")
+        exit(1)
 
     data_format_mapping = {
         "yaml": yaml.dump,

@@ -74,7 +74,9 @@ class ModifyCode(Step):
         code_snippets = load_json_file(self.code_snippets_path)
 
         modified_code_files = []
-        sorted_list = sorted(zip(code_snippets, self.extracted_responses), key=lambda x: x[0]["startLine"], reverse=True)
+        sorted_list = sorted(
+            zip(code_snippets, self.extracted_responses), key=lambda x: x[0]["startLine"], reverse=True
+        )
         for code_snippet, extracted_response in sorted_list:
             uri = code_snippet["uri"]
             start_line = code_snippet["startLine"]
