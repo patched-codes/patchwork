@@ -2,7 +2,7 @@
 name = "patchwork-cli"
 version = "0.0.5"
 description = ""
-authors = ["patched.code"]
+authors = ["patched.codes"]
 license = "AGPL"
 readme = "README.md"
 packages = [
