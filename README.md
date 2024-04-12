@@ -75,6 +75,12 @@ The above command will default to patching code in the current directory, by run
 
 You can take a look at the `default.yml` [file](patchwork/patchflows/AutoFix/defaults.yml) for the list of configurations you can set to manage the AutoFix patchflow. 
 
+The [patchwork-configs](https://github.com/patched-codes/patchwork-configs) repository contains the default configuration and prompts for all the patchflows. You can clone that repo and pass it as a flag to the CLI:
+
+```bash
+patchwork AutoFix --config /path/to/patchwork-configs/patchflows
+```
+
 ## PatchWork in CI
 
 You can also run PatchWork in a CI environment with ease:
