@@ -160,6 +160,8 @@ def transform_sarif_results(
                 if 0 < vulnerability_limit <= vulnerability_count:
                     return grouped_messages
 
+    return grouped_messages
+
 
 class ExtractCode(Step):
     required_keys = {"sarif_file_path"}
