@@ -137,7 +137,7 @@ class GitlabMergeRequest(PullRequestProtocol):
         self._mr.save()
 
     def create_comment(
-            self, body: str, path: str | None = None, start_line: int | None = None, end_line: int | None = None
+        self, body: str, path: str | None = None, start_line: int | None = None, end_line: int | None = None
     ) -> str | None:
         final_body = f"{_COMMENT_MARKER} \n{PullRequestProtocol._apply_pr_template(self, body)}"
         if path is None:
