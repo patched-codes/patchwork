@@ -5,6 +5,26 @@ from patchwork.common.client.scm import GithubClient, GitlabClient
 from patchwork.logger import logger
 from patchwork.step import Step
 
+_IGNORED_EXTENSIONS = [
+    ".png",
+    ".jpg",
+    ".jpeg",
+    ".gif",
+    ".svg",
+    ".pdf",
+    ".docx",
+    ".xlsx",
+    ".pptx",
+    ".zip",
+    ".tar",
+    ".gz",
+    ".lock",
+]
+
+
+def filter_by_extension(file, extensions):
+    return any(file.endswith(ext) for ext in extensions)
+
 
 class ReadPRDiffs(Step):
     required_keys = {"pr_url"}
@@ -30,6 +50,8 @@ class ReadPRDiffs(Step):
     def run(self) -> dict:
         prompt_values = []
         for path, diffs in self.pr.file_diffs().items():
+            if filter_by_extension(path, _IGNORED_EXTENSIONS):
+                continue
             prompt_values.append(dict(path=path, diff=diffs))
 
         prompt_value_file = tempfile.mktemp(".json")

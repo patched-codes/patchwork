@@ -10,9 +10,12 @@ from openai import OpenAI
 from patchwork.logger import logger
 from patchwork.step import Step
 
+_TOKEN_URL = "https://app.patched.codes/signin"
+_DEFAULT_PATCH_URL = "https://patchwork.patched.codes/v1"
+
 
 class CallOpenAI(Step):
-    required_keys = {"openai_api_key", "prompt_file"}
+    required_keys = {"prompt_file"}
 
     def __init__(self, inputs: dict):
         logger.info(f"Run started {self.__class__.__name__}")
@@ -27,7 +30,29 @@ class CallOpenAI(Step):
         self.model_args = {key[len("model_") :]: value for key, value in inputs.items() if key.startswith("model_")}
         self.client_args = {key[len("client_") :]: value for key, value in inputs.items() if key.startswith("client_")}
 
-        self.openai_api_key = inputs["openai_api_key"]
+        openai_key = inputs.get("openai_api_key") or os.environ.get("OPENAI_API_KEY")
+        if openai_key is not None:
+            self.openai_api_key = openai_key
+
+        patched_key = inputs.get("patched_api_key")
+        if patched_key is not None:
+            self.openai_api_key = patched_key
+            self.client_args["base_url"] = _DEFAULT_PATCH_URL
+
+        if self.openai_api_key is None:
+            raise ValueError(
+                f"Model API key not found.\n"
+                f'Please login at: "{_TOKEN_URL}",\n'
+                "Please go to the Integration's tab and generate an API key.\n"
+                "Please copy the access token that is generated, "
+                "and add `--patched_api_key=<token>` to the command line.\n"
+                "\n"
+                "If you are using a OpenAI API Key, please set `--openai_api_key=<token>`.\n"
+            )
+
+        if not self.openai_api_key:
+            raise ValueError('Missing required data: "openai_api_key"')
+
         self.prompt_file = Path(inputs["prompt_file"])
         if not self.prompt_file.is_file():
             raise ValueError(f'Unable to find Prompt file: "{self.prompt_file}"')

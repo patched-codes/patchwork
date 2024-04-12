@@ -93,6 +93,76 @@ def resolve_artifact_location(
     return None
 
 
+def transform_sarif_results(
+    sarif_data: dict, base_path: Path, context_length: int, vulnerability_limit: int
+) -> dict[tuple[str, int, int, int], list[str]]:
+    # Process each result in SARIF data
+    grouped_messages = defaultdict(list)
+    vulnerability_count = 0
+    for run_idx, run in enumerate(sarif_data.get("runs", [])):
+        artifact_locations = [
+            parse_sarif_location(base_path, artifact["location"]["uri"]) for artifact in run.get("artifacts", [])
+        ]
+
+        for result_idx, result in enumerate(run.get("results", [])):
+            for location_idx, location in enumerate(result.get("locations", [])):
+                physical_location = location.get("physicalLocation", {})
+
+                artifact_location = physical_location.get("artifactLocation", {})
+                uri = resolve_artifact_location(base_path, artifact_location, artifact_locations)
+                if uri is None:
+                    logger.warn(
+                        f'Unable to find file for ".runs[{run_idx}].results[{result_idx}].locations[{location_idx}]"'
+                    )
+                    continue
+
+                region = physical_location.get("region", {})
+                start_line = region.get("startLine", 1)
+                end_line = region.get("endLine", start_line)
+                start_line = start_line - 1
+
+                # Generate file path assuming code is in the current working directory
+                file_path = str(uri.relative_to(base_path))
+
+                # Extract lines from the code file
+                logger.info(f"Extracting context for {file_path} at {start_line}:{end_line}")
+                try:
+                    with open_with_chardet(file_path, "r") as file:
+                        src = file.read()
+
+                    source_lines = src.splitlines(keepends=True)
+                    context_start, context_end = get_source_code_context(
+                        file_path, source_lines, start_line, end_line, context_length
+                    )
+
+                    source_code_context = None
+                    if context_start is not None and context_end is not None:
+                        source_code_context = "".join(source_lines[context_start:context_end])
+
+                except FileNotFoundError:
+                    context_start = None
+                    context_end = None
+                    source_code_context = None
+                    logger.info(f"File not found in the current working directory: {file_path}")
+
+                if source_code_context is None:
+                    logger.info(f"No context found for {file_path} at {start_line}:{end_line}")
+                    continue
+
+                start = context_start if context_start is not None else start_line
+                end = context_end if context_end is not None else end_line
+
+                grouped_messages[(uri, start, end, source_code_context)].append(
+                    result.get("message", {}).get("text", "")
+                )
+
+                vulnerability_count = vulnerability_count + 1
+                if 0 < vulnerability_limit <= vulnerability_count:
+                    return grouped_messages
+
+    return grouped_messages
+
+
 class ExtractCode(Step):
     required_keys = {"sarif_file_path"}
 
@@ -112,7 +182,6 @@ class ExtractCode(Step):
         self.vulnerability_limit = inputs.get("vulnerability_limit", 10)
 
         # Prepare for data extraction
-        self.extracted_data = []
         self.extracted_code_contexts = []
 
     def run(self) -> dict:
@@ -122,77 +191,8 @@ class ExtractCode(Step):
 
         vulnerability_count = 0
         base_path = Path.cwd()
-        # Process each result in SARIF data
-        grouped_messages = defaultdict(list)
-        for run_idx, run in enumerate(sarif_data.get("runs", [])):
-            artifact_locations = [
-                parse_sarif_location(base_path, artifact["location"]["uri"]) for artifact in run.get("artifacts", [])
-            ]
 
-            for result_idx, result in enumerate(run.get("results", [])):
-                for location_idx, location in enumerate(result.get("locations", [])):
-                    physical_location = location.get("physicalLocation", {})
-
-                    artifact_location = physical_location.get("artifactLocation", {})
-                    uri = resolve_artifact_location(base_path, artifact_location, artifact_locations)
-                    if uri is None:
-                        logger.warn(
-                            f'Unable to find file for ".runs[{run_idx}].results[{result_idx}].locations[{location_idx}]"'
-                        )
-                        continue
-
-                    region = physical_location.get("region", {})
-                    start_line = region.get("startLine", 1)
-                    end_line = region.get("endLine", start_line)
-                    start_line = start_line - 1
-
-                    # Generate file path assuming code is in the current working directory
-                    file_path = str(uri.relative_to(base_path))
-
-                    # Extract lines from the code file
-                    logger.info(f"Extracting context for {file_path} at {start_line}:{end_line}")
-                    try:
-                        with open_with_chardet(file_path, "r") as file:
-                            src = file.read()
-
-                        source_lines = src.splitlines(keepends=True)
-                        context_start, context_end = get_source_code_context(
-                            file_path, source_lines, start_line, end_line, self.context_length
-                        )
-
-                        source_code_context = None
-                        if context_start is not None and context_end is not None:
-                            source_code_context = "".join(source_lines[context_start:context_end])
-
-                    except FileNotFoundError:
-                        context_start = None
-                        context_end = None
-                        source_code_context = None
-                        logger.info(f"File not found in the current working directory: {file_path}")
-
-                    if source_code_context is None:
-                        logger.info(f"No context found for {file_path} at {start_line}:{end_line}")
-                        continue
-
-                    start = context_start if context_start is not None else start_line
-                    end = context_end if context_end is not None else end_line
-                    self.extracted_data.append(
-                        {
-                            "affectedCode": source_code_context,
-                            "startLine": start,
-                            "endLine": end,
-                            "uri": file_path,
-                            "messageText": result.get("message", {}).get("text", ""),
-                        }
-                    )
-
-                    grouped_messages[(uri, start, end, source_code_context)].append(
-                        result.get("message", {}).get("text", "")
-                    )
-
-                    vulnerability_count = vulnerability_count + 1
-                    if 0 < self.vulnerability_limit <= vulnerability_count:
-                        break
+        grouped_messages = transform_sarif_results(sarif_data, base_path, self.context_length, self.vulnerability_limit)
 
         self.extracted_code_contexts = [
             {
