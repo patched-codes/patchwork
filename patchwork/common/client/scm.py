@@ -142,7 +142,7 @@ class GitlabMergeRequest(PullRequestProtocol):
         final_body = f"{_COMMENT_MARKER} \n{PullRequestProtocol._apply_pr_template(self, body)}"
         if path is None:
             note = self._mr.notes.create({"body": final_body})
-            return f"#note_{note['id']}"
+            return f"#note_{note.get_id()}"
 
         while True:
             try:
@@ -193,7 +193,7 @@ class GitlabMergeRequest(PullRequestProtocol):
     def reset_comments(self) -> None:
         for discussion in self._mr.discussions.list(iterator=True):
             for note in discussion.attributes["notes"]:
-                if note["type"] == "DiffNote" and note["body"].startswith(_COMMENT_MARKER):
+                if note["body"].startswith(_COMMENT_MARKER):
                     discussion.notes.delete(note["id"])
 
     def file_diffs(self) -> dict[str, str]:
