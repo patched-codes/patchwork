@@ -50,6 +50,8 @@ class ReadPRDiffs(Step):
     def run(self) -> dict:
         prompt_values = []
         for path, diffs in self.pr.file_diffs().items():
+            if filter_by_extension(path, _IGNORED_EXTENSIONS):
+                continue
             prompt_values.append(dict(path=path, diff=diffs))
 
         prompt_value_file = tempfile.mktemp(".json")
