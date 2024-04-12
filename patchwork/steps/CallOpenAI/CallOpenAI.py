@@ -11,7 +11,7 @@ from patchwork.logger import logger
 from patchwork.step import Step
 
 _TOKEN_URL = "https://app.patched.codes/signin"
-_DEFAULT_PATCH_URL = "https://patch-function-ps63srnnsq-de.a.run.app"
+_DEFAULT_PATCH_URL = "https://patchwork.patched.codes/v1"
 
 
 class CallOpenAI(Step):
