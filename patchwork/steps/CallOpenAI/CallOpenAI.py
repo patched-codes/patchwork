@@ -37,7 +37,7 @@ class CallOpenAI(Step):
         patched_key = inputs.get("patched_api_key")
         if patched_key is not None:
             self.openai_api_key = patched_key
-            self.model_args["model_base_url"] = _DEFAULT_PATCH_URL
+            self.client_args["base_url"] = _DEFAULT_PATCH_URL
 
         if self.openai_api_key is None:
             raise ValueError(

@@ -1,5 +1,6 @@
 import importlib
 import json
+import traceback
 from pathlib import Path
 
 import click
@@ -77,6 +78,7 @@ def cli(log: str, patchflow: str, opts: list[str], config: str | None, output: s
         patchflow_instance = patchflow_class(inputs)
         patchflow_instance.run()
     except Exception as e:
+        logger.debug(traceback.format_exc())
         logger.error(f"Error running patchflow {patchflow}: {e}")
         exit(1)
 

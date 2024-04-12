@@ -137,8 +137,13 @@ class GitlabMergeRequest(PullRequestProtocol):
         self._mr.save()
 
     def create_comment(
-        self, path: str, body: str, start_line: int | None = None, end_line: int | None = None
+            self, body: str, path: str | None = None, start_line: int | None = None, end_line: int | None = None
     ) -> str | None:
+        final_body = f"{_COMMENT_MARKER} \n{PullRequestProtocol._apply_pr_template(self, body)}"
+        if path is None:
+            note = self._mr.notes.create({"body": final_body})
+            return f"#note_{note['id']}"
+
         while True:
             try:
                 commit = self._mr.commits().next()
@@ -161,7 +166,6 @@ class GitlabMergeRequest(PullRequestProtocol):
         head_commit = diff.head_commit_sha
 
         try:
-            final_body = f"{_COMMENT_MARKER} \n{PullRequestProtocol._apply_pr_template(self, body)}"
             discussion = self._mr.discussions.create(
                 {
                     "body": final_body,
@@ -187,14 +191,19 @@ class GitlabMergeRequest(PullRequestProtocol):
         return None
 
     def reset_comments(self) -> None:
-        for discussion in self._mr.discussions.list():
+        for discussion in self._mr.discussions.list(iterator=True):
             for note in discussion.attributes["notes"]:
                 if note["type"] == "DiffNote" and note["body"].startswith(_COMMENT_MARKER):
                     discussion.notes.delete(note["id"])
 
     def file_diffs(self) -> dict[str, str]:
-        files = self._mr.diffs.list()
-        return {file.attributes["new_path"]: file.attributes["diff"] for file in files}
+        diffs = self._mr.diffs.list()
+        latest_diff = max(diffs, key=lambda diff: diff.created_at, default=None)
+        if latest_diff is None:
+            return {}
+
+        files = self._mr.diffs.get(latest_diff.id).diffs
+        return {file["new_path"]: file["diff"] for file in files}
 
 
 class GithubPullRequest(PullRequestProtocol):
@@ -336,7 +345,7 @@ class GitlabClient(ScmPlatformClientProtocol):
             logger.error(f"Invalid PR URL: {url}")
             return None
 
-        slug = "/".join(url_parts[-4:-2])
+        slug = "/".join(url_parts[-5:-3])
 
         return self.find_pr_by_id(slug, int(pr_id))
 
