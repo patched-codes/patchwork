@@ -23,7 +23,7 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "~3.10"
 click = "~8.1.0"
 pygithub = "~2.1.1"
 gitpython = "~3.1.40"
@@ -31,7 +31,7 @@ semgrep = "^1.51.0"
 pydantic = "^2.6.4"
 openai = "^1.13.3"
 tree-sitter-languages = "^1.10.2"
-tiktoken = "^0.6.0"
+tiktoken = "~0.5.2"
 libcst = "~1.2.0"
 python-gitlab = "^4.4.0"
 owasp-depscan = "^5.2.12"
@@ -41,6 +41,7 @@ packageurl-python = "~0.15.0"
 semver = "~3.0.2"
 requests = "~2.31.0"
 chardet = "^5.2.0"
+open-interpreter = "~0.2.4"
 # pinning transitive dependencies
 orjson = "~3.9.15"
 
