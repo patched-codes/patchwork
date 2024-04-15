@@ -61,12 +61,13 @@ def _get_config_path(config: str, patchflow: str) -> tuple[Path | None, Path | N
 @click.argument("opts", nargs=-1, type=click.UNPROCESSED, required=False)
 @click.option("--config", type=click.Path(exists=True, dir_okay=True, resolve_path=True, file_okay=True))
 @click.option("--output", type=click.Path(exists=False, resolve_path=True, writable=True), help="Output data file")
+@click.option("--module", type=str, default="patchwork.patchflows",help="Module to import from, which contains all the patchflows")
 @click.option("data_format", "--format", type=click.Choice(["yaml", "json"]), default="json", help="Output data format")
-def cli(log: str, patchflow: str, opts: list[str], config: str | None, output: str | None, data_format: str):
+def cli(log: str, patchflow: str, opts: list[str], config: str | None, output: str | None, module: str | None, data_format: str):
     try:
-        module = importlib.import_module(".patchflows", "patchwork")
-    except ModuleNotFoundError:
-        logger.debug(f"Patchflow {patchflow} not found")
+        module = importlib.import_module(module)
+    except ModuleNotFoundError as e:
+        logger.debug(e)
         exit(1)
 
     try:
