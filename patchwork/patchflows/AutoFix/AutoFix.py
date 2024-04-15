@@ -35,6 +35,7 @@ class AutoFix(Step):
         final_inputs["response_partitions"] = {
             "commit_message": ["A. Commit message:", "B. Change summary:"],
             "patch_message": ["B. Change summary:", "C. Compatibility Risk:"],
+            "compatibility": ["C. Compatibility Risk:", "D. Fixed Code:"],
             "patch": ["D. Fixed Code:", "```", "\n", "```"],
         }
         final_inputs["pr_title"] = f"PatchWork {self.__class__.__name__}"

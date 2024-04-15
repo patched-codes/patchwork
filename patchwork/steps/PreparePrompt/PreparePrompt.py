@@ -5,9 +5,11 @@ from pathlib import Path
 from patchwork.logger import logger
 from patchwork.step import Step
 
+PROMPT_TEMPLATE_FILE_KEY = "prompt_template_file"
+
 
 class PreparePrompt(Step):
-    required_keys = {"prompt_template_file", "prompt_id"}
+    required_keys = {("%s" % PROMPT_TEMPLATE_FILE_KEY), "prompt_id"}
 
     def __init__(self, inputs: dict):
         logger.info(f"Run started {self.__class__.__name__}")
@@ -15,24 +17,24 @@ class PreparePrompt(Step):
         if not all(key in inputs.keys() for key in self.required_keys):
             raise ValueError(f'Missing required data: "{self.required_keys}"')
 
-        prompt_template_file = Path(inputs["prompt_template_file"])
+        prompt_template_file = Path(inputs[PROMPT_TEMPLATE_FILE_KEY])
         if not prompt_template_file.is_file():
-            raise ValueError(f"Prompt Template File {prompt_template_file} does not exist")
+            raise ValueError(f"Prompt Template File {PROMPT_TEMPLATE_FILE_KEY} does not exist")
         try:
             with open(prompt_template_file, "r") as fp:
                 prompt_templates = json.load(fp)
         except json.JSONDecodeError as e:
-            raise ValueError(f'Invalid Json Prompt Template file "{prompt_template_file}": {e}')
+            raise ValueError(f'Invalid Json Prompt Template file "{PROMPT_TEMPLATE_FILE_KEY}": {e}')
 
         prompt_template = next((prompt for prompt in prompt_templates if prompt["id"] == inputs["prompt_id"]), None)
         if prompt_template is None:
             raise ValueError(
-                f'Prompt ID "{inputs["prompt_id"]}" not found in Prompt Template file "{prompt_template_file}"'
+                f'Prompt ID "{inputs["prompt_id"]}" not found in Prompt Template file "{PROMPT_TEMPLATE_FILE_KEY}"'
             )
         self.prompt_template = prompt_template.get("prompts")
         if self.prompt_template is None:
             raise ValueError(
-                f'Prompt ID "{inputs["prompt_id"]}" does not have any prompts in Prompt Template file "{prompt_template_file}"'
+                f'Prompt ID "{inputs["prompt_id"]}" does not have any prompts in Prompt Template file "{PROMPT_TEMPLATE_FILE_KEY}"'
             )
 
         prompt_value_file = inputs.get("prompt_value_file")
