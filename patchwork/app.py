@@ -7,6 +7,28 @@ import click
 import yaml
 
 from patchwork.logger import init_cli_logger, logger
+from patchwork.steps.PreparePrompt import PreparePrompt
+
+
+def _get_config_path(config: str, patchflow: str) -> tuple[Path | None, Path | None]:
+    config_path = Path(config)
+    prompt_path = None
+    if config_path.is_dir():
+        patchwork_config_path = config_path / patchflow / "config.yml"
+        patchwork_prompt_path = config_path / patchflow / "prompt.json"
+        config_path = None
+
+        if patchwork_config_path.is_file():
+            config_path = patchwork_config_path
+        else:
+            logger.error(f'Config file "{patchwork_config_path}" not found from directory "{config}"')
+
+        if patchwork_prompt_path.is_file():
+            prompt_path = patchwork_prompt_path
+        else:
+            logger.error(f'Prompt file "{patchwork_prompt_path}" not found from directory "{config}"')
+
+    return config_path, prompt_path
 
 
 @click.command(
@@ -42,7 +64,7 @@ from patchwork.logger import init_cli_logger, logger
 @click.option("data_format", "--format", type=click.Choice(["yaml", "json"]), default="json", help="Output data format")
 def cli(log: str, patchflow: str, opts: list[str], config: str | None, output: str | None, data_format: str):
     try:
-        module = importlib.import_module(f".patchflows", "patchwork")
+        module = importlib.import_module(".patchflows", "patchwork")
     except ModuleNotFoundError:
         logger.debug(f"Patchflow {patchflow} not found")
         exit(1)
@@ -51,18 +73,20 @@ def cli(log: str, patchflow: str, opts: list[str], config: str | None, output: s
         patchflow_class = getattr(module, patchflow)
     except AttributeError:
         logger.debug(f"Patchflow {patchflow} not found as a class in {Path(__file__).parent / 'patchflows'}")
+        from patchwork.interpreter import run_chat
+        run_chat()
         exit(1)
 
     inputs = {}
     if config is not None:
-        config_path = Path(config)
-        if config_path.is_dir():
-            patchwork_config_path = config_path / patchflow / "config.yml"
-            if not patchwork_config_path.exists() or not patchwork_config_path.is_file():
-                logger.error(f'Config file "{patchwork_config_path}" not found from directory "{config}"')
-                exit(1)
-            config_path = patchwork_config_path
-        inputs = yaml.safe_load(config_path.read_text())
+        config_path, prompt_path = _get_config_path(config, patchflow)
+        if config_path is None and prompt_path is None:
+            exit(1)
+
+        if config_path is not None:
+            inputs = yaml.safe_load(config_path.read_text())
+        if prompt_path is not None:
+            inputs[PreparePrompt.PROMPT_TEMPLATE_FILE_KEY] = prompt_path
 
     for opt in opts:
         key, equal_sign, value = opt.partition("=")
