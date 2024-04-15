@@ -86,7 +86,7 @@ def cli(log: str, patchflow: str, opts: list[str], config: str | None, output: s
         if config_path is not None:
             inputs = yaml.safe_load(config_path.read_text())
         if prompt_path is not None:
-            inputs[PreparePrompt.PROMPT_TEMPLATE_FILE_KEY] = prompt_path.read_text()
+            inputs[PreparePrompt.PROMPT_TEMPLATE_FILE_KEY] = prompt_path
 
     for opt in opts:
         key, equal_sign, value = opt.partition("=")
