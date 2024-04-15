@@ -58,7 +58,7 @@ and use the local model for inference.
 ### Filter
 You can restrict the kind of files to use for generating the documentation using the `filter` option.
 ```yaml
-filter: *.py
+filter: '*.py'
 ```
 
 ### Suppress comments
