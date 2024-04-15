@@ -65,8 +65,10 @@ def _get_config_path(config: str, patchflow: str) -> tuple[Path | None, Path | N
 @click.option("data_format", "--format", type=click.Choice(["yaml", "json"]), default="json", help="Output data format")
 def cli(log: str, patchflow: str, opts: list[str], config: str | None, output: str | None, module: str | None, data_format: str):
     try:
+        if module != "patchwork.patchflows":
+            raise ImportError("Invalid module provided")
         module = importlib.import_module(module)
-    except ModuleNotFoundError as e:
+    except ImportError as e:
         logger.debug(e)
         exit(1)
 
@@ -120,3 +122,4 @@ def cli(log: str, patchflow: str, opts: list[str], config: str | None, output: s
 
 if __name__ == "__main__":
     cli()
+
