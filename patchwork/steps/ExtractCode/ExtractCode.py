@@ -118,7 +118,11 @@ class Severity(IntEnum):
 def get_rule_severity(rule: dict[str:Any]) -> Severity:
     properties = rule.get("properties", {})
 
-    security_severity = properties.get("security-severity")
+    try:
+        security_severity = float(properties.get("security-severity"))
+    except (ValueError, TypeError):
+        security_severity = None
+
     if security_severity is not None:
         if security_severity >= 9.0:
             return Severity.CRITICAL
@@ -133,10 +137,6 @@ def get_rule_severity(rule: dict[str:Any]) -> Severity:
     if properties_severity is not None:
         return Severity.from_str(properties_severity)
 
-    default_level = rule.get("defaultConfiguration", {}).get("level")
-    if default_level is not None:
-        return Severity.from_str(default_level)
-
     return Severity.UNKNOWN
 
 
@@ -146,22 +146,34 @@ def get_severity(result, reporting_descriptors):
     if properties_severity is not None:
         return Severity.from_str(properties_severity)
 
-    if "level" in result.keys():
-        return Severity.from_str(result["level"])
-
-    result_rule = result.get("rule")
-    if result_rule is not None:
-        return get_rule_severity(result_rule)
-
-    result_rule_idx = result.get("ruleIndex")
+    result_rule = result.get("rule", {})
+    result_rule_idx = result.get("ruleIndex") or result_rule.get("index")
+    result_rule_id = result.get("ruleId") or result_rule.get("id")
+    rule = None
     if result_rule_idx is not None:
-        return get_rule_severity(reporting_descriptors[result_rule_idx])
+        rule = reporting_descriptors[result_rule_idx]
+    elif result_rule_id is not None:
+        for reporting_descriptor in reporting_descriptors:
+            if reporting_descriptor.get("id") == result_rule_id:
+                rule = reporting_descriptor
+                break
+    elif len(result_rule) > 0:
+        rule = result_rule
 
-    result_rule_id = result.get("ruleId")
-    if result_rule_id is not None:
-        for rule in reporting_descriptors:
-            if rule.get("id") == result_rule_id:
-                return get_rule_severity(rule)
+    rule_severity = Severity.UNKNOWN
+    if rule is not None:
+        rule_severity = get_rule_severity(rule)
+
+    if rule_severity != Severity.UNKNOWN:
+        return rule_severity
+
+    result_level = result.get("level")
+    if result_level is not None:
+        return Severity.from_str(result_level)
+
+    default_level = rule.get("defaultConfiguration", {}).get("level")
+    if default_level is not None:
+        return Severity.from_str(default_level)
 
     return Severity.UNKNOWN
 
