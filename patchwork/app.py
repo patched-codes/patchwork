@@ -21,12 +21,12 @@ def _get_config_path(config: str, patchflow: str) -> tuple[Path | None, Path | N
         if patchwork_config_path.is_file():
             config_path = patchwork_config_path
         else:
-            logger.error(f'Config file "{patchwork_config_path}" not found from directory "{config}"')
+            logger.warning(f'Config file "{patchwork_config_path}" not found from directory "{config}"')
 
         if patchwork_prompt_path.is_file():
             prompt_path = patchwork_prompt_path
         else:
-            logger.error(f'Prompt file "{patchwork_prompt_path}" not found from directory "{config}"')
+            logger.warning(f'Prompt file "{patchwork_prompt_path}" not found from directory "{config}", using default prompt')
 
     return config_path, prompt_path
 

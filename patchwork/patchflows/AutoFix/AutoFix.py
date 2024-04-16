@@ -1,8 +1,10 @@
 import json
+from enum import IntEnum
 from pathlib import Path
 
 import yaml
 
+from patchwork.logger import logger
 from patchwork.step import Step
 from patchwork.steps import (
     CallOpenAI,
@@ -20,12 +22,29 @@ _DEFAULT_PROMPT_JSON = Path(__file__).parent / "default_prompt.json"
 _DEFAULT_INPUT_FILE = Path(__file__).parent / "defaults.yml"
 
 
+class Compatibility(IntEnum):
+    HIGH = 3
+    MEDIUM = 2
+    LOW = 1
+    UNKNOWN = 0
+
+    @staticmethod
+    def from_str(value: str) -> "Compatibility":
+        try:
+            return Compatibility[value.upper()]
+        except KeyError:
+            logger.error(f"Invalid compatibility value: {value}")
+            return Compatibility.UNKNOWN
+
+
 class AutoFix(Step):
     def __init__(self, inputs: dict):
         final_inputs = yaml.safe_load(_DEFAULT_INPUT_FILE.read_text())
         final_inputs.update(inputs)
 
         self.n = int(final_inputs.get("n", 1))
+        self.compatibility_threshold = Compatibility.from_str(final_inputs["compatibility"])
+
         if "prompt_id" not in final_inputs.keys():
             final_inputs["prompt_id"] = "fixprompt"
 
@@ -56,6 +75,12 @@ class AutoFix(Step):
             self.inputs.update(outputs)
             outputs = ExtractModelResponse(self.inputs).run()
             self.inputs.update(outputs)
+
+            for extracted_response in self.inputs["extracted_responses"]:
+                response_compatibility = Compatibility.from_str(extracted_response.get("compatibility", "UNKNOWN").strip())
+                if response_compatibility < self.compatibility_threshold:
+                    extracted_response.pop("patch", None)
+
             outputs = ModifyCode(self.inputs).run()
             self.inputs.update(outputs)
 
