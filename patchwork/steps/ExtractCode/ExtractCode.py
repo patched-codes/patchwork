@@ -3,7 +3,9 @@ import os
 import sys
 import tempfile
 from collections import defaultdict
+from enum import IntEnum
 from pathlib import Path
+from typing import Any
 from urllib.parse import urlparse
 
 import tiktoken
@@ -93,8 +95,91 @@ def resolve_artifact_location(
     return None
 
 
+class Severity(IntEnum):
+    CRITICAL = 5
+    HIGH = 4
+    ERROR = 4
+    MEDIUM = 3
+    LOW = 2
+    WARNING = 2
+    INFO = 1
+    NOTE = 1
+    UNKNOWN = 0
+
+    @staticmethod
+    def from_str(severity: str) -> "Severity":
+        try:
+            return Severity[severity.upper()]
+        except KeyError:
+            logger.error(f'Unknown severity: "{severity}"')
+            return Severity.UNKNOWN
+
+
+def get_rule_severity(rule: dict[str:Any]) -> Severity:
+    properties = rule.get("properties", {})
+
+    try:
+        security_severity = float(properties.get("security-severity"))
+    except (ValueError, TypeError):
+        security_severity = None
+
+    if security_severity is not None:
+        if security_severity >= 9.0:
+            return Severity.CRITICAL
+        elif security_severity >= 7.0:
+            return Severity.HIGH
+        elif security_severity >= 4.0:
+            return Severity.MEDIUM
+        else:
+            return Severity.LOW
+
+    properties_severity = properties.get("severity") or properties.get("Severity")
+    if properties_severity is not None:
+        return Severity.from_str(properties_severity)
+
+    return Severity.UNKNOWN
+
+
+def get_severity(result, reporting_descriptors):
+    properties = result.get("properties", {})
+    properties_severity = properties.get("severity") or properties.get("Severity")
+    if properties_severity is not None:
+        return Severity.from_str(properties_severity)
+
+    result_rule = result.get("rule", {})
+    result_rule_idx = result.get("ruleIndex") or result_rule.get("index")
+    result_rule_id = result.get("ruleId") or result_rule.get("id")
+    rule = None
+    if result_rule_idx is not None:
+        rule = reporting_descriptors[result_rule_idx]
+    elif result_rule_id is not None:
+        for reporting_descriptor in reporting_descriptors:
+            if reporting_descriptor.get("id") == result_rule_id:
+                rule = reporting_descriptor
+                break
+    elif len(result_rule) > 0:
+        rule = result_rule
+
+    rule_severity = Severity.UNKNOWN
+    if rule is not None:
+        rule_severity = get_rule_severity(rule)
+
+    if rule_severity != Severity.UNKNOWN:
+        return rule_severity
+
+    result_level = result.get("level")
+    if result_level is not None:
+        return Severity.from_str(result_level)
+
+    default_level = rule.get("defaultConfiguration", {}).get("level")
+    if default_level is not None:
+        return Severity.from_str(default_level)
+
+    return Severity.UNKNOWN
+
+
 def transform_sarif_results(
-    sarif_data: dict, base_path: Path, context_length: int, vulnerability_limit: int
+    sarif_data: dict, base_path: Path, context_length: int, vulnerability_limit: int, severity_threshold: Severity
 ) -> dict[tuple[str, int, int, int], list[str]]:
     # Process each result in SARIF data
     grouped_messages = defaultdict(list)
@@ -104,7 +189,16 @@ def transform_sarif_results(
             parse_sarif_location(base_path, artifact["location"]["uri"]) for artifact in run.get("artifacts", [])
         ]
 
+        tool = run.get("tool", {})
+        reporting_descriptors = tool.get("driver", {}).get("rules", [])
+        for tool_obj in tool.get("extensions", []):
+            reporting_descriptors.extend(tool_obj.get("rules", []))
+
         for result_idx, result in enumerate(run.get("results", [])):
+            severity = get_severity(result, reporting_descriptors)
+            if severity < severity_threshold:
+                continue
+
             for location_idx, location in enumerate(result.get("locations", [])):
                 physical_location = location.get("physicalLocation", {})
 
@@ -180,6 +274,7 @@ class ExtractCode(Step):
         # Check and set number of lines to extract
         self.context_length = inputs.get("context_size", 1000)
         self.vulnerability_limit = inputs.get("vulnerability_limit", 10)
+        self.severity_threshold = Severity.from_str(inputs.get("severity", "UNKNOWN"))
 
         # Prepare for data extraction
         self.extracted_code_contexts = []
@@ -189,10 +284,11 @@ class ExtractCode(Step):
         with open_with_chardet(self.sarif_file_path, "r") as file:
             sarif_data = json.load(file)
 
-        vulnerability_count = 0
         base_path = Path.cwd()
 
-        grouped_messages = transform_sarif_results(sarif_data, base_path, self.context_length, self.vulnerability_limit)
+        grouped_messages = transform_sarif_results(
+            sarif_data, base_path, self.context_length, self.vulnerability_limit, self.severity_threshold
+        )
 
         self.extracted_code_contexts = [
             {
