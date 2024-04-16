@@ -74,6 +74,7 @@ def cli(log: str, patchflow: str, opts: list[str], config: str | None, output: s
     except AttributeError:
         logger.debug(f"Patchflow {patchflow} not found as a class in {Path(__file__).parent / 'patchflows'}")
         from patchwork.interpreter import run_chat
+
         run_chat()
         exit(1)
 
