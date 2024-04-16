@@ -1,92 +1,9 @@
-[tool.poetry]
-name = "patchwork-cli"
-version = "0.0.6"
-description = ""
-authors = ["patched.codes"]
-license = "AGPL"
-readme = "README.md"
-packages = [
-    { include = "patchwork", from = "." }
-]
-classifiers = [
-    "Development Status :: 3 - Alpha",
-    "Environment :: Console",
-    "Intended Audience :: Developers",
-    "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
-    "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
-    "Topic :: Software Development :: Libraries :: Python Modules",
-    "Topic :: Software Development :: Quality Assurance",
-    "Topic :: Software Development :: Testing",
-    "Topic :: Utilities"
-]
-
-[tool.poetry.dependencies]
-python = "^3.10, <3.12"
-click = "~8.1.0"
-pygithub = "~2.1.1"
-gitpython = "~3.1.40"
-semgrep = "^1.51.0"
-pydantic = "^2.6.4"
-openai = "^1.13.3"
-tree-sitter-languages = "^1.10.2"
-tiktoken = "~0.5.2"
-libcst = "~1.2.0"
-python-gitlab = "^4.4.0"
-owasp-depscan = "^5.2.12"
-patched-code2prompt = "0.2.0"
-pyyaml = "^6.0.1"
-packageurl-python = "~0.15.0"
-semver = "~3.0.2"
-requests = "~2.31.0"
-chardet = "^5.2.0"
-# TODO: bump this to at least 0.2.5 when it's released to fix python version dependency resolution issues
-open-interpreter = "~0.2.4"
-# pinning transitive dependencies
-orjson = "~3.9.15"
-
 [tool.poetry.group.dev.dependencies]
 setuptools = "*"
 poethepoet = { version = "^0.24.2", extras = ["poetry-plugin"] }
 mypy = "^1.7.1"
 types-requests = "~2.31.0"
-black = "^23.12.0"
+black = "^24.3.0"  # Updated version to fix vulnerability
 isort = "^5.13.2"
 autoflake = "^2.3.1"
 pytest = "^8.1.1"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
-
-[tool.poetry.scripts]
-patchwork = 'patchwork.app:cli'
-
-[tool.poe.poetry_hooks]
-#pre_build = "mypy"
-post_update = "lint"
-
-[tool.poe.env]
-PROJ_PATH.default = "patchwork"
-
-[tool.poe.tasks]
-#mypy = "mypy ${PROJ_PATH}"
-lint = [
-    {cmd = "autoflake --recursive ${PROJ_PATH}"},
-    {cmd = "isort ${PROJ_PATH}"},
-    {cmd = "black ${PROJ_PATH}"}
-]
-
-[tool.black]
-target-version = ['py310']
-line-length = 120
-
-[tool.isort]
-profile = "black"
-
-[tool.autoflake]
-in-place = true
-remove-all-unused-imports = true
-expand-star-imports = true
-ignore-init-module-imports = true
