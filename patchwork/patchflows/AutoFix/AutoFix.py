@@ -77,7 +77,9 @@ class AutoFix(Step):
             self.inputs.update(outputs)
 
             for extracted_response in self.inputs["extracted_responses"]:
-                response_compatibility = Compatibility.from_str(extracted_response.get("compatibility", "UNKNOWN").strip())
+                response_compatibility = Compatibility.from_str(
+                    extracted_response.get("compatibility", "UNKNOWN").strip()
+                )
                 if response_compatibility < self.compatibility_threshold:
                     extracted_response.pop("patch", None)
 
