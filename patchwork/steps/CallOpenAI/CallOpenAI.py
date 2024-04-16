@@ -27,7 +27,7 @@ class CallOpenAI(Step):
             raise ValueError(f'Missing required data: "{self.required_keys}"')
 
         self.model = inputs["model"]
-        self.allow_trunctated = inputs["allow_truncated"]
+        self.allow_trunctated = inputs.get("allow_truncated", False)
         self.model_args = {key[len("model_") :]: value for key, value in inputs.items() if key.startswith("model_")}
         self.client_args = {key[len("client_") :]: value for key, value in inputs.items() if key.startswith("client_")}
 
