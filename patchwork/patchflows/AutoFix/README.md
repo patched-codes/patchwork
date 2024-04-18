@@ -63,6 +63,13 @@ context_size: 1000
 ```
 in general we have found that a larger `context_size `doesn't necessarily lead to better fixes.
 
+### SARIF input
+We can use any SAST scanner that can export the results in SARIF format. Just set the `sarif_file_path` to the SARIF file and AutoFix will use the information there to generate the fixes. Otherwise, we will do a scan using Semgrep.
+
+```yaml
+sarif_file_path: /path/to/sarif/file
+```
+
 ### Vulnerability limit
 By default we process and fix only `vulnerability_limit` number of issues. This is to avoid making large number of LLMs calls and to keep the generated PR manageable. You can set the value to your preference:
 
