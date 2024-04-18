@@ -70,6 +70,22 @@ By default we process and fix only `vulnerability_limit` number of issues. This 
 vulnerability_limit: 10
 ``` 
 
+### Severity
+You can also set the severity of the vulnerabilities that you want to fix. Severity is derived from the information available in the SARIF file and can take values of 'unknown', 'note'/'info', 'warning'/'low', 'medium', 'error'/'high', and 'critical'. E.g.
+
+```yaml
+severity: medium
+```
+means that all medium and above vulnerabilities will be fixed.
+
+### Compatibility
+You can also set the compatibility threshold of the suggested fixes to be included in the pull request. Compatibility can take values of 'unknown', 'low', 'medium', and 'high'. E.g.
+
+```yaml
+compatibility: medium
+```
+means that all fixes with mediuam and above threshold will be included in the PR.
+
 ### Manage PRs
 In addition, there are options to let you manage the PRs as you like, by setting a `branch_prefix`,  or disabling the creation of new branches with `disable_branch` (commits will be made on the current branch). You can also disable PR creation with `disable_pr` or force push commits to existing PR with `force_pr_creation`.
 
