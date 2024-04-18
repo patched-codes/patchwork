@@ -42,7 +42,7 @@ and pass your HuggingFace token in the `openai_api_key` option.
 
 You can also use llama.cpp to run inference on CPU locally. Just install the [llama-cpp-python](https://github.com/abetlen/llama-cpp-python) package and run their OpenAI compatible web server as described [here](https://github.com/abetlen/llama-cpp-python) with the command:
 
-`python3 -m llama_cpp.server --hf_model_repo_id TheBloke/deepseek-coder-6.7B-instruct-GGUF --model 'deepseek-coder-6.7b-instruct.Q4_0.gguf'`
+`python3 -m llama_cpp.server --hf_model_repo_id TheBloke/deepseek-coder-6.7B-instruct-GGUF --model 'deepseek-coder-6.7b-instruct.Q4_K_M.gguf' --chat_format chatml`
 
 Once the local server is running you can set:
 
@@ -69,6 +69,22 @@ By default we process and fix only `vulnerability_limit` number of issues. This 
 ```yaml
 vulnerability_limit: 10
 ``` 
+
+### Severity
+You can also set the severity of the vulnerabilities that you want to fix. Severity is derived from the information available in the SARIF file and can take values of 'unknown', 'note'/'info', 'warning'/'low', 'medium', 'error'/'high', and 'critical'. E.g.
+
+```yaml
+severity: medium
+```
+means that all medium and above vulnerabilities will be fixed.
+
+### Compatibility
+You can also set the compatibility threshold of the suggested fixes to be included in the pull request. Compatibility can take values of 'unknown', 'low', 'medium', and 'high'. E.g.
+
+```yaml
+compatibility: medium
+```
+means that all fixes with mediuam and above threshold will be included in the PR.
 
 ### Manage PRs
 In addition, there are options to let you manage the PRs as you like, by setting a `branch_prefix`,  or disabling the creation of new branches with `disable_branch` (commits will be made on the current branch). You can also disable PR creation with `disable_pr` or force push commits to existing PR with `force_pr_creation`.
