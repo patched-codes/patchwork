@@ -171,10 +171,12 @@ Below is a sample prompt template:
 
 ```json
 {
-    "id": "ReviewPR",
+  "id": "diffreview_summary",
     "prompts": [
-        {"role": "system", "content": "You are a helpful assistant."},
-        {"role": "user", "content": "Create a well-structured message for the pull request body based on a review of the code diff. CODE DIFF - {{prDiff}}"}
+      {
+        "role": "user",
+        "content": "Summarize the following code change descriptions in 1 paragraph. {{diffreviews}}"
+      }
     ]
 }
 ```
