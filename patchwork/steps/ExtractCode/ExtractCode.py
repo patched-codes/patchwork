@@ -278,7 +278,6 @@ class ExtractCode(Step):
 
         # Prepare for data extraction
         self.extracted_code_contexts = []
-
     def run(self) -> dict:
         # Load SARIF data
         with open_with_chardet(self.sarif_file_path, "r") as file:
@@ -302,9 +301,9 @@ class ExtractCode(Step):
         ]
 
         # Save extracted data to JSON
-        output_file = Path(tempfile.mktemp(".json"))
-        with open(output_file, "w", encoding="utf-8") as f:
+        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", delete=False, suffix=".json") as f:
             json.dump(self.extracted_code_contexts, f, indent=2)
+            output_file = Path(f.name)
 
         logger.info(f"Run completed {self.__class__.__name__}")
 
