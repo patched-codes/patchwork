@@ -1,13 +1,31 @@
-The code provided includes three Python files within the path `patchwork/steps/CallCode2Prompt/`:
-1. `__init__.py` - an empty file.
-2. `CallCode2Prompt.py` - a class named `CallCode2Prompt` derived from `Step` class. It takes inputs, processes data related to code files, runs a command-line tool `code2prompt`, and creates a JSON file as output containing extracted data from code files.
-3. `TestCallCode2Prompt.py` - a unit test file for the `CallCode2Prompt` class, ensuring the output is not empty after running the code for a given folder path.
+# CallCode2Prompt Class
 
-### Inputs
-- `folder_path`: Path to a folder containing code files for processing.
+This document describes the CallCode2Prompt class contained within the CallCode2Prompt.py file. This class is designed to invoke the "code2prompt" tool on a specified directory, extract data relating to a generated prompt, and return this data presented in a specific format.
 
-### Outputs
-- `prompt_value_file`: Path to the JSON file with extracted data from code files.
-- `code_file`: Same as `prompt_value_file`.
+## __init__ method
 
-The `CallCode2Prompt` class is designed to be instantiated with input data related to code files, processed using the `run()` method, and provide extracted information in a JSON file as output.
+The `__init__` method is used to initialize an instance of the CallCode2Prompt class. 
+
+### Input
+- `inputs`: A dictionary that should contain the following key:
+  - `folder_path`: The path to the directory where the code to convert into a prompt is located.
+- Optional keys in `inputs` include:
+  - `filter`: A filter to apply to the code conversion process, if applicable.
+  - `suppress_comments`: A boolean value that dictates whether comments should be suppressed during the code conversion process. Default is False.
+
+The `__init__` method will raise a ValueError if the `folder_path` key is not found in the `inputs` dictionary. 
+
+## run method
+
+The `run` method calls the "code2prompt" process on the folder path specified in the `inputs` when initializing the CallCode2Prompt instance. It organizes the results and returns them in a specific format.
+
+### Output
+The run method returns a dictionary containing two keys:
+- `prompt_value_file`: Points to a temporary JSON file that contains the full extracted data from the code conversion process.
+- `code_file`: Points to the same temporary JSON file as `prompt_value_file`.
+
+The dictionary, and consequently the JSON file, contains various keys about the generated prompt:
+- `fullContent`: The entire content of the extracted prompt in markdown.
+- `uri`: The path to the README.md file in which the prompt is stored.
+- `startLine`: The starting line number of the prompt content in the README file, usually 0.
+- `endLine`: The last line number of the prompt in the README file, equals to the total number of lines.
