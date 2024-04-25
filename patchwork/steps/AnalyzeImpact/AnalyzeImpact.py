@@ -85,7 +85,6 @@ class AnalyzeImpact(Step):
             raise ValueError(f'Missing required data: "{required_keys}"')
 
         self.inputs = inputs
-
     def run(self) -> dict:
         extracted_responses = self.inputs["extracted_responses"]
         name = self.inputs["library_name"]
@@ -145,10 +144,9 @@ class AnalyzeImpact(Step):
             extracted_data.append(data)
 
         # Save extracted data to JSON
-
-        output_file = Path(tempfile.mktemp(".json"))
-        with open(output_file, "w", encoding="utf-8") as f:
+        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", delete=False, suffix=".json") as f:
             json.dump(extracted_data, f, indent=2)
+            output_file = Path(f.name)
 
         logger.info(f"Run completed {self.__class__.__name__}")
         return dict(prompt_value_file=output_file, code_file=output_file)
