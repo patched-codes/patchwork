@@ -67,9 +67,9 @@ class PreparePrompt(Step):
                 prompt.append(prompt_instance)
             prompts.append(prompt)
 
-        prompt_file = Path(tempfile.mktemp(".json"))
-        with open(prompt_file, "w") as file:
-            json.dump(prompts, file, indent=2)
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".json") as tf:
+            json.dump(prompts, tf, indent=2)
+            prompt_file = Path(tf.name)
 
         logger.info(f"Run completed {self.__class__.__name__}")
         return {"prompt_file": prompt_file}
