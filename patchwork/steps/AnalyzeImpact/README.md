@@ -1,14 +1,56 @@
-## AnalyzeImpact Code Documentation
+# AnalyzeImpact Code Documentation
 
-### Inputs
-The `AnalyzeImpact` module includes a function `find_dependency_usage()` which takes the following inputs:
-- `directory` (str): The root directory of the project.
-- `dependency` (str): The name of the dependency to search for.
-- `language` (str): The programming language (e.g., 'python', 'java', 'javascript', 'typescript', 'go').
-- `methods` (list of str): A list of method names to search for in the usage context of the specified dependency.
+This Python source code is part of `patchwork` project for analyzing the impact of specific library method usage in a project.
 
-### Outputs
-The function `find_dependency_usage()` returns a dictionary mapping file paths to lists of method names from the specified list that are called in the file.
+## Class Definition: AnalyzeImpact
 
-### Usage
-The code analyzes the impact of a specified dependency on a project by searching for its usage in relevant files based on the programming language. It identifies if any of the specified methods associated with the dependency are called within those files. The `AnalyzeImpact` class processes extracted responses related to impacted methods, and then utilizes `find_dependency_usage()` to generate a list of impacted files and their relevant method info. The information is saved to a JSON file for further analysis and processing.
+This class extends Step class and plays a critical role in identifying method impacts within a specific library.
+
+### __init__(self, inputs: dict) Method
+
+The purpose of this method is to initialize the AnalyzeImpact object. 
+
+#### Inputs
+
+The method takes a dictionary with the following keys:
+
+- extracted_responses: A list of extracted responses.
+- library_name: The name of the library to analyze.
+- platform_type: The type of platform.
+
+#### Outputs
+
+No explicit output but the method creates an instance of the AnalyzeImpact class.
+
+### run(self) -> dict Method
+
+This method identifies the methods in the given library that are used in the provided code.
+
+#### Inputs
+
+No extra input is expected aside from the initialized object instance.
+
+#### Outputs
+
+The run method returns a dictionary with the following keys:
+
+- prompt_value_file: A temporary json file that includes the details of code section for the impacted methods.
+- code_file: This also returns the same temporary json file.
+
+
+## Function: find_dependency_usage(directory, dependency, language, methods)
+
+This is a helper function defined outside the class definition.
+
+#### Inputs
+
+The function takes the following parameters:
+
+- directory (str): The root directory of the project.
+- dependency (str): The name of the dependency to search for.
+- language (str): The programming language.
+- methods (list of str): A list of method names to search for in the usage context of the specified dependency.
+
+#### Outputs
+
+It returns a dictionary that maps file paths to lists of method names from the specified list that are called in the file.
