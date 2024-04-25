@@ -52,7 +52,6 @@ class PullRequestProtocol(Protocol):
             return None, None
 
         return start_idx, end_idx
-
     @staticmethod
     def _apply_pr_template(pr: "PullRequestProtocol", body: str) -> str:
         if isinstance(pr, GithubPullRequest):
@@ -66,7 +65,7 @@ class PullRequestProtocol(Protocol):
             # TODO: deal with gitlab line links
             # chunk_link_format = file_link_format + "_{start_line}_{end_line}"
             chunk_link_format = file_link_format + ""
-            anchor_hash = hashlib.sha1
+            anchor_hash = hashlib.sha256
         else:
             return pr.url()
 
