@@ -1,6 +1,6 @@
 import subprocess
-import tempfile
 from pathlib import Path
+from tempfile import NamedTemporaryFile
 
 from patchwork.logger import logger
 from patchwork.step import Step
@@ -17,7 +17,9 @@ class ScanSemgrep(Step):
             return dict()
 
         cwd = Path.cwd()
-        sarif_file_path = Path(tempfile.mktemp(".sarif"))
+
+        with NamedTemporaryFile(mode='w', suffix='.sarif', delete=False) as tmp_file:
+            sarif_file_path = Path(tmp_file.name)
 
         cmd = [
             "semgrep",
