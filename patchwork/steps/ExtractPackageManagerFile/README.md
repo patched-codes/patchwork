@@ -1,26 +1,31 @@
-# Extract Package Manager File
+# ExtractPackageManagerFile Class
 
-## Inputs
+This script defines a class called ExtractPackageManagerFile that uses an existing SBOM VDR (Software Bill of Materials Vulnerability Discovery Results) file to extract and manipulate data from listed components and vulnerabilities.
 
-- **Package Manager File Extraction**:
-    - Directory: Root directory of the project.
-    - Package URL: The Package URL of the dependency.
+## Class Methods
+The two primary methods of ExtractPackageManagerFile class are `__init__` and `run`. 
 
-## Outputs
+### `__init__` Method
+The `__init__` method is the initializer for ExtractPackageManagerFile class. It takes one required argument - `inputs`: a dictionary containing input parameters. This method validates and sets the SBOM VDR file path, as well as sets up instance-specific requirements for data extraction.
 
-- A list of paths to package manager files relevant to the PURL's type found in the specified directory.
-- A dictionary containing paths to the generated prompt value and code files.
-- Log messages during the extraction process.
+#### Inputs
+This method expects a dictionary with the following key(s):
 
-### Description
+- `"sbom_vdr_file_path"`: This is the path to the Software Bill of Materials Vulnerability Discovery Results (SBOM VDR) file.
+- `"package_manager_file"`: This is an optional path to the package manager file. If not provided, the method tries to identify this file from the current directory based on the PURL in SBOM VDR data.
+- `"upgrade_threshold"`: This optional key specifies the level at which the software version can be upgraded. The default value is "major". 
+- `"severity"`: This optional key specifies the severity threshold of vulnerabilities. Its default value is "none".
 
-This Python code consists of three files:
-1. **__init__.py**: Empty file.
-2. **ExtractPackageManagerFile.py**: Defines functions for extracting package manager files based on PackageURL types, transforming version strings to Semantic Versioning format, and extracting relevant data from SBOM VDR files.
-3. **TestExtractPackageManagerFile.py**: Contains unit tests for the `ExtractPackageManagerFile` class.
+### `run` Method
+The `run` method runs the main data extraction and manipulation processes. It extracts the vulnerability information from the SBOM VDR file, maps PURLs to their corresponding source files, identifies affected and unaffected versions, and compiles this data into a structured format. The method then saves the extracted data to a temporary JSON file.
 
-The `ExtractPackageManagerFile` class initializes input parameters, validates required keys, and processes SBOM VDR data to extract component and vulnerability information. It associates PURLs with source file paths, identifies affected and unaffected versions, and compiles this data. It further saves the extracted data as a temporary JSON file and logs execution status.
+#### Inputs
+This method doesn't require any explicit inputs since it works with the attributes initialized by the `__init__` method.
 
-The `run()` method of the `ExtractPackageManagerFile` class loads SBOM VDR data, maps PURLs to source files, processes vulnerabilities, reads source file contents, and compiles the data structure. It generates message updates, prepares update information, and saves data to a JSON file.
+#### Outputs
+This method returns a dictionary with two keys:
 
-The test cases in `TestExtractPackageManagerFile.py` validate the proper functioning of the `ExtractPackageManagerFile` class by creating a temporary SBOM VDR file, executing the extraction process, and checking the generated JSON files for validity.
+- `"prompt_value_file"`: The path of the file containing the extracted data. This file holds a JSON formatted object with information about package manager files and updates.
+- `"code_file"`: The path to the file with the code updates. In this case, it points to the same file as `prompt_value_file`.
+
+Both files are stored in a temporary location.

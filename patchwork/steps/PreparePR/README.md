@@ -1,15 +1,35 @@
-# Patchwork PreparePR Module
+# PreparePR Class
 
-## Inputs
+The `PreparePR` class is a part of the patchwork.step module. It is used to prepare a Pull Request (PR) by taking in modified code files and formatting them appropriately for a PR.
 
-- `modified_code_files`: A list of modified code files.
+## __init__ Method
 
-## Outputs
+The `__init__` method is a constructor that initializes the `PreparePR` object. It requires a dictionary as its input.
 
-- `pr_body`: A formatted PR body that summarizes the changes made to the modified code files.
+### Inputs
 
-### Code
+The input dictionary must include the following key:
 
-The `PreparePR` class is created to prepare a Pull Request body based on the modifications made to a set of code files. The class inherits from a `Step` class. It expects a dictionary of inputs, specifically a list of modified code files. If the required keys are missing, it raises a ValueError.
+- "modified_code_files": A list of modified code files. If the list is less than 1, the method will log a warning message.
 
-The `run` method of the class processes the modified code files, groups them by path, and generates a formatted PR body that includes information about the changes made in each file. The resulting PR body is returned as an output.
+Optionally, the input dictionary can also include the following key:
+
+- "pr_header": A header for the pull request. By default, the header is determined by the number of issues fixed in 'modified_code_files'.
+
+### Outputs
+
+The `__init__` method does not directly return any output. However, it updates the object's instance variables including 'self.modified_code_files' and 'self.header' which can be accessed later.
+
+## run Method
+
+The `run` method is used to generate a pull request by grouping the modified code files by their paths and creating a formatted comment for each file. The method's functionality includes generating links for each file and its respective patches along with their commit messages and patch messages.
+
+### Inputs
+
+This method does not take any explicit inputs.
+
+### Outputs
+
+The `run` method returns a dictionary with the following key:
+
+- "pr_body": A string consisting of the PR header, a divider, and a formatted comment for every modified file. The comment includes links to files and patches along with their commit messages and patch messages. If a commit message or patch message is missing for a given patch, then the comment's format will adapt accordingly.
