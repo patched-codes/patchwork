@@ -274,7 +274,9 @@ class ExtractPackageManagerFile(Step):
 
         # Save extracted data to JSON
 
-        output_file = Path(tempfile.mktemp(".json"))
+        
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".json") as tmp_file:
+            output_file = Path(tmp_file.name)
         with open(output_file, "w", encoding="utf-8") as f:
             json.dump(self.extracted_data, f, indent=2)
 
