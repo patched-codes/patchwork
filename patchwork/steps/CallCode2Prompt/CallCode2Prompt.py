@@ -69,9 +69,9 @@ class CallCode2Prompt(Step):
 
         self.extracted_data.append(data)
 
-        output_file = Path(tempfile.mktemp(".json"))
-        with open(output_file, "w", encoding="utf-8") as f:
+        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", delete=False, suffix=".json") as f:
             json.dump(self.extracted_data, f, indent=2)
+            output_file = Path(f.name)
 
         logger.info(f"Run completed {self.__class__.__name__}")
         return {"prompt_value_file": output_file, "code_file": output_file}
