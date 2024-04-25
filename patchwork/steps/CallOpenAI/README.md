@@ -1,7 +1,33 @@
-## Inputs
-- The code takes in `inputs` as a dictionary containing keys `openai_api_key` and `prompt_file`.
-- It expects `inputs` to contain values for `model`, `model_` prefixed keys related to model arguments, and `client_` prefixed keys related to client arguments.
+# CallOpenAI Class
 
-## Outputs
-- The code runs the OpenAI model based on the provided inputs and generates responses for the given prompts.
-- It returns a dictionary containing the path to the new response file and the list of OpenAI responses generated.
+This Python module contains a class `CallOpenAI` that is intended to make calls to the OpenAI API and get the response. It is designed to be used in the process of running machine learning models with OpenAI.
+
+## Initialization method (__init__)
+
+The initialization method `__init__()` is used to initialize the class with required arguments.
+
+### Inputs
+
+It takes a dictionary as an input. `inputs` dictionary should include the following keys:
+
+- `"openai_api_key"`: The OpenAI API key. If not provided, it will try to fetch it from the environment variable `OPENAI_API_KEY`.
+- `"prompt_file"`: The path to the JSON file that contains the prompts to be sent to OpenAI.
+- `"model"`: The OpenAI model to be used.
+- `"allow_truncated"`: A Boolean flag that, if set as `True`, will allow processing of truncated responses. By default, it is set to `False`.
+- Keys starting with `"model_"`: These are arguments that will be passed to the OpenAI model.
+- Keys starting with `"client_"`: These are arguments that will be passed to the OpenAI client.
+
+### Errors
+
+During initialization, it checks if all required keys are present in the dictionary. If not, it will raise a ValueError. If the `"prompt_file"` does not point to a file or the file is not in proper JSON format, it will raise ValueError.
+
+## Run method
+
+The `run()` method is used to send prompts to the OpenAI API and receive responses from it.
+
+### Outputs
+
+It returns a dictionary with the following keys:
+
+- `"new_code"`: The path to a temporary JSON file which contains the responses received from the OpenAI API.
+- `"openai_responses"`: A list containing the responses from OpenAI.
