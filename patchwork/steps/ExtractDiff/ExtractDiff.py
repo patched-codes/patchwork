@@ -175,12 +175,12 @@ class ExtractDiff(Step):
         self.update_info = inputs["update_info"]
 
         self.inputs = inputs
-
+    
     def run(self) -> dict:
         regex = r"https?://github\.com/(?P<owner>[^/]+)/(?P<repo>[^/]+)"
         base_url = "https://api.github.com/repos/"
         update_info = self.update_info
-
+    
         purl = PackageURL.from_string(update_info["purl"]).to_dict()
         platform_type = purl["type"]
         namespace = purl["namespace"]
@@ -193,7 +193,7 @@ class ExtractDiff(Step):
         if info.status_code != 200:
             logger.info(f"Unable to get repo url for library {name}")
             return {}
-
+    
         repo_url = info.json()["repository_url"]
         try:
             match = re.match(regex, repo_url)
@@ -202,36 +202,36 @@ class ExtractDiff(Step):
         except:
             logger.info(f"Unable to get extract repo and owner for repository_url: {repo_url}")
             return {}
-
+    
         headers = {"Accept": "application/vnd.github.diff", "Authorization": f"Bearer {self.github_token}"}
         compare_url = base_url + owner + "/" + repo + "/compare/"
-
+    
         temp_file_path = None
-
+    
         for vuln_version, fixed_version in generate_version_combinations(vuln_version, fixed_version):
             diff_file = requests.get(compare_url + vuln_version + "..." + fixed_version, headers=headers)
-
+    
             if diff_file.text.startswith("diff"):
-                temp_file_path = tempfile.mktemp()
-                with open(temp_file_path, "w") as file:
+                with tempfile.NamedTemporaryFile(delete=False, mode='w') as file:
+                    temp_file_path = file.name
                     file.write(diff_file.text)
-
+    
         if temp_file_path is None:
             logger.info(
                 f"Unable to generate diff for the repo {compare_url} between versions {vuln_version} and {fixed_version}"
             )
             return {}
-
+    
         diff_sections = get_diff_sections(temp_file_path, _PURL_TO_LANGUAGE_.get(platform_type))
         extracted_data = []
-
+    
         for diff_section in diff_sections:
             extracted_data.append({"diffSection": diff_section})
-
+    
         # Save extracted data to JSON
-        output_file = Path(tempfile.mktemp(".json"))
-        with open(output_file, "w", encoding="utf-8") as f:
+        with tempfile.NamedTemporaryFile(delete=False, mode='w', encoding="utf-8", suffix=".json") as f:
             json.dump(extracted_data, f, indent=2)
-
+            output_file = Path(f.name)
+    
         logger.info(f"Run completed {self.__class__.__name__}")
         return dict(prompt_value_file=output_file, library_name=name, platform_type=platform_type)
