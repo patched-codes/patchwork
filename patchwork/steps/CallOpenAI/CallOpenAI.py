@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import tempfile
 from pathlib import Path
@@ -62,38 +63,43 @@ class CallOpenAI(Step):
                 json.load(fp)
         except json.JSONDecodeError as e:
             raise ValueError(f'Invalid Json Prompt file "{self.prompt_file}": {e}')
-
-    def run(self) -> dict:
-        with open(self.prompt_file, "r") as fp:
-            prompts = json.load(fp)
-
-        client_kwargs = self.client_args.copy()
-        client_kwargs.update(dict(api_key=self.openai_api_key))
-        client = OpenAI(**client_kwargs)
-
-        contents = []
-        for prompt in prompts:
-            kwargs = self.model_args.copy()
-            kwargs.update(dict(messages=prompt))
-            logger.debug(f"Message sent: \n{indent(pformat(prompt), '  ')}")
-            completion = client.chat.completions.create(model=self.model, **kwargs)
-
-            if len(completion.choices) < 1:
-                logger.error(f"No response choice given")
-                contents.append("")
-            elif completion.choices[0].finish_reason == "length":
-                if self.allow_trunctated:
-                    contents.append(completion.choices[0].message.content)
-                else:
-                    logger.error(f"Response truncated because of finish reason = length. Use --allow_truncated option to process truncated responses.")
+    
+    logger = logging.getLogger(__name__)
+    
+    class MyClass:
+        # ... other parts of the class ...
+    
+        def run(self) -> dict:
+            with open(self.prompt_file, "r") as fp:
+                prompts = json.load(fp)
+    
+            client_kwargs = self.client_args.copy()
+            client_kwargs.update(dict(api_key=self.openai_api_key))
+            client = OpenAI(**client_kwargs)
+    
+            contents = []
+            for prompt in prompts:
+                kwargs = self.model_args.copy()
+                kwargs.update(dict(messages=prompt))
+                logger.debug(f"Message sent: \n{indent(pformat(prompt), '  ')}")
+                completion = client.chat.completions.create(model=self.model, **kwargs)
+    
+                if len(completion.choices) < 1:
+                    logger.error(f"No response choice given")
                     contents.append("")
-            else:
-                logger.debug(f"Response received: \n{indent(completion.choices[0].message.content, '  ')}")
-                contents.append(completion.choices[0].message.content)
-
-        response_file = Path(tempfile.mktemp(".json"))
-        with open(response_file, "w") as outfile:
-            json.dump(contents, outfile, indent=2)
-
-        logger.info(f"Run completed {self.__class__.__name__}")
-        return dict(new_code=response_file, openai_responses=contents)
+                elif completion.choices[0].finish_reason == "length":
+                    if self.allow_trunctated:
+                        contents.append(completion.choices[0].message.content)
+                    else:
+                        logger.error(f"Response truncated because of finish reason = length. Use --allow_truncated option to process truncated responses.")
+                        contents.append("")
+                else:
+                    logger.debug(f"Response received: \n{indent(completion.choices[0].message.content, '  ')}")
+                    contents.append(completion.choices[0].message.content)
+    
+            with tempfile.NamedTemporaryFile(delete=False, mode='w', suffix='.json') as outfile:
+                json.dump(contents, outfile, indent=2)
+                response_file = Path(outfile.name)
+    
+            logger.info(f"Run completed {self.__class__.__name__}")
+            return dict(new_code=response_file, openai_responses=contents)
