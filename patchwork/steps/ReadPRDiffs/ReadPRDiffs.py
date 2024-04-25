@@ -54,7 +54,7 @@ class ReadPRDiffs(Step):
                 continue
             prompt_values.append(dict(path=path, diff=diffs))
 
-        prompt_value_file = tempfile.mktemp(".json")
-        with open(prompt_value_file, "w") as fp:
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json') as fp:
             json.dump(prompt_values, fp)
+            prompt_value_file = fp.name
         return dict(prompt_value_file=prompt_value_file, prompt_values=prompt_values)
