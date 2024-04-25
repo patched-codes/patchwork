@@ -1,4 +1,5 @@
 import os
+import logging
 import subprocess
 import tempfile
 
@@ -57,52 +58,56 @@ class ScanDepscan(Step):
         install_cdxgen()
 
         self.language = inputs.get("language", None)
-
-    def run(self) -> dict:
-        """
-        Executes the 'depscan' command-line tool, generating an SBOM (Software Bill of Materials) report.
-
-        This method performs the following operations:
-        - Generates a unique, temporary file path and constructs a directory path from it. This directory is intended
-        to store the 'depscan' reports but note that the directory is not created automatically by this method.
-        - Runs the 'depscan' tool with the specified reports directory. The 'depscan' command is expected to generate
-        an SBOM report in the 'sbom-universal.vdr.json' file within the specified directory.
-        - Logs the completion of the run, including the name of the class that executed the method.
-
-        Returns:
-        - A dictionary containing the path to the generated SBOM report file. The key for this path is 'sbom_vdr_file_path'.
-
-        Side Effects:
-        - A 'depscan' command is executed, which may modify files in the specified directory and generate network traffic
-        if 'depscan' queries external sources for vulnerability data.
-        - Logs the start and completion of the operation to the application's logger.
-
-        Note:
-        - This method assumes that 'depscan' is installed and accessible in the system's PATH.
-        - The generated temporary directory path is based on a temporary file path and is manipulated to be a directory path;
-        however, the directory itself is not automatically created by this method.
-        - The caller is responsible for ensuring that the 'depscan' tool can run successfully and that the specified
-        temporary directory exists and is writable.
-        """
-        # Generate a unique temporary file path
-        temp_file_path = tempfile.mktemp()
-
-        cmd = [
-            "depscan",
-            "--reports-dir",
-            temp_file_path,
-        ]
-
-        if self.language is not None:
-            cmd.append("-t")
-            cmd.append(self.language)
-            sbom_vdr_file_name = "sbom-" + self.language
-        else:
-            sbom_vdr_file_name = "sbom-universal"
-
-        p = subprocess.run(cmd, capture_output=True, text=True)
-
-        sbom_vdr_file_path = os.path.join(temp_file_path, sbom_vdr_file_name + ".vdr.json")
-
-        logger.info(f"Run completed {self.__class__.__name__}")
-        return {"sbom_vdr_file_path": sbom_vdr_file_path}
+    
+    logger = logging.getLogger(__name__)
+    
+    class DepscanRunner:
+        def run(self) -> dict:
+            """
+            Executes the 'depscan' command-line tool, generating an SBOM (Software Bill of Materials) report.
+    
+            This method performs the following operations:
+            - Generates a unique, temporary file path and constructs a directory path from it. This directory is intended
+            to store the 'depscan' reports but note that the directory is not created automatically by this method.
+            - Runs the 'depscan' tool with the specified reports directory. The 'depscan' command is expected to generate
+            an SBOM report in the 'sbom-universal.vdr.json' file within the specified directory.
+            - Logs the completion of the run, including the name of the class that executed the method.
+    
+            Returns:
+            - A dictionary containing the path to the generated SBOM report file. The key for this path is 'sbom_vdr_file_path'.
+    
+            Side Effects:
+            - A 'depscan' command is executed, which may modify files in the specified directory and generate network traffic
+            if 'depscan' queries external sources for vulnerability data.
+            - Logs the start and completion of the operation to the application's logger.
+    
+            Note:
+            - This method assumes that 'depscan' is installed and accessible in the system's PATH.
+            - The generated temporary directory path is based on a temporary file path and is manipulated to be a directory path;
+            however, the directory itself is not automatically created by this method.
+            - The caller is responsible for ensuring that the 'depscan' tool can run successfully and that the specified
+            temporary directory exists and is writable.
+            """
+            # Generate a unique temporary file path
+            with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
+                temp_file_path = tmp_file.name
+    
+            cmd = [
+                "depscan",
+                "--reports-dir",
+                temp_file_path,
+            ]
+    
+            if self.language is not None:
+                cmd.append("-t")
+                cmd.append(self.language)
+                sbom_vdr_file_name = "sbom-" + self.language
+            else:
+                sbom_vdr_file_name = "sbom-universal"
+    
+            p = subprocess.run(cmd, capture_output=True, text=True)
+    
+            sbom_vdr_file_path = os.path.join(temp_file_path, sbom_vdr_file_name + ".vdr.json")
+    
+            logger.info(f"Run completed {self.__class__.__name__}")
+            return {"sbom_vdr_file_path": sbom_vdr_file_path}
