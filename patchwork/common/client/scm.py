@@ -105,6 +105,15 @@ class ScmPlatformClientProtocol(Protocol):
     def set_url(self, url: str) -> None:
         ...
 
+    def get_slug_and_id_from_url(self, url: str) -> tuple[str, int] | None:
+        ...
+
+    def find_issue_by_url(self, url: str) -> list[str] | None:
+        ...
+
+    def find_issue_by_id(self, slug: str, issue_id: int) -> list[str] | None:
+        ...
+
     def get_pr_by_url(self, url: str) -> PullRequestProtocol | None:
         ...
 
@@ -122,6 +131,11 @@ class ScmPlatformClientProtocol(Protocol):
         original_branch: str,
         feature_branch: str,
     ) -> PullRequestProtocol:
+        ...
+
+    def create_issue_comment(
+        self, slug: str, issue_text: str, title: str | None = None, issue_id: int | None = None
+    ) -> str:
         ...
 
 
@@ -263,21 +277,40 @@ class GithubClient(ScmPlatformClientProtocol):
     def set_url(self, url: str) -> None:
         self._url = url
 
-    def get_pr_by_url(self, url: str) -> PullRequestProtocol | None:
+    def get_slug_and_id_from_url(self, url: str) -> tuple[str, int] | None:
         url_parts = url.split("/")
         if len(url_parts) < 5:
-            logger.error(f"Invalid PR URL: {url}")
+            logger.error(f"Invalid issue URL: {url}")
             return None
 
         try:
-            pr_id = url_parts[-1]
+            resource_id = int(url_parts[-1])
         except ValueError:
-            logger.error(f"Invalid PR URL: {url}")
+            logger.error(f"Invalid issue URL: {url}")
             return None
 
         slug = "/".join(url_parts[-4:-2])
 
-        return self.find_pr_by_id(slug, int(pr_id))
+        return slug, resource_id
+
+    def find_issue_by_url(self, url: str) -> list[str] | None:
+        slug, issue_id = self.get_slug_and_id_from_url(url)
+        return self.find_issue_by_id(slug, issue_id)
+
+    def find_issue_by_id(self, slug: str, issue_id: int) -> list[str] | None:
+        repo = self.github.get_repo(slug)
+        try:
+            issue = repo.get_issue(issue_id)
+            body = issue.body
+            comments = [issue_comment.body for issue_comment in issue.get_comments()]
+            return [body] + comments
+        except GithubException as e:
+            logger.warn(f"Failed to get issue: {e}")
+            return None
+
+    def get_pr_by_url(self, url: str) -> PullRequestProtocol | None:
+        slug, pr_id = self.get_slug_and_id_from_url(url)
+        return self.find_pr_by_id(slug, pr_id)
 
     def find_pr_by_id(self, slug: str, pr_id: int) -> PullRequestProtocol | None:
         repo = self.github.get_repo(slug)
@@ -311,6 +344,15 @@ class GithubClient(ScmPlatformClientProtocol):
         pr = GithubPullRequest(gh_pr)
         return pr
 
+    def create_issue_comment(
+        self, slug: str, issue_text: str, title: str | None = None, issue_id: int | None = None
+    ) -> str:
+        repo = self.github.get_repo(slug)
+        if issue_id is not None:
+            return repo.get_issue(issue_id).create_comment(issue_text).html_url
+        else:
+            return repo.create_issue(title, issue_text).html_url
+
 
 class GitlabClient(ScmPlatformClientProtocol):
     DEFAULT_URL = gitlab.const.DEFAULT_URL
@@ -333,21 +375,40 @@ class GitlabClient(ScmPlatformClientProtocol):
             return False
         return self.gitlab.user is not None
 
-    def get_pr_by_url(self, url: str) -> PullRequestProtocol | None:
+    def get_slug_and_id_from_url(self, url: str) -> tuple[str, int] | None:
         url_parts = url.split("/")
         if len(url_parts) < 5:
-            logger.error(f"Invalid PR URL: {url}")
+            logger.error(f"Invalid issue URL: {url}")
             return None
 
         try:
-            pr_id = url_parts[-1]
+            resource_id = int(url_parts[-1])
         except ValueError:
-            logger.error(f"Invalid PR URL: {url}")
+            logger.error(f"Invalid issue URL: {url}")
             return None
 
         slug = "/".join(url_parts[-5:-3])
 
-        return self.find_pr_by_id(slug, int(pr_id))
+        return slug, resource_id
+
+    def find_issue_by_url(self, url: str) -> list[str] | None:
+        slug, issue_id = self.get_slug_and_id_from_url(url)
+        return self.find_issue_by_id(slug, issue_id)
+
+    def find_issue_by_id(self, slug: str, issue_id: int) -> list[str] | None:
+        project = self.gitlab.projects.get(slug)
+        try:
+            issue = project.issues.get(issue_id)
+            body = issue["description"]
+            comments = [note["body"] for note in issue.notes.list()]
+            return [body] + comments
+        except GitlabError as e:
+            logger.warn(f"Failed to get issue: {e}")
+            return None
+
+    def get_pr_by_url(self, url: str) -> PullRequestProtocol | None:
+        slug, pr_id = self.get_slug_and_id_from_url(url)
+        return self.find_pr_by_id(slug, pr_id)
 
     def find_pr_by_id(self, slug: str, pr_id: int) -> PullRequestProtocol | None:
         project = self.gitlab.projects.get(slug)
@@ -395,3 +456,13 @@ class GitlabClient(ScmPlatformClientProtocol):
         )
         mr = GitlabMergeRequest(gl_mr)  # type: ignore
         return mr
+
+    def create_issue_comment(
+        self, slug: str, issue_text: str, title: str | None = None, issue_id: int | None = None
+    ) -> str:
+        if issue_id is not None:
+            obj = self.gitlab.projects.get(slug).issues.get(issue_id).notes.create({"body": issue_text})
+            return obj["web_url"]
+
+        obj = self.gitlab.projects.get(slug).issues.create({"title": title, "description": issue_text})
+        return obj["web_url"]

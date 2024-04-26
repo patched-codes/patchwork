@@ -1,4 +1,11 @@
+from typing import Callable
+
+import tiktoken
 from chardet.universaldetector import UniversalDetector
+from chromadb.api.types import Documents, EmbeddingFunction
+from chromadb.utils import embedding_functions
+
+from patchwork.managed_files import HOME_FOLDER
 
 
 def open_with_chardet(file, mode="r", buffering=-1, errors=None, newline=None, closefd=True, opener=None):
@@ -27,3 +34,66 @@ def open_with_chardet(file, mode="r", buffering=-1, errors=None, newline=None, c
         closefd=closefd,
         opener=opener,
     )
+
+
+_ENCODING = tiktoken.get_encoding("cl100k_base")
+
+
+def count_openai_tokens(code: str):
+    return len(_ENCODING.encode(code))
+
+
+def get_vector_db_path() -> str:
+    CHROMA_DB_PATH = HOME_FOLDER / "chroma.db"
+    if CHROMA_DB_PATH:
+        return str(CHROMA_DB_PATH)
+    else:
+        return ".chroma.db"
+
+
+def openai_embedding_model(inputs: dict) -> EmbeddingFunction[Documents] | None:
+    model = inputs.get(openai_embedding_model.__name__)
+    if model is None:
+        return None
+
+    api_key = inputs.get("openai_api_key")
+    if api_key is None:
+        raise ValueError("Missing required input data: 'openai_api_key'")
+
+    return embedding_functions.OpenAIEmbeddingFunction(
+        api_key=api_key,
+        model_name=model,
+    )
+
+
+def huggingface_embedding_model(inputs: dict) -> EmbeddingFunction[Documents] | None:
+    model = inputs.get(huggingface_embedding_model.__name__)
+    if model is None:
+        return None
+
+    api_key = inputs.get("openai_api_key") or inputs.get("huggingface_api_key")
+    if api_key is None:
+        raise ValueError("Missing required input data: 'openai_api_key' or 'huggingface_api_key'")
+
+    return embedding_functions.HuggingFaceEmbeddingFunction(
+        api_key=api_key,
+        model_name=model,
+    )
+
+
+_EMBEDDING_FUNCS = [openai_embedding_model, huggingface_embedding_model]
+
+_EMBEDDING_TO_API_KEY_NAME: dict[str, Callable[[dict], EmbeddingFunction[Documents] | None]] = {
+    func.__name__: func for func in _EMBEDDING_FUNCS
+}
+
+
+def get_embedding_function(inputs: dict) -> EmbeddingFunction[Documents]:
+    embedding_function = next(
+        (func(inputs) for input_key, func in _EMBEDDING_TO_API_KEY_NAME.items() if input_key in inputs.keys()),
+        embedding_functions.SentenceTransformerEmbeddingFunction(),
+    )
+    if embedding_function is None:
+        raise ValueError(f"Missing required input data: one of {_EMBEDDING_TO_API_KEY_NAME.keys()}")
+
+    return embedding_function

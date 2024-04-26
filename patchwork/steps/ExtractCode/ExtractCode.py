@@ -6,19 +6,11 @@ from collections import defaultdict
 from pathlib import Path
 from urllib.parse import urlparse
 
-import tiktoken
-
 from patchwork.logger import logger
 from patchwork.step import Step
 
-from ...common.utils import open_with_chardet
+from ...common.utils import count_openai_tokens, open_with_chardet
 from .context_strategy.context_strategies import ContextStrategies
-
-_ENCODING = tiktoken.get_encoding("cl100k_base")
-
-
-def count_tokens(code: str):
-    return len(_ENCODING.encode(code))
 
 
 def get_source_code_context(
@@ -34,7 +26,7 @@ def get_source_code_context(
 
         logger.info(f'"{context_strategy.__class__.__name__}" Context Strategy used: {context_start}, {context_end}')
         context = "".join(source_lines[context_start:context_end])
-        if count_tokens(context) <= context_token_length:
+        if count_openai_tokens(context) <= context_token_length:
             return context_start, context_end
 
     return None, None
