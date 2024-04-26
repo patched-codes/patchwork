@@ -6,26 +6,6 @@ from patchwork.common.client.scm import (
 from patchwork.logger import logger
 from patchwork.step import Step
 
-_IGNORED_EXTENSIONS = [
-    ".png",
-    ".jpg",
-    ".jpeg",
-    ".gif",
-    ".svg",
-    ".pdf",
-    ".docx",
-    ".xlsx",
-    ".pptx",
-    ".zip",
-    ".tar",
-    ".gz",
-    ".lock",
-]
-
-
-def filter_by_extension(file, extensions):
-    return any(file.endswith(ext) for ext in extensions)
-
 
 class ReadIssues(Step):
     required_keys = {"issue_url"}

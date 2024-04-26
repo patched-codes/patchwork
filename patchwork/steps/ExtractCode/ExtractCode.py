@@ -9,8 +9,8 @@ from urllib.parse import urlparse
 from patchwork.logger import logger
 from patchwork.step import Step
 
-from ...common.utils import count_openai_tokens, open_with_chardet
-from .context_strategy.context_strategies import ContextStrategies
+from patchwork.common.utils import count_openai_tokens, open_with_chardet
+from patchwork.steps.ExtractCode.context_strategy.context_strategies import ContextStrategies
 
 
 def get_source_code_context(
