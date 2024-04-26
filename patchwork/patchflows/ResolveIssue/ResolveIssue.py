@@ -38,7 +38,7 @@ class ResolveIssue(Step):
         self.inputs[
             "issue_text"
         ] = f"""\
-I have found the following files in the code repository that may be relevant to the issue:
+The following files in the repository may be relevant to the issue:
 
 ------
 

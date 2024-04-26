@@ -86,3 +86,11 @@ jobs:
               echo "Found README.md in $dir"
             fi
           done
+
+      - name: Propose relevant file to issues
+        run: |
+          poetry run patchwork ResolveIssue --log debug \
+          --openai_api_key=${{ secrets.OPENAI_KEY }} \
+          --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
+          --issue_url=https://github.com/patched-codes/patchwork/issues/20
+          --openai_embedding_model=text-embedding-3-small

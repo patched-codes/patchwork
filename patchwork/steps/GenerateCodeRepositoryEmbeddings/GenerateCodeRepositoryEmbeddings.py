@@ -13,7 +13,33 @@ from patchwork.step import Step
 from patchwork.steps.GenerateEmbeddings.GenerateEmbeddings import GenerateEmbeddings
 
 _EXTENSION_WHITELIST = [
+    # JavaScript
+    ".js",
+    ".ts",
+    ".jsx",
+    ".tsx",
+    # Python
     ".py",
+    # Java
+    ".java",
+    # C#
+    ".cs",
+    ".csx",
+    # C++
+    ".cpp",
+    ".hpp",
+    ".cxx",
+    ".hxx",
+    # C
+    ".c",
+    ".h",
+    # PHP
+    ".php",
+    ".php3",
+    ".php4",
+    ".php5",
+    # Go
+    ".go",
 ]
 
 _DIRECTORY_BLACKLIST = [
