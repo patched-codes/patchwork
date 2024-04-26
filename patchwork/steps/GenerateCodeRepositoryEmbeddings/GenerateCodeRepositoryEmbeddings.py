@@ -107,9 +107,17 @@ class GenerateCodeRepositoryEmbeddings(Step):
 
             text_hash = hash_text(text)
 
+            documents_to_add = [dict(
+                id=file,
+                document=text,
+                hash=text_hash,
+                created_at=int(time.time()),
+                path=file,
+            )]
             if reference_collection is not None:
                 result = reference_collection.get(where={"hash": text_hash}, include=["metadatas", "embeddings"])
                 if len(result["ids"]) > 0:
+                    documents_to_add = []
                     for embedding_id, embedding, metadata in zip(
                         result["ids"], result["embeddings"], result["metadatas"]
                     ):
@@ -117,27 +125,13 @@ class GenerateCodeRepositoryEmbeddings(Step):
                             key: value for key, value in metadata.items() if key not in ["id", "embedding"]
                         }
                         original_metadata["path"] = file
-                        documents.append(dict(id=embedding_id, embedding=embedding, **original_metadata))
-                else:
-                    documents.append(
-                        dict(
-                            id=file,
-                            document=text,
-                            hash=text_hash,
-                            created_at=int(time.time()),
-                            path=file,
-                        )
-                    )
-            else:
-                documents.append(
-                    dict(
-                        id=file,
-                        document=text,
-                        hash=text_hash,
-                        created_at=int(time.time()),
-                        path=file,
-                    )
-                )
+                        documents_to_add.append(dict(
+                            id=embedding_id,
+                            embedding=embedding,
+                            **original_metadata
+                        ))
+
+            documents.extend(documents_to_add)
 
         self.inputs.update(dict(embedding_name=embedding_name, documents=documents))
         outputs = GenerateEmbeddings(self.inputs).run()
