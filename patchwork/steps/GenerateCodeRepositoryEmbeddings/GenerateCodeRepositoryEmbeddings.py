@@ -70,7 +70,7 @@ def batch(iterable, n=1):
 
 def hash_text(text: str | list[str]) -> str:
     full_text = text if isinstance(text, str) else "".join(text)
-    return hashlib.sha1(full_text.encode()).hexdigest()
+    return hashlib.sha256(full_text.encode()).hexdigest()
 
 
 class GenerateCodeRepositoryEmbeddings(Step):
