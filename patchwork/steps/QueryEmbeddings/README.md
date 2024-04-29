@@ -1,16 +1,23 @@
-## QueryEmbeddings.py
+# Documentation for `QueryEmbeddings.py`
 
-### Inputs:
-- `inputs`: A dictionary containing keys "embedding_name" and "texts", and optional keys "top_k" and "token_limit".
+## Inputs
+- Module imports:
+  - `chromadb`
+  - `get_embedding_function` from `patchwork.common.utils`
+  - `get_vector_db_path` from `patchwork.common.utils`
+- Classes:
+  - `QueryEmbeddings` (extending `Step` class)
+- Attributes:
+  - `required_keys` set to `{"embedding_name", "texts"}`
+- Methods:
+  - `__init__` method taking `inputs` dict as a parameter to initialize the class instance.
+  - `run` method to execute the functionality of querying embeddings.
 
-### Outputs:
-- `embedding_results`: A list of dictionaries containing document details and distances, sorted by distance.
+## Outputs
+- A dictionary containing the embedded results of the queried texts. The output includes:
+  - `embedding_results` key with a value being a sorted list of embedding results by distance.
 
-### Code:
-- Imports necessary modules from the project.
-- Defines a class `QueryEmbeddings` inheriting from `Step`.
-- Initializes the class with input data, identifies required keys, and sets up connection to a database.
-- Executes a query on input texts, filters results based on token count and distance.
-- Returns a sorted list of document details and distances based on the query results.
-
-This code seems to be a part of a larger project involving querying embeddings of texts and returning relevant information based on the query results.
+## Usage
+The `QueryEmbeddings` class is designed to query embeddings for a list of texts using a specified embedding function and a given embedding name. 
+- Users can pass the required inputs to the `__init__` method to create an instance of `QueryEmbeddings`.
+- The `run` method executes the query process and returns the dictionary with the embedding results sorted by distance, respecting the specified token limit.
