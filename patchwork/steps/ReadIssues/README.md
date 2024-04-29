@@ -1,14 +1,16 @@
-## Documentation: ReadIssues Step
+## Patchwork ReadIssues Module
 
 ### Inputs
-- **Required Keys:** `issue_url`
-- **Optional Keys:** `github_api_key`, `gitlab_api_key`, `scm_url`
-- **Parameters:**
-  - `inputs`: A dictionary containing required and optional keys for configuring the step.
+- The `ReadIssues` class in `ReadIssues.py` expects a dictionary `inputs` containing the following keys:
+  - `issue_url`: URL of the issue
+  - `github_api_key`: API key for GitHub (optional, can be provided if working with GitHub issues)
+  - `gitlab_api_key`: API key for GitLab (optional, can be provided if working with GitLab issues)
+  - `scm_url`: URL of the source code management platform
 
 ### Outputs
-- **Returns:**
-  - A dictionary with the issue text extracted from the provided issue URL.
+- The `ReadIssues` class provides a `run` method that returns a dictionary containing the issue text associated with the provided `issue_url`.
 
-### Description
-The `ReadIssues` step is a class that extends `Step` and is responsible for reading and extracting issue text from a specified issue URL on GitHub or Gitlab. It uses a SCM client based on the provided API key to access the issue information. The step filters out certain file extensions from the issues such as images and documents. The primary functionality includes initialization, checking input data, retrieving issue text, and providing the extracted issue text as output.
+### Usage
+- The `ReadIssues` class reads issues from a source code management platform (GitHub or GitLab) using the provided API keys and URL.
+- It ensures the required input keys are present, selects the appropriate SCM client based on the provided API key, sets the SCM URL, and retrieves the issue text based on the provided issue URL.
+- Users can initiate the `RunIssues` class by providing the necessary inputs and then executing the `run` method to obtain the issue text data.
