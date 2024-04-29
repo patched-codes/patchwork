@@ -81,79 +81,6 @@ The [patchwork-configs](https://github.com/patched-codes/patchwork-configs) repo
 patchwork AutoFix --config /path/to/patchwork-configs/patchflows
 ```
 
-## PatchWork in CI
-
-You can also run PatchWork in a CI environment with ease:
-
-### Jenkins CI
-
-```groovy
-pipeline {
-  agent any
-    stages {
-      stage('Auto Fix Vulnerabilities') {
-        steps {
-          sh 'pip3 install patchwork'
-          sh 'patchwork AutoFix'
-      }
-    }
-  }
-}
-```
-
-### GitHub Actions
-
-- **Workflow**
-```yaml
-name: Auto Fix Vulnerabilities
-
-on:
-  # Patch files in PRs (diff-aware scanning):
-  pull_request: {}
-  # Patch on-demand through GitHub Actions interface:
-  workflow_dispatch: {}
-
-jobs:
-  patchwork:
-    # User definable name of this GitHub Actions job.
-    name: patchwork/ci
-    runs-on: ubuntu-latest
-
-    container:
-      # A Docker image with patchwork installed. Do not change this.
-      image: patched-codes/patchwork
-
-    steps:
-      # Fetch project source with GitHub Actions Checkout.
-      - uses: actions/checkout@v3
-      # Run the "patchwork" command on the command line of the docker image.
-      - run: patchwork AutoFix
-```
-
-- **Action (Available on Github Marketplace)**
-
-```yaml
-- name: Auto Fix Vulnerabilities
-  uses: patchwork/AutoFix@main
-```
-
-### Gitlab CI
-
-```yaml
-patchwork:
-  # A Docker image with PatchWork installed.
-  image: patched-codes/patchwork
-  # Run "patchwork" command on the command line of the docker image.
-  script: patchwork AutoFix
-
-  rules:
-  # Patch changed files in MRs, (diff-aware patching):
-  - if: $CI_MERGE_REQUEST_IID
-
-  # Patch mainline (default) branches and fix all findings.
-  - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-```
-
 ## Patchflows
 
 Patchwork comes with a set of predefined patchflows, and more will be added over time. Below is a sample list of patchflows:
@@ -171,10 +98,12 @@ Below is a sample prompt template:
 
 ```json
 {
-    "id": "ReviewPR",
+  "id": "diffreview_summary",
     "prompts": [
-        {"role": "system", "content": "You are a helpful assistant."},
-        {"role": "user", "content": "Create a well-structured message for the pull request body based on a review of the code diff. CODE DIFF - {{prDiff}}"}
+      {
+        "role": "user",
+        "content": "Summarize the following code change descriptions in 1 paragraph. {{diffreviews}}"
+      }
     ]
 }
 ```

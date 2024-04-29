@@ -27,6 +27,7 @@ class CallOpenAI(Step):
             raise ValueError(f'Missing required data: "{self.required_keys}"')
 
         self.model = inputs["model"]
+        self.allow_trunctated = inputs.get("allow_truncated", False)
         self.model_args = {key[len("model_") :]: value for key, value in inputs.items() if key.startswith("model_")}
         self.client_args = {key[len("client_") :]: value for key, value in inputs.items() if key.startswith("client_")}
 
@@ -81,8 +82,11 @@ class CallOpenAI(Step):
                 logger.error(f"No response choice given")
                 contents.append("")
             elif completion.choices[0].finish_reason == "length":
-                logger.error(f"Response truncated because of finish reason = length")
-                contents.append("")
+                if self.allow_trunctated:
+                    contents.append(completion.choices[0].message.content)
+                else:
+                    logger.error(f"Response truncated because of finish reason = length. Use --allow_truncated option to process truncated responses.")
+                    contents.append("")
             else:
                 logger.debug(f"Response received: \n{indent(completion.choices[0].message.content, '  ')}")
                 contents.append(completion.choices[0].message.content)

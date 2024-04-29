@@ -1,7 +1,11 @@
+# AutoFix Inputs
+compatibility: unknown
+
 # ExtractCode Inputs
 vulnerability_limit: 10
 context_size: 1000
-# sari_file_path should point to the generated SARIF file relative to the working directory
+severity: unknown
+# sarif_file_path should point to the generated SARIF file relative to the working directory
 # sarif_file_path: /mnt/data/sarif.json
 
 # PreparePrompt Inputs
