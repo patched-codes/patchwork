@@ -66,7 +66,7 @@ def batch(iterable, n=1):
     l = len(iterable)
     for ndx in range(0, l, n):
         yield islice(iterable, ndx, min(ndx + n, l))
-import hashlib
+
 
 def hash_text(text: str | list[str]) -> str:
     full_text = text if isinstance(text, str) else "".join(text)
