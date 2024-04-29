@@ -40,6 +40,8 @@ _EXTENSION_WHITELIST = [
     ".php5",
     # Go
     ".go",
+    # HTML
+    ".html",
 ]
 
 _DIRECTORY_BLACKLIST = [
@@ -111,8 +113,10 @@ class GenerateCodeRepositoryEmbeddings(Step):
             pass
 
         reference_collection = None
+        is_exact_collection = False
         try:
             reference_collection = self.client.get_collection(embedding_name)
+            is_exact_collection = True
         except ValueError as e:
             for collection in self.client.list_collections():
                 if not collection.name.startswith(base_embedding_name):
@@ -121,6 +125,7 @@ class GenerateCodeRepositoryEmbeddings(Step):
                 break
 
         documents = []
+        found_reference_ids = set()
         for file in files:
             try:
                 with open_with_chardet(file, "r") as fp:
@@ -141,7 +146,10 @@ class GenerateCodeRepositoryEmbeddings(Step):
                 path=file,
             )]
             if reference_collection is not None:
-                result = reference_collection.get(where={"hash": text_hash}, include=["metadatas", "embeddings"])
+                result = reference_collection.get(
+                    where={"$and": [{"hash": text_hash}, {"path": file}]},
+                    include=["metadatas", "embeddings"]
+                )
                 if len(result["ids"]) > 0:
                     documents_to_add = []
                     for embedding_id, embedding, metadata in zip(
@@ -151,6 +159,7 @@ class GenerateCodeRepositoryEmbeddings(Step):
                             key: value for key, value in metadata.items() if key not in ["id", "embedding"]
                         }
                         original_metadata["path"] = file
+                        found_reference_ids.add(embedding_id)
                         documents_to_add.append(dict(
                             id=embedding_id,
                             embedding=embedding,
@@ -158,6 +167,11 @@ class GenerateCodeRepositoryEmbeddings(Step):
                         ))
 
             documents.extend(documents_to_add)
+
+        if is_exact_collection and reference_collection is not None and len(found_reference_ids) > 0:
+            unused_ids = set(reference_collection.get(include=[])["ids"]) - found_reference_ids
+            if len(unused_ids) > 0:
+                reference_collection.delete(ids=list(unused_ids))
 
         self.inputs.update(dict(embedding_name=embedding_name, documents=documents))
         outputs = GenerateEmbeddings(self.inputs).run()
