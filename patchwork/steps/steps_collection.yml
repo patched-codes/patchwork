@@ -1,0 +1,128 @@
+AnalyzeImpact:
+  inputs:
+    - extracted_responses
+    - library_name
+    - platform_type
+  outputs:
+    - prompt_value_file
+    - code_file
+CallCode2Prompt:
+  inputs:
+    - folder_path
+    - filter # optional
+    - suppress_comments # optional
+  outputs:
+    - prompt_value_file
+    - code_file
+CallOpenAI:
+  inputs:
+    - openai_api_key
+    - prompt_file
+    - model
+    - allow_truncated
+  outputs:
+    - new_code
+    - openai_responses
+CommitChanges:
+  inputs:
+    - modified_code_files
+    - disable_branch # optional 
+    - force_branch_creation # optional
+    - branch_prefix # optional
+    - branch_suffix # optional
+  outputs:
+    - base_branch
+    - target_branch
+CreatePR:
+  inputs:
+    - target_branch
+    - disable_pr # optional
+    - pr_body # optional
+    - pr_title # optional
+    - force_pr_creation # optional
+    - base_branch # optional
+    - github_api_key # either github_api_key or gitlab_api_key needs to be set
+    - gitlab_api_key # either github_api_key or gitlab_api_key needs to be set
+    - scm_url # optional
+  outputs:
+    - pr_url
+CreatePRComment:
+  inputs:
+    - pr_url
+    - pr_comments
+    - github_api_key # either github_api_key or gitlab_api_key needs to be set
+    - gitlab_api_key # either github_api_key or gitlab_api_key needs to be set
+    - scm_url # optional
+  outputs:
+ExtractCode:
+  inputs:
+    - sarif_file_path
+    - context_size # optional
+    - vulnerability_limit # optional
+    - severity # optional
+  outputs:
+    - code_file
+    - prompt_values
+ExtractDiff:
+  inputs:
+    - github_api_key
+    - libraries_api_key
+    - update_info
+  outputs:
+    - prompt_value_file
+    - library_name
+    - platform_type
+ExtractModelResponse:
+  inputs:
+    - openai_responses
+    - response_partitions # optional
+  outputs:
+    - extracted_responses
+ExtractPackageManagerFile:
+  inputs:
+    - sbom_vdr_file_path
+    - package_manager_file
+    - upgrade_threshold
+    - severity
+  outputs:
+    - prompt_value_file
+    - code_file
+ModifyCode:
+  inputs:
+    - code_file
+    - extracted_responses
+  outputs:
+    - modified_code_files
+PreparePR:
+  inputs:
+    - modified_code_files
+    - pr_header # optional
+  outputs:
+    - pr_body
+PreparePrompt:
+  inputs:
+    - prompt_template_file
+    - prompt_id
+    - prompt_value_file # either prompt_value_file or prompt_values needs to be set
+    - prompt_values # either prompt_value_file or prompt_values needs to be set
+  outputs:
+    - prompt_file
+ReadPRDiffs:
+  inputs:
+    - pr_url
+    - github_api_key # either github_api_key or gitlab_api_key needs to be set
+    - gitlab_api_key # either github_api_key or gitlab_api_key needs to be set
+    - scm_url # optional
+  outputs:
+    - prompt_value_file
+    - prompt_values
+ScanDepscan:
+  inputs:
+    - language # optional
+  outputs:
+    - sbom_vdr_file_path
+ScanSemgrep:
+  inputs:
+    - sarif_file_path # optional
+  outputs:
+    - sarif_file_path

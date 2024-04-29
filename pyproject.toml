@@ -45,6 +45,9 @@ chardet = "^5.2.0"
 open-interpreter = "~0.2.4"
 # pinning transitive dependencies
 orjson = "~3.9.15"
+streamlit = "~1.33.0"
+streamlit-flow-component = "~0.6.1"
+streamlit_code_editor = "~0.1.12"
 
 [tool.poetry.group.dev.dependencies]
 setuptools = "*"
