@@ -11,6 +11,8 @@ _DEFAULT_STEPS_FILE = Path(__file__).parent / "steps" / "steps_collection.yml"
 steps_collection = yaml.safe_load(_DEFAULT_STEPS_FILE.read_text())
 step_names = list(steps_collection.keys())
 
+st.set_page_config(layout="wide")
+
 def add_popup(element):
     if element not in st.session_state.step_details:
         st.session_state.step_details.append(element)
@@ -67,7 +69,7 @@ class MyPatchFlow(Step):
                     code += node_code[0]
                     code += f'''
         self.inputs.update(outputs_{edge.source})'''
-        
+                    
                 source = edge.target
                 edges_done.append(edge.id)
                 
