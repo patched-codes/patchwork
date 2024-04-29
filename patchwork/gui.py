@@ -69,7 +69,7 @@ class MyPatchFlow(Step):
                     code += node_code[0]
                     code += f'''
         self.inputs.update(outputs_{edge.source})'''
-                    
+        
                 source = edge.target
                 edges_done.append(edge.id)
                 
@@ -89,11 +89,11 @@ options = st.multiselect("Choose the steps to create your patchflow", step_names
 
 c1, c2, c3 = st.columns(3)
 with c1:
-    create = st.button("Create Patchflow", use_container_width=True)
+    create = st.button("Generate Patchflow", use_container_width=True)
 with c2:
-    run = st.button("Run Patchflow", use_container_width=True)
-with c3:
     clear = st.button("Reset Patchflow", use_container_width=True)
+with c3:
+    run = st.button("Run Patchflow", use_container_width=True)
 
 col1, col2 = st.columns([1, 3])
 
