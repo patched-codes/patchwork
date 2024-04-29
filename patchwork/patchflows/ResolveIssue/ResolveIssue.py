@@ -34,7 +34,7 @@ class ResolveIssue(Step):
         outputs = QueryEmbeddings(self.inputs).run()
         self.inputs.update(outputs)
 
-        issue_list_test = "* " + "\n* ".join([result["path"] for result in self.inputs["embedding_results"]])
+        issue_list_text = "* " + "\n* ".join([result["path"] for result in self.inputs["embedding_results"]])
         self.inputs[
             "issue_text"
         ] = f"""\
@@ -42,7 +42,7 @@ The following files in the repository may be relevant to the issue:
 
 ------
 
-{issue_list_test}
+{issue_list_text}
 """
 
         outputs = CreateIssueComment(self.inputs).run()
