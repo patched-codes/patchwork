@@ -9,7 +9,7 @@ PROMPT_TEMPLATE_FILE_KEY = "prompt_template_file"
 
 
 class PreparePrompt(Step):
-    required_keys = {("%s" % PROMPT_TEMPLATE_FILE_KEY), "prompt_id"}
+    required_keys = {PROMPT_TEMPLATE_FILE_KEY, "prompt_id"}
 
     def __init__(self, inputs: dict):
         logger.info(f"Run started {self.__class__.__name__}")
