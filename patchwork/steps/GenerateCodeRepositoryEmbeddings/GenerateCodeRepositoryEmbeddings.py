@@ -138,17 +138,18 @@ class GenerateCodeRepositoryEmbeddings(Step):
 
             text_hash = hash_text(text)
 
-            documents_to_add = [dict(
-                id=file,
-                document=text,
-                hash=text_hash,
-                created_at=int(time.time()),
-                path=file,
-            )]
+            documents_to_add = [
+                dict(
+                    id=file,
+                    document=text,
+                    hash=text_hash,
+                    created_at=int(time.time()),
+                    path=file,
+                )
+            ]
             if reference_collection is not None:
                 result = reference_collection.get(
-                    where={"$and": [{"hash": text_hash}, {"path": file}]},
-                    include=["metadatas", "embeddings"]
+                    where={"$and": [{"hash": text_hash}, {"path": file}]}, include=["metadatas", "embeddings"]
                 )
                 if len(result["ids"]) > 0:
                     documents_to_add = []
@@ -160,11 +161,7 @@ class GenerateCodeRepositoryEmbeddings(Step):
                         }
                         original_metadata["path"] = file
                         found_reference_ids.add(embedding_id)
-                        documents_to_add.append(dict(
-                            id=embedding_id,
-                            embedding=embedding,
-                            **original_metadata
-                        ))
+                        documents_to_add.append(dict(id=embedding_id, embedding=embedding, **original_metadata))
 
             documents.extend(documents_to_add)
 

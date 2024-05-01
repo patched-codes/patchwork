@@ -46,6 +46,7 @@ chromadb = "~0.4.24"
 sentence-transformers = "~2.7.0"
 # pinning transitive dependencies
 orjson = "~3.9.15"
+torch = "~2.2.2"
 streamlit = "~1.33.0"
 streamlit-flow-component = "~0.6.1"
 streamlit_code_editor = "~0.1.12"

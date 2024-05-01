@@ -8,11 +8,12 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
+from patchwork.common.utils import count_openai_tokens, open_with_chardet
 from patchwork.logger import logger
 from patchwork.step import Step
-
-from patchwork.common.utils import count_openai_tokens, open_with_chardet
-from patchwork.steps.ExtractCode.context_strategy.context_strategies import ContextStrategies
+from patchwork.steps.ExtractCode.context_strategy.context_strategies import (
+    ContextStrategies,
+)
 
 
 def get_source_code_context(
