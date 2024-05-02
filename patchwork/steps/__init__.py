@@ -1,6 +1,6 @@
 from patchwork.steps.AnalyzeImpact.AnalyzeImpact import AnalyzeImpact
 from patchwork.steps.CallCode2Prompt.CallCode2Prompt import CallCode2Prompt
-from patchwork.steps.CallLLM.CallOpenAI import CallLLM
+from patchwork.steps.CallLLM.CallLLM import CallLLM
 from patchwork.steps.CommitChanges.CommitChanges import CommitChanges
 from patchwork.steps.CreateIssueComment.CreateIssueComment import CreateIssueComment
 from patchwork.steps.CreatePR.CreatePR import CreatePR

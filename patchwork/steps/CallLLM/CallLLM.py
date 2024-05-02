@@ -20,9 +20,11 @@ class LLMModel(Protocol):
     def call(self, prompts) -> list[str]:
         pass
 
+
 class CallGemini(LLMModel):
-    def __init__(self, model: str, model_args: dict[str, Any], client_args: dict[str, Any], key: str,
-                 allow_truncated: bool):
+    def __init__(
+        self, model: str, model_args: dict[str, Any], client_args: dict[str, Any], key: str, allow_truncated: bool
+    ):
         client_values = client_args.copy()
 
         self.model = model
@@ -38,10 +40,7 @@ class CallGemini(LLMModel):
                 response = requests.post(
                     f"{self.base_url}/models/{self.model}:generateContent",
                     params=dict(key=self.api_key),
-                    json=dict(
-                        generationConfig=self.model_args,
-                        contents=[dict(parts=[dict(text=prompt)])]
-                    ),
+                    json=dict(generationConfig=self.model_args, contents=[dict(parts=[dict(text=prompt)])]),
                 )
                 response.raise_for_status()
                 response_dict = response.json()
@@ -50,12 +49,7 @@ class CallGemini(LLMModel):
                 continue
 
             candidate = response_dict.get("candidates", [{}])[0]
-            text_response = (
-                candidate
-                .get("content", {})
-                .get("parts", [{}])[0]
-                .get("text", "")
-            )
+            text_response = candidate.get("content", {}).get("parts", [{}])[0].get("text", "")
             if text_response == "":
                 logger.error(f"No response choice given")
                 content = ""
@@ -78,8 +72,9 @@ class CallGemini(LLMModel):
 
 
 class CallOpenAI(LLMModel):
-    def __init__(self, model: str, model_args: dict[str, Any], client_args: dict[str, Any], key: str,
-                 allow_truncated: bool):
+    def __init__(
+        self, model: str, model_args: dict[str, Any], client_args: dict[str, Any], key: str, allow_truncated: bool
+    ):
         self.model = model
         self.model_args = model_args
         self.allow_truncated = allow_truncated
@@ -151,7 +146,7 @@ class CallLLM(Step):
                 model_args=self.model_args,
                 client_args=self.client_args,
                 key=self.openai_api_key,
-                allow_truncated=inputs.get("allow_truncated", False)
+                allow_truncated=inputs.get("allow_truncated", False),
             )
             return
 
@@ -162,7 +157,7 @@ class CallLLM(Step):
                 model_args=self.model_args,
                 client_args=self.client_args,
                 key=google_key,
-                allow_truncated=inputs.get("allow_truncated", False)
+                allow_truncated=inputs.get("allow_truncated", False),
             )
             return
 
