@@ -46,6 +46,7 @@ chromadb = "~0.4.24"
 sentence-transformers = "~2.7.0"
 # pinning transitive dependencies
 orjson = "~3.9.15"
+torch = "~2.2.2"
 
 [tool.poetry.group.dev.dependencies]
 setuptools = "*"

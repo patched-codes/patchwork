@@ -85,7 +85,9 @@ class CallOpenAI(Step):
                 if self.allow_trunctated:
                     contents.append(completion.choices[0].message.content)
                 else:
-                    logger.error(f"Response truncated because of finish reason = length. Use --allow_truncated option to process truncated responses.")
+                    logger.error(
+                        f"Response truncated because of finish reason = length. Use --allow_truncated option to process truncated responses."
+                    )
                     contents.append("")
             else:
                 logger.debug(f"Response received: \n{indent(completion.choices[0].message.content, '  ')}")

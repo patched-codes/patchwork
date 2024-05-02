@@ -8,11 +8,12 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
+from patchwork.common.utils import count_openai_tokens, open_with_chardet
 from patchwork.logger import logger
 from patchwork.step import Step
-
-from patchwork.common.utils import count_openai_tokens, open_with_chardet
-from patchwork.steps.ExtractCode.context_strategy.context_strategies import ContextStrategies
+from patchwork.steps.ExtractCode.context_strategy.context_strategies import (
+    ContextStrategies,
+)
 
 
 def get_source_code_context(
@@ -238,7 +239,7 @@ def transform_sarif_results(
                 start = context_start if context_start is not None else start_line
                 end = context_end if context_end is not None else end_line
 
-                grouped_messages[(uri, start, end, source_code_context)].append(
+                grouped_messages[(file_path, start, end, source_code_context)].append(
                     result.get("message", {}).get("text", "")
                 )
 
