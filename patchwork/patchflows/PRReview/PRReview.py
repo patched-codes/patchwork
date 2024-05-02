@@ -1,7 +1,5 @@
 from pathlib import Path
-
 import yaml
-
 from patchwork.step import Step
 from patchwork.steps import (
     CallOpenAI,
@@ -12,10 +10,8 @@ from patchwork.steps import (
     ReadPRDiffs,
 )
 
-_DEFAULT_PROMPT_JSON = Path(__file__).parent / "pr_review_prompt.json"
-_DEFAULT_INPUT_FILE = Path(__file__).parent / "defaults.yml"
-
-
+_DEFAULT_PROMPT_JSON = Path(__file__).parent / "config" / "pr_review_prompt.json"
+_DEFAULT_INPUT_FILE = Path(__file__).parent / "config" / "defaults.yml"
 _NONE = "none"
 _SHORT = "short"
 _LONG = "long"
