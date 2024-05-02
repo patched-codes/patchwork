@@ -11,7 +11,7 @@ if "step_details" not in st.session_state:
 
 if "step_nodes" not in st.session_state:
     st.session_state.step_nodes = []
-    
+
 if "step_edges" not in st.session_state:
     st.session_state.step_edges = []
 
@@ -25,13 +25,16 @@ st.set_page_config(
     layout="wide",
 )
 
+
 def add_popup(element):
     if element not in st.session_state.step_details:
         st.session_state.step_details.append(element)
-        
+
+
 def clear_patchflow():
     st.session_state.step_details = []
     st.session_state.step_edges = []
+
 
 def generate_code(nodes=st.session_state.step_nodes, edges=st.session_state.step_edges):
     step_nodes = nodes
@@ -99,8 +102,9 @@ class MyPatchFlow(Step):
 
     code += """
         return self.inputs
-"""     
+"""
     return code
+
 
 options = st.multiselect("Choose the steps to create your patchflow", step_names)
 
@@ -112,8 +116,8 @@ with c2:
 with c3:
     run = st.button("Run Patchflow", use_container_width=True, disabled=True)
 
+
 def render_patchflow():
-    
     col1, col2 = st.columns([1, 3])
 
     with col1:
@@ -126,7 +130,6 @@ def render_patchflow():
             st.json(step_json)
 
     with col2:
-        
         step_nodes = []
         i = 0
         x = 200
@@ -146,7 +149,7 @@ def render_patchflow():
                 "fontWeight": "bold",
             },
         )
-        
+
         step_nodes.append(start_node)
 
         for step in options:
@@ -166,9 +169,9 @@ def render_patchflow():
                     # "fontWeight": "bold",
                 },
             )
-            
+
             n = [n for n in step_nodes if n.id == node.id]
-            if not n:  
+            if not n:
                 step_nodes.append(node)
                 y += 100
 
@@ -179,17 +182,18 @@ def render_patchflow():
             fit_view=True,
             get_node_on_click=True,
             get_edge_on_click=True,
-            direction="right"
+            direction="right",
         )
-        
+
         st.session_state.step_nodes = step_nodes
-        
+
         return element
+
 
 element = render_patchflow()
 
 if generate:
-    _ , cl2 = st.columns([1, 3])
+    _, cl2 = st.columns([1, 3])
     with cl2:
         code_editor(code=generate_code())
 
