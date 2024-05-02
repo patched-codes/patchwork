@@ -5,7 +5,7 @@ import yaml
 from patchwork.step import Step
 from patchwork.steps import (
     CallCode2Prompt,
-    CallOpenAI,
+    CallLLM,
     CommitChanges,
     CreatePR,
     ExtractModelResponse,
@@ -47,7 +47,7 @@ class GenerateREADME(Step):
         self.inputs["response_partitions"] = {"patch": []}
         outputs = PreparePrompt(self.inputs).run()
         self.inputs.update(outputs)
-        outputs = CallOpenAI(self.inputs).run()
+        outputs = CallLLM(self.inputs).run()
         self.inputs.update(outputs)
         outputs = ExtractModelResponse(self.inputs).run()
         self.inputs.update(outputs)

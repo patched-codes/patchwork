@@ -7,7 +7,7 @@ import yaml
 from patchwork.logger import logger
 from patchwork.step import Step
 from patchwork.steps import (
-    CallOpenAI,
+    CallLLM,
     CommitChanges,
     CreatePR,
     ExtractCode,
@@ -71,7 +71,7 @@ class AutoFix(Step):
         for i in range(self.n):
             outputs = PreparePrompt(self.inputs).run()
             self.inputs.update(outputs)
-            outputs = CallOpenAI(self.inputs).run()
+            outputs = CallLLM(self.inputs).run()
             self.inputs.update(outputs)
             outputs = ExtractModelResponse(self.inputs).run()
             self.inputs.update(outputs)

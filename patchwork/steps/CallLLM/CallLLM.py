@@ -1,0 +1,190 @@
+import json
+import os
+import tempfile
+from pathlib import Path
+from pprint import pformat
+from textwrap import indent
+from typing import Any, Protocol
+
+import requests
+from openai import OpenAI
+
+from patchwork.logger import logger
+from patchwork.step import Step
+
+_TOKEN_URL = "https://app.patched.codes/signin"
+_DEFAULT_PATCH_URL = "https://patchwork.patched.codes/v1"
+
+
+class LLMModel(Protocol):
+    def call(self, prompts) -> list[str]:
+        pass
+
+class CallGemini(LLMModel):
+    def __init__(self, model: str, model_args: dict[str, Any], client_args: dict[str, Any], key: str,
+                 allow_truncated: bool):
+        client_values = client_args.copy()
+
+        self.model = model
+        self.base_url = client_values.pop("base_url", "https://generativelanguage.googleapis.com/v1")
+        self.model_args = model_args
+        self.api_key = key
+        self.allow_truncated = allow_truncated
+
+    def call(self, prompts):
+        contents = []
+        for prompt in prompts:
+            try:
+                response = requests.post(
+                    f"{self.base_url}/models/{self.model}:generateContent",
+                    params=dict(key=self.api_key),
+                    json=dict(
+                        generationConfig=self.model_args,
+                        contents=[dict(parts=[dict(text=prompt)])]
+                    ),
+                )
+                response.raise_for_status()
+                response_dict = response.json()
+            except Exception as e:
+                logger.error(e)
+                continue
+
+            candidate = response_dict.get("candidates", [{}])[0]
+            text_response = (
+                candidate
+                .get("content", {})
+                .get("parts", [{}])[0]
+                .get("text", "")
+            )
+            if text_response == "":
+                logger.error(f"No response choice given")
+                content = ""
+            elif candidate.get("finishReason", "").upper() == "MAX_TOKENS":
+                if self.allow_truncated:
+                    content = text_response
+                else:
+                    logger.error(
+                        f"Response truncated because of finish reason = length."
+                        f" Use --allow_truncated option to process truncated responses."
+                    )
+                    content = ""
+            else:
+                content = text_response
+                logger.debug(f"Response received: \n{indent(content, '  ')}")
+
+            contents.append(content)
+
+        return contents
+
+
+class CallOpenAI(LLMModel):
+    def __init__(self, model: str, model_args: dict[str, Any], client_args: dict[str, Any], key: str,
+                 allow_truncated: bool):
+        self.model = model
+        self.model_args = model_args
+        self.allow_truncated = allow_truncated
+        self.client = OpenAI(api_key=key, **client_args)
+
+    def call(self, prompts) -> list[str]:
+        contents = []
+        for prompt in prompts:
+            logger.debug(f"Message sent: \n{indent(pformat(prompt), '  ')}")
+            completion = self.client.chat.completions.create(model=self.model, messages=prompt, **self.model_args)
+
+            if len(completion.choices) < 1:
+                logger.error(f"No response choice given")
+                content = ""
+            elif completion.choices[0].finish_reason == "length":
+                if self.allow_truncated:
+                    content = completion.choices[0].message.content
+                else:
+                    logger.error(
+                        f"Response truncated because of finish reason = length."
+                        f" Use --allow_truncated option to process truncated responses."
+                    )
+                    content = ""
+            else:
+                content = completion.choices[0].message.content
+                logger.debug(f"Response received: \n{indent(content, '  ')}")
+
+            contents.append(content)
+
+        return contents
+
+
+class CallLLM(Step):
+    required_keys = {"prompt_file"}
+
+    def __init__(self, inputs: dict):
+        logger.info(f"Run started {self.__class__.__name__}")
+
+        # Set 'openai_key' from inputs or environment if not already set
+        inputs.setdefault("openai_api_key", os.environ.get("OPENAI_API_KEY"))
+
+        if not all(key in inputs.keys() for key in self.required_keys):
+            raise ValueError(f'Missing required data: "{self.required_keys}"')
+
+        self.prompt_file = Path(inputs["prompt_file"])
+        if not self.prompt_file.is_file():
+            raise ValueError(f'Unable to find Prompt file: "{self.prompt_file}"')
+        try:
+            with open(self.prompt_file, "r") as fp:
+                json.load(fp)
+        except json.JSONDecodeError as e:
+            raise ValueError(f'Invalid Json Prompt file "{self.prompt_file}": {e}')
+
+        self.model_args = {key[len("model_") :]: value for key, value in inputs.items() if key.startswith("model_")}
+        self.client_args = {key[len("client_") :]: value for key, value in inputs.items() if key.startswith("client_")}
+
+        openai_key = inputs.get("openai_api_key") or os.environ.get("OPENAI_API_KEY")
+        if openai_key is not None:
+            self.openai_api_key = openai_key
+
+        patched_key = inputs.get("patched_api_key")
+        if patched_key is not None:
+            self.openai_api_key = patched_key
+            self.client_args["base_url"] = _DEFAULT_PATCH_URL
+
+        if self.openai_api_key is not None:
+            self.llm = CallOpenAI(
+                model=inputs["model"],
+                model_args=self.model_args,
+                client_args=self.client_args,
+                key=self.openai_api_key,
+                allow_truncated=inputs.get("allow_truncated", False)
+            )
+            return
+
+        google_key = inputs.get("google_api_key")
+        if google_key is not None:
+            self.llm = CallGemini(
+                model=inputs["model"],
+                model_args=self.model_args,
+                client_args=self.client_args,
+                key=google_key,
+                allow_truncated=inputs.get("allow_truncated", False)
+            )
+            return
+
+        raise ValueError(
+            f"Model API key not found.\n"
+            f'Please login at: "{_TOKEN_URL}",\n'
+            "Please go to the Integration's tab and generate an API key.\n"
+            "Please copy the access token that is generated, "
+            "and add `--patched_api_key=<token>` to the command line.\n"
+            "\n"
+            "If you are using a OpenAI API Key, please set `--openai_api_key=<token>`.\n"
+        )
+
+    def run(self) -> dict:
+        with open(self.prompt_file, "r") as fp:
+            prompts = json.load(fp)
+
+        contents = self.llm.call(prompts)
+
+        response_file = Path(tempfile.mktemp(".json"))
+        with open(response_file, "w") as outfile:
+            json.dump(contents, outfile, indent=2)
+
+        logger.info(f"Run completed {self.__class__.__name__}")
+        return dict(new_code=response_file, openai_responses=contents)
