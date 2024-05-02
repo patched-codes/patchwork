@@ -1,6 +1,7 @@
+import requests
 from pathlib import Path
-
 import yaml
+
 
 from patchwork.step import Step
 from patchwork.steps import (
@@ -14,20 +15,21 @@ from patchwork.steps import (
     PreparePrompt,
 )
 
-_DEFAULT_PROMPT_JSON = Path(__file__).parent / "generate_readme_prompt.json"
-_DEFAULT_INPUT_FILE = Path(__file__).parent / "defaults.yml"
+_GITHUB_CONFIG_URL = "https://raw.githubusercontent.com/patched-codes/patchwork-configs/main/default/"
+_DEFAULT_PROMPT_JSON = "generate_readme_prompt.json"
+_DEFAULT_INPUT_FILE = "defaults.yml"
 
 
 class GenerateREADME(Step):
     def __init__(self, inputs: dict):
-        final_inputs = yaml.safe_load(_DEFAULT_INPUT_FILE.read_text())
+        final_inputs = yaml.safe_load(requests.get(_GITHUB_CONFIG_URL + _DEFAULT_INPUT_FILE).text)
         final_inputs.update(inputs)
 
         if "branch_prefix" not in final_inputs.keys():
             final_inputs["branch_prefix"] = f"{self.__class__.__name__.lower()}-"
 
         if "prompt_template_file" not in final_inputs.keys():
-            final_inputs["prompt_template_file"] = _DEFAULT_PROMPT_JSON
+            final_inputs["prompt_template_file"] = requests.get(_GITHUB_CONFIG_URL + _DEFAULT_PROMPT_JSON).text
 
         if "prompt_id" not in final_inputs.keys():
             final_inputs["prompt_id"] = "generateREADME"
