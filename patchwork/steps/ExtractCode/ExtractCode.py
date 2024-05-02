@@ -239,7 +239,7 @@ def transform_sarif_results(
                 start = context_start if context_start is not None else start_line
                 end = context_end if context_end is not None else end_line
 
-                grouped_messages[(uri, start, end, source_code_context)].append(
+                grouped_messages[(file_path, start, end, source_code_context)].append(
                     result.get("message", {}).get("text", "")
                 )
 
