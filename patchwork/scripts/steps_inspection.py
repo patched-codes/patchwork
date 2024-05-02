@@ -1,11 +1,10 @@
 import importlib
 from collections import defaultdict
 from functools import partial
-from pprint import pprint
 from types import ModuleType
 
 import yaml
-from typing_extensions import get_type_hints, _TypedDictMeta
+from typing_extensions import _TypedDictMeta, get_type_hints
 
 
 def filter_attr(module_type: ModuleType, attr: str) -> bool:
