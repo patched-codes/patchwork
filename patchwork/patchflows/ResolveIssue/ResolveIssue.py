@@ -75,7 +75,7 @@ The following files in the repository may be relevant to the issue:
                     "uri": result["path"],
                     "startLine": 0,
                     "endLine": len(lines),
-                    "affectedCode": lines,
+                    "affectedCode": file_content,
                     "messageText": "\n".join(self.inputs["texts"]),
                 })
         
