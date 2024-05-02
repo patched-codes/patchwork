@@ -11,7 +11,7 @@ from patchwork.steps.PreparePrompt import PreparePrompt
 
 
 def _get_config_path(config: str, patchflow: str) -> tuple[Path | None, Path | None]:
-    config_path = Path(config)
+    config_path = Path(config) if config else Path("config/default")
     prompt_path = None
     if config_path.is_dir():
         patchwork_config_path = config_path / patchflow / "config.yml"
@@ -30,6 +30,16 @@ def _get_config_path(config: str, patchflow: str) -> tuple[Path | None, Path | N
         else:
             logger.warning(
                 f'Prompt file "{patchwork_prompt_path}" not found from directory "{config}", using default prompt'
+            )
+    
+    elif config_path.is_file():
+        config_path = config_path
+        patchwork_prompt_path = Path("config/default/prompt.json")
+        if patchwork_prompt_path.is_file():
+            prompt_path = patchwork_prompt_path
+        else:
+            logger.warning(
+                f'Default prompt file "{patchwork_prompt_path}" not found from directory "config/default", using default prompt'
             )
 
     return config_path, prompt_path
@@ -83,7 +93,7 @@ def cli(log: str, patchflow: str, opts: list[str], config: str | None, output: s
         exit(1)
 
     inputs = {}
-    if config is not None:
+    if config is not None or True:
         config_path, prompt_path = _get_config_path(config, patchflow)
         if config_path is None and prompt_path is None:
             exit(1)
@@ -91,7 +101,7 @@ def cli(log: str, patchflow: str, opts: list[str], config: str | None, output: s
         if config_path is not None:
             inputs = yaml.safe_load(config_path.read_text())
         if prompt_path is not None:
-            inputs[PreparePrompt.PROMPT_TEMPLATE_FILE_KEY] = prompt_path
+            inputs[PreparePrompt.PROMPT_TEMPLATE_FILE_KEY] = json.loads(prompt_path.read_text())
 
     for opt in opts:
         key, equal_sign, value = opt.partition("=")
