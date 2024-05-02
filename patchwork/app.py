@@ -9,13 +9,12 @@ import yaml
 from patchwork.logger import init_cli_logger, logger
 from patchwork.steps.PreparePrompt import PreparePrompt
 
-import subprocess
+import toml
 
 def get_version():
-    result = subprocess.run(['poetry', 'version', '-s'], capture_output=True, text=True)
-    if result.returncode == 0:
-        return result.stdout.strip()
-    raise Exception("Failed to get version from Poetry")
+    with open('pyproject.toml', 'r') as f:
+        pyproject = toml.load(f)
+    return str(pyproject['tool']['poetry']['version'])
 
 def _get_config_path(config: str, patchflow: str) -> tuple[Path | None, Path | None]:
     config_path = Path(config)
