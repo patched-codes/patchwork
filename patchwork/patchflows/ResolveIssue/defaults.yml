@@ -10,3 +10,12 @@
 # huggingface_embedding_model: codellama/CodeLlama-70b-Instruct-hf
 # For either API, use the following to provide the API key
 # openai_api_key: required-for-openai
+client_base_url: https://api.openai.com/v1
+model: gpt-4
+
+# CommitChanges Inputs
+disable_branch: false
+
+# CreatePR Inputs
+disable_pr: false
+force_pr_creation: true
