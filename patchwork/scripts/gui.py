@@ -1,7 +1,7 @@
 from pathlib import Path
 
+import steps_inspection as si
 import streamlit as st
-import yaml
 from code_editor import code_editor
 from streamlit_flow import streamlit_flow
 from streamlit_flow.interfaces import StreamlitFlowEdge, StreamlitFlowNode
@@ -15,8 +15,7 @@ if "step_nodes" not in st.session_state:
 if "step_edges" not in st.session_state:
     st.session_state.step_edges = []
 
-_DEFAULT_STEPS_FILE = Path(__file__).parent / "steps" / "steps_collection.yml"
-steps_collection = yaml.safe_load(_DEFAULT_STEPS_FILE.read_text())
+steps_collection = si.main() 
 step_names = list(steps_collection.keys())
 
 st.set_page_config(
@@ -25,16 +24,13 @@ st.set_page_config(
     layout="wide",
 )
 
-
 def add_popup(element):
     if element not in st.session_state.step_details:
         st.session_state.step_details.append(element)
 
-
 def clear_patchflow():
     st.session_state.step_details = []
     st.session_state.step_edges = []
-
 
 def generate_code(nodes=st.session_state.step_nodes, edges=st.session_state.step_edges):
     step_nodes = nodes
@@ -160,7 +156,7 @@ def render_patchflow():
                 pos=(x, y),
                 data={
                     "label": step,
-                    "inputs": steps_collection.get(step).get("inputs"),
+                    "inputs": steps_collection.get(step).get("inputs").get("required") + steps_collection.get(step).get("inputs").get("optional"),
                     "outputs": steps_collection.get(step).get("outputs") or [],
                 },
                 style={
