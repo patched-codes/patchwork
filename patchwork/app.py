@@ -40,7 +40,7 @@ def _get_config_path(config: str, patchflow: str) -> tuple[Path | None, Path | N
     )
 )
 
-@click.version_option(message="%(version)s",package_name="patchwork_cli")
+@click.version_option(message="%(version)s", package_name="patchwork-cli")
 @click.help_option("-h", "--help")
 @click.option(
     "--log",
