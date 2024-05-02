@@ -19,13 +19,13 @@ from patchwork.steps import (
     ScanDepscan,
 )
 
-_DEFAULT_PROMPT_JSON = Path(__file__).parent / "dependency_upgrade_prompt.json"
-_DEFAULT_INPUT_FILE = Path(__file__).parent / "defaults.yml"
+_DEFAULT_PROMPT_JSON = Path(__file__).parent / "config" / "dependency_upgrade_prompt.json"
+_DEFAULT_CONFIG_YAML = Path(__file__).parent / "config" / "config.yaml"
 
 
 class DependencyUpgrade(Step):
     def __init__(self, inputs: dict):
-        final_inputs = yaml.safe_load(_DEFAULT_INPUT_FILE.read_text())
+        final_inputs = yaml.safe_load(_DEFAULT_CONFIG_YAML.read_text())
         final_inputs.update(inputs)
 
         if "branch_prefix" not in final_inputs.keys():
