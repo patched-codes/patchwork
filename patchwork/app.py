@@ -9,13 +9,6 @@ import yaml
 from patchwork.logger import init_cli_logger, logger
 from patchwork.steps.PreparePrompt import PreparePrompt
 
-import toml
-
-def get_version():
-    with open('pyproject.toml', 'r') as f:
-        pyproject = toml.load(f)
-    return str(pyproject['tool']['poetry']['version'])
-
 def _get_config_path(config: str, patchflow: str) -> tuple[Path | None, Path | None]:
     config_path = Path(config)
     prompt_path = None
@@ -47,7 +40,7 @@ def _get_config_path(config: str, patchflow: str) -> tuple[Path | None, Path | N
     )
 )
 
-@click.version_option(version=get_version(),message="%(version)s")
+@click.version_option(message="%(version)s",package_name="patchwork_cli")
 @click.help_option("-h", "--help")
 @click.option(
     "--log",
