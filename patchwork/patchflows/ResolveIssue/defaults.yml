@@ -3,6 +3,7 @@
 # gitlab_api_key: required-for-gitlab-scm
 # issue_url: required
 
+fix_issue: false
 # GenerateEmbeddings Inputs
 # For OpenAI API use the following the select the model
 # openai_embedding_model: text-embedding-3-small
