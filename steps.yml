@@ -1,0 +1,204 @@
+AnalyzeImpact:
+  inputs:
+    optional: []
+    required:
+    - extracted_responses
+    - platform_type
+    - library_name
+  outputs:
+  - impacts
+CallCode2Prompt:
+  inputs:
+    optional:
+    - suppress_comments
+    - filter
+    required:
+    - folder_path
+  outputs:
+  - prompt_value_file
+  - code_file
+CallOpenAI:
+  inputs:
+    optional:
+    - openai_api_key
+    - allow_truncated
+    - client_args
+    - model_args
+    - patched_api_key
+    required:
+    - prompt_file
+    - model
+CommitChanges:
+  inputs:
+    optional:
+    - branch_suffix
+    - disable_branch
+    - force_branch_creation
+    - branch_prefix
+    required:
+    - modified_code_files
+  outputs:
+  - base_branch
+  - target_branch
+CreateIssueComment:
+  inputs:
+    optional:
+    - github_api_key
+    - gitlab_api_key
+    - scm_url
+    required:
+    - issue_text
+    - issue_url
+  outputs:
+  - issue_comment_url
+CreatePR:
+  inputs:
+    optional:
+    - disable_pr
+    - force_pr_creation
+    - base_branch
+    - pr_title
+    - gitlab_api_key
+    - github_api_key
+    - pr_body
+    - scm_url
+    required:
+    - target_branch
+  outputs:
+  - pr_url
+CreatePRComment:
+  inputs:
+    optional:
+    - noisy_comments
+    - github_api_key
+    - gitlab_api_key
+    - scm_url
+    required:
+    - pr_comments
+    - pr_url
+  outputs: []
+ExtractCode:
+  inputs:
+    optional:
+    - severity
+    - context_size
+    - vulnerability_limit
+    required:
+    - sarif_file_path
+  outputs:
+  - prompt_values
+  - code_file
+ExtractDiff:
+  inputs:
+    optional:
+    - severity
+    required:
+    - update_info
+    - github_api_key
+    - libraries_api_key
+  outputs:
+  - platform_type
+  - prompt_value_file
+  - library_name
+ExtractModelResponses:
+  inputs:
+    optional:
+    - response_partitions
+    required:
+    - openai_responses
+  outputs:
+  - extracted_responses
+ExtractPackageManager:
+  inputs:
+    optional:
+    - severity
+    - upgrade_threshold
+    - package_manager_file
+    required:
+    - sbom_vdr_file_path
+  outputs:
+  - prompt_value_file
+  - code_file
+GenerateCodeRepositoryEmbeddings:
+  inputs:
+    optional: []
+    required: []
+  outputs:
+  - documents
+  - embedding_name
+GenerateEmbeddings:
+  inputs:
+    optional: []
+    required:
+    - documents
+    - embedding_name
+  outputs: []
+ModifyCode:
+  inputs:
+    optional: []
+    required:
+    - extracted_responses
+    - code_file
+  outputs:
+  - modified_code_files
+PreparePR:
+  inputs:
+    optional:
+    - pr_header
+    required:
+    - modified_code_files
+  outputs:
+  - pr_body
+PreparePrompt:
+  inputs:
+    optional:
+    - prompt_values
+    - prompt_value_file
+    required:
+    - prompt_id
+    - prompt_template_file
+  outputs:
+  - prompt_file
+QueryEmbeddings:
+  inputs:
+    optional:
+    - top_k
+    - token_limit
+    required:
+    - embedding_name
+    - texts
+  outputs:
+  - embedding_results
+ReadIssues:
+  inputs:
+    optional:
+    - github_api_key
+    - gitlab_api_key
+    - scm_url
+    required:
+    - issue_url
+  outputs:
+  - issue_text
+ReadPRDiffs:
+  inputs:
+    optional:
+    - github_api_key
+    - gitlab_api_key
+    - scm_url
+    required:
+    - pr_url
+  outputs:
+  - prompt_values
+  - prompt_value_file
+ScanDepscan:
+  inputs:
+    optional:
+    - language
+    required: []
+  outputs:
+  - sarif_file_path
+ScanSemgrep:
+  inputs:
+    optional:
+    - sarif_file_path
+    required: []
