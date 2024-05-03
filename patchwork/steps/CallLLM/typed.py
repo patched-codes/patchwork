@@ -11,6 +11,7 @@ class CallOpenAIInputs(TypedDict):
     client_args: NotRequired[str]
     openai_api_key: NotRequired[str]
     patched_api_key: NotRequired[str]
+    google_api_key: NotRequired[str]
 
 
 class CallOpenAIOuputs(TypedDict):

@@ -4,7 +4,7 @@ import yaml
 
 from patchwork.step import Step
 from patchwork.steps import (
-    CallOpenAI,
+    CallLLM,
     CreatePRComment,
     ExtractModelResponse,
     PreparePR,
@@ -63,7 +63,7 @@ class PRReview(Step):
         }
         outputs = PreparePrompt(self.inputs).run()
         self.inputs.update(outputs)
-        outputs = CallOpenAI(self.inputs).run()
+        outputs = CallLLM(self.inputs).run()
         self.inputs.update(outputs)
         outputs = ExtractModelResponse(self.inputs).run()
         self.inputs.update(outputs)
@@ -87,7 +87,7 @@ class PRReview(Step):
 
             outputs = PreparePrompt(self.inputs).run()
             self.inputs.update(outputs)
-            outputs = CallOpenAI(self.inputs).run()
+            outputs = CallLLM(self.inputs).run()
             self.inputs.update(outputs)
             header = self.inputs["openai_responses"][0]
 

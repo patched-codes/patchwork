@@ -7,7 +7,7 @@ import yaml
 from patchwork.step import Step
 from patchwork.steps import (
     AnalyzeImpact,
-    CallOpenAI,
+    CallLLM,
     CommitChanges,
     CreatePR,
     ExtractDiff,
@@ -76,7 +76,7 @@ class DependencyUpgrade(Step):
                     analyze_inputs["response_partitions"] = {"impacted_methods": ["A. Impacted methods:", ""]}
                     outputs = PreparePrompt(analyze_inputs).run()
                     analyze_inputs.update(outputs)
-                    outputs = CallOpenAI(analyze_inputs).run()
+                    outputs = CallLLM(analyze_inputs).run()
                     analyze_inputs.update(outputs)
                     outputs = ExtractModelResponse(analyze_inputs).run()
                     analyze_inputs.update(outputs)
@@ -88,7 +88,7 @@ class DependencyUpgrade(Step):
                     analyze_inputs["response_partitions"] = {"patch": []}
                     outputs = PreparePrompt(analyze_inputs).run()
                     analyze_inputs.update(outputs)
-                    outputs = CallOpenAI(analyze_inputs).run()
+                    outputs = CallLLM(analyze_inputs).run()
                     analyze_inputs.update(outputs)
                     outputs = ExtractModelResponse(analyze_inputs).run()
                     analyze_inputs.update(outputs)
@@ -99,7 +99,7 @@ class DependencyUpgrade(Step):
             self.inputs["response_partitions"] = {"patch": []}
             outputs = PreparePrompt(self.inputs).run()
             self.inputs.update(outputs)
-            outputs = CallOpenAI(self.inputs).run()
+            outputs = CallLLM(self.inputs).run()
             self.inputs.update(outputs)
             outputs = ExtractModelResponse(self.inputs).run()
             self.inputs.update(outputs)
