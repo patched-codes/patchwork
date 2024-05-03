@@ -22,6 +22,13 @@ class LLMModel(Protocol):
 
 
 class CallGemini(LLMModel):
+    _SAFETY_SETTINGS = [
+        dict(category="HARM_CATEGORY_HATE_SPEECH", threshold="BLOCK_NONE"),
+        dict(category="HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold="BLOCK_NONE"),
+        dict(category="HARM_CATEGORY_DANGEROUS_CONTENT", threshold="BLOCK_NONE"),
+        dict(category="HARM_CATEGORY_HARASSMENT", threshold="BLOCK_NONE"),
+    ]
+
     def __init__(
         self, model: str, model_args: dict[str, Any], client_args: dict[str, Any], key: str, allow_truncated: bool
     ):
@@ -36,11 +43,17 @@ class CallGemini(LLMModel):
     def call(self, prompts):
         contents = []
         for prompt in prompts:
+            texts = [dict(text=subprompt.get("content", "")) for subprompt in prompt]
+
             try:
                 response = requests.post(
                     f"{self.base_url}/models/{self.model}:generateContent",
                     params=dict(key=self.api_key),
-                    json=dict(generationConfig=self.model_args, contents=[dict(parts=[dict(text=prompt)])]),
+                    json=dict(
+                        generationConfig=self.model_args,
+                        contents=[dict(parts=texts)],
+                        safetySettings=self._SAFETY_SETTINGS
+                    )
                 )
                 response.raise_for_status()
                 response_dict = response.json()
@@ -131,32 +144,30 @@ class CallLLM(Step):
         self.model_args = {key[len("model_") :]: value for key, value in inputs.items() if key.startswith("model_")}
         self.client_args = {key[len("client_") :]: value for key, value in inputs.items() if key.startswith("client_")}
 
-        openai_key = inputs.get("openai_api_key") or os.environ.get("OPENAI_API_KEY")
-        if openai_key is not None:
-            self.openai_api_key = openai_key
+        llm_key = inputs.get("openai_api_key") or os.environ.get("OPENAI_API_KEY")
 
         patched_key = inputs.get("patched_api_key")
         if patched_key is not None:
-            self.openai_api_key = patched_key
+            llm_key = patched_key
             self.client_args["base_url"] = _DEFAULT_PATCH_URL
 
-        if self.openai_api_key is not None:
+        if llm_key is not None:
             self.llm = CallOpenAI(
-                model=inputs["model"],
+                model=inputs.get("model", "gpt-3.5-turbo"),
                 model_args=self.model_args,
                 client_args=self.client_args,
-                key=self.openai_api_key,
+                key=llm_key,
                 allow_truncated=inputs.get("allow_truncated", False),
             )
             return
 
-        google_key = inputs.get("google_api_key")
-        if google_key is not None:
+        llm_key = inputs.get("google_api_key")
+        if llm_key is not None:
             self.llm = CallGemini(
-                model=inputs["model"],
+                model=inputs.get("model", "gemini-1.0-pro"),
                 model_args=self.model_args,
                 client_args=self.client_args,
-                key=google_key,
+                key=llm_key,
                 allow_truncated=inputs.get("allow_truncated", False),
             )
             return
