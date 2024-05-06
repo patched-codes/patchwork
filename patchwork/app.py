@@ -1,7 +1,6 @@
 import importlib
 import importlib.util
 import json
-import sys
 import traceback
 from pathlib import Path
 from types import ModuleType
@@ -16,6 +15,7 @@ _DATA_FORMAT_MAPPING = {
     "yaml": yaml.dump,
     "json": json.dumps,
 }
+
 
 def _get_config_path(config: str, patchflow: str) -> tuple[Path | None, Path | None]:
     config_path = Path(config)
@@ -74,12 +74,6 @@ def _get_config_path(config: str, patchflow: str) -> tuple[Path | None, Path | N
 @click.option("--output", type=click.Path(exists=False, resolve_path=True, writable=True), help="Output data file")
 @click.option("data_format", "--format", type=click.Choice(["yaml", "json"]), default="json", help="Output data format")
 def cli(log: str, patchflow: str, opts: list[str], config: str | None, output: str | None, data_format: str):
-    if patchflow.lower() == "chat":
-        from patchwork.patchwork_interpreter import run_chat
-
-        run_chat()
-        exit(0)
-
     if "::" not in patchflow:
         patchflow = "patchwork.patchflows::" + patchflow
 
