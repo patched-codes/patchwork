@@ -133,8 +133,6 @@ def cli(log: str, patchflow: str, opts: list[str], config: str | None, output: s
         serialize = _DATA_FORMAT_MAPPING.get(data_format, json.dumps)
         with open(output, "w") as file:
             file.write(serialize(inputs))
-
-
 def find_module(possible_module_paths: Iterable[str], patchflow: str) -> ModuleType | None:
     for module_path in possible_module_paths:
         try:
@@ -146,7 +144,10 @@ def find_module(possible_module_paths: Iterable[str], patchflow: str) -> ModuleT
             logger.debug(f"Patchflow {patchflow} not found as a file/directory in {module_path}")
 
         try:
-            return importlib.import_module(module_path)
+            spec = importlib.util.spec_from_file_location("custom_module", module_path)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            return module
         except ModuleNotFoundError:
             logger.debug(f"Patchflow {patchflow} not found as a module in {module_path}")
 
