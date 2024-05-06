@@ -22,7 +22,7 @@ class ScanSemgrep(Step):
 
         cmd = [
             "semgrep",
-            self.extra_args.split(),
+            *self.extra_args.split(),
             str(cwd),
             "--sarif",
         ]
