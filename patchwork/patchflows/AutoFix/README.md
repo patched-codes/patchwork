@@ -14,7 +14,7 @@ by default you will need to provide the `openai_api_key` and the `github_api_key
 
 ## What it does?
 
-The AutoFix patchflow will first scan the code in your repository using an open-source scanner Semgrep. It will then take the vulnerabilities that are detected by the scan and use create a prompt to be sent to `gpt-3.5-turbo` to generate the fix for the vulnerabilities. You can check the default [prompt template](./default_prompt.json). The generated fixes are then committed to the repository under a new branch and finally a pull request is created for the user to review and merge the changes. 
+The AutoFix patchflow will first scan the code in your repository using an open-source scanner Semgrep. It will then take the vulnerabilities that are detected by the scan and create a prompt to be sent to `gpt-3.5-turbo` to generate the fix for the vulnerabilities. You can check the default [prompt template](./default_prompt.json). The generated fixes are then committed to the repository under a new branch and finally a pull request is created for the user to review and merge the changes. 
 
 ## Configuration
 
@@ -63,6 +63,13 @@ context_size: 1000
 ```
 in general we have found that a larger `context_size `doesn't necessarily lead to better fixes.
 
+### Semgrep extra args
+You can pass any additional arguments to the Semgrep scanner using the `semgrep_extra_args` option as follows:
+
+```yaml
+semgrep_extra_args: --config auto
+```
+
 ### SARIF input
 We can use any SAST scanner that can export the results in SARIF format. Just set the `sarif_file_path` to the SARIF file and AutoFix will use the information there to generate the fixes. Otherwise, we will do a scan using Semgrep.
 
@@ -76,6 +83,7 @@ By default we process and fix only `vulnerability_limit` number of issues. This 
 ```yaml
 vulnerability_limit: 10
 ``` 
+set this value to a negative number (e.g. `-1`) to fix all vulnerabilities found in the scan.
 
 ### Severity
 You can also set the severity of the vulnerabilities that you want to fix. Severity is derived from the information available in the SARIF file and can take values of 'unknown', 'note'/'info', 'warning'/'low', 'medium', 'error'/'high', and 'critical'. E.g.

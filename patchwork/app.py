@@ -22,6 +22,7 @@ _CONFIG_NAME = "config.yml"
 _PROMPT_NAME = "prompt.json"
 _PATCHFLOW_MODULE_NAME = "patchwork.patchflows"
 
+
 def _get_config_path(config: str | None, patchflow: str) -> Path | None:
     prompt_path = None
     config_path = Path(config)
