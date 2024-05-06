@@ -42,6 +42,66 @@ _EXTENSION_WHITELIST = [
     ".go",
     # HTML
     ".html",
+    # OCaml
+    ".ml",
+    ".mli",
+    # F#
+    ".fs",
+    ".fsi",
+    # Haskell
+    ".hs",
+    ".lhs",
+    # Kotlin
+    ".kt",
+    ".kts",
+    # Ruby
+    ".rb",
+    # Swift
+    ".swift",
+    # Rust
+    ".rs",
+    # Scala
+    ".scala",
+    # TypeScript
+    ".ts",
+    # Visual Basic.NET
+    ".vb",
+    ".vbs",
+    # Perl
+    ".pl",
+    ".pm",
+    # R
+    ".r",
+    # SQL
+    ".sql",
+    # TypeScript React
+    ".tsx",
+    # Julia
+    ".jl",
+    # Lua
+    ".lua",
+    # MATLAB
+    ".m",
+    # Pascal
+    ".pas",
+    # PowerShell
+    ".ps1",
+    # Racket
+    ".rkt",
+    # Shell
+    ".sh",
+    # SQL
+    ".sql",
+    # Tcl
+    ".tcl",
+    # Visual Basic
+    ".vb",
+    # XML
+    ".xml",
+    # YAML
+    ".yaml",
+    # Zig
+    ".zig",
 ]
 
 _DIRECTORY_BLACKLIST = [
