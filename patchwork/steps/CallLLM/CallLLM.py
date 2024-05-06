@@ -52,8 +52,8 @@ class CallGemini(LLMModel):
                     json=dict(
                         generationConfig=self.model_args,
                         contents=[dict(parts=texts)],
-                        safetySettings=self._SAFETY_SETTINGS
-                    )
+                        safetySettings=self._SAFETY_SETTINGS,
+                    ),
                 )
                 response.raise_for_status()
                 response_dict = response.json()

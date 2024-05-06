@@ -1,13 +1,21 @@
 import importlib
+import importlib.util
 import json
+import sys
 import traceback
 from pathlib import Path
+from types import ModuleType
 
 import click
 import yaml
 
 from patchwork.logger import init_cli_logger, logger
 from patchwork.steps.PreparePrompt import PreparePrompt
+
+_DATA_FORMAT_MAPPING = {
+    "yaml": yaml.dump,
+    "json": json.dumps,
+}
 
 def _get_config_path(config: str, patchflow: str) -> tuple[Path | None, Path | None]:
     config_path = Path(config)
@@ -39,7 +47,6 @@ def _get_config_path(config: str, patchflow: str) -> tuple[Path | None, Path | N
         ignore_unknown_options=True,
     )
 )
-
 @click.version_option(message="%(version)s", package_name="patchwork-cli")
 @click.help_option("-h", "--help")
 @click.option(
@@ -67,24 +74,27 @@ def _get_config_path(config: str, patchflow: str) -> tuple[Path | None, Path | N
 @click.option("--output", type=click.Path(exists=False, resolve_path=True, writable=True), help="Output data file")
 @click.option("data_format", "--format", type=click.Choice(["yaml", "json"]), default="json", help="Output data format")
 def cli(log: str, patchflow: str, opts: list[str], config: str | None, output: str | None, data_format: str):
-    try:
-        module = importlib.import_module(".patchflows", "patchwork")
-    except ModuleNotFoundError:
-        logger.debug(f"Patchflow {patchflow} not found")
-        exit(1)
-
-    try:
-        patchflow_class = getattr(module, patchflow)
-    except AttributeError:
-        logger.debug(f"Patchflow {patchflow} not found as a class in {Path(__file__).parent / 'patchflows'}")
+    if patchflow.lower() == "chat":
         from patchwork.patchwork_interpreter import run_chat
 
         run_chat()
+        exit(0)
+
+    if "::" not in patchflow:
+        patchflow = "patchwork.patchflows::" + patchflow
+
+    module_path, _, patchflow_name = patchflow.partition("::")
+    module = find_module(module_path, patchflow)
+
+    try:
+        patchflow_class = getattr(module, patchflow_name)
+    except AttributeError:
+        logger.debug(f"Patchflow {patchflow} not found as a class in {module_path}")
         exit(1)
 
     inputs = {}
     if config is not None:
-        config_path, prompt_path = _get_config_path(config, patchflow)
+        config_path, prompt_path = _get_config_path(config, patchflow_name)
         if config_path is None and prompt_path is None:
             exit(1)
 
@@ -111,15 +121,31 @@ def cli(log: str, patchflow: str, opts: list[str], config: str | None, output: s
         logger.error(f"Error running patchflow {patchflow}: {e}")
         exit(1)
 
-    data_format_mapping = {
-        "yaml": yaml.dump,
-        "json": json.dumps,
-    }
-
     if output is not None:
-        serialize = data_format_mapping.get(data_format, json.dumps)
+        serialize = _DATA_FORMAT_MAPPING.get(data_format, json.dumps)
         with open(output, "w") as file:
             file.write(serialize(inputs))
+
+
+def find_module(module_path, patchflow) -> ModuleType:
+    try:
+        spec = importlib.util.spec_from_file_location("custom_module", module_path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+    except Exception:
+        logger.debug(f"Patchflow {patchflow} not found as a file/directory in {module_path}")
+        module = None
+
+    if module is not None:
+        return module
+
+    try:
+        module = importlib.import_module(module_path)
+    except ModuleNotFoundError:
+        logger.debug(f"Patchflow {patchflow} not found as a module in {module_path}")
+        exit(1)
+
+    return module
 
 
 if __name__ == "__main__":
