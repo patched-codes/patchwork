@@ -115,3 +115,8 @@ Each patchflow comes with an optimized default prompt template. But you can spec
 To create a new patchflow, follow [these instructions](patchwork/patchflows/README.md).
 
 To create a new step, follow [these instructions](patchwork/steps/README.md).
+
+We also provide chat assitants to help you create new steps and patchflows easily.
+
+- [Patchwork Assistant GPT](https://chatgpt.com/g/g-0G4sCAd2y-patchwork-assistant) (requires ChatGPT pro subscription)
+- [Patchwork Assistant on HuggingChat ](https://hf.co/chat/assistant/66322701fd4787e0c1f7696b) (free)
