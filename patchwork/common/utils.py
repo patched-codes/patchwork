@@ -2,6 +2,7 @@ import atexit
 import contextlib
 import os
 import tempfile
+from pathlib import Path
 from typing import Callable
 
 import tiktoken
@@ -29,7 +30,7 @@ def defered_temp_file(
     )
     yield tempfile_fp
     tempfile_fp.close()
-    atexit.register(os.unlink, tempfile_fp.name)
+    atexit.register(Path(tempfile_fp.name).unlink, missing_ok=True)
     return
 
 

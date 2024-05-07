@@ -212,7 +212,7 @@ class ExtractDiff(Step):
             diff_file = requests.get(compare_url + vuln_version + "..." + fixed_version, headers=headers)
 
             if diff_file.text.startswith("diff"):
-                with defered_temp_file("w", suffix=".json") as fp:
+                with defered_temp_file("w") as fp:
                     fp.write(diff_file.text)
                     temp_file_path = Path(fp.name)
 
