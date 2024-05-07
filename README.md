@@ -89,6 +89,7 @@ Patchwork comes with a set of predefined patchflows, and more will be added over
 - DependencyUpgrade: Update your dependencies from vulnerable to fixed versions.
 - PRReview: On PR creation, extract code diff, summarize changes, and comment on PR.
 - GenerateREADME: Create a README.md file for a given folder, to add documentation to your repository.
+- ResolveIssue: Identify the files in your repository that need to be updated to resolve an issue (or bug) and create a PR to fix it.
 
 ## Prompt Templates
 
