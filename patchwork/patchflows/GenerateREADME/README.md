@@ -85,5 +85,5 @@ You can update the default [prompt template](./generate_readme_prompt.json). Not
 
 Here are some example PRs generated with the GenerateREADME patchflow:
 
-- https://github.com/patched-codes/patchwork/pull/162
-- https://github.com/patched-codes/patchwork/pull/161
+- https://github.com/patched-codes/patchwork/pull/53
+- https://github.com/patched-codes/patchwork/pull/52
