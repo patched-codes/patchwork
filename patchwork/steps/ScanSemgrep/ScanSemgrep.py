@@ -1,7 +1,7 @@
 import subprocess
-import tempfile
 from pathlib import Path
 
+from patchwork.common.utils import defered_temp_file
 from patchwork.logger import logger
 from patchwork.step import Step
 
@@ -17,7 +17,6 @@ class ScanSemgrep(Step):
             return dict()
 
         cwd = Path.cwd()
-        sarif_file_path = Path(tempfile.mktemp(".sarif"))
 
         cmd = [
             "semgrep",
@@ -31,8 +30,9 @@ class ScanSemgrep(Step):
 
         p = subprocess.run(cmd, capture_output=True, text=True)
 
-        with open(sarif_file_path, "w") as file:
-            file.write(p.stdout)
+        with defered_temp_file("w", suffix=".sarif") as fp:
+            fp.write(p.stdout)
+            sarif_file_path = Path(fp.name)
 
         logger.info(f"Run completed {self.__class__.__name__}")
         return {"sarif_file_path": sarif_file_path}

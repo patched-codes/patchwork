@@ -1,7 +1,8 @@
 import json
-import tempfile
+from pathlib import Path
 
 from patchwork.common.client.scm import GithubClient, GitlabClient
+from patchwork.common.utils import defered_temp_file
 from patchwork.logger import logger
 from patchwork.step import Step
 
@@ -54,7 +55,8 @@ class ReadPRDiffs(Step):
                 continue
             prompt_values.append(dict(path=path, diff=diffs))
 
-        prompt_value_file = tempfile.mktemp(".json")
-        with open(prompt_value_file, "w") as fp:
+        with defered_temp_file("w", suffix=".json") as fp:
             json.dump(prompt_values, fp)
+            prompt_value_file = Path(fp.name)
+
         return dict(prompt_value_file=prompt_value_file, prompt_values=prompt_values)

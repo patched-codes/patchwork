@@ -1,6 +1,8 @@
+import atexit
 import os
 import subprocess
 import tempfile
+from pathlib import Path
 
 from patchwork.logger import logger
 from patchwork.step import Step
@@ -85,12 +87,12 @@ class ScanDepscan(Step):
         temporary directory exists and is writable.
         """
         # Generate a unique temporary file path
-        temp_file_path = tempfile.mktemp()
+        temp_file_path = Path(tempfile.mktemp())
 
         cmd = [
             "depscan",
             "--reports-dir",
-            temp_file_path,
+            str(temp_file_path),
         ]
 
         if self.language is not None:
@@ -102,6 +104,7 @@ class ScanDepscan(Step):
 
         p = subprocess.run(cmd, capture_output=True, text=True)
 
+        atexit.register(temp_file_path.unlink, True)
         sbom_vdr_file_path = os.path.join(temp_file_path, sbom_vdr_file_name + ".vdr.json")
 
         logger.info(f"Run completed {self.__class__.__name__}")

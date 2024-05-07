@@ -1,14 +1,17 @@
 import json
 import os
 import sys
-import tempfile
 from collections import defaultdict
 from enum import IntEnum
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
-from patchwork.common.utils import count_openai_tokens, open_with_chardet
+from patchwork.common.utils import (
+    count_openai_tokens,
+    defered_temp_file,
+    open_with_chardet,
+)
 from patchwork.logger import logger
 from patchwork.step import Step
 from patchwork.steps.ExtractCode.context_strategy.context_strategies import (
@@ -295,9 +298,9 @@ class ExtractCode(Step):
         ]
 
         # Save extracted data to JSON
-        output_file = Path(tempfile.mktemp(".json"))
-        with open(output_file, "w", encoding="utf-8") as f:
-            json.dump(self.extracted_code_contexts, f, indent=2)
+        with defered_temp_file("w", suffix=".json") as fp:
+            json.dump(self.extracted_code_contexts, fp, indent=2)
+            output_file = Path(fp.name)
 
         logger.info(f"Run completed {self.__class__.__name__}")
 

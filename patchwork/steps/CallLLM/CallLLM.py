@@ -1,6 +1,5 @@
 import json
 import os
-import tempfile
 from pathlib import Path
 from pprint import pformat
 from textwrap import indent
@@ -9,6 +8,7 @@ from typing import Any, Protocol
 import requests
 from openai import OpenAI
 
+from patchwork.common.utils import defered_temp_file
 from patchwork.logger import logger
 from patchwork.step import Step
 
@@ -52,8 +52,8 @@ class CallGemini(LLMModel):
                     json=dict(
                         generationConfig=self.model_args,
                         contents=[dict(parts=texts)],
-                        safetySettings=self._SAFETY_SETTINGS
-                    )
+                        safetySettings=self._SAFETY_SETTINGS,
+                    ),
                 )
                 response.raise_for_status()
                 response_dict = response.json()
@@ -188,9 +188,9 @@ class CallLLM(Step):
 
         contents = self.llm.call(prompts)
 
-        response_file = Path(tempfile.mktemp(".json"))
-        with open(response_file, "w") as outfile:
+        with defered_temp_file("w", suffix=".json") as outfile:
             json.dump(contents, outfile, indent=2)
+            response_file = Path(outfile.name)
 
         logger.info(f"Run completed {self.__class__.__name__}")
         return dict(new_code=response_file, openai_responses=contents)

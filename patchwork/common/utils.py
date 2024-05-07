@@ -1,3 +1,7 @@
+import atexit
+import contextlib
+import os
+import tempfile
 from typing import Callable
 
 import tiktoken
@@ -6,6 +10,27 @@ from chromadb.api.types import Documents, EmbeddingFunction
 from chromadb.utils import embedding_functions
 
 from patchwork.managed_files import HOME_FOLDER
+
+
+@contextlib.contextmanager
+def defered_temp_file(
+    mode="w+b", buffering=-1, encoding=None, newline=None, suffix=None, prefix=None, dir=None, *, errors=None
+):
+    tempfile_fp = tempfile.TemporaryFile(
+        mode=mode,
+        buffering=buffering,
+        encoding=encoding,
+        newline=newline,
+        suffix=suffix,
+        prefix=prefix,
+        dir=dir,
+        errors=errors,
+        delete=False,
+    )
+    yield tempfile_fp
+    tempfile_fp.close()
+    atexit.register(os.unlink, tempfile_fp.name)
+    return
 
 
 def open_with_chardet(file, mode="r", buffering=-1, errors=None, newline=None, closefd=True, opener=None):

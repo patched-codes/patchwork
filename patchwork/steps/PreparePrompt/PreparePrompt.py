@@ -1,7 +1,7 @@
 import json
-import tempfile
 from pathlib import Path
 
+from patchwork.common.utils import defered_temp_file
 from patchwork.logger import logger
 from patchwork.step import Step
 
@@ -67,9 +67,9 @@ class PreparePrompt(Step):
                 prompt.append(prompt_instance)
             prompts.append(prompt)
 
-        prompt_file = Path(tempfile.mktemp(".json"))
-        with open(prompt_file, "w") as file:
-            json.dump(prompts, file, indent=2)
+        with defered_temp_file("w", suffix=".json") as fp:
+            json.dump(prompts, fp, indent=2)
+            prompt_file = Path(fp.name)
 
         logger.info(f"Run completed {self.__class__.__name__}")
         return {"prompt_file": prompt_file}

@@ -9,6 +9,7 @@ import yaml
 from patchwork.logger import init_cli_logger, logger
 from patchwork.steps.PreparePrompt import PreparePrompt
 
+
 def _get_config_path(config: str, patchflow: str) -> tuple[Path | None, Path | None]:
     config_path = Path(config)
     prompt_path = None
@@ -39,7 +40,6 @@ def _get_config_path(config: str, patchflow: str) -> tuple[Path | None, Path | N
         ignore_unknown_options=True,
     )
 )
-
 @click.version_option(message="%(version)s", package_name="patchwork-cli")
 @click.help_option("-h", "--help")
 @click.option(
