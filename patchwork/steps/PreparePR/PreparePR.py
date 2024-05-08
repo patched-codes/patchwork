@@ -15,7 +15,7 @@ class PreparePR(Step):
             raise ValueError(f'Missing required data: "{self.required_keys}"')
 
         if len(inputs["modified_code_files"]) < 1:
-            logger.warn("No modified files to prepare a PR for.")
+            logger.warning("No modified files to prepare a PR for.")
         self.modified_code_files = inputs["modified_code_files"]
 
         self.header = f"This pull request from patched fixes {len(self.modified_code_files)} issues."

@@ -16,7 +16,7 @@ from patchwork.managed_files import HOME_FOLDER
 def defered_temp_file(
     mode="w+b", buffering=-1, encoding=None, newline=None, suffix=None, prefix=None, dir=None, *, errors=None
 ):
-    tempfile_fp = tempfile.TemporaryFile(
+    tempfile_fp = tempfile.NamedTemporaryFile(
         mode=mode,
         buffering=buffering,
         encoding=encoding,
