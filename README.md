@@ -73,7 +73,12 @@ patchwork AutoFix openai_api_key=<YOUR_OPENAI_API_KEY> github_api_key=<YOUR_GITH
 
 The above command will default to patching code in the current directory, by running Semgrep to identify the vulnerabilities.
 
-You can take a look at the `default.yml` [file](patchwork/patchflows/AutoFix/defaults.yml) for the list of configurations you can set to manage the AutoFix patchflow. 
+You can take a look at the `default.yml` [file](patchwork/patchflows/AutoFix/defaults.yml) for the list of configurations you can set to manage the AutoFix patchflow. You will need to pass your own `openai_api_key` to call the LLM. Otherwise, to get started, you can get a `patched_api_key` for free by
+by signing in at [https://app.patched.codes/signin](https://app.patched.codes/signin) and generating an API key from the integrations tab. You can then call the patchflow with the key as follows:
+
+```bash
+patchwork AutoFix patched_api_key=<YOUR_PATCHED_API_KEY> github_api_key=<YOUR_GITHUB_TOKEN>
+```
 
 The [patchwork-configs](https://github.com/patched-codes/patchwork-configs) repository contains the default configuration and prompts for all the patchflows. You can clone that repo and pass it as a flag to the CLI:
 
@@ -89,6 +94,7 @@ Patchwork comes with a set of predefined patchflows, and more will be added over
 - DependencyUpgrade: Update your dependencies from vulnerable to fixed versions.
 - PRReview: On PR creation, extract code diff, summarize changes, and comment on PR.
 - GenerateREADME: Create a README.md file for a given folder, to add documentation to your repository.
+- ResolveIssue: Identify the files in your repository that need to be updated to resolve an issue (or bug) and create a PR to fix it.
 
 ## Prompt Templates
 
@@ -115,3 +121,8 @@ Each patchflow comes with an optimized default prompt template. But you can spec
 To create a new patchflow, follow [these instructions](patchwork/patchflows/README.md).
 
 To create a new step, follow [these instructions](patchwork/steps/README.md).
+
+We also provide chat assitants to help you create new steps and patchflows easily.
+
+- [Patchwork Assistant GPT](https://chatgpt.com/g/g-0G4sCAd2y-patchwork-assistant) (requires ChatGPT pro subscription)
+- [Patchwork Assistant on HuggingChat ](https://hf.co/chat/assistant/66322701fd4787e0c1f7696b) (free)

@@ -1,7 +1,11 @@
 import importlib
+import importlib.util
 import json
 import traceback
+from collections import deque
 from pathlib import Path
+from types import ModuleType
+from typing import Iterable
 
 import click
 import yaml
@@ -9,29 +13,23 @@ import yaml
 from patchwork.logger import init_cli_logger, logger
 from patchwork.steps.PreparePrompt import PreparePrompt
 
-def _get_config_path(config: str, patchflow: str) -> tuple[Path | None, Path | None]:
-    config_path = Path(config)
+_DATA_FORMAT_MAPPING = {
+    "yaml": yaml.dump,
+    "json": json.dumps,
+}
+
+_CONFIG_NAME = "config.yml"
+_PROMPT_NAME = "prompt.json"
+_PATCHFLOW_MODULE_NAME = "patchwork.patchflows"
+
+
+def _get_config_path(config: str | None, patchflow: str) -> Path | None:
     prompt_path = None
+    config_path = Path(config)
     if config_path.is_dir():
-        patchwork_config_path = config_path / patchflow / "config.yml"
-        patchwork_prompt_path = config_path / patchflow / "prompt.json"
-        config_path = None
-
-        if patchwork_config_path.is_file():
-            config_path = patchwork_config_path
-        else:
-            logger.warning(
-                f'Config file "{patchwork_config_path}" not found from directory "{config}", using default config'
-            )
-
-        if patchwork_prompt_path.is_file():
-            prompt_path = patchwork_prompt_path
-        else:
-            logger.warning(
-                f'Prompt file "{patchwork_prompt_path}" not found from directory "{config}", using default prompt'
-            )
-
-    return config_path, prompt_path
+        patchwork_path = config_path / patchflow
+        if patchwork_path.is_dir():
+            return patchwork_path
 
 
 @click.command(
@@ -39,7 +37,6 @@ def _get_config_path(config: str, patchflow: str) -> tuple[Path | None, Path | N
         ignore_unknown_options=True,
     )
 )
-
 @click.version_option(message="%(version)s", package_name="patchwork-cli")
 @click.help_option("-h", "--help")
 @click.option(
@@ -67,31 +64,44 @@ def _get_config_path(config: str, patchflow: str) -> tuple[Path | None, Path | N
 @click.option("--output", type=click.Path(exists=False, resolve_path=True, writable=True), help="Output data file")
 @click.option("data_format", "--format", type=click.Choice(["yaml", "json"]), default="json", help="Output data format")
 def cli(log: str, patchflow: str, opts: list[str], config: str | None, output: str | None, data_format: str):
-    try:
-        module = importlib.import_module(".patchflows", "patchwork")
-    except ModuleNotFoundError:
-        logger.debug(f"Patchflow {patchflow} not found")
-        exit(1)
+    if "::" in patchflow:
+        module_path, _, patchflow_name = patchflow.partition("::")
+    else:
+        patchflow_name = patchflow
+        module_path = _PATCHFLOW_MODULE_NAME
 
-    try:
-        patchflow_class = getattr(module, patchflow)
-    except AttributeError:
-        logger.debug(f"Patchflow {patchflow} not found as a class in {Path(__file__).parent / 'patchflows'}")
-        from patchwork.patchwork_interpreter import run_chat
-
-        run_chat()
-        exit(1)
-
+    possbile_module_paths = deque((module_path,))
     inputs = {}
-    if config is not None:
-        config_path, prompt_path = _get_config_path(config, patchflow)
-        if config_path is None and prompt_path is None:
-            exit(1)
 
-        if config_path is not None:
+    if config is not None:
+        config_path = Path(config)
+        if config_path.is_file():
             inputs = yaml.safe_load(config_path.read_text())
-        if prompt_path is not None:
-            inputs[PreparePrompt.PROMPT_TEMPLATE_FILE_KEY] = prompt_path
+        elif config_path.is_dir():
+            patchwork_path = config_path / patchflow_name
+
+            patchwork_python_path = patchwork_path / f"{patchflow_name}.py"
+            if patchwork_python_path.is_file():
+                possbile_module_paths.appendleft(str(patchwork_python_path.resolve()))
+
+            patchwork_config_path = patchwork_path / _CONFIG_NAME
+            if patchwork_config_path.is_file():
+                inputs = yaml.safe_load(patchwork_config_path.read_text())
+            else:
+                logger.warning(
+                    f'Config file "{patchwork_config_path}" not found from directory "{config}", using default config'
+                )
+
+            patchwork_prompt_path = patchwork_path / _PROMPT_NAME
+            if patchwork_prompt_path.is_file():
+                inputs[PreparePrompt.PROMPT_TEMPLATE_FILE_KEY] = patchwork_prompt_path
+            else:
+                logger.warning(
+                    f'Prompt file "{patchwork_prompt_path}" not found from directory "{config}", using default prompt'
+                )
+        else:
+            logger.error(f"Config path {config} is not a file or directory")
+            exit(1)
 
     for opt in opts:
         key, equal_sign, value = opt.partition("=")
@@ -103,6 +113,15 @@ def cli(log: str, patchflow: str, opts: list[str], config: str | None, output: s
         else:
             # treat --key=value as a key-value pair
             inputs[key] = value
+
+    module = find_module(possbile_module_paths, patchflow)
+
+    try:
+        patchflow_class = getattr(module, patchflow_name)
+    except AttributeError:
+        logger.debug(f"Patchflow {patchflow} not found as a class in {module_path}")
+        exit(1)
+
     try:
         patchflow_instance = patchflow_class(inputs)
         patchflow_instance.run()
@@ -111,15 +130,28 @@ def cli(log: str, patchflow: str, opts: list[str], config: str | None, output: s
         logger.error(f"Error running patchflow {patchflow}: {e}")
         exit(1)
 
-    data_format_mapping = {
-        "yaml": yaml.dump,
-        "json": json.dumps,
-    }
-
     if output is not None:
-        serialize = data_format_mapping.get(data_format, json.dumps)
+        serialize = _DATA_FORMAT_MAPPING.get(data_format, json.dumps)
         with open(output, "w") as file:
             file.write(serialize(inputs))
+
+
+def find_module(possible_module_paths: Iterable[str], patchflow: str) -> ModuleType | None:
+    for module_path in possible_module_paths:
+        try:
+            spec = importlib.util.spec_from_file_location("custom_module", module_path)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            return module
+        except Exception:
+            logger.debug(f"Patchflow {patchflow} not found as a file/directory in {module_path}")
+
+        try:
+            return importlib.import_module(module_path)
+        except ModuleNotFoundError:
+            logger.debug(f"Patchflow {patchflow} not found as a module in {module_path}")
+
+    return None
 
 
 if __name__ == "__main__":

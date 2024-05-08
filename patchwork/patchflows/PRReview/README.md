@@ -88,5 +88,5 @@ A. Summary:
 
 Here are some example comments generated with the PRReview patchflow:
 
-- https://github.com/patched-codes/patchwork/pull/176#issuecomment-2032030464
-- https://github.com/patched-codes/patchwork/pull/80#issuecomment-2031400047
+- https://github.com/patched-codes/patchwork/pull/59#issuecomment-2092735385
+- https://github.com/patched-codes/patchwork/pull/56#issuecomment-2092584306
