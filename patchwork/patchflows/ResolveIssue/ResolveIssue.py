@@ -6,7 +6,7 @@ import yaml
 
 from patchwork.step import Step
 from patchwork.steps import (
-    CallOpenAI,
+    CallLLM,
     CommitChanges,
     CreateIssueComment,
     CreatePR,
@@ -65,48 +65,50 @@ The following files in the repository may be relevant to the issue:
         outputs = CreateIssueComment(self.inputs).run()
         self.inputs.update(outputs)
 
-        if self.fix_issue:
-            extracted_code_contexts = []
-            # Call LLM to make necessary updates to files to resolve the issue
-            for result in self.inputs["embedding_results"]:
-                with open(result["path"], "r") as file:
-                    file_content = file.read()
-                lines = file_content.splitlines(keepends=True)
-                extracted_code_contexts.append(
-                    {
-                        "uri": result["path"],
-                        "startLine": 0,
-                        "endLine": len(lines),
-                        "affectedCode": file_content,
-                        "messageText": "\n".join(self.inputs["texts"]),
-                    }
-                )
+        if not self.fix_issue:
+            return self.inputs
 
-            self.inputs["prompt_values"] = extracted_code_contexts
+        extracted_code_contexts = []
+        # Call LLM to make necessary updates to files to resolve the issue
+        for result in self.inputs["embedding_results"]:
+            with open(result["path"], "r") as file:
+                file_content = file.read()
+            lines = file_content.splitlines(keepends=True)
+            extracted_code_contexts.append(
+                {
+                    "uri": result["path"],
+                    "startLine": 0,
+                    "endLine": len(lines),
+                    "affectedCode": file_content,
+                    "messageText": "\n".join(self.inputs["texts"]),
+                }
+            )
 
-            # Save extracted data to JSON
-            output_file = Path(tempfile.mktemp(".json"))
-            with open(output_file, "w", encoding="utf-8") as f:
-                json.dump(extracted_code_contexts, f, indent=2)
+        self.inputs["prompt_values"] = extracted_code_contexts
 
-            self.inputs["code_file"] = output_file
-            self.inputs["prompt_id"] = "resolve_issue"
-            self.inputs["response_partitions"] = {"patch": []}
-            outputs = PreparePrompt(self.inputs).run()
-            self.inputs.update(outputs)
-            outputs = CallOpenAI(self.inputs).run()
-            self.inputs.update(outputs)
-            outputs = ExtractModelResponse(self.inputs).run()
-            self.inputs.update(outputs)
+        # Save extracted data to JSON
+        output_file = Path(tempfile.mktemp(".json"))
+        with open(output_file, "w", encoding="utf-8") as f:
+            json.dump(extracted_code_contexts, f, indent=2)
 
-            # Modify code files with the suggested changes
-            outputs = ModifyCode(self.inputs).run()
-            self.inputs.update(outputs)
+        self.inputs["code_file"] = output_file
+        self.inputs["prompt_id"] = "resolve_issue"
+        self.inputs["response_partitions"] = {"patch": []}
+        outputs = PreparePrompt(self.inputs).run()
+        self.inputs.update(outputs)
+        outputs = CallLLM(self.inputs).run()
+        self.inputs.update(outputs)
+        outputs = ExtractModelResponse(self.inputs).run()
+        self.inputs.update(outputs)
 
-            # Commit changes and create PR
-            outputs = CommitChanges(self.inputs).run()
-            self.inputs.update(outputs)
-            outputs = CreatePR(self.inputs).run()
-            self.inputs.update(outputs)
+        # Modify code files with the suggested changes
+        outputs = ModifyCode(self.inputs).run()
+        self.inputs.update(outputs)
+
+        # Commit changes and create PR
+        outputs = CommitChanges(self.inputs).run()
+        self.inputs.update(outputs)
+        outputs = CreatePR(self.inputs).run()
+        self.inputs.update(outputs)
 
         return self.inputs

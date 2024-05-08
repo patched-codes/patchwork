@@ -41,7 +41,6 @@ packageurl-python = "~0.15.0"
 semver = "~3.0.2"
 requests = "~2.31.0"
 chardet = "^5.2.0"
-open-interpreter = "~0.2.5"
 chromadb = "~0.4.24"
 sentence-transformers = "~2.7.0"
 # pinning transitive dependencies
