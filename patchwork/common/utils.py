@@ -1,6 +1,5 @@
 import atexit
 import contextlib
-import os
 import tempfile
 from pathlib import Path
 from typing import Callable
