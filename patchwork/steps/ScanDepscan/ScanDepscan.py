@@ -1,5 +1,6 @@
 import atexit
 import os
+import shutil
 import subprocess
 import tempfile
 from pathlib import Path
@@ -87,7 +88,8 @@ class ScanDepscan(Step):
         temporary directory exists and is writable.
         """
         # Generate a unique temporary file path
-        temp_file_path = Path(tempfile.mktemp())
+        temp_file_path = Path(tempfile.mkdtemp())
+        atexit.register(shutil.rmtree, temp_file_path, ignore_errors=True)
 
         cmd = [
             "depscan",
@@ -104,7 +106,6 @@ class ScanDepscan(Step):
 
         p = subprocess.run(cmd, capture_output=True, text=True)
 
-        atexit.register(temp_file_path.unlink, True)
         sbom_vdr_file_path = os.path.join(temp_file_path, sbom_vdr_file_name + ".vdr.json")
 
         logger.info(f"Run completed {self.__class__.__name__}")
