@@ -76,7 +76,7 @@ def cli(log: str, patchflow: str, opts: list[str], config: str | None, output: s
     if config is not None:
         config_path = Path(config)
         if config_path.is_file():
-            inputs = yaml.safe_load(config_path.read_text())
+            inputs = yaml.safe_load(config_path.read_text()) or {}
         elif config_path.is_dir():
             patchwork_path = config_path / patchflow_name
 
@@ -86,7 +86,7 @@ def cli(log: str, patchflow: str, opts: list[str], config: str | None, output: s
 
             patchwork_config_path = patchwork_path / _CONFIG_NAME
             if patchwork_config_path.is_file():
-                inputs = yaml.safe_load(patchwork_config_path.read_text())
+                inputs = yaml.safe_load(patchwork_config_path.read_text()) or {}
             else:
                 logger.warning(
                     f'Config file "{patchwork_config_path}" not found from directory "{config}", using default config'
