@@ -13,7 +13,6 @@ import yaml
 from patchwork.logger import init_cli_logger, logger
 from patchwork.steps.PreparePrompt import PreparePrompt
 
-
 _DATA_FORMAT_MAPPING = {
     "yaml": yaml.dump,
     "json": json.dumps,
