@@ -39,6 +39,9 @@ jobs:
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
         run: poetry install --no-interaction
 
+      - name: Run tests
+        run: poetry run pytest
+
       - name: AutoFix Patchwork
         run: |
           poetry run patchwork AutoFix --log debug \
