@@ -1,4 +1,4 @@
-from typing_extensions import TypedDict, NotRequired
+from typing_extensions import NotRequired, TypedDict
 
 
 class GenerateCodeRepositoryEmbeddingsInputs(TypedDict):

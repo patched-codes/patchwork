@@ -1,6 +1,6 @@
 from typing import Any
 
-from typing_extensions import Iterable, TypedDict, NotRequired
+from typing_extensions import Iterable, NotRequired, TypedDict
 
 
 class GenerateEmbeddingsInputs(TypedDict):
