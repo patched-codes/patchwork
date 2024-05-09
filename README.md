@@ -32,6 +32,8 @@ Patchflows can be run locally in your CLI and IDE, or as part of your CI/CD pipe
 
 ## Quickstart
 
+[![Patchwork CLI Quickstart](https://img.youtube.com/vi/3gRpqQoIino/0.jpg)](https://youtu.be/3gRpqQoIino)
+
 <iframe width="560" height="315" src="https://www.youtube.com/embed/3gRpqQoIino?si=9uob9IIHcB04geBY" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 ## Installation
@@ -77,7 +79,7 @@ patchwork AutoFix patched_api_key=<YOUR_PATCHED_API_KEY> github_api_key=<YOUR_GI
 ```
 
 
-Similarly, to use Google's models you can set the `google_api_key` and `model`, this is useful if you want to work with large contexts as the `gemini-pro-1.5` model supports a input context length of 1 million tokens.
+Similarly, to use Google's models you can set the `google_api_key` and `model`, this is useful if you want to work with large contexts as the `gemini-pro-1.5` model supports an input context length of 1 million tokens.
 
 The [patchwork-template](https://github.com/patched-codes/patchwork-configs) repository contains the default configuration and prompts for all the patchflows. You can clone that repo and pass it as a flag to the CLI:
 
@@ -122,7 +124,7 @@ Contributions for new patchflows and steps, or even to the core framework are we
 - To create a new patchflow, follow [these instructions](patchwork/patchflows/README.md).
 - To create a new step, follow [these instructions](patchwork/steps/README.md).
 
-We also provide chat assitants to help you create new steps and patchflows easily. Fair warning: they suffer from the same limitations as their underlying model.
+We also provide chat assistants to help you create new steps and patchflows easily. Fair warning: they suffer from the same limitations as their underlying model.
 
 - [Patchwork Assistant GPT](https://chatgpt.com/g/g-0G4sCAd2y-patchwork-assistant) (requires ChatGPT pro subscription)
 - [Patchwork Assistant on HuggingChat ](https://hf.co/chat/assistant/66322701fd4787e0c1f7696b) (free)
