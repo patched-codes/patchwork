@@ -13,15 +13,29 @@ from chromadb.utils import embedding_functions
 from patchwork.managed_files import HOME_FOLDER
 
 
-def _cleanup(path: str, prev_handler: Callable):
+_CLEANUP_FILES: set[Path] = set()
+
+
+def _cleanup_files():
+    for file in _CLEANUP_FILES:
+        file.unlink(missing_ok=True)
+
+
+def _cleanup_handler(prev_handler: Callable):
     def inner(*args):
-        Path(path).unlink(missing_ok=True)
-        prev_handler(*args)
+        _cleanup_files()
+        return prev_handler
 
     return inner
 
 
-@contextlib.contextmanager
+for sig in [signal.SIGINT, signal.SIGTERM]:
+    prev_handler = signal.getsignal(sig)
+    signal.signal(sig, _cleanup_handler(prev_handler))
+
+atexit.register(_cleanup_files)
+
+
 def defered_temp_file(
     mode="w+b", buffering=-1, encoding=None, newline=None, suffix=None, prefix=None, dir=None, *, errors=None
 ):
@@ -36,14 +50,9 @@ def defered_temp_file(
         errors=errors,
         delete=False,
     )
-    yield tempfile_fp
-    tempfile_fp.close()
 
-    for sig in [signal.SIGINT, signal.SIGTERM]:
-        prev_handler = signal.getsignal(sig)
-        signal.signal(sig, _cleanup(tempfile_fp.name, prev_handler))
-    atexit.register(Path(tempfile_fp.name).unlink, missing_ok=True)
-    return
+    _CLEANUP_FILES.add(Path(tempfile_fp.name))
+    return tempfile_fp
 
 
 def open_with_chardet(file, mode="r", buffering=-1, errors=None, newline=None, closefd=True, opener=None):
