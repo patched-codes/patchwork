@@ -1,6 +1,22 @@
-<p align="center">
-  <img src="https://github.com/patched-codes/patchwork/assets/126385808/a7adcf24-b615-43a0-a244-45789d184f0a" width="160" alt="PatchWork Logo">
-</p>
+<div align="center">
+  <picture>
+    <img alt="Patchwork logo" src="https://repository-images.githubusercontent.com/782544882/a9743f35-5e1c-43ed-a0e0-536322056d38" width="36%">
+  </picture>
+</div>
+
+<br>
+
+<div align="center">
+
+[![Build Status](https://img.shields.io/github/actions/workflow/status/patched-codes/patchwork/release.yml?logo=github)]()
+[![Downloads](https://static.pepy.tech/badge/patchwork-cli)](https://pepy.tech/project/patchwork-cli)
+[![Discord](https://img.shields.io/discord/1236886480471855104?style=flat&logo=discord&logoColor=white&label=discord)](https://discord.gg/FVcSNW6v)
+
+[Tutorial](https://tbc) |
+[Docs](https://docs.patched.codes/)
+
+</div>
+
 
 # PatchWork
 
@@ -8,10 +24,11 @@ An open-source framework for automating development chores using large language 
 
 ## Key Components
 
-- **Steps**: A set of reusable atomic actions that define various operations.
-- **Patchflows**: LLM-assisted automations such as PR reviews, code fixing, debugging.
+- **Steps**: Reusable atomic actions like Create PR, commit changes, call an LLM etc
+- **Prompt Templates**: Customizable LLM prompts optimized for a chore like library updates, code generation, issue analysis etc.
+- **Patchflows**: LLM-assisted automations such as PR reviews, code fixing, documentation etc. built by combining steps and prompts.
 
-Patchflows can be run locally in your CLI and IDE, or as part of your CI/CD pipeline.
+Patchflows can be run locally in your CLI and IDE, or as part of your CI/CD pipeline. There are [5 patchflows available][] out of the box, and you can always [create your own][].
 
 ## Installation
 
@@ -25,39 +42,14 @@ pip install patchwork-cli --upgrade
 
 ### Using Poetry
 
-PatchWork is built using Poetry, a dependency management and packaging tool for Python. To install PatchWork using Poetry, follow these steps:
-
-1. Make sure you have Poetry installed. If you don't have it installed, you can install it by running:
-   ```
-   curl -sSL https://install.python-poetry.org | python3 -
-   ```
-
-2. Clone the PatchWork repository:
-   ```
-   git clone https://github.com/patched-codes/patchwork.git
-   ```
-
-3. Navigate to the project directory:
-   ```
-   cd patchwork
-   ```
-
-4. Activate a shell using virtual environment:
-   ```
-   poetry shell
-   ```
-
-5. Install the dependencies using Poetry:
-   ```
-   poetry install
-   ```
+If you'd like to build from source using poetry, please see detailed documentation `here`[file](INSTALL.md) .
 
 ## PatchWork CLI
 
 The CLI runs Patchflows, as follows:
 
 ```
-patchwork <Patchflow> <?Arguments>
+patchwork <PatchFlow> <?Arguments>
 ```
 
 Where
@@ -71,16 +63,16 @@ For an AutoFix patchflow which patches vulnerabilities based on a scan using Sem
 patchwork AutoFix openai_api_key=<YOUR_OPENAI_API_KEY> github_api_key=<YOUR_GITHUB_TOKEN>
 ```
 
-The above command will default to patching code in the current directory, by running Semgrep to identify the vulnerabilities.
+The above command will default to patching code in the current directory, by running Semgrep to identify the vulnerabilities. You can take a look at the `default.yml` [file](patchwork/patchflows/AutoFix/defaults.yml) for the list of configurations you can set to manage the AutoFix patchflow. 
 
-You can take a look at the `default.yml` [file](patchwork/patchflows/AutoFix/defaults.yml) for the list of configurations you can set to manage the AutoFix patchflow. You will need to pass your own `openai_api_key` to call the LLM. Otherwise, to get started, you can get a `patched_api_key` for free by
+You can replace the OpenAI key with a key from our managed service
 by signing in at [https://app.patched.codes/signin](https://app.patched.codes/signin) and generating an API key from the integrations tab. You can then call the patchflow with the key as follows:
 
 ```bash
 patchwork AutoFix patched_api_key=<YOUR_PATCHED_API_KEY> github_api_key=<YOUR_GITHUB_TOKEN>
 ```
 
-The [patchwork-configs](https://github.com/patched-codes/patchwork-configs) repository contains the default configuration and prompts for all the patchflows. You can clone that repo and pass it as a flag to the CLI:
+The [patchwork template](https://github.com/patched-codes/patchwork-configs) repository contains the default configuration and prompts for all the patchflows. You can clone that repo and pass it as a flag to the CLI:
 
 ```bash
 patchwork AutoFix --config /path/to/patchwork-configs/patchflows
@@ -118,11 +110,12 @@ Each patchflow comes with an optimized default prompt template. But you can spec
 
 ## Contributing
 
-To create a new patchflow, follow [these instructions](patchwork/patchflows/README.md).
+Contributions for new patchflows and steps, or even to the core framework are welcome. Please look at open issues for details.
 
-To create a new step, follow [these instructions](patchwork/steps/README.md).
+- To create a new patchflow, follow [these instructions](patchwork/patchflows/README.md).
+- To create a new step, follow [these instructions](patchwork/steps/README.md).
 
-We also provide chat assitants to help you create new steps and patchflows easily.
+We also provide chat assitants to help you create new steps and patchflows easily. Fair warning: they suffer from the same limitations as their underlying model.
 
 - [Patchwork Assistant GPT](https://chatgpt.com/g/g-0G4sCAd2y-patchwork-assistant) (requires ChatGPT pro subscription)
 - [Patchwork Assistant on HuggingChat ](https://hf.co/chat/assistant/66322701fd4787e0c1f7696b) (free)
