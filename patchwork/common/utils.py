@@ -1,5 +1,4 @@
 import atexit
-import contextlib
 import signal
 import tempfile
 from pathlib import Path
@@ -11,7 +10,6 @@ from chromadb.api.types import Documents, EmbeddingFunction
 from chromadb.utils import embedding_functions
 
 from patchwork.managed_files import HOME_FOLDER
-
 
 _CLEANUP_FILES: set[Path] = set()
 

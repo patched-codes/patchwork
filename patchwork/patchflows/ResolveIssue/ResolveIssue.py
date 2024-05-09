@@ -13,8 +13,8 @@ from patchwork.steps import (
     ExtractModelResponse,
     GenerateCodeRepositoryEmbeddings,
     ModifyCode,
-    PreparePrompt,
     PreparePR,
+    PreparePrompt,
     QueryEmbeddings,
     ReadIssues,
 )
