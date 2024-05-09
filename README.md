@@ -80,6 +80,8 @@ by signing in at [https://app.patched.codes/signin](https://app.patched.codes/si
 patchwork AutoFix patched_api_key=<YOUR_PATCHED_API_KEY> github_api_key=<YOUR_GITHUB_TOKEN>
 ```
 
+Similarly, to use Google's models you can set the `google_api_key` and `model`, this is useful if you want to work with large contexts as the `gemini-pro-1.5` model supports a input context length of 1 million tokens.
+
 The [patchwork-configs](https://github.com/patched-codes/patchwork-configs) repository contains the default configuration and prompts for all the patchflows. You can clone that repo and pass it as a flag to the CLI:
 
 ```bash
@@ -90,11 +92,11 @@ patchwork AutoFix --config /path/to/patchwork-configs/patchflows
 
 Patchwork comes with a set of predefined patchflows, and more will be added over time. Below is a sample list of patchflows:
 
-- AutoFix: Generate and apply fixes to code vulnerabilities in a repository.
-- DependencyUpgrade: Update your dependencies from vulnerable to fixed versions.
-- PRReview: On PR creation, extract code diff, summarize changes, and comment on PR.
-- GenerateREADME: Create a README.md file for a given folder, to add documentation to your repository.
-- ResolveIssue: Identify the files in your repository that need to be updated to resolve an issue (or bug) and create a PR to fix it.
+- **AutoFix**: Generate and apply fixes to code vulnerabilities in a repository.
+- **DependencyUpgrade**: Update your dependencies from vulnerable to fixed versions.
+- **PRReview**: On PR creation, extract code diff, summarize changes, and comment on PR.
+- **GenerateREADME**: Create a README.md file for a given folder, to add documentation to your repository.
+- **ResolveIssue**: Identify the files in your repository that need to be updated to resolve an issue (or bug) and create a PR to fix it.
 
 ## Prompt Templates
 
