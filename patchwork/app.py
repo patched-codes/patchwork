@@ -134,8 +134,6 @@ def cli(log: str, patchflow: str, opts: list[str], config: str | None, output: s
         serialize = _DATA_FORMAT_MAPPING.get(data_format, json.dumps)
         with open(output, "w") as file:
             file.write(serialize(inputs))
-
-
 def find_module(possible_module_paths: Iterable[str], patchflow: str) -> ModuleType | None:
     for module_path in possible_module_paths:
         try:
@@ -145,6 +143,10 @@ def find_module(possible_module_paths: Iterable[str], patchflow: str) -> ModuleT
             return module
         except Exception:
             logger.debug(f"Patchflow {patchflow} not found as a file/directory in {module_path}")
+
+        if module_path not in ["safe_module_1", "safe_module_2"]:  # Add safe module names to the whitelist
+            logger.error(f"Invalid module: {module_path} attempting to be imported")
+            return None
 
         try:
             return importlib.import_module(module_path)
