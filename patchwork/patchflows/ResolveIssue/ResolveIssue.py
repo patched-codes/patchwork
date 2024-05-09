@@ -14,6 +14,7 @@ from patchwork.steps import (
     GenerateCodeRepositoryEmbeddings,
     ModifyCode,
     PreparePrompt,
+    PreparePR,
     QueryEmbeddings,
     ReadIssues,
 )
@@ -106,7 +107,10 @@ The following files in the repository may be relevant to the issue:
         self.inputs.update(outputs)
 
         # Commit changes and create PR
+        self.inputs["pr_header"] = f'This pull request from patchwork fixes {self.inputs["issue_url"]}.'
         outputs = CommitChanges(self.inputs).run()
+        self.inputs.update(outputs)
+        outputs = PreparePR(self.inputs).run()
         self.inputs.update(outputs)
         outputs = CreatePR(self.inputs).run()
         self.inputs.update(outputs)
