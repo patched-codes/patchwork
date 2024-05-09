@@ -28,7 +28,7 @@ def split_text(document_text: str, chunk_size: int, overlap: int) -> list[str]:
 def delete_collection(client, collection_name):
     for collection in client.list_collections():
         if collection.name == collection_name:
-            collection.delete()
+            client.delete_collection(collection_name)
             break
 
 
