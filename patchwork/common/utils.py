@@ -1,5 +1,6 @@
 import atexit
 import contextlib
+import signal
 import tempfile
 from pathlib import Path
 from typing import Callable
@@ -10,6 +11,14 @@ from chromadb.api.types import Documents, EmbeddingFunction
 from chromadb.utils import embedding_functions
 
 from patchwork.managed_files import HOME_FOLDER
+
+
+def _cleanup(path: str, prev_handler: Callable):
+    def inner(*args):
+        Path(path).unlink(missing_ok=True)
+        prev_handler(*args)
+
+    return inner
 
 
 @contextlib.contextmanager
@@ -29,6 +38,10 @@ def defered_temp_file(
     )
     yield tempfile_fp
     tempfile_fp.close()
+
+    for sig in [signal.SIGINT, signal.SIGTERM]:
+        prev_handler = signal.getsignal(sig)
+        signal.signal(sig, _cleanup(tempfile_fp.name, prev_handler))
     atexit.register(Path(tempfile_fp.name).unlink, missing_ok=True)
     return
 
