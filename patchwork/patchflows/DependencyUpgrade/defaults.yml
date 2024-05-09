@@ -21,6 +21,6 @@ disable_branch: false
 
 # CreatePR Inputs
 disable_pr: false
-force_pr_creation: false
+force_pr_creation: true
 # github_api_key: required-for-github-scm
 # gitlab_api_key: required-for-gitlab-scm

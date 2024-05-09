@@ -1,5 +1,4 @@
 import json
-import os
 import re
 import string
 from pathlib import Path
@@ -159,9 +158,6 @@ def get_diff_sections(diff_file_path: str, language: str) -> Dict[str, List[str]
 class ExtractDiff(Step):
     def __init__(self, inputs: dict):
         logger.info(f"Run started {self.__class__.__name__}")
-
-        # Set 'libraries_api_key' from inputs or environment if not already set
-        inputs.setdefault("libraries_api_key", os.environ.get("LIBRARIES_API_KEY"))
 
         required_keys = {"update_info", "libraries_api_key", "github_api_key"}
 
