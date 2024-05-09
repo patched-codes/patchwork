@@ -12,7 +12,7 @@
 [![Downloads](https://static.pepy.tech/badge/patchwork-cli)](https://pepy.tech/project/patchwork-cli)
 [![Discord](https://img.shields.io/discord/1236886480471855104?style=flat&logo=discord&logoColor=white&label=discord)](https://discord.gg/FVcSNW6v)
 
-[Tutorial](https://tbc) |
+[Demo](https://youtu.be/3gRpqQoIino) |
 [Docs](https://docs.patched.codes/)
 
 </div>
@@ -29,6 +29,10 @@ An open-source framework for automating development chores using large language 
 - **Patchflows**: LLM-assisted automations such as PR reviews, code fixing, documentation etc. built by combining steps and prompts.
 
 Patchflows can be run locally in your CLI and IDE, or as part of your CI/CD pipeline. There are [5 patchflows available][] out of the box, and you can always [create your own][].
+
+## Quickstart
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/3gRpqQoIino?si=9uob9IIHcB04geBY" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 ## Installation
 
@@ -83,10 +87,10 @@ patchwork AutoFix --config /path/to/patchwork-configs/patchflows
 Patchwork comes with a set of predefined patchflows, and more will be added over time. Below is a sample list of patchflows:
 
 - AutoFix: Generate and apply fixes to code vulnerabilities in a repository.
-- DependencyUpgrade: Update your dependencies from vulnerable to fixed versions.
 - PRReview: On PR creation, extract code diff, summarize changes, and comment on PR.
-- GenerateREADME: Create a README.md file for a given folder, to add documentation to your repository.
-- ResolveIssue: Identify the files in your repository that need to be updated to resolve an issue (or bug) and create a PR to fix it.
+- GenerateREADME: Create a README markdown file for a given folder, to add documentation to your repository.
+- [Experimental] DependencyUpgrade: Update your dependencies from vulnerable to fixed versions.
+- [Experimental] ResolveIssue: Identify the files in your repository that need to be updated to resolve an issue (or bug) and create a PR to fix it.
 
 ## Prompt Templates
 
@@ -119,3 +123,22 @@ We also provide chat assitants to help you create new steps and patchflows easil
 
 - [Patchwork Assistant GPT](https://chatgpt.com/g/g-0G4sCAd2y-patchwork-assistant) (requires ChatGPT pro subscription)
 - [Patchwork Assistant on HuggingChat ](https://hf.co/chat/assistant/66322701fd4787e0c1f7696b) (free)
+
+## Roadmap
+
+### Short Term Q2 '24
+- Expand patchflow library and integration options
+- Patchflow debugger and validation module
+- Bug fixing and performance improvements
+- Refactor code and documentation
+
+### Long Term Q3/Q4 '24
+- Support large-scale code embeddings in patchflows
+- Support parallelization and branching
+- Fine-tuned models that can be self-hosted
+- Open-source GUI
+
+## License
+
+Patchwork is licensed under [AGPL-3.0 terms](https://github.com/patched-codes/patchwork?tab=AGPL-3.0-1-ov-file#readme). However, custom patchflows and steps can be created and shared using the [patchwork template](https://github.com/patched-codes/patchwork-configs) repository which is licensed under [Apache-2.0 terms](https://github.com/patched-codes/patchwork-configs/blob/main/LICENSE).
+
