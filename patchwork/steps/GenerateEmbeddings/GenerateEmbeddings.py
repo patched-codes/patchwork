@@ -25,6 +25,13 @@ def split_text(document_text: str, chunk_size: int, overlap: int) -> list[str]:
     return chunks
 
 
+def delete_collection(client, collection_name):
+    for collection in client.list_collections():
+        if collection.name == collection_name:
+            collection.delete()
+            break
+
+
 class GenerateEmbeddings(Step):
     required_keys = {"embedding_name", "documents"}
 
@@ -35,6 +42,9 @@ class GenerateEmbeddings(Step):
             raise ValueError(f'Missing required data: "{self.required_keys}"')
 
         client = chromadb.PersistentClient(path=get_vector_db_path())
+
+        if inputs.get("disable_cache", False):
+            delete_collection(client, inputs["embedding_name"])
 
         embedding_function = get_embedding_function(inputs)
         self.collection = client.get_or_create_collection(

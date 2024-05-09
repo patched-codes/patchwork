@@ -145,7 +145,7 @@ class GenerateCodeRepositoryEmbeddings(Step):
             raise ValueError(f'Missing required data: "{self.required_keys}"')
 
         self.client = chromadb.PersistentClient(path=get_vector_db_path())
-
+        self.disable_cache = inputs.get("disable_cache", False)
         self.inputs = inputs
 
     def run(self) -> dict:
@@ -207,7 +207,7 @@ class GenerateCodeRepositoryEmbeddings(Step):
                     path=file,
                 )
             ]
-            if reference_collection is not None:
+            if reference_collection is not None and not self.disable_cache:
                 result = reference_collection.get(
                     where={"$and": [{"hash": text_hash}, {"path": file}]}, include=["metadatas", "embeddings"]
                 )
