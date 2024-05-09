@@ -1,6 +1,9 @@
+import atexit
 import os
+import shutil
 import subprocess
 import tempfile
+from pathlib import Path
 
 from patchwork.logger import logger
 from patchwork.step import Step
@@ -85,12 +88,13 @@ class ScanDepscan(Step):
         temporary directory exists and is writable.
         """
         # Generate a unique temporary file path
-        temp_file_path = tempfile.mktemp()
+        temp_file_path = Path(tempfile.mkdtemp())
+        atexit.register(shutil.rmtree, temp_file_path, ignore_errors=True)
 
         cmd = [
             "depscan",
             "--reports-dir",
-            temp_file_path,
+            str(temp_file_path),
         ]
 
         if self.language is not None:

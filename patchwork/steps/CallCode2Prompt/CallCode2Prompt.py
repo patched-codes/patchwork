@@ -1,9 +1,9 @@
 import json
 import os
 import subprocess
-import tempfile
 from pathlib import Path
 
+from patchwork.common.utils import defered_temp_file
 from patchwork.logger import logger
 from patchwork.step import Step
 
@@ -69,9 +69,9 @@ class CallCode2Prompt(Step):
 
         self.extracted_data.append(data)
 
-        output_file = Path(tempfile.mktemp(".json"))
-        with open(output_file, "w", encoding="utf-8") as f:
-            json.dump(self.extracted_data, f, indent=2)
+        with defered_temp_file("w", suffix=".json") as fp:
+            json.dump(self.extracted_data, fp, indent=2)
+            output_file = Path(fp.name)
 
         logger.info(f"Run completed {self.__class__.__name__}")
         return {"prompt_value_file": output_file, "code_file": output_file}

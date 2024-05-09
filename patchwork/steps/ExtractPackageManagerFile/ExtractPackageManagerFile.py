@@ -1,13 +1,13 @@
 import json
 import os
 import re
-import tempfile
 from collections import defaultdict
 from pathlib import Path
 
 import semver
 from packageurl import PackageURL
 
+from patchwork.common.utils import defered_temp_file
 from patchwork.logger import logger
 from patchwork.step import Step
 
@@ -273,10 +273,9 @@ class ExtractPackageManagerFile(Step):
             self.extracted_data.append(data)
 
         # Save extracted data to JSON
-
-        output_file = Path(tempfile.mktemp(".json"))
-        with open(output_file, "w", encoding="utf-8") as f:
-            json.dump(self.extracted_data, f, indent=2)
+        with defered_temp_file("w", suffix=".json") as fp:
+            json.dump(self.extracted_data, fp, indent=2)
+            output_file = Path(fp.name)
 
         logger.info(f"Run completed {self.__class__.__name__}")
         return dict(prompt_value_file=output_file, code_file=output_file)

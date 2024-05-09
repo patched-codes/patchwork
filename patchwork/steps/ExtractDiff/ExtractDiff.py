@@ -2,13 +2,13 @@ import json
 import os
 import re
 import string
-import tempfile
 from pathlib import Path
 from typing import Dict, List
 
 import requests
 from packageurl import PackageURL
 
+from patchwork.common.utils import defered_temp_file
 from patchwork.logger import logger
 from patchwork.step import Step
 
@@ -212,9 +212,9 @@ class ExtractDiff(Step):
             diff_file = requests.get(compare_url + vuln_version + "..." + fixed_version, headers=headers)
 
             if diff_file.text.startswith("diff"):
-                temp_file_path = tempfile.mktemp()
-                with open(temp_file_path, "w") as file:
-                    file.write(diff_file.text)
+                with defered_temp_file("w") as fp:
+                    fp.write(diff_file.text)
+                    temp_file_path = Path(fp.name)
 
         if temp_file_path is None:
             logger.info(
@@ -229,9 +229,9 @@ class ExtractDiff(Step):
             extracted_data.append({"diffSection": diff_section})
 
         # Save extracted data to JSON
-        output_file = Path(tempfile.mktemp(".json"))
-        with open(output_file, "w", encoding="utf-8") as f:
-            json.dump(extracted_data, f, indent=2)
+        with defered_temp_file("w", suffix=".json") as fp:
+            json.dump(extracted_data, fp, indent=2)
+            output_file = Path(fp.name)
 
         logger.info(f"Run completed {self.__class__.__name__}")
         return dict(prompt_value_file=output_file, library_name=name, platform_type=platform_type)
