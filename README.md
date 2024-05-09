@@ -32,9 +32,9 @@ Patchflows can be run locally in your CLI and IDE, or as part of your CI/CD pipe
 
 ## Quickstart
 
+<div align="center">
 [![Patchwork CLI Quickstart](https://img.youtube.com/vi/3gRpqQoIino/0.jpg)](https://youtu.be/3gRpqQoIino)
-
-<iframe width="560" height="315" src="https://www.youtube.com/embed/3gRpqQoIino?si=9uob9IIHcB04geBY" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+</div>
 
 ## Installation
 
