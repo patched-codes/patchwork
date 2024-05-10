@@ -63,11 +63,11 @@ def test_replace_code_in_file(tmp_path):
 
 def test_modify_code_init():
     inputs = {
-        "code_file": "path/to/code.json",
+        "files_to_patch": [{"uri": "path/to/uri", "startLine": 1, "endLine": 2}],
         "extracted_responses": [{"uri": "path/to/uri", "startLine": 1, "endLine": 2, "patch": "new_code"}],
     }
     modify_code = ModifyCode(inputs)
-    assert modify_code.code_change_file == "path/to/code.json"
+    assert modify_code.files_to_patch == [{"uri": "path/to/uri", "startLine": 1, "endLine": 2}]
     assert modify_code.extracted_responses == [
         {"uri": "path/to/uri", "startLine": 1, "endLine": 2, "patch": "new_code"}
     ]
@@ -82,7 +82,7 @@ def test_modify_code_run(tmp_path):
         json.dump([{"uri": str(file_path), "startLine": 1, "endLine": 2}], f)
 
     inputs = {
-        "code_file": str(code_snippets_path),
+        "files_to_patch": [{"uri": str(file_path), "startLine": 1, "endLine": 2}],
         "extracted_responses": [{"uri": file_path, "startLine": 1, "endLine": 2, "patch": "new_code"}],
     }
     modify_code = ModifyCode(inputs)

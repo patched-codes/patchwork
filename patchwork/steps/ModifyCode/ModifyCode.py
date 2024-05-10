@@ -66,7 +66,7 @@ class ModifyCode(Step):
         if not all(key in inputs.keys() for key in self.required_keys):
             raise ValueError(f'Missing required data: "{self.required_keys}"')
 
-        self.files_to_patch = inputs.get(self.FILES_TO_PATCH)
+        self.files_to_patch = inputs[self.FILES_TO_PATCH]
         self.extracted_responses = inputs[self.UPDATED_SNIPPETS_KEY]
 
     def run(self) -> dict:

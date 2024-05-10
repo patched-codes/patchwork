@@ -107,8 +107,15 @@ class ScanDepscan(Step):
         p = subprocess.run(cmd, capture_output=True, text=True)
 
         sbom_vdr_file_path = temp_file_path / f"{sbom_vdr_file_name}.vdr.json"
-        with open(sbom_vdr_file_path, "r") as f:
-            sbom_values = json.load(f)
+        try:
+            with open(sbom_vdr_file_path, "r") as f:
+                sbom_values = json.load(f)
+        except json.JSONDecodeError as e:
+            logger.debug(e)
+            raise ValueError(f"Error reading SBOM VDR file from Depscan")
+        except FileNotFoundError as e:
+            logger.debug(e)
+            raise ValueError(f"SBOM VDR file not found from Depscan")
 
         logger.info(f"Run completed {self.__class__.__name__}")
         return {"sbom_vdr_values": sbom_values}

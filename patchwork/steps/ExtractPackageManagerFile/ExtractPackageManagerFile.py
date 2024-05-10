@@ -115,7 +115,7 @@ class ExtractPackageManagerFile(Step):
         sbom_vdr_file_path = inputs.get("sbom_vdr_file_path")
         if sbom_vdr_file_path is not None:
             sbom_vdr_file_path = Path(sbom_vdr_file_path)
-            if not sbom_vdr_file_path.exists() or not sbom_vdr_file_path.is_file():
+            if not sbom_vdr_file_path.is_file():
                 raise ValueError(f'SBOM VDR file path does not exist or is not a file: "{sbom_vdr_file_path}"')
             with open(sbom_vdr_file_path, "r") as file:
                 self.sbom_vdr_values = json.load(file)
