@@ -9,7 +9,7 @@ class ExtractCodeInputs(TypedDict):
 
 
 class ExtractCodeOutputs(TypedDict):
-    code_file: str
+    files_to_patch: Iterable["ExtractedCode"]
     prompt_values: Iterable["ExtractedCode"]
 
 

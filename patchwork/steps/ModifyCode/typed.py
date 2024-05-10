@@ -2,7 +2,7 @@ from typing_extensions import Iterable, TypedDict
 
 
 class ModifyCodeInputs(TypedDict):
-    code_file: str
+    files_to_patch: Iterable[dict]
     extracted_responses: Iterable[dict[str, str]]
 
 

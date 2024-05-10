@@ -1,11 +1,12 @@
 from pathlib import Path
 
-from typing_extensions import NotRequired, TypedDict
+from typing_extensions import Iterable, NotRequired, TypedDict
 
 
 class CallLLMInputs(TypedDict):
-    prompt_file: Path
-    model: str
+    prompt_file: NotRequired[str]
+    prompts: NotRequired[Iterable[dict]]
+    model: NotRequired[str]
     allow_truncated: NotRequired[bool]
     model_args: NotRequired[str]
     client_args: NotRequired[str]
@@ -15,5 +16,5 @@ class CallLLMInputs(TypedDict):
 
 
 class CallLLMOutputs(TypedDict):
-    new_code: Path
+    files_to_patch: Iterable[dict]
     openai_response: list[str]

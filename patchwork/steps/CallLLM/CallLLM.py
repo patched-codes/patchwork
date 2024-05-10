@@ -8,7 +8,6 @@ from typing import Any, Protocol
 import requests
 from openai import OpenAI
 
-from patchwork.common.utils import defered_temp_file
 from patchwork.logger import logger
 from patchwork.step import Step
 
@@ -121,7 +120,6 @@ class CallOpenAI(LLMModel):
 
 
 class CallLLM(Step):
-    required_keys = {"prompt_file"}
 
     def __init__(self, inputs: dict):
         logger.info(f"Run started {self.__class__.__name__}")
@@ -129,17 +127,20 @@ class CallLLM(Step):
         # Set 'openai_key' from inputs or environment if not already set
         inputs.setdefault("openai_api_key", os.environ.get("OPENAI_API_KEY"))
 
-        if not all(key in inputs.keys() for key in self.required_keys):
-            raise ValueError(f'Missing required data: "{self.required_keys}"')
-
-        self.prompt_file = Path(inputs["prompt_file"])
-        if not self.prompt_file.is_file():
-            raise ValueError(f'Unable to find Prompt file: "{self.prompt_file}"')
-        try:
-            with open(self.prompt_file, "r") as fp:
-                json.load(fp)
-        except json.JSONDecodeError as e:
-            raise ValueError(f'Invalid Json Prompt file "{self.prompt_file}": {e}')
+        prompt_file = inputs.get("prompt_file")
+        if prompt_file is not None:
+            prompt_file_path = Path(prompt_file)
+            if not prompt_file_path.is_file():
+                raise ValueError(f'Unable to find Prompt file: "{prompt_file}"')
+            try:
+                with open(prompt_file_path, "r") as fp:
+                    self.prompts = json.load(fp)
+            except json.JSONDecodeError as e:
+                raise ValueError(f'Invalid Json Prompt file "{prompt_file}": {e}')
+        elif "prompts" in inputs.keys():
+            self.prompts = inputs["prompts"]
+        else:
+            raise ValueError('Missing required data: "prompt_file" or "prompts"')
 
         self.model_args = {key[len("model_") :]: value for key, value in inputs.items() if key.startswith("model_")}
         self.client_args = {key[len("client_") :]: value for key, value in inputs.items() if key.startswith("client_")}
@@ -183,14 +184,7 @@ class CallLLM(Step):
         )
 
     def run(self) -> dict:
-        with open(self.prompt_file, "r") as fp:
-            prompts = json.load(fp)
-
-        contents = self.llm.call(prompts)
-
-        with defered_temp_file("w", suffix=".json") as outfile:
-            json.dump(contents, outfile, indent=2)
-            response_file = Path(outfile.name)
+        contents = self.llm.call(self.prompts)
 
         logger.info(f"Run completed {self.__class__.__name__}")
-        return dict(new_code=response_file, openai_responses=contents)
+        return dict(files_to_patch=contents, openai_responses=contents)

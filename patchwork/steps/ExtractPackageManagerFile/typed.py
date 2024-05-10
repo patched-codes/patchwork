@@ -1,13 +1,14 @@
-from typing_extensions import NotRequired, TypedDict
+from typing_extensions import Iterable, NotRequired, TypedDict
 
 
 class ExtractPackageManagerInputs(TypedDict):
-    sbom_vdr_file_path: str
+    sbom_vdr_file_path: NotRequired[str]
+    sbom_vdr_values: NotRequired[dict]
     package_manager_file: NotRequired[str]
     upgrade_threshold: NotRequired[str]
     severity: NotRequired[str]
 
 
 class ExtractPackageManagerOutputs(TypedDict):
-    prompt_value_file: str
-    code_file: str
+    prompt_values: Iterable[dict]
+    files_to_patch: Iterable[dict]

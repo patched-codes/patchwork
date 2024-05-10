@@ -7,11 +7,7 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
-from patchwork.common.utils import (
-    count_openai_tokens,
-    defered_temp_file,
-    open_with_chardet,
-)
+from patchwork.common.utils import count_openai_tokens, open_with_chardet
 from patchwork.logger import logger
 from patchwork.step import Step
 from patchwork.steps.ExtractCode.context_strategy.context_strategies import (
@@ -297,14 +293,9 @@ class ExtractCode(Step):
             for (file_path, start, end, context), msgs in grouped_messages.items()
         ]
 
-        # Save extracted data to JSON
-        with defered_temp_file("w", suffix=".json") as fp:
-            json.dump(self.extracted_code_contexts, fp, indent=2)
-            output_file = Path(fp.name)
-
         logger.info(f"Run completed {self.__class__.__name__}")
 
         return dict(
-            code_file=output_file,
+            files_to_patch=self.extracted_code_contexts,
             prompt_values=self.extracted_code_contexts,
         )

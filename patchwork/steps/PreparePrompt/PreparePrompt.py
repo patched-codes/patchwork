@@ -67,9 +67,5 @@ class PreparePrompt(Step):
                 prompt.append(prompt_instance)
             prompts.append(prompt)
 
-        with defered_temp_file("w", suffix=".json") as fp:
-            json.dump(prompts, fp, indent=2)
-            prompt_file = Path(fp.name)
-
         logger.info(f"Run completed {self.__class__.__name__}")
-        return {"prompt_file": prompt_file}
+        return dict(prompts=prompts)

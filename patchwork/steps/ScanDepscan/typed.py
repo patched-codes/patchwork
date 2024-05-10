@@ -6,4 +6,4 @@ class ScanDepscanInputs(TypedDict):
 
 
 class ScanDepscanOutputs(TypedDict):
-    sbom_vdr_file_path: str
+    sbom_vdr_values: str

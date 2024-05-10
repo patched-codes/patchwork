@@ -67,7 +67,7 @@ def test_modify_code_init():
         "extracted_responses": [{"uri": "path/to/uri", "startLine": 1, "endLine": 2, "patch": "new_code"}],
     }
     modify_code = ModifyCode(inputs)
-    assert modify_code.code_snippets_path == "path/to/code.json"
+    assert modify_code.code_change_file == "path/to/code.json"
     assert modify_code.extracted_responses == [
         {"uri": "path/to/uri", "startLine": 1, "endLine": 2, "patch": "new_code"}
     ]
