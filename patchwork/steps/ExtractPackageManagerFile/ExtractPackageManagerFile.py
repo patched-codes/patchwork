@@ -195,7 +195,7 @@ class ExtractPackageManagerFile(Step):
 
         # Process each vulnerabiility in SBOM VDR data
         purl_list = []
-        for vul in sbom_vdr_data.get("vulnerabilities", []):
+        for vul in self.sbom_vdr_values.get("vulnerabilities", []):
             for rating in vul.get("ratings", []):
                 severity = rating.get("severity", "")
 
