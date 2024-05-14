@@ -16,5 +16,5 @@ class CallLLMInputs(TypedDict):
 
 
 class CallLLMOutputs(TypedDict):
-    files_to_patch: Iterable[dict]
+    new_code: Iterable[dict]
     openai_response: list[str]

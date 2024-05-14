@@ -187,4 +187,4 @@ class CallLLM(Step):
         contents = self.llm.call(self.prompts)
 
         logger.info(f"Run completed {self.__class__.__name__}")
-        return dict(files_to_patch=contents, openai_responses=contents)
+        return dict(new_code=contents, openai_responses=contents)
