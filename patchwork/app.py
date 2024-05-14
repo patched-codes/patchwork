@@ -134,8 +134,6 @@ def cli(log: str, patchflow: str, opts: list[str], config: str | None, output: s
         serialize = _DATA_FORMAT_MAPPING.get(data_format, json.dumps)
         with open(output, "w") as file:
             file.write(serialize(inputs))
-
-
 def find_module(possible_module_paths: Iterable[str], patchflow: str) -> ModuleType | None:
     for module_path in possible_module_paths:
         try:
