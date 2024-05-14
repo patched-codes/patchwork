@@ -18,34 +18,28 @@ def extract_code_instance(tmp_path):
     test_file = tmp_path / "test.py"
     test_file.write_text("print('Hello, world!')")
 
-    sarif_file = tmp_path / _DEFAULT_SARIF_FILE_NAME
-    sarif_file.write_text(
-        json.dumps(
-            {
-                "runs": [
-                    {
-                        "results": [
-                            {
-                                "message": {"text": "Error message"},
-                                "ruleId": "1",
-                                "locations": [
-                                    {
-                                        "physicalLocation": {
-                                            "artifactLocation": {"uri": str(test_file)},
-                                            "region": {"startLine": 1, "endLine": 1},
-                                        }
-                                    }
-                                ],
-                            }
-                        ],
-                        "tool": {"driver": {"rules": [{"id": "1", "defaultConfiguration": {"level": "high"}}]}},
-                    }
-                ],
-            }
-        )
-    )
     inputs = {
-        "sarif_file_path": sarif_file,
+        "sarif_values": {
+            "runs": [
+                {
+                    "results": [
+                        {
+                            "message": {"text": "Error message"},
+                            "ruleId": "1",
+                            "locations": [
+                                {
+                                    "physicalLocation": {
+                                        "artifactLocation": {"uri": str(test_file)},
+                                        "region": {"startLine": 1, "endLine": 1},
+                                    }
+                                }
+                            ],
+                        }
+                    ],
+                    "tool": {"driver": {"rules": [{"id": "1", "defaultConfiguration": {"level": "high"}}]}},
+                }
+            ],
+        },
         "context_size": 1000,
         "vulnerability_limit": 10,
         "severity": "HIGH",
@@ -55,7 +49,6 @@ def extract_code_instance(tmp_path):
 
 
 def test_extract_code_init(extract_code_instance):
-    assert extract_code_instance.sarif_file_path.name == _DEFAULT_SARIF_FILE_NAME
     assert extract_code_instance.context_length == 1000
     assert extract_code_instance.vulnerability_limit == 10
     assert extract_code_instance.severity_threshold == Severity.HIGH
