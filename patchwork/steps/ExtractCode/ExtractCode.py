@@ -250,7 +250,7 @@ def transform_sarif_results(
 
 
 class ExtractCode(Step):
-    required_keys = {"sarif_file_path"}
+    required_keys = {"sarif_values"}
 
     def __init__(self, inputs: dict):
         logger.info(f"Run started {self.__class__.__name__}")
@@ -258,11 +258,7 @@ class ExtractCode(Step):
         if not all(key in inputs.keys() for key in self.required_keys):
             raise ValueError(f'Missing required data: "{self.required_keys}"')
 
-        # Validate and set the SARIF file path
-        self.sarif_file_path = Path(inputs["sarif_file_path"])
-        if not self.sarif_file_path.exists() or not self.sarif_file_path.is_file():
-            raise ValueError(f'SARIF file path does not exist or is not a file: "{self.sarif_file_path}"')
-
+        self.sarif_data = inputs["sarif_values"]
         # Check and set number of lines to extract
         self.context_length = inputs.get("context_size", 1000)
         self.vulnerability_limit = inputs.get("vulnerability_limit", 10)
@@ -272,14 +268,10 @@ class ExtractCode(Step):
         self.extracted_code_contexts = []
 
     def run(self) -> dict:
-        # Load SARIF data
-        with open_with_chardet(self.sarif_file_path, "r") as file:
-            sarif_data = json.load(file)
-
         base_path = Path.cwd()
 
         grouped_messages = transform_sarif_results(
-            sarif_data, base_path, self.context_length, self.vulnerability_limit, self.severity_threshold
+            self.sarif_data, base_path, self.context_length, self.vulnerability_limit, self.severity_threshold
         )
 
         self.extracted_code_contexts = [
