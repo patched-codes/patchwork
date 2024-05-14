@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "patchwork-cli"
-version = "0.0.8"
+version = "0.0.9"
 description = ""
 authors = ["patched.codes"]
 license = "AGPL"
@@ -15,7 +15,7 @@ classifiers = [
     "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.8",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Software Development :: Quality Assurance",
     "Topic :: Software Development :: Testing",
@@ -23,7 +23,8 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.8"
+typing-extensions = "^4.11.0"
 click = "~8.1.0"
 semgrep = "^1.51.0"
 openai = "^1.13.3"
@@ -34,7 +35,7 @@ pygithub = "~2.1.1"
 gitpython = "~3.1.40"
 pydantic = "~2.6.4"
 tiktoken = "~0.6.0"
-libcst = "~1.2.0"
+libcst = "~1.1.0"
 patched-code2prompt = "0.2.0"
 pyyaml = "^6.0.1"
 packageurl-python = "~0.15.0"

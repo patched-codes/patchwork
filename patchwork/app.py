@@ -5,10 +5,10 @@ import traceback
 from collections import deque
 from pathlib import Path
 from types import ModuleType
-from typing import Iterable
 
 import click
 import yaml
+from typing_extensions import Iterable
 
 from patchwork.logger import init_cli_logger, logger
 from patchwork.steps.PreparePrompt import PreparePrompt

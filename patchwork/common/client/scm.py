@@ -2,12 +2,12 @@ import functools
 import hashlib
 from dataclasses import dataclass
 from itertools import chain
-from typing import Protocol
 
 import gitlab.const
 from github import Auth, Consts, Github, GithubException, PullRequest
 from gitlab import Gitlab, GitlabAuthenticationError, GitlabError
 from gitlab.v4.objects import ProjectMergeRequest
+from typing_extensions import Protocol
 
 from patchwork.logger import logger
 

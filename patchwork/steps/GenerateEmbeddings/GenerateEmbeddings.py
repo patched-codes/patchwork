@@ -1,7 +1,7 @@
 import uuid
-from typing import Any
 
 import chromadb
+from typing_extensions import Any
 
 from patchwork.common.utils import get_embedding_function, get_vector_db_path
 from patchwork.logger import logger

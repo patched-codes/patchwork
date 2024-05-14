@@ -1,11 +1,11 @@
-import json
 import os
 import sys
 from collections import defaultdict
 from enum import IntEnum
 from pathlib import Path
-from typing import Any
 from urllib.parse import urlparse
+
+from typing_extensions import Any
 
 from patchwork.common.utils import count_openai_tokens, open_with_chardet
 from patchwork.logger import logger

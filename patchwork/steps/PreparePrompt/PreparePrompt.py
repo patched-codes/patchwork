@@ -1,7 +1,6 @@
 import json
 from pathlib import Path
 
-from patchwork.common.utils import defered_temp_file
 from patchwork.logger import logger
 from patchwork.step import Step
 

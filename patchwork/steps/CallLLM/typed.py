@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from typing_extensions import Iterable, NotRequired, TypedDict
 
 

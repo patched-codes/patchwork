@@ -1,6 +1,5 @@
-from typing import Tuple
-
 from tree_sitter_languages import get_language, get_parser
+from typing_extensions import Tuple
 
 from .protocol import ContextStrategyProtocol
 

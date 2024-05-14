@@ -1,9 +1,9 @@
 import contextlib
 from pathlib import Path
-from typing import Generator
 
 import git
 from git import Head, Repo
+from typing_extensions import Generator
 
 from patchwork.logger import logger
 from patchwork.step import Step

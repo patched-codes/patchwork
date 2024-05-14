@@ -1,6 +1,4 @@
-from typing import Any
-
-from typing_extensions import Iterable, NotRequired, TypedDict
+from typing_extensions import Any, Iterable, NotRequired, TypedDict
 
 
 class PreparePromptInputs(TypedDict):
