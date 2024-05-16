@@ -25,6 +25,13 @@ def split_text(document_text: str, chunk_size: int, overlap: int) -> list[str]:
     return chunks
 
 
+def delete_collection(client, collection_name):
+    for collection in client.list_collections():
+        if collection.name == collection_name:
+            client.delete_collection(collection_name)
+            break
+
+
 class GenerateEmbeddings(Step):
     required_keys = {"embedding_name", "documents"}
 
@@ -36,11 +43,17 @@ class GenerateEmbeddings(Step):
 
         client = chromadb.PersistentClient(path=get_vector_db_path())
 
+        if inputs.get("disable_cache", False):
+            delete_collection(client, inputs["embedding_name"])
+
         embedding_function = get_embedding_function(inputs)
         self.collection = client.get_or_create_collection(
             inputs["embedding_name"], embedding_function=embedding_function, metadata={"hnsw:space": "cosine"}
         )
         self.documents: list[dict[str, Any]] = inputs["documents"]
+        
+        self.chunk_size = inputs.get("chunk_size", 4000)
+        self.overlap_size = inputs.get("overlap_size", 2000)
 
     def run(self) -> dict:
         document_ids = []
@@ -56,7 +69,7 @@ class GenerateEmbeddings(Step):
 
             if document_text is not None:
                 doc_id = str(document.get("id"))
-                document_texts = split_text(document_text, 4000, 2000)
+                document_texts = split_text(document_text, self.chunk_size, self.overlap_size)
                 for i, document_text in enumerate(document_texts):
                     document_ids.append(str(uuid.uuid4()))
                     documents.append(document_text)

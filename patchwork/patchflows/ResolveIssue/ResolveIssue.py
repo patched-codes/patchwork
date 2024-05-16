@@ -94,7 +94,8 @@ The following files in the repository may be relevant to the issue:
 
         self.inputs["code_file"] = output_file
         self.inputs["prompt_id"] = "resolve_issue"
-        self.inputs["response_partitions"] = {"patch": []}
+        self.inputs["response_partitions"] = {"patch": ["Fixed Code:", "```", "\n", "```"],
+        }
         outputs = PreparePrompt(self.inputs).run()
         self.inputs.update(outputs)
         outputs = CallLLM(self.inputs).run()
