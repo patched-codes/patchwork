@@ -1,4 +1,3 @@
-import json
 import re
 import string
 from pathlib import Path
@@ -224,10 +223,5 @@ class ExtractDiff(Step):
         for diff_section in diff_sections:
             extracted_data.append({"diffSection": diff_section})
 
-        # Save extracted data to JSON
-        with defered_temp_file("w", suffix=".json") as fp:
-            json.dump(extracted_data, fp, indent=2)
-            output_file = Path(fp.name)
-
         logger.info(f"Run completed {self.__class__.__name__}")
-        return dict(prompt_value_file=output_file, library_name=name, platform_type=platform_type)
+        return dict(prompt_values=extracted_data, library_name=name, platform_type=platform_type)

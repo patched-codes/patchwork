@@ -11,4 +11,4 @@ class PreparePromptInputs(TypedDict):
 
 
 class PreparePromptOutputs(TypedDict):
-    prompt_file: str
+    prompts: Iterable[dict]

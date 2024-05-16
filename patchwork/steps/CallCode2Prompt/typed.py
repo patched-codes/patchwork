@@ -1,6 +1,4 @@
-from pathlib import Path
-
-from typing_extensions import NotRequired, TypedDict
+from typing_extensions import Iterable, NotRequired, TypedDict
 
 
 class CallCode2PromptInputs(TypedDict):
@@ -10,5 +8,5 @@ class CallCode2PromptInputs(TypedDict):
 
 
 class CallCode2PromptOutputs(TypedDict):
-    prompt_value_file: Path
-    code_file: Path
+    prompt_values: Iterable[dict]
+    files_to_patch: Iterable[dict]

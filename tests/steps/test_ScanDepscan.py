@@ -45,14 +45,11 @@ def test_run():
             result = ScanDepscan(inputs).run()
 
             # Verify the result
-            sbom_vdr_file_path = result.get("sbom_vdr_file_path")
-            assert sbom_vdr_file_path is not None
+            sbom_vdr_values = result.get("sbom_vdr_values")
+            assert sbom_vdr_values is not None
 
             # Check if the file exists and is a valid JSON
-            assert os.path.exists(sbom_vdr_file_path)
-
-            with open(sbom_vdr_file_path, "r") as f:
-                json.load(f)  # This will raise an exception if the file is not a valid JSON
+            assert len(sbom_vdr_values) > 0
 
         finally:
             # Reset cwd

@@ -7,7 +7,6 @@ from pathlib import Path
 import semver
 from packageurl import PackageURL
 
-from patchwork.common.utils import defered_temp_file
 from patchwork.logger import logger
 from patchwork.step import Step
 
@@ -82,7 +81,7 @@ def find_package_manager_files(directory, purl):
 
 
 class ExtractPackageManagerFile(Step):
-    required_keys = {"sbom_vdr_file_path"}
+    required_keys = {}
 
     def __init__(self, inputs: dict):
         """
@@ -113,9 +112,17 @@ class ExtractPackageManagerFile(Step):
             raise ValueError(f'Missing required data: "{self.required_keys}"')
 
         # Validate and set the SBOM VDR file path
-        self.sbom_vdr_file_path = Path(inputs["sbom_vdr_file_path"])
-        if not self.sbom_vdr_file_path.exists() or not self.sbom_vdr_file_path.is_file():
-            raise ValueError(f'SBOM VDR file path does not exist or is not a file: "{self.sbom_vdr_file_path}"')
+        sbom_vdr_file_path = inputs.get("sbom_vdr_file_path")
+        if sbom_vdr_file_path is not None:
+            sbom_vdr_file_path = Path(sbom_vdr_file_path)
+            if not sbom_vdr_file_path.is_file():
+                raise ValueError(f'SBOM VDR file path does not exist or is not a file: "{sbom_vdr_file_path}"')
+            with open(sbom_vdr_file_path, "r") as file:
+                self.sbom_vdr_values = json.load(file)
+        if "sbom_vdr_values" in inputs.keys():
+            self.sbom_vdr_values = inputs["sbom_vdr_values"]
+        else:
+            raise ValueError('"sbom_vdr_file_path" or "sbom_vdr_values" not found in inputs')
 
         self.package_manager_file = inputs.get("package_manager_file", None)
 
@@ -155,11 +162,7 @@ class ExtractPackageManagerFile(Step):
             assumes that the source files referenced within the SBOM VDR data are accessible for reading.
             The method logs detailed information about its execution status, including any file access issues.
         """
-        # Load SARIF data
-        with self.sbom_vdr_file_path.open("r", encoding="utf-8") as file:
-            sbom_vdr_data = json.load(file)
-
-        components = sbom_vdr_data.get("components", [])
+        components = self.sbom_vdr_values.get("components", [])
         # Initialize a dictionary to hold the mapping of purls to SrcFiles
         purl_to_srcfile = {}
 
@@ -192,7 +195,7 @@ class ExtractPackageManagerFile(Step):
 
         # Process each vulnerabiility in SBOM VDR data
         purl_list = []
-        for vul in sbom_vdr_data.get("vulnerabilities", []):
+        for vul in self.sbom_vdr_values.get("vulnerabilities", []):
             for rating in vul.get("ratings", []):
                 severity = rating.get("severity", "")
 
@@ -272,10 +275,5 @@ class ExtractPackageManagerFile(Step):
             data["endLine"] = len(lines)
             self.extracted_data.append(data)
 
-        # Save extracted data to JSON
-        with defered_temp_file("w", suffix=".json") as fp:
-            json.dump(self.extracted_data, fp, indent=2)
-            output_file = Path(fp.name)
-
         logger.info(f"Run completed {self.__class__.__name__}")
-        return dict(prompt_value_file=output_file, code_file=output_file)
+        return dict(prompt_values=self.extracted_data, files_to_patch=self.extracted_data)

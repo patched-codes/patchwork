@@ -42,5 +42,4 @@ def test_read_prdiffs(mocker, inputs_extra, method_path, diffs, expected_values)
     results = read_pr_diffs.run()
 
     # Assertions
-    assert results.get("prompt_value_file") is not None
     assert results.get("prompt_values") == expected_values

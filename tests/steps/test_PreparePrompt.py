@@ -108,6 +108,5 @@ def test_prepare_prompt_prompts(valid_prompt_file):
     }
     prepare_prompt = PreparePrompt(inputs)
     prompts = prepare_prompt.run()
-    assert prompts["prompt_file"].is_file()
-    assert json.loads(prompts["prompt_file"].read_text())
-    assert len(json.loads(prompts["prompt_file"].read_text())) == 2
+    assert prompts["prompts"] is not None
+    assert len(prompts["prompts"]) == 2

@@ -7,11 +7,7 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
-from patchwork.common.utils import (
-    count_openai_tokens,
-    defered_temp_file,
-    open_with_chardet,
-)
+from patchwork.common.utils import count_openai_tokens, open_with_chardet
 from patchwork.logger import logger
 from patchwork.step import Step
 from patchwork.steps.ExtractCode.context_strategy.context_strategies import (
@@ -254,7 +250,7 @@ def transform_sarif_results(
 
 
 class ExtractCode(Step):
-    required_keys = {"sarif_file_path"}
+    required_keys = {"sarif_values"}
 
     def __init__(self, inputs: dict):
         logger.info(f"Run started {self.__class__.__name__}")
@@ -262,11 +258,7 @@ class ExtractCode(Step):
         if not all(key in inputs.keys() for key in self.required_keys):
             raise ValueError(f'Missing required data: "{self.required_keys}"')
 
-        # Validate and set the SARIF file path
-        self.sarif_file_path = Path(inputs["sarif_file_path"])
-        if not self.sarif_file_path.exists() or not self.sarif_file_path.is_file():
-            raise ValueError(f'SARIF file path does not exist or is not a file: "{self.sarif_file_path}"')
-
+        self.sarif_data = inputs["sarif_values"]
         # Check and set number of lines to extract
         self.context_length = inputs.get("context_size", 1000)
         self.vulnerability_limit = inputs.get("vulnerability_limit", 10)
@@ -276,14 +268,10 @@ class ExtractCode(Step):
         self.extracted_code_contexts = []
 
     def run(self) -> dict:
-        # Load SARIF data
-        with open_with_chardet(self.sarif_file_path, "r") as file:
-            sarif_data = json.load(file)
-
         base_path = Path.cwd()
 
         grouped_messages = transform_sarif_results(
-            sarif_data, base_path, self.context_length, self.vulnerability_limit, self.severity_threshold
+            self.sarif_data, base_path, self.context_length, self.vulnerability_limit, self.severity_threshold
         )
 
         self.extracted_code_contexts = [
@@ -297,14 +285,9 @@ class ExtractCode(Step):
             for (file_path, start, end, context), msgs in grouped_messages.items()
         ]
 
-        # Save extracted data to JSON
-        with defered_temp_file("w", suffix=".json") as fp:
-            json.dump(self.extracted_code_contexts, fp, indent=2)
-            output_file = Path(fp.name)
-
         logger.info(f"Run completed {self.__class__.__name__}")
 
         return dict(
-            code_file=output_file,
+            files_to_patch=self.extracted_code_contexts,
             prompt_values=self.extracted_code_contexts,
         )

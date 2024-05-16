@@ -1,8 +1,6 @@
-import json
 import os
 from pathlib import Path
 
-from patchwork.common.utils import defered_temp_file
 from patchwork.logger import logger
 from patchwork.step import Step
 
@@ -144,11 +142,5 @@ class AnalyzeImpact(Step):
             )
             extracted_data.append(data)
 
-        # Save extracted data to JSON
-
-        with defered_temp_file("w", suffix=".json") as fp:
-            json.dump(extracted_data, fp)
-            output_file = Path(fp.name)
-
         logger.info(f"Run completed {self.__class__.__name__}")
-        return dict(prompt_value_file=output_file, code_file=output_file)
+        return dict(prompt_values=extracted_data, files_to_patch=extracted_data)

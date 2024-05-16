@@ -1,4 +1,4 @@
-from typing_extensions import NotRequired, TypedDict
+from typing_extensions import Iterable, NotRequired, TypedDict
 
 
 class ExtractDiffInputs(TypedDict):
@@ -9,7 +9,7 @@ class ExtractDiffInputs(TypedDict):
 
 
 class ExtractDiffOutputs(TypedDict):
-    prompt_value_file: str
+    prompt_values: Iterable[dict]
     library_name: str
     platform_type: str
 

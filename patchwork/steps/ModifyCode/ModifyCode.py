@@ -4,9 +4,6 @@ from pathlib import Path
 from patchwork.logger import logger
 from patchwork.step import Step
 
-CODE_SNIPPETS_KEY = "code_file"
-UPDATED_SNIPPETS_KEY = "extracted_responses"
-
 
 def load_json_file(file_path):
     """Utility function to load a json file."""
@@ -59,7 +56,9 @@ def replace_code_in_file(file_path, start_line, end_line, new_code):
 
 
 class ModifyCode(Step):
-    required_keys = {CODE_SNIPPETS_KEY, UPDATED_SNIPPETS_KEY}
+    UPDATED_SNIPPETS_KEY = "extracted_responses"
+    FILES_TO_PATCH = "files_to_patch"
+    required_keys = {FILES_TO_PATCH, UPDATED_SNIPPETS_KEY}
 
     def __init__(self, inputs: dict):
         logger.info(f"Run started {self.__class__.__name__}")
@@ -67,15 +66,13 @@ class ModifyCode(Step):
         if not all(key in inputs.keys() for key in self.required_keys):
             raise ValueError(f'Missing required data: "{self.required_keys}"')
 
-        self.code_snippets_path = inputs[CODE_SNIPPETS_KEY]
-        self.extracted_responses = inputs[UPDATED_SNIPPETS_KEY]
+        self.files_to_patch = inputs[self.FILES_TO_PATCH]
+        self.extracted_responses = inputs[self.UPDATED_SNIPPETS_KEY]
 
     def run(self) -> dict:
-        code_snippets = load_json_file(self.code_snippets_path)
-
         modified_code_files = []
         sorted_list = sorted(
-            zip(code_snippets, self.extracted_responses), key=lambda x: x[0]["startLine"], reverse=True
+            zip(self.files_to_patch, self.extracted_responses), key=lambda x: x[0]["startLine"], reverse=True
         )
         for code_snippet, extracted_response in sorted_list:
             uri = code_snippet["uri"]

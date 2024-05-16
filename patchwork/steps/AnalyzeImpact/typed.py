@@ -12,7 +12,8 @@ class AnalyzeImpactExtractedResponse(TypedDict):
 
 
 class AnalyzeImpactOutputs(TypedDict):
-    impacts: Iterable["AnalyzeImpactImpact"]
+    prompt_values: Iterable["AnalyzeImpactImpact"]
+    files_to_patch: Iterable["AnalyzeImpactImpact"]
 
 
 class AnalyzeImpactImpact(TypedDict):
