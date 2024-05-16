@@ -1,7 +1,7 @@
 import uuid
-from typing import Any
 
 import chromadb
+from typing_extensions import Any
 
 from patchwork.common.utils import get_embedding_function, get_vector_db_path
 from patchwork.logger import logger
@@ -51,7 +51,7 @@ class GenerateEmbeddings(Step):
             inputs["embedding_name"], embedding_function=embedding_function, metadata={"hnsw:space": "cosine"}
         )
         self.documents: list[dict[str, Any]] = inputs["documents"]
-        
+
         self.chunk_size = inputs.get("chunk_size", 4000)
         self.overlap_size = inputs.get("overlap_size", 2000)
 

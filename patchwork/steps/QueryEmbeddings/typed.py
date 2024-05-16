@@ -1,6 +1,4 @@
-from typing import Any
-
-from typing_extensions import NotRequired, TypedDict
+from typing_extensions import Any, NotRequired, TypedDict
 
 
 class QueryEmbeddingsInputs(TypedDict):

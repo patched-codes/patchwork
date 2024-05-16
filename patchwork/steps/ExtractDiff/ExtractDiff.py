@@ -1,10 +1,10 @@
 import re
 import string
 from pathlib import Path
-from typing import Dict, List
 
 import requests
 from packageurl import PackageURL
+from typing_extensions import Dict, List
 
 from patchwork.common.utils import defered_temp_file
 from patchwork.logger import logger

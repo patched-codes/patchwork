@@ -1,4 +1,4 @@
-from typing import Protocol, Tuple
+from typing_extensions import Protocol, Tuple
 
 
 class ContextStrategyProtocol(Protocol):

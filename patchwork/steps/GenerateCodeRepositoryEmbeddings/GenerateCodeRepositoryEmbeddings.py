@@ -2,10 +2,10 @@ import hashlib
 import time
 from itertools import islice
 from pathlib import Path
-from typing import Iterable
 
 import chromadb
 import git
+from typing_extensions import Iterable
 
 from patchwork.common.utils import get_vector_db_path, open_with_chardet
 from patchwork.logger import logger

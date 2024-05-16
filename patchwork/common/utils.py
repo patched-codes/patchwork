@@ -2,12 +2,12 @@ import atexit
 import signal
 import tempfile
 from pathlib import Path
-from typing import Callable
 
 import tiktoken
 from chardet.universaldetector import UniversalDetector
 from chromadb.api.types import Documents, EmbeddingFunction
 from chromadb.utils import embedding_functions
+from typing_extensions import Callable
 
 from patchwork.managed_files import HOME_FOLDER
 

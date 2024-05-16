@@ -1,7 +1,6 @@
-from typing import Callable, Optional, Tuple
-
 import libcst
 from libcst import FunctionDef, IndentedBlock
+from typing_extensions import Callable, Optional, Tuple
 
 from .protocol import ContextStrategyProtocol
 

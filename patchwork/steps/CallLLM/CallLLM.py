@@ -3,10 +3,10 @@ import os
 from pathlib import Path
 from pprint import pformat
 from textwrap import indent
-from typing import Any, Protocol
 
 import requests
 from openai import OpenAI
+from typing_extensions import Any, Protocol
 
 from patchwork.logger import logger
 from patchwork.step import Step
@@ -120,7 +120,6 @@ class CallOpenAI(LLMModel):
 
 
 class CallLLM(Step):
-
     def __init__(self, inputs: dict):
         logger.info(f"Run started {self.__class__.__name__}")
 

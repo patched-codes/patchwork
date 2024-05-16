@@ -1,7 +1,7 @@
 import logging
-from typing import Callable
 
 import click
+from typing_extensions import Callable
 
 from patchwork.managed_files import LOG_FILE
 
