@@ -8,9 +8,10 @@
 
 <div align="center">
 
-[![Build Status](https://img.shields.io/github/actions/workflow/status/patched-codes/patchwork/release.yml?logo=github)]()
+![Build](https://github.com/patched-codes/patchwork/actions/workflows/release.yml/badge.svg)
+![Tests](https://github.com/patched-codes/patchwork/actions/workflows/test.yml/badge.svg)
 [![Downloads](https://static.pepy.tech/badge/patchwork-cli)](https://pepy.tech/project/patchwork-cli)
-[![Discord](https://img.shields.io/discord/1236886480471855104?style=flat&logo=discord&logoColor=white&label=discord)](https://discord.gg/FVcSNW6v)
+[![Discord](https://img.shields.io/discord/1236886480471855104?style=flat&logo=discord&logoColor=white&label=discord)](https://discord.gg/XDxA3mJyhE)
 
 [Demo](https://youtu.be/3gRpqQoIino) |
 [Docs](https://docs.patched.codes/)
