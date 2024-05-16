@@ -24,7 +24,6 @@ _PATCHFLOW_MODULE_NAME = "patchwork.patchflows"
 
 
 def _get_config_path(config: str | None, patchflow: str) -> Path | None:
-    prompt_path = None
     config_path = Path(config)
     if config_path.is_dir():
         patchwork_path = config_path / patchflow
