@@ -42,6 +42,66 @@ _EXTENSION_WHITELIST = [
     ".go",
     # HTML
     ".html",
+    # OCaml
+    ".ml",
+    ".mli",
+    # F#
+    ".fs",
+    ".fsi",
+    # Haskell
+    ".hs",
+    ".lhs",
+    # Kotlin
+    ".kt",
+    ".kts",
+    # Ruby
+    ".rb",
+    # Swift
+    ".swift",
+    # Rust
+    ".rs",
+    # Scala
+    ".scala",
+    # TypeScript
+    ".ts",
+    # Visual Basic.NET
+    ".vb",
+    ".vbs",
+    # Perl
+    ".pl",
+    ".pm",
+    # R
+    ".r",
+    # SQL
+    ".sql",
+    # TypeScript React
+    ".tsx",
+    # Julia
+    ".jl",
+    # Lua
+    ".lua",
+    # MATLAB
+    ".m",
+    # Pascal
+    ".pas",
+    # PowerShell
+    ".ps1",
+    # Racket
+    ".rkt",
+    # Shell
+    ".sh",
+    # SQL
+    ".sql",
+    # Tcl
+    ".tcl",
+    # Visual Basic
+    ".vb",
+    # XML
+    ".xml",
+    # YAML
+    ".yaml",
+    # Zig
+    ".zig",
 ]
 
 _DIRECTORY_BLACKLIST = [
@@ -85,7 +145,7 @@ class GenerateCodeRepositoryEmbeddings(Step):
             raise ValueError(f'Missing required data: "{self.required_keys}"')
 
         self.client = chromadb.PersistentClient(path=get_vector_db_path())
-
+        self.disable_cache = inputs.get("disable_cache", False)
         self.inputs = inputs
 
     def run(self) -> dict:
@@ -147,7 +207,7 @@ class GenerateCodeRepositoryEmbeddings(Step):
                     path=file,
                 )
             ]
-            if reference_collection is not None:
+            if reference_collection is not None and not self.disable_cache:
                 result = reference_collection.get(
                     where={"$and": [{"hash": text_hash}, {"path": file}]}, include=["metadatas", "embeddings"]
                 )

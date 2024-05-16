@@ -120,6 +120,7 @@ class CallOpenAI(LLMModel):
 
 
 class CallLLM(Step):
+
     def __init__(self, inputs: dict):
         logger.info(f"Run started {self.__class__.__name__}")
 

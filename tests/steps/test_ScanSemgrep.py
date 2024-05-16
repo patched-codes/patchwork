@@ -2,6 +2,8 @@ from collections import namedtuple
 
 import pytest
 
+import pytest
+
 from patchwork.steps import ScanSemgrep
 
 MockedCompletedProcessClass = namedtuple("CompletedProcess", ["stdout"])

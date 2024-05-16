@@ -1,8 +1,8 @@
-from typing_extensions import TypedDict
+from typing_extensions import NotRequired, TypedDict
 
 
 class GenerateCodeRepositoryEmbeddingsInputs(TypedDict):
-    pass
+    disable_cache: NotRequired[bool]
 
 
 class GenerateCodeRepositoryEmbeddingsOutputs(TypedDict):

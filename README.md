@@ -8,9 +8,10 @@
 
 <div align="center">
 
-[![Build Status](https://img.shields.io/github/actions/workflow/status/patched-codes/patchwork/release.yml?logo=github)]()
+![Build](https://github.com/patched-codes/patchwork/actions/workflows/release.yml/badge.svg)
+![Tests](https://github.com/patched-codes/patchwork/actions/workflows/test.yml/badge.svg)
 [![Downloads](https://static.pepy.tech/badge/patchwork-cli)](https://pepy.tech/project/patchwork-cli)
-[![Discord](https://img.shields.io/discord/1236886480471855104?style=flat&logo=discord&logoColor=white&label=discord)](https://discord.gg/FVcSNW6v)
+[![Discord](https://img.shields.io/discord/1236886480471855104?style=flat&logo=discord&logoColor=white&label=discord)](https://discord.gg/XDxA3mJyhE)
 
 [Demo](https://youtu.be/3gRpqQoIino) |
 [Docs](https://docs.patched.codes/)
@@ -28,7 +29,7 @@ An open-source framework for automating development chores using large language 
 - **Prompt Templates**: Customizable LLM prompts optimized for a chore like library updates, code generation, issue analysis etc.
 - **Patchflows**: LLM-assisted automations such as PR reviews, code fixing, documentation etc. built by combining steps and prompts.
 
-Patchflows can be run locally in your CLI and IDE, or as part of your CI/CD pipeline. There are [5 patchflows available][] out of the box, and you can always [create your own][].
+Patchflows can be run locally in your CLI and IDE, or as part of your CI/CD pipeline. There are [5 patchflows available](#patchflows) out of the box, and you can always [create your own](#contributing).
 
 ## Quickstart
 
@@ -46,7 +47,7 @@ pip install patchwork-cli --upgrade
 
 ### Using Poetry
 
-If you'd like to build from source using poetry, please see detailed documentation `here`[file](INSTALL.md) .
+If you'd like to build from source using poetry, please see detailed documentation [here](INSTALL.md) .
 
 ## PatchWork CLI
 
