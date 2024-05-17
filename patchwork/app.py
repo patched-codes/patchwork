@@ -7,8 +7,8 @@ from pathlib import Path
 from types import ModuleType
 
 import click
-from click import echo
 import yaml
+from click import echo
 from typing_extensions import Iterable
 
 from patchwork.logger import init_cli_logger, logger
@@ -58,7 +58,7 @@ def list_option_callback(ctx: click.Context, param: click.Parameter, value: str 
     config_path = ctx.params.get("config")
     patchflows.extend(_get_patchflow_names(config_path))
 
-    echo("\n".join(patchflows))
+    echo("\n".join(patchflows), color=ctx.color)
     ctx.exit()
 
 
@@ -69,9 +69,15 @@ def list_option_callback(ctx: click.Context, param: click.Parameter, value: str 
 )
 @click.version_option(message="%(version)s", package_name="patchwork-cli")
 @click.help_option("-h", "--help")
-@click.option("--config", is_eager=True, type=click.Path(exists=True, dir_okay=True, resolve_path=True, file_okay=True), help="", )
 @click.option(
-    "-l", "--list",
+    "--config",
+    is_eager=True,
+    type=click.Path(exists=True, dir_okay=True, resolve_path=True, file_okay=True),
+    help="",
+)
+@click.option(
+    "-l",
+    "--list",
     is_flag=True,
     expose_value=False,
     callback=list_option_callback,
