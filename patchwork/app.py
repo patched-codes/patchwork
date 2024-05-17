@@ -7,6 +7,7 @@ from pathlib import Path
 from types import ModuleType
 
 import click
+from click import echo
 import yaml
 from typing_extensions import Iterable
 
@@ -31,6 +32,36 @@ def _get_config_path(config: str | None, patchflow: str) -> Path | None:
             return patchwork_path
 
 
+def _get_patchflow_names(base_path: Path | str | None) -> Iterable[str]:
+    names = []
+    if base_path is None:
+        return names
+
+    base_path = Path(base_path)
+    if not base_path.is_dir():
+        return names
+
+    for path in base_path.iterdir():
+        if path.is_dir() and (path / f"{path.name}.py").is_file():
+            names.append(path.name)
+    return names
+
+
+def list_option_callback(ctx: click.Context, param: click.Parameter, value: str | None) -> None:
+    if not value or ctx.resilient_parsing:
+        return
+
+    patchflows = []
+    default_path = Path(__file__).parent / "patchflows"
+    patchflows.extend(_get_patchflow_names(default_path))
+
+    config_path = ctx.params.get("config")
+    patchflows.extend(_get_patchflow_names(config_path))
+
+    echo("\n".join(patchflows))
+    ctx.exit()
+
+
 @click.command(
     context_settings=dict(
         ignore_unknown_options=True,
@@ -38,6 +69,14 @@ def _get_config_path(config: str | None, patchflow: str) -> Path | None:
 )
 @click.version_option(message="%(version)s", package_name="patchwork-cli")
 @click.help_option("-h", "--help")
+@click.option("--config", is_eager=True, type=click.Path(exists=True, dir_okay=True, resolve_path=True, file_okay=True), help="", )
+@click.option(
+    "-l", "--list",
+    is_flag=True,
+    expose_value=False,
+    callback=list_option_callback,
+    help="List all available patchflows",
+)
 @click.option(
     "--log",
     hidden=True,
@@ -59,7 +98,6 @@ def _get_config_path(config: str | None, patchflow: str) -> Path | None:
 )
 @click.argument("patchflow", nargs=1, required=True)
 @click.argument("opts", nargs=-1, type=click.UNPROCESSED, required=False)
-@click.option("--config", type=click.Path(exists=True, dir_okay=True, resolve_path=True, file_okay=True))
 @click.option("--output", type=click.Path(exists=False, resolve_path=True, writable=True), help="Output data file")
 @click.option("data_format", "--format", type=click.Choice(["yaml", "json"]), default="json", help="Output data format")
 def cli(log: str, patchflow: str, opts: list[str], config: str | None, output: str | None, data_format: str):
