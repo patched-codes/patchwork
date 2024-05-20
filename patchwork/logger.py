@@ -1,9 +1,9 @@
 import logging
-
+import os
 import click
 from typing_extensions import Callable
 
-from patchwork.managed_files import LOG_FILE
+from patchwork.managed_files import LOG_FILE, HOME_FOLDER
 
 # default noop logger
 logger = logging.getLogger("patched")
@@ -42,6 +42,8 @@ def init_cli_logger(log_level: str) -> logging.Logger:
     logger.removeHandler(_noop)
     logger.addHandler(ClickHandler(log_level.upper()))
     logger.setLevel(logging.DEBUG)
+    if not os.path.exists(HOME_FOLDER):        # Check if HOME_FOLDER exists at this point
+        os.makedirs(HOME_FOLDER)
 
     try:
         fh = logging.FileHandler(LOG_FILE, mode="w")
