@@ -73,7 +73,7 @@ def list_option_callback(ctx: click.Context, param: click.Parameter, value: str 
     "--config",
     is_eager=True,
     type=click.Path(exists=True, dir_okay=True, resolve_path=True, file_okay=True),
-    help="",
+    help="Path to the configurations folder, see https://github.com/patched-codes/patchwork-configs for examples.",
 )
 @click.option(
     "-l",
@@ -81,7 +81,7 @@ def list_option_callback(ctx: click.Context, param: click.Parameter, value: str 
     is_flag=True,
     expose_value=False,
     callback=list_option_callback,
-    help="List all available patchflows",
+    help="Show a list of available patchflows, see https://docs.patched.codes/patchflows/patchflows for details.",
 )
 @click.option(
     "--log",
@@ -104,8 +104,8 @@ def list_option_callback(ctx: click.Context, param: click.Parameter, value: str 
 )
 @click.argument("patchflow", nargs=1, required=True)
 @click.argument("opts", nargs=-1, type=click.UNPROCESSED, required=False)
-@click.option("--output", type=click.Path(exists=False, resolve_path=True, writable=True), help="Output data file")
-@click.option("data_format", "--format", type=click.Choice(["yaml", "json"]), default="json", help="Output data format")
+@click.option("--output", type=click.Path(exists=False, resolve_path=True, writable=True), help="Path to the output file which contains the state after the patchflow finishes.")
+@click.option("data_format", "--format", type=click.Choice(["yaml", "json"]), default="json", help="Format of the output file.")
 def cli(log: str, patchflow: str, opts: list[str], config: str | None, output: str | None, data_format: str):
     if "::" in patchflow:
         module_path, _, patchflow_name = patchflow.partition("::")
