@@ -60,7 +60,7 @@ class DependencyUpgrade(Step):
 
                 if analyze_inputs.get("prompt_values") is not None:
                     vulns = analyze_inputs.get("prompt_values")[0]
-                    number = number + len(vulns["Updates"])
+                    update_info_list = vulns["Updates"]
 
                 for update_info in update_info_list:
                     analyze_inputs["update_info"] = update_info
