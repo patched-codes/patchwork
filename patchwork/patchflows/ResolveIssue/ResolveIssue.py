@@ -86,13 +86,7 @@ The following files in the repository may be relevant to the issue:
             )
 
         self.inputs["prompt_values"] = extracted_code_contexts
-
-        # Save extracted data to JSON
-        output_file = Path(tempfile.mktemp(".json"))
-        with open(output_file, "w", encoding="utf-8") as f:
-            json.dump(extracted_code_contexts, f, indent=2)
-
-        self.inputs["code_file"] = output_file
+        self.inputs["files_to_patch"] = extracted_code_contexts
         self.inputs["prompt_id"] = "resolve_issue"
         self.inputs["response_partitions"] = {
             "patch": ["Fixed Code:", "```", "\n", "```"],
