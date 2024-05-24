@@ -49,22 +49,18 @@ class DependencyUpgrade(Step):
         number = 0
         modified_files = []
 
-        if self.inputs.get("prompt_value_file") is not None:
-            with open(self.inputs["prompt_value_file"], "r") as fp:
-                vulns = json.load(fp)
-                if len(vulns) > 0:
-                    number = number + len(vulns[0]["Updates"])
+        if self.inputs.get("prompt_values") is not None:
+            vulns = self.inputs.get("prompt_values")[0]
+            number = number + len(vulns["Updates"])
 
         for i in range(self.n):
             if self.analyze_impact:
                 analyze_inputs = copy.deepcopy(self.inputs)
                 update_info_list = []
 
-                if analyze_inputs.get("prompt_value_file") is not None:
-                    with open(analyze_inputs["prompt_value_file"], "r") as fp:
-                        vulns = json.load(fp)
-                        if len(vulns) > 0:
-                            update_info_list = vulns[0]["Updates"]
+                if analyze_inputs.get("prompt_values") is not None:
+                    vulns = analyze_inputs.get("prompt_values")[0]
+                    update_info_list = vulns["Updates"]
 
                 for update_info in update_info_list:
                     analyze_inputs["update_info"] = update_info
@@ -115,12 +111,11 @@ class DependencyUpgrade(Step):
             self.inputs.update(outputs)
             outputs = ExtractPackageManagerFile(self.inputs).run()
             self.inputs.update(outputs)
-            if self.inputs.get("prompt_value_file") is not None:
-                with open(self.inputs["prompt_value_file"], "r") as fp:
-                    vulns = json.load(fp)
-                    if len(vulns) < 1:
-                        break
-                    number = number + len(vulns[0]["Updates"])
+            if self.inputs.get("prompt_values") is not None:
+                vulns = self.inputs.get("prompt_values")[0]
+                if len(vulns) < 1:
+                    break
+                number = number + len(vulns["Updates"])
 
         self.inputs["pr_header"] = f"This pull request from patchwork fixes {number} vulnerabilities."
         outputs = CommitChanges(self.inputs).run()
