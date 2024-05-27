@@ -58,7 +58,7 @@ class CallGemini(LLMModel):
                 response_dict = response.json()
             except Exception as e:
                 logger.error(e)
-                continue
+                response_dict = {}
 
             candidate = response_dict.get("candidates", [{}])[0]
             text_response = candidate.get("content", {}).get("parts", [{}])[0].get("text", "")
@@ -96,7 +96,11 @@ class CallOpenAI(LLMModel):
         contents = []
         for prompt in prompts:
             logger.debug(f"Message sent: \n{indent(pformat(prompt), '  ')}")
-            completion = self.client.chat.completions.create(model=self.model, messages=prompt, **self.model_args)
+            try:
+                completion = self.client.chat.completions.create(model=self.model, messages=prompt, **self.model_args)
+            except Exception as e:
+                logger.error(e)
+                continue
 
             if len(completion.choices) < 1:
                 logger.error(f"No response choice given")

@@ -24,8 +24,15 @@ def get_slug_from_remote_url(remote_url: str) -> str:
 def transitioning_branches(
     repo: Repo, branch_prefix: str, branch_suffix: str = "", force: bool = True
 ) -> Generator[tuple[Head, Head], None, None]:
-    from_branch = repo.active_branch
-    final_func = from_branch.checkout
+    if repo.head.is_detached:
+        from_branch = next((branch for branch in repo.branches if branch.commit == repo.head.commit), None)
+    else:
+        from_branch = repo.active_branch
+
+    if from_branch is None:
+        raise ValueError("Could not determine the current branch."
+                         "Make sure repository is not in a detached HEAD state with additional commits.")
+
 
     next_branch_name = f"{branch_prefix}{from_branch.name}{branch_suffix}"
     if next_branch_name in repo.heads and not force:
@@ -38,7 +45,7 @@ def transitioning_branches(
         to_branch.checkout()
         yield from_branch, to_branch
     finally:
-        final_func()
+        from_branch.checkout()
 
 
 class _EphemeralGitConfig:
