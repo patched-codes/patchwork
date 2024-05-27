@@ -2,7 +2,7 @@ import contextlib
 from pathlib import Path
 
 import git
-from git import Head, Repo, RemoteReference
+from git import Head, Repo
 from typing_extensions import Generator
 
 from patchwork.logger import logger
@@ -20,12 +20,12 @@ def get_slug_from_remote_url(remote_url: str) -> str:
     return potential_slug.removesuffix(".git")
 
 
-def get_current_branch(repo: Repo) -> RemoteReference | Head:
+def get_current_branch(repo: Repo) -> Head:
     remote = repo.remote("origin")
     if repo.head.is_detached:
         from_branch = next(
             (branch for branch in remote.refs if branch.commit == repo.head.commit and branch.remote_head != "HEAD"),
-            None
+            None,
         )
     else:
         from_branch = repo.active_branch
@@ -37,6 +37,7 @@ def get_current_branch(repo: Repo) -> RemoteReference | Head:
         )
 
     return from_branch
+
 
 @contextlib.contextmanager
 def transitioning_branches(
