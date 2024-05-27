@@ -2,7 +2,7 @@ import contextlib
 from pathlib import Path
 
 import git
-from git import Head, Repo
+from git import Head, Repo, RemoteReference
 from typing_extensions import Generator
 
 from patchwork.logger import logger
@@ -20,12 +20,13 @@ def get_slug_from_remote_url(remote_url: str) -> str:
     return potential_slug.removesuffix(".git")
 
 
-@contextlib.contextmanager
-def transitioning_branches(
-    repo: Repo, branch_prefix: str, branch_suffix: str = "", force: bool = True
-) -> Generator[tuple[Head, Head], None, None]:
+def get_current_branch(repo: Repo) -> RemoteReference | Head:
+    remote = repo.remote("origin")
     if repo.head.is_detached:
-        from_branch = next((branch for branch in repo.branches if branch.commit == repo.head.commit), None)
+        from_branch = next(
+            (branch for branch in remote.refs if branch.commit == repo.head.commit and branch.remote_head != "HEAD"),
+            None
+        )
     else:
         from_branch = repo.active_branch
 
@@ -35,16 +36,25 @@ def transitioning_branches(
             "Make sure repository is not in a detached HEAD state with additional commits."
         )
 
-    next_branch_name = f"{branch_prefix}{from_branch.name}{branch_suffix}"
+    return from_branch
+
+@contextlib.contextmanager
+def transitioning_branches(
+    repo: Repo, branch_prefix: str, branch_suffix: str = "", force: bool = True
+) -> Generator[tuple[str, str], None, None]:
+    from_branch = get_current_branch(repo)
+    next_branch_name = f"{branch_prefix}{from_branch.remote_head}{branch_suffix}"
     if next_branch_name in repo.heads and not force:
-        raise ValueError(f'Branch "{next_branch_name}" already exists.')
+        raise ValueError(f'Local Branch "{next_branch_name}" already exists.')
+    if next_branch_name in repo.remote("origin").refs and not force:
+        raise ValueError(f'Remote Branch "{next_branch_name}" already exists.')
 
     logger.info(f'Creating new branch "{next_branch_name}".')
     to_branch = repo.create_head(next_branch_name, force=force)
 
     try:
         to_branch.checkout()
-        yield from_branch, to_branch
+        yield from_branch.remote_head, next_branch_name
     finally:
         from_branch.checkout()
 
@@ -137,7 +147,7 @@ class CommitChanges(Step):
         repo = git.Repo(Path.cwd())
         if not self.enabled:
             logger.debug("Branch creation is disabled.")
-            return dict(target_branch=repo.active_branch.name)
+            return dict(target_branch=get_current_branch(repo).remote_head)
 
         modified_files = {modified_code_file["path"] for modified_code_file in self.modified_code_files}
 
@@ -153,6 +163,6 @@ class CommitChanges(Step):
 
             logger.info(f"Run completed {self.__class__.__name__}")
             return dict(
-                base_branch=from_branch.name,
-                target_branch=to_branch.name,
+                base_branch=from_branch,
+                target_branch=to_branch,
             )
