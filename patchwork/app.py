@@ -104,8 +104,14 @@ def list_option_callback(ctx: click.Context, param: click.Parameter, value: str 
 )
 @click.argument("patchflow", nargs=1, required=True)
 @click.argument("opts", nargs=-1, type=click.UNPROCESSED, required=False)
-@click.option("--output", type=click.Path(exists=False, resolve_path=True, writable=True), help="Path to the output file which contains the state after the patchflow finishes.")
-@click.option("data_format", "--format", type=click.Choice(["yaml", "json"]), default="json", help="Format of the output file.")
+@click.option(
+    "--output",
+    type=click.Path(exists=False, resolve_path=True, writable=True),
+    help="Path to the output file which contains the state after the patchflow finishes.",
+)
+@click.option(
+    "data_format", "--format", type=click.Choice(["yaml", "json"]), default="json", help="Format of the output file."
+)
 def cli(log: str, patchflow: str, opts: list[str], config: str | None, output: str | None, data_format: str):
     if "::" in patchflow:
         module_path, _, patchflow_name = patchflow.partition("::")

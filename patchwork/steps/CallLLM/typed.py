@@ -15,4 +15,4 @@ class CallLLMInputs(TypedDict):
 
 class CallLLMOutputs(TypedDict):
     new_code: Iterable[dict]
-    openai_response: list[str]
+    openai_responses: list[str]
