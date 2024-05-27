@@ -44,7 +44,8 @@ def transitioning_branches(
     repo: Repo, branch_prefix: str, branch_suffix: str = "", force: bool = True
 ) -> Generator[tuple[str, str], None, None]:
     from_branch = get_current_branch(repo)
-    next_branch_name = f"{branch_prefix}{from_branch.remote_head}{branch_suffix}"
+    from_branch_name = from_branch.name if not from_branch.is_remote() else from_branch.remote_head
+    next_branch_name = f"{branch_prefix}{from_branch_name}{branch_suffix}"
     if next_branch_name in repo.heads and not force:
         raise ValueError(f'Local Branch "{next_branch_name}" already exists.')
     if next_branch_name in repo.remote("origin").refs and not force:
@@ -55,7 +56,7 @@ def transitioning_branches(
 
     try:
         to_branch.checkout()
-        yield from_branch.remote_head, next_branch_name
+        yield from_branch_name, next_branch_name
     finally:
         from_branch.checkout()
 
@@ -148,7 +149,9 @@ class CommitChanges(Step):
         repo = git.Repo(Path.cwd())
         if not self.enabled:
             logger.debug("Branch creation is disabled.")
-            return dict(target_branch=get_current_branch(repo).remote_head)
+            from_branch = get_current_branch(repo)
+            from_branch_name = from_branch.name if not from_branch.is_remote() else from_branch.remote_head
+            return dict(target_branch=from_branch_name)
 
         modified_files = {modified_code_file["path"] for modified_code_file in self.modified_code_files}
 
