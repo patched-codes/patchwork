@@ -100,9 +100,9 @@ class CallOpenAI(LLMModel):
                 completion = self.client.chat.completions.create(model=self.model, messages=prompt, **self.model_args)
             except Exception as e:
                 logger.error(e)
-                continue
+                completion = None
 
-            if len(completion.choices) < 1:
+            if completion is None or len(completion.choices) < 1:
                 logger.error(f"No response choice given")
                 content = ""
             elif completion.choices[0].finish_reason == "length":

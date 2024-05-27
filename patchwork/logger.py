@@ -1,9 +1,10 @@
 import logging
 import os
+
 import click
 from typing_extensions import Callable
 
-from patchwork.managed_files import LOG_FILE, HOME_FOLDER
+from patchwork.managed_files import HOME_FOLDER, LOG_FILE
 
 # default noop logger
 logger = logging.getLogger("patched")
@@ -42,7 +43,7 @@ def init_cli_logger(log_level: str) -> logging.Logger:
     logger.removeHandler(_noop)
     logger.addHandler(ClickHandler(log_level.upper()))
     logger.setLevel(logging.DEBUG)
-    if not os.path.exists(HOME_FOLDER):        # Check if HOME_FOLDER exists at this point
+    if not os.path.exists(HOME_FOLDER):  # Check if HOME_FOLDER exists at this point
         os.makedirs(HOME_FOLDER)
 
     try:

@@ -30,9 +30,10 @@ def transitioning_branches(
         from_branch = repo.active_branch
 
     if from_branch is None:
-        raise ValueError("Could not determine the current branch."
-                         "Make sure repository is not in a detached HEAD state with additional commits.")
-
+        raise ValueError(
+            "Could not determine the current branch."
+            "Make sure repository is not in a detached HEAD state with additional commits."
+        )
 
     next_branch_name = f"{branch_prefix}{from_branch.name}{branch_suffix}"
     if next_branch_name in repo.heads and not force:
