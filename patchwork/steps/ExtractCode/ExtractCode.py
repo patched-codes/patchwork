@@ -23,10 +23,10 @@ def get_source_code_context(
     for context_strategy in context_strategies:
         context_start, context_end = context_strategy.get_context_indexes(source_lines, start_line, end_line)
         if context_start is None or context_end is None:
-            logger.info(f'Context Strategy: "{context_strategy.__class__.__name__}" failed to return context')
+            logger.debug(f'Context Strategy: "{context_strategy.__class__.__name__}" failed to return context')
             continue
 
-        logger.info(f'"{context_strategy.__class__.__name__}" Context Strategy used: {context_start}, {context_end}')
+        logger.debug(f'"{context_strategy.__class__.__name__}" Context Strategy used: {context_start}, {context_end}')
         context = "".join(source_lines[context_start:context_end])
         if count_openai_tokens(context) <= context_token_length:
             return context_start, context_end
@@ -211,7 +211,7 @@ def transform_sarif_results(
                 file_path = str(uri.relative_to(base_path))
 
                 # Extract lines from the code file
-                logger.info(f"Extracting context for {file_path} at {start_line}:{end_line}")
+                logger.debug(f"Extracting context for {file_path} at {start_line}:{end_line}")
                 try:
                     with open_with_chardet(file_path, "r") as file:
                         src = file.read()
@@ -229,10 +229,10 @@ def transform_sarif_results(
                     context_start = None
                     context_end = None
                     source_code_context = None
-                    logger.info(f"File not found in the current working directory: {file_path}")
+                    logger.debug(f"File not found in the current working directory: {file_path}")
 
                 if source_code_context is None:
-                    logger.info(f"No context found for {file_path} at {start_line}:{end_line}")
+                    logger.debug(f"No context found for {file_path} at {start_line}:{end_line}")
                     continue
 
                 start = context_start if context_start is not None else start_line

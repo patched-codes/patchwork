@@ -2,7 +2,7 @@ from typing_extensions import Iterable, NotRequired, TypedDict
 
 
 class ExtractCodeInputs(TypedDict):
-    sarif_data: dict
+    sarif_values: dict
     context_size: NotRequired[int]
     vulnerability_limit: NotRequired[int]
     severity: NotRequired[str]
