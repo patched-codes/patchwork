@@ -63,7 +63,7 @@ class CreatePR(Step):
         if not self.enabled:
             return dict()
 
-        original_remote_name = repo.heads[self.base_branch].tracking_branch().remote_name
+        original_remote_name = "origin"
         original_remote_url = repo.remotes[original_remote_name].url
         push_args = ["--set-upstream", original_remote_name, self.target_branch]
         if self.force:
