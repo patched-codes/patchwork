@@ -114,7 +114,7 @@ def list_option_callback(ctx: click.Context, param: click.Parameter, value: str 
 @click.option(
     "data_format", "--format", type=click.Choice(["yaml", "json"]), default="json", help="Format of the output file."
 )
-@click.option("patched_api_key", "--patched_api_key", help="API key for to connect with patched.")
+@click.option("patched_api_key", "--patched_api_key", help="API key to use with the patched.codes service.")
 def cli(
         log: str,
         patchflow: str,
