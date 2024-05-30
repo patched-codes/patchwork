@@ -8,7 +8,7 @@ from chardet.universaldetector import UniversalDetector
 from chromadb.api.types import Documents, EmbeddingFunction
 from chromadb.utils import embedding_functions
 from typing_extensions import Callable
-
+from git import Head, Repo
 from patchwork.managed_files import HOME_FOLDER
 
 _CLEANUP_FILES: set[Path] = set()
@@ -142,3 +142,21 @@ def get_embedding_function(inputs: dict) -> EmbeddingFunction[Documents]:
         raise ValueError(f"Missing required input data: one of {_EMBEDDING_TO_API_KEY_NAME.keys()}")
 
     return embedding_function
+
+def get_current_branch(repo: Repo) -> Head:
+    remote = repo.remote("origin")
+    if repo.head.is_detached:
+        from_branch = next(
+            (branch for branch in remote.refs if branch.commit == repo.head.commit and branch.remote_head != "HEAD"),
+            None,
+        )
+    else:
+        from_branch = repo.active_branch
+
+    if from_branch is None:
+        raise ValueError(
+            "Could not determine the current branch."
+            "Make sure repository is not in a detached HEAD state with additional commits."
+        )
+
+    return from_branch

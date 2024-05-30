@@ -9,8 +9,10 @@ from types import ModuleType
 import click
 import yaml
 from click import echo
+from git import Repo
 from typing_extensions import Iterable
 
+from patchwork.common.client.patched import PatchedClient
 from patchwork.logger import init_cli_logger, logger
 from patchwork.steps.PreparePrompt import PreparePrompt
 
@@ -112,7 +114,16 @@ def list_option_callback(ctx: click.Context, param: click.Parameter, value: str 
 @click.option(
     "data_format", "--format", type=click.Choice(["yaml", "json"]), default="json", help="Format of the output file."
 )
-def cli(log: str, patchflow: str, opts: list[str], config: str | None, output: str | None, data_format: str):
+@click.option("patched_api_key", "--patched_api_key", help="API key for to connect with patched.")
+def cli(
+        log: str,
+        patchflow: str,
+        opts: list[str],
+        config: str | None,
+        output: str | None,
+        data_format: str,
+        patched_api_key: str | None
+):
     if "::" in patchflow:
         module_path, _, patchflow_name = patchflow.partition("::")
     else:
@@ -120,7 +131,10 @@ def cli(log: str, patchflow: str, opts: list[str], config: str | None, output: s
         module_path = _PATCHFLOW_MODULE_NAME
 
     possbile_module_paths = deque((module_path,))
+
     inputs = {}
+    if patched_api_key is not None:
+        inputs["patched_api_key"] = patched_api_key
 
     if config is not None:
         config_path = Path(config)
@@ -171,9 +185,11 @@ def cli(log: str, patchflow: str, opts: list[str], config: str | None, output: s
         logger.debug(f"Patchflow {patchflow} not found as a class in {module_path}")
         exit(1)
 
+
     try:
-        patchflow_instance = patchflow_class(inputs)
-        patchflow_instance.run()
+        with PatchedClient(inputs.get("patched_api_key")).patched_telemetry(patchflow_name, Repo(Path.cwd()), {}):
+            patchflow_instance = patchflow_class(inputs)
+            patchflow_instance.run()
     except Exception as e:
         logger.debug(traceback.format_exc())
         logger.error(f"Error running patchflow {patchflow}: {e}")
