@@ -129,7 +129,7 @@ class CommitChanges(Step):
             raise ValueError("Both branch_prefix and branch_suffix cannot be empty")
 
     def run(self) -> dict:
-        repo = git.Repo(Path.cwd())
+        repo = git.Repo(Path.cwd(), search_parent_directories=True)
         if not self.enabled:
             logger.debug("Branch creation is disabled.")
             from_branch = get_current_branch(repo)

@@ -187,7 +187,8 @@ def cli(
 
 
     try:
-        with PatchedClient(inputs.get("patched_api_key")).patched_telemetry(patchflow_name, Repo(Path.cwd()), {}):
+        repo = Repo(Path.cwd(), search_parent_directories=True)
+        with PatchedClient(inputs.get("patched_api_key")).patched_telemetry(patchflow_name, repo, {}):
             patchflow_instance = patchflow_class(inputs)
             patchflow_instance.run()
     except Exception as e:
