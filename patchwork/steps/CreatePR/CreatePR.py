@@ -58,7 +58,7 @@ class CreatePR(Step):
             self.enabled = False
 
     def run(self) -> dict:
-        repo = git.Repo(Path.cwd())
+        repo = git.Repo(Path.cwd(), search_parent_directories=True)
 
         if not self.enabled:
             return dict()

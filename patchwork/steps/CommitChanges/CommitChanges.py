@@ -5,6 +5,7 @@ import git
 from git import Head, Repo
 from typing_extensions import Generator
 
+from patchwork.common.utils import get_current_branch
 from patchwork.logger import logger
 from patchwork.step import Step
 
@@ -19,24 +20,6 @@ def get_slug_from_remote_url(remote_url: str) -> str:
 
     return potential_slug.removesuffix(".git")
 
-
-def get_current_branch(repo: Repo) -> Head:
-    remote = repo.remote("origin")
-    if repo.head.is_detached:
-        from_branch = next(
-            (branch for branch in remote.refs if branch.commit == repo.head.commit and branch.remote_head != "HEAD"),
-            None,
-        )
-    else:
-        from_branch = repo.active_branch
-
-    if from_branch is None:
-        raise ValueError(
-            "Could not determine the current branch."
-            "Make sure repository is not in a detached HEAD state with additional commits."
-        )
-
-    return from_branch
 
 
 @contextlib.contextmanager
@@ -146,7 +129,7 @@ class CommitChanges(Step):
             raise ValueError("Both branch_prefix and branch_suffix cannot be empty")
 
     def run(self) -> dict:
-        repo = git.Repo(Path.cwd())
+        repo = git.Repo(Path.cwd(), search_parent_directories=True)
         if not self.enabled:
             logger.debug("Branch creation is disabled.")
             from_branch = get_current_branch(repo)
