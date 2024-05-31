@@ -189,4 +189,4 @@ class PatchedClient(click.ParamType):
             logger.error(f"Failed to finish patchflow run with status code {response.status_code}, msg:{response.text}")
             return
 
-        logger.info(f"Patchflow run finished for {id}")
+        logger.debug(f"Patchflow run finished for {id}")
