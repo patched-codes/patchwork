@@ -116,13 +116,13 @@ def list_option_callback(ctx: click.Context, param: click.Parameter, value: str 
 )
 @click.option("patched_api_key", "--patched_api_key", help="API key to use with the patched.codes service.")
 def cli(
-        log: str,
-        patchflow: str,
-        opts: list[str],
-        config: str | None,
-        output: str | None,
-        data_format: str,
-        patched_api_key: str | None
+    log: str,
+    patchflow: str,
+    opts: list[str],
+    config: str | None,
+    output: str | None,
+    data_format: str,
+    patched_api_key: str | None,
 ):
     if "::" in patchflow:
         module_path, _, patchflow_name = patchflow.partition("::")
@@ -184,7 +184,6 @@ def cli(
     except AttributeError:
         logger.debug(f"Patchflow {patchflow} not found as a class in {module_path}")
         exit(1)
-
 
     try:
         repo = Repo(Path.cwd(), search_parent_directories=True)

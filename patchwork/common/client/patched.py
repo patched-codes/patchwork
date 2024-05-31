@@ -1,10 +1,7 @@
 import atexit
 import contextlib
-import os
-import pathlib
 import socket
 import sys
-from typing import List
 
 import click
 import requests
@@ -12,7 +9,6 @@ from git.repo.base import Repo
 from requests import Response, Session
 from requests.adapters import DEFAULT_POOLBLOCK, HTTPAdapter
 from urllib3 import HTTPConnectionPool, HTTPSConnectionPool, PoolManager
-from pydantic import BaseModel
 
 from patchwork.common.utils import get_current_branch
 from patchwork.logger import logger
@@ -162,12 +158,7 @@ class PatchedClient(click.ParamType):
         response = self._post(
             url=self.url + "/v1/patchwork/",
             headers={"Authorization": f"Bearer {self.access_token}"},
-            json={
-                "url": repo.remotes.origin.url,
-                "patchflow": patchflow,
-                "branch": branch,
-                "inputs": inputs
-            }
+            json={"url": repo.remotes.origin.url, "patchflow": patchflow, "branch": branch, "inputs": inputs},
         )
 
         if response is None:
@@ -177,7 +168,7 @@ class PatchedClient(click.ParamType):
             logger.error(f"Failed to record patchflow run with status code {response.status_code}, msg:{response.text}")
             return None
 
-        logger.info(f"Patchflow run recorded for {patchflow}")
+        logger.debug(f"Patchflow run recorded for {patchflow}")
         return response.json()["id"]
 
     def finish_record_patchflow_run(self, id: int, patchflow: str, repo: Repo) -> None:
@@ -188,7 +179,7 @@ class PatchedClient(click.ParamType):
                 "id": id,
                 "url": repo.remotes.origin.url,
                 "patchflow": patchflow,
-            }
+            },
         )
 
         if response is None:

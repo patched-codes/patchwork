@@ -2,7 +2,7 @@ import contextlib
 from pathlib import Path
 
 import git
-from git import Head, Repo
+from git import Repo
 from typing_extensions import Generator
 
 from patchwork.common.utils import get_current_branch
@@ -19,7 +19,6 @@ def get_slug_from_remote_url(remote_url: str) -> str:
         potential_slug = "/".join(remote_url.split("/")[-2:])
 
     return potential_slug.removesuffix(".git")
-
 
 
 @contextlib.contextmanager
