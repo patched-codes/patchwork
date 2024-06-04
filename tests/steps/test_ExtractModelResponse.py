@@ -28,8 +28,8 @@ def test_run_no_partitions(sample_inputs):
     step = ExtractModelResponse({**sample_inputs, "response_partitions": {}})
     output = step.run()
     assert len(output["extracted_responses"]) == 2
-    assert output["extracted_responses"][0]["key1"] == "response1"
-    assert output["extracted_responses"][1]["key2"] == "response2"
+    assert output["extracted_responses"][0]["anyKeyHere"] == "partition1response1partition2"
+    assert output["extracted_responses"][1]["kEy"] == "response2partition3"
 
 
 def test_run_with_partitions(sample_inputs):
