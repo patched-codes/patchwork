@@ -122,7 +122,7 @@ class CommitChanges(Step):
             self.enabled = False
 
         self.force = inputs.get("force_branch_creation", True)
-        self.branch_prefix = inputs.get("branch_prefix", "")
+        self.branch_prefix = inputs.get("branch_prefix", "patchwork-")
         self.branch_suffix = inputs.get("branch_suffix", "")
         if self.enabled and self.branch_prefix == "" and self.branch_suffix == "":
             raise ValueError("Both branch_prefix and branch_suffix cannot be empty")
