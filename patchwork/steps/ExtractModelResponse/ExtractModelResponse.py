@@ -18,8 +18,12 @@ class ExtractModelResponse(Step):
 
     def run(self) -> dict:
         if len(self.partitions) <= 0:
-            logger.error("No partitions specified for model response. Exiting.")
-            return dict(extracted_responses=[])
+            outputs = []
+            for openai_response in self.openai_responses:
+                output = defaultdict(lambda bound_value=openai_response: bound_value)
+                outputs.append(output)
+            logger.error("No partitions specified for model response. defaulting.")
+            return dict(extracted_responses=outputs)
 
         outputs = []
         for openai_response in self.openai_responses:

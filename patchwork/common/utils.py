@@ -8,7 +8,7 @@ from chardet.universaldetector import UniversalDetector
 from chromadb.api.types import Documents, EmbeddingFunction
 from chromadb.utils import embedding_functions
 from git import Head, Repo
-from typing_extensions import Callable
+from typing_extensions import Callable, TypedDict
 
 from patchwork.managed_files import HOME_FOLDER
 
@@ -162,3 +162,7 @@ def get_current_branch(repo: Repo) -> Head:
         )
 
     return from_branch
+
+
+def get_required_keys(cls: TypedDict) -> set:
+    return getattr(cls, "__required_keys__", set())
