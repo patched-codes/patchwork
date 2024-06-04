@@ -1,9 +1,7 @@
 from collections import defaultdict
 
-from patchwork.common.utils import get_required_keys
 from patchwork.logger import logger
 from patchwork.step import Step
-from patchwork.steps.ExtractModelResponse.typed import ExtractModelResponseInputs
 
 
 class ExtractModelResponse(Step):
@@ -25,7 +23,7 @@ class ExtractModelResponse(Step):
                 output = defaultdict(lambda: openai_response)
                 outputs.append(output)
             logger.error("No partitions specified for model response. defaulting.")
-            return dict(extracted_responses=[])
+            return dict(extracted_responses=outputs)
 
         outputs = []
         for openai_response in self.openai_responses:

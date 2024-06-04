@@ -1,9 +1,9 @@
-from typing_extensions import Iterable, TypedDict
+from typing_extensions import Iterable, NotRequired, TypedDict
 
 
 class ExtractModelResponseInputs(TypedDict):
     openai_responses: Iterable[str]
-    response_partitions: dict[str, list[str]]
+    response_partitions: NotRequired[dict[str, list[str]]]
 
 
 class ExtractModelResponseOutputs(TypedDict):
