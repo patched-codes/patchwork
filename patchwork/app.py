@@ -199,9 +199,8 @@ def cli(
         serialize = _DATA_FORMAT_MAPPING.get(data_format, json.dumps)
         with open(output, "w") as file:
             file.write(serialize(inputs))
-
-
 def find_module(possible_module_paths: Iterable[str], patchflow: str) -> ModuleType | None:
+    allowed_modules = {"safe_module1", "safe_module2", "safe_module3"}  # Define your allowed module list based on system requirements
     for module_path in possible_module_paths:
         try:
             spec = importlib.util.spec_from_file_location("custom_module", module_path)
@@ -212,7 +211,10 @@ def find_module(possible_module_paths: Iterable[str], patchflow: str) -> ModuleT
             logger.debug(f"Patchflow {patchflow} not found as a file/directory in {module_path}")
 
         try:
-            return importlib.import_module(module_path)
+            if module_path in allowed_modules:
+                return importlib.import_module(module_path)
+            else:
+                logger.debug(f"Attempt to import unauthorized module {module_path} blocked")
         except ModuleNotFoundError:
             logger.debug(f"Patchflow {patchflow} not found as a module in {module_path}")
 
