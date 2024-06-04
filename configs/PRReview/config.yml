@@ -1,0 +1,16 @@
+public class ApiKeyManager {
+    // Use environment variable or secure key storage instead of hardcoding
+    public static String getGitlabApiKey() {
+        return System.getenv("GITLAB_API_KEY");
+    }
+
+    public static String getLibrariesApiKey() {
+        return System.getenv("LIBRARIES_API_KEY");
+    }
+
+    public static String getOpenAIApiKey() {
+        return System.getenv("OPENAI_API_KEY");
+    }
+
+    // Additional methods handling other API keys similarly
+}
