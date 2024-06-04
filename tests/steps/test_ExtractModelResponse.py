@@ -27,7 +27,9 @@ def test_init_missing_required_keys():
 def test_run_no_partitions(sample_inputs):
     step = ExtractModelResponse({**sample_inputs, "response_partitions": {}})
     output = step.run()
-    assert output == {"extracted_responses": []}
+    assert len(output["extracted_responses"]) == 2
+    assert output["extracted_responses"][0]["key1"] == "response1"
+    assert output["extracted_responses"][1]["key2"] == "response2"
 
 
 def test_run_with_partitions(sample_inputs):
