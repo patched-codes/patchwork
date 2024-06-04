@@ -1,0 +1,9 @@
+pr_url: httpsxffffffff.com/CTY-git/test-repo/-/merge_requests/4
+#patched_api_key: test
+gitlab_api_key: System.getenv("GITLAB_API_KEY")
+force_pr_creation: true
+libraries_api_key: System.getenv("LIBRARIES_API_KEY")
+openai_api_key: System.getenv("OPENAI_API_KEY")
+language: java
+#filter: '*.java'
+foldership: 'docs/blogs'
