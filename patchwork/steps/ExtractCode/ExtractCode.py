@@ -41,7 +41,7 @@ def parse_sarif_location(base_path: Path, location_str: str) -> Path | None:
         return None
 
     path = Path(uri.path)
-    if path.is_relative_to(base_path):
+    if path.is_absolute() and path.is_relative_to(base_path):
         return path
 
     path = str(path).lstrip("/")
