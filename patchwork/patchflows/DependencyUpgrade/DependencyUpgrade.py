@@ -1,5 +1,6 @@
 import copy
 from pathlib import Path
+from tqdm import tqdm
 
 import yaml
 
@@ -52,7 +53,7 @@ class DependencyUpgrade(Step):
             vulns = self.inputs.get("prompt_values")[0]
             number = number + len(vulns["Updates"])
 
-        for i in range(self.n):
+        for i in tqdm(range(self.n)):            
             if self.analyze_impact:
                 analyze_inputs = copy.deepcopy(self.inputs)
                 update_info_list = []
