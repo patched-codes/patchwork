@@ -54,10 +54,14 @@ class CallGemini(LLMModel):
                         safetySettings=self._SAFETY_SETTINGS,
                     ),
                 )
-                response.raise_for_status()
-                response_dict = response.json()
+
+                if response.status_code != 200:
+                    logger.error(response.json())
+                    response_dict = {}
+                else:
+                    response.raise_for_status()
+                    response_dict = response.json()
             except Exception as e:
-                logger.error(e)
                 response_dict = {}
 
             candidate = response_dict.get("candidates", [{}])[0]
@@ -99,7 +103,6 @@ class CallOpenAI(LLMModel):
             try:
                 completion = self.client.chat.completions.create(model=self.model, messages=prompt, **self.model_args)
             except Exception as e:
-                logger.error(e)
                 completion = None
 
             if completion is None or len(completion.choices) < 1:
@@ -154,6 +157,15 @@ class CallLLM(Step):
         if patched_key is not None:
             llm_key = patched_key
             self.client_args["base_url"] = _DEFAULT_PATCH_URL
+
+            # Test for valid PATCHED API key
+            try:
+                response = requests.get(f"{self.client_args['base_url']}/api_keys/{llm_key}")
+                if response.status_code != 200:
+                    logger.error("Invalid PATCHED API key provided. Please set a valid PATCHED API key.")
+                    llm_key = None
+            except Exception:
+                llm_key = None
 
         if llm_key is not None:
             self.llm = CallOpenAI(
