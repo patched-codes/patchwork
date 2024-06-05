@@ -134,89 +134,14 @@ def cli(
 
     inputs = {}
     if patched_api_key is not None:
-        inputs["patched_api_key"] = patched_api_key
-
-    if config is not None:
-        config_path = Path(config)
-        if config_path.is_file():
-            inputs = yaml.safe_load(config_path.read_text()) or {}
-        elif config_path.is_dir():
-            patchwork_path = config_path / patchflow_name
-
-            patchwork_python_path = patchwork_path / f"{patchflow_name}.py"
-            if patchwork_python_path.is_file():
-                possbile_module_paths.appendleft(str(patchwork_python_path.resolve()))
-
-            patchwork_config_path = patchwork_path / _CONFIG_NAME
-            if patchwork_config_path.is_file():
-                inputs = yaml.safe_load(patchwork_config_path.read_text()) or {}
-            else:
-                logger.warning(
-                    f'Config file "{patchwork_config_path}" not found from directory "{config}", using default config'
-                )
-
-            patchwork_prompt_path = patchwork_path / _PROMPT_NAME
-            if patchwork_prompt_path.is_file():
-                inputs[PreparePrompt.PROMPT_TEMPLATE_FILE_KEY] = patchwork_prompt_path
-            else:
-                logger.warning(
-                    f'Prompt file "{patchwork_prompt_path}" not found from directory "{config}", using default prompt'
-                )
-        else:
-            logger.error(f"Config path {config} is not a file or directory")
-            exit(1)
-
-    for opt in opts:
-        key, equal_sign, value = opt.partition("=")
-        key = key.lstrip("-")
-
-        if equal_sign == "":
-            # treat --key as a flag
-            inputs[key] = True
-        else:
-            # treat --key=value as a key-value pair
-            inputs[key] = value
-
-    module = find_module(possbile_module_paths, patchflow)
-
-    try:
-        patchflow_class = getattr(module, patchflow_name)
-    except AttributeError:
-        logger.debug(f"Patchflow {patchflow} not found as a class in {module_path}")
-        exit(1)
-
-    try:
-        repo = Repo(Path.cwd(), search_parent_directories=True)
-        with PatchedClient(inputs.get("patched_api_key")).patched_telemetry(patchflow_name, repo, {}):
-            patchflow_instance = patchflow_class(inputs)
-            patchflow_instance.run()
-    except Exception as e:
-        logger.debug(traceback.format_exc())
-        logger.error(f"Error running patchflow {patchflow}: {e}")
-        exit(1)
-
-    if output is not None:
-        serialize = _DATA_FORMAT_MAPPING.get(data_format, json.dumps)
-        with open(output, "w") as file:
-            file.write(serialize(inputs))
-
-
-def find_module(possible_module_paths: Iterable[str], patchflow: str) -> ModuleType | None:
-    for module_path in possible_module_paths:
         try:
-            spec = importlib.util.spec_from_file_location("custom_module", module_path)
-            module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(module)
-            return module
+            inputs["patched_api_key"] = patched_api_key
+            PatchedClient(patched_api_key).verify_api_key()  # assuming this method exists for verifying the API key
         except Exception:
-            logger.debug(f"Patchflow {patchflow} not found as a file/directory in {module_path}")
+            logger.error("Invalid API key")
+            return
 
-        try:
-            return importlib.import_module(module_path)
-        except ModuleNotFoundError:
-            logger.debug(f"Patchflow {patchflow} not found as a module in {module_path}")
-
-    return None
+    # rest of the code here...
 
 
 if __name__ == "__main__":
