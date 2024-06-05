@@ -121,6 +121,10 @@ class PatchedClient(click.ParamType):
 
     @contextlib.contextmanager
     def patched_telemetry(self, patchflow: str, repo: Repo, inputs: dict):
+        if not self.access_token:
+            yield
+            return
+
         try:
             is_valid_client = self.test_token()
         except Exception as e:
