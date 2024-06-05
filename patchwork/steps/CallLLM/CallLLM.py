@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 from pprint import pformat
 from textwrap import indent
+from tqdm import tqdm
 
 import requests
 from openai import OpenAI
@@ -79,7 +80,6 @@ class CallGemini(LLMModel):
                 logger.debug(f"Response received: \n{indent(content, '  ')}")
 
             contents.append(content)
-
         return contents
 
 
@@ -94,7 +94,7 @@ class CallOpenAI(LLMModel):
 
     def call(self, prompts) -> list[str]:
         contents = []
-        for prompt in prompts:
+        for prompt in tqdm(prompts):
             logger.debug(f"Message sent: \n{indent(pformat(prompt), '  ')}")
             try:
                 completion = self.client.chat.completions.create(model=self.model, messages=prompt, **self.model_args)
