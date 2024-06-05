@@ -17,12 +17,21 @@ class CreateIssueComment(Step):
             raise ValueError(f'Missing required data: "{self.required_keys}"')
 
         self.scm_client: ScmPlatformClientProtocol
-        if "github_api_key" in inputs.keys():
-            self.scm_client = GithubClient(inputs["github_api_key"])
-        elif "gitlab_api_key" in inputs.keys():
-            self.scm_client = GitlabClient(inputs["gitlab_api_key"])
+        self.github_api_key = inputs.get("github_api_key", None)
+        self.gitlab_api_key = inputs.get("gitlab_api_key", None)
+
+        if self.github_api_key:
+            try:
+                self.scm_client = GithubClient(self.github_api_key)
+            except:
+                logger.error(f"Invalid github_api_key: {self.github_api_key}")
+        elif self.gitlab_api_key:
+            try:
+                self.scm_client = GitlabClient(self.gitlab_api_key)
+            except:
+                logger.error(f"Invalid gitlab_api_key: {self.gitlab_api_key}")
         else:
-            raise ValueError(f'Missing required input data: "github_api_key" or "gitlab_api_key"')
+            self.scm_client = None
 
         if "scm_url" in inputs.keys():
             self.scm_client.set_url(inputs["scm_url"])
@@ -31,7 +40,11 @@ class CreateIssueComment(Step):
         self.issue_url = inputs["issue_url"]
 
     def run(self) -> dict:
-        slug, issue_id = self.scm_client.get_slug_and_id_from_url(self.issue_url)
-        url = self.scm_client.create_issue_comment(slug, self.issue_text, issue_id=issue_id)
+        if self.scm_client:
+            slug, issue_id = self.scm_client.get_slug_and_id_from_url(self.issue_url)
+            url = self.scm_client.create_issue_comment(slug, self.issue_text, issue_id=issue_id)
 
-        return dict(issue_comment_url=url)
+            return dict(issue_comment_url=url)
+        else:
+            raise ValueError(f'Missing required input data: "github_api_key" or "gitlab_api_key"')
+
