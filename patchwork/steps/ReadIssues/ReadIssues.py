@@ -18,16 +18,25 @@ class ReadIssues(Step):
 
         self.scm_client: ScmPlatformClientProtocol
         if "github_api_key" in inputs.keys():
-            self.scm_client = GithubClient(inputs["github_api_key"])
+            try:
+                self.scm_client = GithubClient(inputs["github_api_key"])
+            except Exception as e:
+                logger.error(e)
         elif "gitlab_api_key" in inputs.keys():
-            self.scm_client = GitlabClient(inputs["gitlab_api_key"])
+            try:
+                self.scm_client = GitlabClient(inputs["gitlab_api_key"])
+            except Exception as e:
+                logger.error(e)
         else:
-            raise ValueError(f'Missing required input data: "github_api_key" or "gitlab_api_key"')
+            return
 
         if "scm_url" in inputs.keys():
             self.scm_client.set_url(inputs["scm_url"])
 
-        self.issue_texts = self.scm_client.find_issue_by_url(inputs["issue_url"])
+        try:
+            self.issue_texts = self.scm_client.find_issue_by_url(inputs["issue_url"])
+        except Exception as e:
+            logger.error(e)
 
     def run(self) -> dict:
         return dict(issue_text=[self.issue_texts[0]])
