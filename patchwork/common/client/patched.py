@@ -15,11 +15,8 @@ from patchwork.logger import logger
 
 
 class TCPKeepAliveHTTPSConnectionPool(HTTPSConnectionPool):
-    # probe start
     TCP_KEEP_IDLE = 60
-    # probe interval
     TCP_KEEPALIVE_INTERVAL = 60
-    # probe times
     TCP_KEEP_CNT = 3
 
     def _validate_conn(self, conn):
@@ -73,7 +70,6 @@ class PatchedClient(click.ParamType):
         self._edit_tcp_alive()
 
     def _edit_tcp_alive(self):
-        # credits to https://www.finbourne.com/blog/the-mysterious-hanging-client-tcp-keep-alives
         self._session.mount("https://", KeepAliveHTTPSAdapter())
 
     def _post(self, **kwargs) -> Response | None:
@@ -101,8 +97,8 @@ class PatchedClient(click.ParamType):
         return response
 
     def test_token(self) -> bool:
-        response = self._post(
-            url=self.url + "/token/test", headers={"Authorization": f"Bearer {self.access_token}"}, json={}
+        response = self._get(
+            url=self.url + "/token/test", headers={"Authorization": f"Bearer {self.access_token}"}
         )
 
         if response is None:
@@ -121,35 +117,27 @@ class PatchedClient(click.ParamType):
 
     @contextlib.contextmanager
     def patched_telemetry(self, patchflow: str, repo: Repo, inputs: dict):
+        is_valid_client = False
         try:
             is_valid_client = self.test_token()
         except Exception as e:
             logger.error(f"Access Token test failed: {e}")
-            yield
-            return
-
-        if not is_valid_client:
-            yield
-            return
-
-        try:
-            patchflow_run_id = self.record_patchflow_run(patchflow, repo, inputs)
-        except Exception as e:
-            logger.error(f"Failed to record patchflow run: {e}")
-            yield
-            return
-
-        if patchflow_run_id is None:
-            yield
-            return
+ 
+        patchflow_run_id = None
+        if is_valid_client:
+            try:
+                patchflow_run_id = self.record_patchflow_run(patchflow, repo, inputs)
+            except Exception as e:
+                logger.error(f"Failed to record patchflow run: {e}")
 
         try:
             yield
         finally:
-            try:
-                self.finish_record_patchflow_run(patchflow_run_id, patchflow, repo)
-            except Exception as e:
-                logger.error(f"Failed to finish patchflow run: {e}")
+            if patchflow_run_id is not None:
+                try:
+                    self.finish_record_patchflow_run(patchflow_run_id, patchflow, repo)
+                except Exception as e:
+                    logger.error(f"Failed to finish patchflow run: {e}")
 
     def record_patchflow_run(self, patchflow: str, repo: Repo, inputs: dict) -> int | None:
         head = get_current_branch(repo)
@@ -173,7 +161,7 @@ class PatchedClient(click.ParamType):
 
     def finish_record_patchflow_run(self, id: int, patchflow: str, repo: Repo) -> None:
         response = self._post(
-            url=self.url + "/v1/patchwork/",
+            url=self.url + f"/v1/patchwork/{id}/finish",
             headers={"Authorization": f"Bearer {self.access_token}"},
             json={
                 "id": id,
