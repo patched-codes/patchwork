@@ -10,7 +10,7 @@ from typing_extensions import Any
 from patchwork.common.utils import count_openai_tokens, open_with_chardet
 from patchwork.logger import logger
 from patchwork.step import Step
-from patchwork.steps.ExtractCode.context_strategy.context_strategies import (
+from patchwork.common.context_strategy.context_strategies import (
     ContextStrategies,
 )
 
