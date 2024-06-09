@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Any
 
 import yaml
 
@@ -35,14 +36,14 @@ class GenerateDocstring(Step):
 
         final_inputs["pr_title"] = f"PatchWork {self.__class__.__name__}"
         final_inputs["branch_prefix"] = f"{self.__class__.__name__.lower()}-"
+        final_inputs["context_grouping"] = "FUNCTION"
 
-        self.inputs = final_inputs
+        self.inputs: dict[str, Any] = final_inputs
 
     def run(self) -> dict:
         outputs = ExtractCodeContexts(self.inputs).run()
         self.inputs.update(outputs)
 
-        self.inputs["files_to_patch"] = self.inputs.get(extracted_code_contexts, [])
         self.inputs["prompt_id"] = "generate_docstring"
         self.inputs["response_partitions"] = {
             "patch": ["Code with docstring:", "```", "\n", "```"],

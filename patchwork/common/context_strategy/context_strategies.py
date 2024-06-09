@@ -1,3 +1,5 @@
+from enum import Enum
+
 from .generic import FullFileStrategy, NoopStrategy
 from .java import JavaBlockStrategy, JavaClassStrategy, JavaMethodStrategy
 from .javascript import (
