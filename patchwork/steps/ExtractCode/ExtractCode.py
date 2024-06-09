@@ -21,15 +21,15 @@ def get_source_code_context(
     context_strategies = ContextStrategies.get_context_strategies(*ContextStrategies.ALL)
     context_strategies = [strategy for strategy in context_strategies if strategy.is_file_supported(uri, source_lines)]
     for context_strategy in context_strategies:
-        context_start, context_end = context_strategy.get_context_indexes(source_lines, start_line, end_line)
-        if context_start is None or context_end is None:
+        position = context_strategy.get_context_indexes(source_lines, start_line, end_line)
+        if position.start is None or position.end is None:
             logger.debug(f'Context Strategy: "{context_strategy.__class__.__name__}" failed to return context')
             continue
 
-        logger.debug(f'"{context_strategy.__class__.__name__}" Context Strategy used: {context_start}, {context_end}')
-        context = "".join(source_lines[context_start:context_end])
+        logger.debug(f'"{context_strategy.__class__.__name__}" Context Strategy used: {position.start}, {position.end}')
+        context = "".join(source_lines[position.start:position.end])
         if count_openai_tokens(context) <= context_token_length:
-            return context_start, context_end
+            return position.start, position.end
 
     return None, None
 
