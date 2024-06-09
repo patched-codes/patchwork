@@ -50,7 +50,7 @@ class ExtractCodeContexts(Step):
     def run(self) -> dict:
         files_to_consider = []
         for root, dirs, files in os.walk(self.base_path):
-            if IGNORE_DIRS.intersection(dirs):
+            if IGNORE_DIRS.intersection(Path(root).parents):
                 continue
 
             for file in files:

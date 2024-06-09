@@ -10,10 +10,29 @@ class _PythonCollector(libcst.CSTVisitor):
     METADATA_DEPENDENCIES = (libcst.metadata.WhitespaceInclusivePositionProvider,)
 
     def __init__(self):
+        """
+        Initialize a new instance of the class, setting up properties and defaults.
+        Inherits from a parent class using super() and initializes an empty list to store positions.
+        """
         super().__init__()
         self.positions: list[Position] = []
 
     def _visit(self, node: libcst.CSTNode) -> Position:
+        """
+        Visit a CSTNode and record its position within the source code.
+    
+        This method leverages the WhitespaceInclusivePositionProvider to obtain
+        the start and end positions (lines and columns) of the node, which are then
+        adjusted to be zero-indexed. The adjusted position is encapsulated in a 
+        Position object, added to the `positions` list, and returned.
+    
+        Args:
+            node (libcst.CSTNode): The CST node whose position is to be determined.
+    
+        Returns:
+            Position: A Position object representing the zero-indexed start and end
+                      line and column numbers of the node within the source code.
+        """
         code_range = self.get_metadata(libcst.metadata.WhitespaceInclusivePositionProvider, node)
         position = Position(
             start=code_range.start.line - 1,
@@ -29,9 +48,22 @@ class _FunctionCollector(_PythonCollector):
     METADATA_DEPENDENCIES = (libcst.metadata.WhitespaceInclusivePositionProvider,)
 
     def __init__(self):
+        """
+        Initialize the instance by calling the parent class's constructor.
+        """
         super().__init__()
 
     def visit_FunctionDef(self, node: FunctionDef) -> Optional[bool]:
+        """
+        Visit a function definition in the AST (Abstract Syntax Tree) and optionally collect
+        metadata about its docstring if present.
+        
+        Args:
+            node (FunctionDef): The AST node for the function definition.
+        
+        Returns:
+            Optional[bool]: Always returns True indicating successful processing.
+        """
         position = self._visit(node)
         docstring_node = self._get_docstring_node(node.body)
         if docstring_node:
@@ -43,7 +75,7 @@ class _FunctionCollector(_PythonCollector):
                 end_col=code_range.end.column - 1
             )
             position.meta_positions["comment"] = comment_position
-
+    
         return True
 
     def _get_docstring_node(
@@ -75,26 +107,67 @@ class _BlockCollector(_PythonCollector):
     METADATA_DEPENDENCIES = (libcst.metadata.WhitespaceInclusivePositionProvider,)
 
     def __init__(self):
+        """
+        Initialize the object by calling the __init__ method of the superclass.
+        """
         super().__init__()
 
     def visit_IndentedBlock(self, node: IndentedBlock) -> Optional[bool]:
+        """
+        Visit a node of type IndentedBlock and process it using the _visit method.
+
+        Args:
+            node (IndentedBlock): The indented block node to visit.
+
+        Returns:
+            Optional[bool]: Always returns True after visiting the node.
+        """
         self._visit(node)
         return True
 
 
 class PythonStrategy(ContextStrategyProtocol):
     def __init__(self, visitor_func: Callable[[int, int], _PythonCollector]):
+        """
+        Initialize the PythonCollector instance.
+    
+        Args:
+            visitor_func (Callable[[int, int], _PythonCollector]): A function that processes or
+                handles two integer values and returns an instance of _PythonCollector.
+        """
         self.visitor_func = visitor_func
 
     def get_contexts(self, src: list[str]) -> list[Position]:
+        """
+        Extracts and returns positions from a source code.
+    
+        Args:
+        src (list[str]): A list of strings that represents the source code.
+    
+        Returns:
+        list[Position]: A list of Position objects representing specific locations within the source code.
+        """
         cst = libcst.parse_module("".join(src))
         cst_wrapper = libcst.metadata.MetadataWrapper(cst)
         visitor = self.visitor_func()
         cst_wrapper.visit(visitor)
-
+    
         return visitor.positions
 
-    def get_context_indexes(self, src: list[str], start: int, end: int) -> Position | None:
+    def get_context_indexes(self, src: list[str], start: int, end:  int) -> Position | None:
+        """
+        Finds the first context in the source list where the specified start and end indices are both
+        within the bounds of a context position.
+
+        Parameters:
+        src (list[str]): List of strings representing the contexts.
+        start (int): The starting index to check within the contexts.
+        end (int): The ending index to check within the constraints of the contexts.
+
+        Returns:
+        Position | None: Returns the Position object if the start and end indices are contained within any
+        context's bounds; otherwise, returns None.
+        """
         for position in self.get_contexts(src):
             if position.start <= start and end <= position.end:
                 return position
@@ -102,6 +175,19 @@ class PythonStrategy(ContextStrategyProtocol):
         return None
 
     def is_file_supported(self, filename: str, src: list[str]) -> bool:
+        """
+        Check if the provided file and source code are supported.
+
+        This method checks if the given source code can be parsed as a Python module and if the
+        filename ends with '.py'. Also, it checks if the source code list is not empty.
+
+        Args:
+            filename (str): The name of the file to check.
+            src (list[str]): A list of strings representing the source code.
+
+        Returns:
+            bool: True if the file is supported, False otherwise.
+        """
         try:
             libcst.parse_module("".join(src))
         except:
@@ -111,9 +197,17 @@ class PythonStrategy(ContextStrategyProtocol):
 
 class PythonFunctionStrategy(PythonStrategy):
     def __init__(self):
+        """
+        Initialize a new instance of the class which automatically
+        collects function calls and definitions for processing.
+        """
         super().__init__(_FunctionCollector)
 
 
 class PythonBlockStrategy(PythonStrategy):
     def __init__(self):
+        """
+        Initialize the instance of the class, inheriting properties and methods 
+        from a parent class with _BlockCollector as an argument to super().
+        """
         super().__init__(_BlockCollector)

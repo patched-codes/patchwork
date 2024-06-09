@@ -76,6 +76,18 @@ class ContextStrategies:
 
     @staticmethod
     def get_context_strategies(name: str, *args) -> list[ContextStrategyProtocol]:
+        """
+        Collect context strategies based on the provided arguments.
+
+        Args:
+            name (str): The initial strategy name to look up.
+            *args: Additional strategy names to look up.
+
+        Returns:
+            list[ContextStrategyProtocol]: A list of found context strategy instances that match the
+                                           provided names. If a strategy can't be found, it is not included
+                                           in the list.
+        """
         rv = []
         for arg in [name, *args]:
             element = ContextStrategies.get_context_strategy(arg)
