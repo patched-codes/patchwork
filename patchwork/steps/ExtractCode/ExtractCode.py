@@ -22,7 +22,7 @@ def get_source_code_context(
     context_strategies = [strategy for strategy in context_strategies if strategy.is_file_supported(uri, source_lines)]
     for context_strategy in context_strategies:
         position = context_strategy.get_context_indexes(source_lines, start_line, end_line)
-        if position.start is None or position.end is None:
+        if position is None:
             logger.debug(f'Context Strategy: "{context_strategy.__class__.__name__}" failed to return context')
             continue
 
