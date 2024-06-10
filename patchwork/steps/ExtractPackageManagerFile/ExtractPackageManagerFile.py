@@ -60,7 +60,7 @@ def find_package_manager_files(directory, purl):
     purl = PackageURL.from_string(purl)
     package_type = purl.to_dict()["type"]
     package_manager_files = {
-        "pypi": ["requirements.txt", "Pipfile", "setup.py", "pyproject.toml"],
+        "pypi": ["requirements.txt", "Pipfile", "pyproject.toml"],
         "maven": ["pom.xml", "build.gradle", "build.gradle.kts"],
         "npm": ["package.json", "package-lock.json", "yarn.lock"],
         "golang": ["go.mod", "go.sum"],
@@ -175,12 +175,12 @@ class ExtractPackageManagerFile(Step):
                 found_src_files = find_package_manager_files(Path.cwd(), purl)
                 if len(found_src_files) > 1:
                     logger.info(
-                        f"{len(found_src_files)} package manager files found in the current working directory. Use the package_manager_file argument to specify the one to update."
+                        f"{len(found_src_files)} package manager files found in the current working directory for {purl}. Use the package_manager_file argument to specify the one to update."
                     )
                     continue
                 elif len(found_src_files) == 0:
                     logger.info(
-                        "No package manager files found in the current working directory. Use the package_manager_file argument to specify the file."
+                        f"No package manager files found in the current working directory for {purl}. Use the package_manager_file argument to specify the file."
                     )
                     continue
                 else:
