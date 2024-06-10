@@ -2,10 +2,8 @@ from typing_extensions import Iterable, NotRequired, TypedDict
 
 
 class ExtractCodeInputs(TypedDict):
-    sarif_values: dict
-    context_size: NotRequired[int]
-    vulnerability_limit: NotRequired[int]
-    severity: NotRequired[str]
+    base_path: NotRequired[str]
+    context_grouping: NotRequired[str]
 
 
 class ExtractCodeOutputs(TypedDict):
@@ -18,4 +16,3 @@ class ExtractedCode(TypedDict):
     startLine: int
     endLine: int
     affectedCode: str
-    messageText: str
