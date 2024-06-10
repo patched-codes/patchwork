@@ -9,6 +9,7 @@ from libcst import (
     SimpleStatementLine,
     SimpleString,
 )
+from libcst.metadata import PositionProvider
 from typing_extensions import Callable, Optional, Sequence
 
 from patchwork.common.context_strategy.position import Position
@@ -17,7 +18,7 @@ from .protocol import ContextStrategyProtocol
 
 
 class _PythonCollector(libcst.CSTVisitor):
-    METADATA_DEPENDENCIES = (libcst.metadata.WhitespaceInclusivePositionProvider,)
+    METADATA_DEPENDENCIES = (PositionProvider,)
 
     def __init__(self):
         """
@@ -43,7 +44,7 @@ class _PythonCollector(libcst.CSTVisitor):
             Position: A Position object representing the zero-indexed start and end
                       line and column numbers of the node within the source code.
         """
-        code_range = self.get_metadata(libcst.metadata.WhitespaceInclusivePositionProvider, node)
+        code_range = self.get_metadata(PositionProvider, node)
         position = Position(
             start=code_range.start.line - 1,
             end=code_range.end.line - 1,
@@ -55,7 +56,7 @@ class _PythonCollector(libcst.CSTVisitor):
 
 
 class _FunctionCollector(_PythonCollector):
-    METADATA_DEPENDENCIES = (libcst.metadata.WhitespaceInclusivePositionProvider,)
+    METADATA_DEPENDENCIES = (PositionProvider,)
 
     def __init__(self):
         """
@@ -77,7 +78,7 @@ class _FunctionCollector(_PythonCollector):
         position = self._visit(node)
         docstring_node = self._get_docstring_node(node.body)
         if docstring_node:
-            code_range = self.get_metadata(libcst.metadata.WhitespaceInclusivePositionProvider, docstring_node)
+            code_range = self.get_metadata(PositionProvider, docstring_node)
             comment_position = Position(
                 start=code_range.start.line - 1,
                 end=code_range.end.line - 1,
@@ -113,7 +114,7 @@ class _FunctionCollector(_PythonCollector):
 
 
 class _BlockCollector(_PythonCollector):
-    METADATA_DEPENDENCIES = (libcst.metadata.WhitespaceInclusivePositionProvider,)
+    METADATA_DEPENDENCIES = (PositionProvider,)
 
     def __init__(self):
         """
