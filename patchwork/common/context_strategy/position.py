@@ -1,6 +1,4 @@
-import contextlib
 import dataclasses
-from pathlib import Path
 
 
 @dataclasses.dataclass(slots=True, frozen=True)
@@ -9,7 +7,7 @@ class Position:
     end: int
     start_col: int
     end_col: int
-    meta_positions: dict[str, 'Position'] = dataclasses.field(default_factory=dict)
+    meta_positions: dict[str, "Position"] = dataclasses.field(default_factory=dict)
 
     # def extract_lines(self, src: list[str]) -> list[str]:
     #     return src[self.start : self.end]

@@ -1,8 +1,18 @@
 import libcst
-from libcst import FunctionDef, IndentedBlock, BaseSuite, SimpleStatementLine, BaseCompoundStatement, Expr, SimpleString, ConcatenatedString
+from libcst import (
+    BaseCompoundStatement,
+    BaseSuite,
+    ConcatenatedString,
+    Expr,
+    FunctionDef,
+    IndentedBlock,
+    SimpleStatementLine,
+    SimpleString,
+)
 from typing_extensions import Callable, Optional, Sequence
 
 from patchwork.common.context_strategy.position import Position
+
 from .protocol import ContextStrategyProtocol
 
 
@@ -20,15 +30,15 @@ class _PythonCollector(libcst.CSTVisitor):
     def _visit(self, node: libcst.CSTNode) -> Position:
         """
         Visit a CSTNode and record its position within the source code.
-    
+
         This method leverages the WhitespaceInclusivePositionProvider to obtain
         the start and end positions (lines and columns) of the node, which are then
-        adjusted to be zero-indexed. The adjusted position is encapsulated in a 
+        adjusted to be zero-indexed. The adjusted position is encapsulated in a
         Position object, added to the `positions` list, and returned.
-    
+
         Args:
             node (libcst.CSTNode): The CST node whose position is to be determined.
-    
+
         Returns:
             Position: A Position object representing the zero-indexed start and end
                       line and column numbers of the node within the source code.
@@ -38,7 +48,7 @@ class _PythonCollector(libcst.CSTVisitor):
             start=code_range.start.line - 1,
             end=code_range.end.line - 1,
             start_col=code_range.start.column - 1,
-            end_col=code_range.end.column - 1
+            end_col=code_range.end.column - 1,
         )
         self.positions.append(position)
         return position
@@ -57,10 +67,10 @@ class _FunctionCollector(_PythonCollector):
         """
         Visit a function definition in the AST (Abstract Syntax Tree) and optionally collect
         metadata about its docstring if present.
-        
+
         Args:
             node (FunctionDef): The AST node for the function definition.
-        
+
         Returns:
             Optional[bool]: Always returns True indicating successful processing.
         """
@@ -72,17 +82,16 @@ class _FunctionCollector(_PythonCollector):
                 start=code_range.start.line - 1,
                 end=code_range.end.line - 1,
                 start_col=code_range.start.column - 1,
-                end_col=code_range.end.column - 1
+                end_col=code_range.end.column - 1,
             )
             position.meta_positions["comment"] = comment_position
-    
+
         return True
 
     def _get_docstring_node(
-            self,
-            body: BaseSuite | Sequence[SimpleStatementLine| BaseCompoundStatement]
+        self, body: BaseSuite | Sequence[SimpleStatementLine | BaseCompoundStatement]
     ) -> Expr | None:
-        """ Copied from FunctionDef::get_docstring() """
+        """Copied from FunctionDef::get_docstring()"""
         if isinstance(body, Sequence):
             if body:
                 expr = body[0]
@@ -130,7 +139,7 @@ class PythonStrategy(ContextStrategyProtocol):
     def __init__(self, visitor_func: Callable[[int, int], _PythonCollector]):
         """
         Initialize the PythonCollector instance.
-    
+
         Args:
             visitor_func (Callable[[int, int], _PythonCollector]): A function that processes or
                 handles two integer values and returns an instance of _PythonCollector.
@@ -140,10 +149,10 @@ class PythonStrategy(ContextStrategyProtocol):
     def get_contexts(self, src: list[str]) -> list[Position]:
         """
         Extracts and returns positions from a source code.
-    
+
         Args:
         src (list[str]): A list of strings that represents the source code.
-    
+
         Returns:
         list[Position]: A list of Position objects representing specific locations within the source code.
         """
@@ -151,10 +160,10 @@ class PythonStrategy(ContextStrategyProtocol):
         cst_wrapper = libcst.metadata.MetadataWrapper(cst)
         visitor = self.visitor_func()
         cst_wrapper.visit(visitor)
-    
+
         return visitor.positions
 
-    def get_context_indexes(self, src: list[str], start: int, end:  int) -> Position | None:
+    def get_context_indexes(self, src: list[str], start: int, end: int) -> Position | None:
         """
         Finds the first context in the source list where the specified start and end indices are both
         within the bounds of a context position.
@@ -207,7 +216,7 @@ class PythonFunctionStrategy(PythonStrategy):
 class PythonBlockStrategy(PythonStrategy):
     def __init__(self):
         """
-        Initialize the instance of the class, inheriting properties and methods 
+        Initialize the instance of the class, inheriting properties and methods
         from a parent class with _BlockCollector as an argument to super().
         """
         super().__init__(_BlockCollector)

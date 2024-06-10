@@ -7,15 +7,11 @@ from patchwork.step import Step
 from patchwork.steps import (
     CallLLM,
     CommitChanges,
-    CreateIssueComment,
     CreatePR,
     ExtractModelResponse,
-    GenerateCodeRepositoryEmbeddings,
     ModifyCode,
     PreparePR,
     PreparePrompt,
-    QueryEmbeddings,
-    ReadIssues,
 )
 from patchwork.steps.ExtractCodeContexts.ExtractCodeContexts import ExtractCodeContexts
 

@@ -1,8 +1,4 @@
-from tree_sitter_languages import get_language, get_parser
-from typing_extensions import Tuple
-
 from patchwork.common.context_strategy.protocol import TreeSitterStrategy
-
 
 _javascript_language = "typescript"
 _jsx_language = "tsx"

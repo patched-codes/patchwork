@@ -1,5 +1,3 @@
-from enum import Enum
-
 from .generic import FullFileStrategy, NoopStrategy
 from .java import JavaBlockStrategy, JavaClassStrategy, JavaMethodStrategy
 from .javascript import (
@@ -47,12 +45,7 @@ class ContextStrategies:
         NOOP,
     ]
 
-    FUNCTION = [
-        PYTHON_FUNCTION,
-        JAVA_METHOD,
-        JAVASCRIPT_FUNCTION,
-        JSX_FUNCTION
-    ]
+    FUNCTION = [PYTHON_FUNCTION, JAVA_METHOD, JAVASCRIPT_FUNCTION, JSX_FUNCTION]
 
     __MAPPING: dict[str, ContextStrategyProtocol] = {
         FULL_FILE: FullFileStrategy(),

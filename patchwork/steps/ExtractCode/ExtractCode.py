@@ -7,12 +7,10 @@ from urllib.parse import urlparse
 
 from typing_extensions import Any
 
+from patchwork.common.context_strategy.context_strategies import ContextStrategies
 from patchwork.common.utils import count_openai_tokens, open_with_chardet
 from patchwork.logger import logger
 from patchwork.step import Step
-from patchwork.common.context_strategy.context_strategies import (
-    ContextStrategies,
-)
 
 
 def get_source_code_context(
@@ -27,7 +25,7 @@ def get_source_code_context(
             continue
 
         logger.debug(f'"{context_strategy.__class__.__name__}" Context Strategy used: {position.start}, {position.end}')
-        context = "".join(source_lines[position.start:position.end])
+        context = "".join(source_lines[position.start : position.end])
         if count_openai_tokens(context) <= context_token_length:
             return position.start, position.end
 

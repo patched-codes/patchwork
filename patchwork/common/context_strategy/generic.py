@@ -1,5 +1,3 @@
-from typing_extensions import Tuple
-
 from .position import Position
 from .protocol import ContextStrategyProtocol
 
@@ -16,14 +14,7 @@ class FullFileStrategy(ContextStrategyProtocol):
             list[Tuple[int, int]]: A list containing a single tuple with the start index (0) and the end index
                                     equal to the length of the input list, effectively covering the entire range.
         """
-        return [
-            Position(
-                start=0,
-                end=len(src),
-                start_col=0,
-                end_col=len(src[-1])
-            )
-        ]
+        return [Position(start=0, end=len(src), start_col=0, end_col=len(src[-1]))]
 
     def get_context_indexes(self, src: list[str], start: int, end: int) -> Position:
         """
@@ -38,12 +29,7 @@ class FullFileStrategy(ContextStrategyProtocol):
             Tuple[int, int]: A tuple containing the start and end indexes of the context.
                              Currently, it starts from index 0 to the length of the source list.
         """
-        return Position(
-            start=0,
-            end=len(src),
-            start_col=0,
-            end_col=len(src[-1])
-        )
+        return Position(start=0, end=len(src), start_col=0, end_col=len(src[-1]))
 
     def is_file_supported(self, filename: str, src: list[str]) -> bool:
         """
@@ -63,12 +49,12 @@ class NoopStrategy(ContextStrategyProtocol):
     def get_contexts(self, src: list[str]) -> list[Position]:
         """
         Returns a list containing a single tuple representing the whole span of the source list.
-    
+
         Args:
         src (list[str]): A list of strings representing the source data.
-    
+
         Returns:
-        list[Tuple[int, int]]: A list containing a single tuple. 
+        list[Tuple[int, int]]: A list containing a single tuple.
                                 The tuple (0, len(src)) defines the range covering the entire source list.
         """
         return []
@@ -85,12 +71,7 @@ class NoopStrategy(ContextStrategyProtocol):
         Returns:
         Tuple[int, int]: A tuple containing the start and end indexes.
         """
-        return Position(
-            start=0,
-            end=len(src),
-            start_col=0,
-            end_col=len(src[-1])
-        )
+        return Position(start=0, end=len(src), start_col=0, end_col=len(src[-1]))
 
     def is_file_supported(self, filename: str, src: list[str]) -> bool:
         """

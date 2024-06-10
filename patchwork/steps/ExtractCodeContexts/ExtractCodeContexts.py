@@ -1,25 +1,14 @@
 import os
-import sys
-from collections import defaultdict
-from enum import IntEnum
 from pathlib import Path
-from urllib.parse import urlparse
 
-from typing_extensions import Any
-
+from patchwork.common.context_strategy.context_strategies import ContextStrategies
 from patchwork.common.context_strategy.position import Position
 from patchwork.common.ignore import IGNORE_DIRS, IGNORE_EXTS
-from patchwork.common.utils import count_openai_tokens, open_with_chardet
 from patchwork.logger import logger
 from patchwork.step import Step
-from patchwork.common.context_strategy.context_strategies import (
-    ContextStrategies,
-)
 
 
-def get_source_code_contexts(
-    filepath: str, source_lines: list[str], context_strategies: list[str]
-) -> list[Position]:
+def get_source_code_contexts(filepath: str, source_lines: list[str], context_strategies: list[str]) -> list[Position]:
     context_strategies = ContextStrategies.get_context_strategies(*context_strategies)
     context_strategies = [
         strategy for strategy in context_strategies if strategy.is_file_supported(filepath, source_lines)
@@ -70,7 +59,7 @@ class ExtractCodeContexts(Step):
                     uri=str(file),
                     startLine=position.start,
                     endLine=position.end,
-                    affectedCode=src[position.start:position.end]
+                    affectedCode=src[position.start : position.end],
                 )
                 extracted_code_contexts.append(extracted_code_context)
 

@@ -9,7 +9,7 @@ class JavaStrategy(TreeSitterStrategy):
         Args:
         query (str): The search query string to be used for Java file search.
         """
-        super().__init__("java", query, [".Java"])
+        super().__init__("java", query, [".java"])
         self.query = query
 
 
@@ -29,7 +29,7 @@ class JavaClassStrategy(JavaStrategy):
 class JavaMethodStrategy(JavaStrategy):
     def __init__(self):
         """
-        Initialize the newly created object by inheriting properties and 
+        Initialize the newly created object by inheriting properties and
         methods from the parent class.
         """
         super().__init__(

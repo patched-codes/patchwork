@@ -1,7 +1,5 @@
-from abc import ABC
-
-from tree_sitter_languages.core import get_parser, get_language
-from typing_extensions import Protocol, Tuple
+from tree_sitter_languages.core import get_language, get_parser
+from typing_extensions import Protocol
 
 from patchwork.common.context_strategy.position import Position
 
@@ -123,29 +121,29 @@ class TreeSitterStrategy(ContextStrategyProtocol):
     def get_context_indexes(self, src: list[str], start: int, end: int) -> Position | None:
         """
         Retrieve position context from a list of strings between specified start and end indices.
-        
+
         Args:
             src (list[str]): The source list of strings.
             start (int): The starting index to search for the context.
             end (int): The end index to search for the context.
-        
+
         Returns:
             Position | None: Returns the Position object if found, otherwise returns None if no suitable context is found.
         """
         for position in self.get_contexts(src):
             if position.start <= start and end <= position.end:
                 return position
-    
+
         return None
 
     def is_file_supported(self, filename: str, src: list[str]) -> bool:
         """
         Check if a file is supported based on its extension and ensures the source is not empty.
-    
+
         Args:
         filename (str): The name of the file to check.
         src (list[str]): The list of source files being checked.
-    
+
         Returns:
         bool: True if the file's extension is in the list of supported extensions and `src` is not empty, otherwise False.
         """
