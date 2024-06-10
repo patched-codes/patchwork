@@ -1,7 +1,7 @@
 import dataclasses
 
 
-@dataclasses.dataclass(slots=True, frozen=True)
+@dataclasses.dataclass(slots=True)
 class Position:
     start: int
     end: int

@@ -27,6 +27,18 @@ def get_source_code_contexts(
         positions.extend(contexts)
 
     if force_code_contexts:
+        for position in positions:
+            comment_position = position.meta_positions.get("comment")
+            if comment_position is None:
+                continue
+
+            position.start = max(position.start, comment_position.start)
+            if position.start == comment_position.start:
+                position.start_col = comment_position.start_col
+            position.end = max(position.end, comment_position.end)
+            if position.end == comment_position.end:
+                position.end_col = comment_position.end_col
+
         return positions
 
     return [position for position in positions if position.meta_positions.get("comment") is None]
