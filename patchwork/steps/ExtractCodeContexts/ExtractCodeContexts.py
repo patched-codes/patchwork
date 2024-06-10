@@ -32,7 +32,7 @@ def get_source_code_contexts(
             if comment_position is None:
                 continue
 
-            position.start = max(position.start, comment_position.start)
+            position.start = min(position.start, comment_position.start)
             if position.start == comment_position.start:
                 position.start_col = comment_position.start_col
             position.end = max(position.end, comment_position.end)
@@ -81,7 +81,7 @@ class ExtractCodeContexts(Step):
                     uri=str(file),
                     startLine=position.start,
                     endLine=position.end,
-                    affectedCode=src[position.start : position.end],
+                    affectedCode=''.join(src[position.start : position.end]),
                 )
                 extracted_code_contexts.append(extracted_code_context)
 
