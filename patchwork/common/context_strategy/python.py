@@ -67,6 +67,12 @@ class _FunctionCollector(_PythonCollector):
     def __init__(self):
         """
         Initialize the instance by calling the parent class's constructor.
+
+        Parameters:
+        None
+
+        Returns:
+        None
         """
         super().__init__()
 
@@ -74,10 +80,10 @@ class _FunctionCollector(_PythonCollector):
         """
         Visit a function definition in the AST (Abstract Syntax Tree) and optionally collect
         metadata about its docstring if present.
-    
+
         Args:
             node (FunctionDef): The AST node for the function definition.
-    
+
         Returns:
             Optional[bool]: Always returns True indicating successful processing.
         """
@@ -99,12 +105,12 @@ class _FunctionCollector(_PythonCollector):
     ) -> Expr | None:
         """
         Copied from FunctionDef::get_docstring()
-
+    
         This method is used to extract the docstring from the given node.
-
+    
         Args:
             body (BaseSuite | Sequence[SimpleStatementLine | BaseCompoundStatement]): The body of the node.
-
+    
         Returns:
             Expr | None: The extracted docstring node or None if not found.
         """
@@ -166,10 +172,10 @@ class PythonStrategy(ContextStrategyProtocol):
     def get_contexts(self, src: list[str]) -> list[Position]:
         """
         Extracts and returns positions from a source code.
-    
+
         Args:
         src (list[str]): A list of strings that represents the source code.
-    
+
         Returns:
         list[Position]: A list of Position objects representing specific locations within the source code.
         """
