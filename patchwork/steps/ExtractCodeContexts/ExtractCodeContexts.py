@@ -8,7 +8,12 @@ from patchwork.logger import logger
 from patchwork.step import Step
 
 
-def get_source_code_contexts(filepath: str, source_lines: list[str], context_strategies: list[str]) -> list[Position]:
+def get_source_code_contexts(
+        filepath: str,
+        source_lines: list[str],
+        context_strategies: list[str],
+        force_code_contexts: bool
+) -> list[Position]:
     context_strategies = ContextStrategies.get_context_strategies(*context_strategies)
     context_strategies = [
         strategy for strategy in context_strategies if strategy.is_file_supported(filepath, source_lines)
@@ -20,6 +25,9 @@ def get_source_code_contexts(filepath: str, source_lines: list[str], context_str
 
         logger.debug(f'"{context_strategy.__class__.__name__}" Context Strategy used: {len(contexts)} contexts found')
         positions.extend(contexts)
+
+    if force_code_contexts:
+        return positions
 
     return [position for position in positions if position.meta_positions.get("comment") is None]
 
@@ -35,6 +43,8 @@ class ExtractCodeContexts(Step):
 
         self.base_path = Path(inputs.get("base_path", os.getcwd()))
         self.context_grouping = inputs.get("context_grouping", "ALL")
+        # rethink this, should be one level up and true by default
+        self.force_code_contexts = inputs.get("force_code_contexts", False)
 
     def run(self) -> dict:
         files_to_consider = []
@@ -54,7 +64,7 @@ class ExtractCodeContexts(Step):
         extracted_code_contexts = []
         for file in files_to_consider:
             src = file.read_text().splitlines(keepends=True)
-            for position in get_source_code_contexts(str(file), src, grouping):
+            for position in get_source_code_contexts(str(file), src, grouping, self.force_code_contexts):
                 extracted_code_context = dict(
                     uri=str(file),
                     startLine=position.start,
