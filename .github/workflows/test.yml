@@ -42,8 +42,9 @@ jobs:
       - name: Run tests
         run: poetry run pytest
 
-      - name: Lint code
+      - name: Test steps artifact
         run: |
+          poetry shell;
           python scripts/generate_steps.py | diff - scripts/steps.artifact.yaml || \
           (echo "Please run 'python scripts/generate_steps.py' to update the steps artifact file" && exit 1)
 
