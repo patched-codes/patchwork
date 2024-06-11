@@ -4,6 +4,14 @@ from patchwork.logger import logger
 from patchwork.step import Step
 
 
+class _GetOverriddenDefaultDict(defaultdict):
+    def __init__(self, default_factory):
+        super().__init__(default_factory)
+
+    def get(self, key, default=None):
+        return self.__missing__(key) if key not in self else self[key]
+
+
 class ExtractModelResponse(Step):
     required_keys = {"openai_responses"}
 
@@ -20,7 +28,7 @@ class ExtractModelResponse(Step):
         if len(self.partitions) <= 0:
             outputs = []
             for openai_response in self.openai_responses:
-                output = defaultdict(lambda bound_value=openai_response: bound_value)
+                output = _GetOverriddenDefaultDict(lambda bound_value=openai_response: bound_value)
                 outputs.append(output)
             logger.error("No partitions specified for model response, will default to using the entire response.")
             return dict(extracted_responses=outputs)
