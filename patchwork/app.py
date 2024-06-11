@@ -212,8 +212,11 @@ def find_module(possible_module_paths: Iterable[str], patchflow: str) -> ModuleT
             logger.debug(f"Patchflow {patchflow} not found as a file/directory in {module_path}")
 
         try:
-            return importlib.import_module(module_path)
-        except ModuleNotFoundError:
+            spec = importlib.util.spec_from_file_location("custom_module", module_path)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            return module
+        except Exception:
             logger.debug(f"Patchflow {patchflow} not found as a module in {module_path}")
 
     return None
