@@ -44,7 +44,7 @@ def adjust(module_hints) -> dict:
 def main():
     sub_module = importlib.import_module(f"patchwork.steps")
     module_hints = {}
-    for name in dir(sub_module):
+    for name in sorted(dir(sub_module)):
         if name.startswith("__"):
             continue
 
@@ -59,8 +59,8 @@ def main():
                 print(f"ERROR: Invalid type name {t}", file=sys.stderr)
             clazz = getattr(module, t)
             hints = get_type_hints(clazz)
-            required_keys = clazz.__required_keys__
-            optional_keys = clazz.__optional_keys__
+            required_keys = sorted(clazz.__required_keys__)
+            optional_keys = sorted(clazz.__optional_keys__)
             module_hints[t] = dict(
                 required={k: hints[k] for k in required_keys},
                 optional={k: hints[k] for k in optional_keys},

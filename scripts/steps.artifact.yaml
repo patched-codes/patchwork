@@ -2,216 +2,217 @@ AnalyzeImpact:
   inputs:
     optional: []
     required:
-      - library_name
-      - platform_type
-      - extracted_responses
+    - extracted_responses
+    - library_name
+    - platform_type
   outputs:
-    - prompt_values
-    - files_to_patch
+  - files_to_patch
+  - prompt_values
 CallCode2Prompt:
   inputs:
     optional:
-      - suppress_comments
-      - filter
+    - filter
+    - suppress_comments
     required:
-      - folder_path
+    - folder_path
   outputs:
-    - prompt_values
-    - files_to_patch
+  - files_to_patch
+  - prompt_values
 CallLLM:
   inputs:
     optional:
-      - model
-      - openai_api_key
-      - prompts
-      - client_args
-      - google_api_key
-      - allow_truncated
-      - patched_api_key
-      - prompt_file
-      - model_args
+    - allow_truncated
+    - client_args
+    - google_api_key
+    - model
+    - model_args
+    - openai_api_key
+    - patched_api_key
+    - prompt_file
+    - prompts
     required: []
   outputs:
-    - new_code
-    - openai_responses
+  - new_code
+  - openai_responses
 CommitChanges:
   inputs:
     optional:
-      - branch_prefix
-      - branch_suffix
-      - force_branch_creation
-      - disable_branch
+    - branch_prefix
+    - branch_suffix
+    - disable_branch
+    - force_branch_creation
     required:
-      - modified_code_files
+    - modified_code_files
   outputs:
-    - target_branch
-    - base_branch
+  - base_branch
+  - target_branch
 CreateIssueComment:
   inputs:
     optional:
-      - scm_url
-      - gitlab_api_key
-      - github_api_key
+    - github_api_key
+    - gitlab_api_key
+    - scm_url
     required:
-      - issue_url
-      - issue_text
+    - issue_text
+    - issue_url
   outputs:
-    - issue_comment_url
+  - issue_comment_url
 CreatePR:
   inputs:
     optional:
-      - scm_url
-      - force_pr_creation
-      - pr_body
-      - base_branch
-      - pr_title
-      - gitlab_api_key
-      - github_api_key
-      - disable_pr
+    - base_branch
+    - disable_pr
+    - force_pr_creation
+    - github_api_key
+    - gitlab_api_key
+    - pr_body
+    - pr_title
+    - scm_url
     required:
-      - target_branch
+    - target_branch
   outputs:
-    - pr_url
+  - pr_url
 CreatePRComment:
   inputs:
     optional:
-      - scm_url
-      - gitlab_api_key
-      - github_api_key
-      - noisy_comments
+    - github_api_key
+    - gitlab_api_key
+    - noisy_comments
+    - scm_url
     required:
-      - pr_comments
-      - pr_url
+    - pr_comments
+    - pr_url
   outputs: []
 ExtractCode:
   inputs:
     optional:
-      - severity
-      - vulnerability_limit
-      - context_size
+    - context_size
+    - severity
+    - vulnerability_limit
     required:
-      - sarif_values
+    - sarif_values
   outputs:
-    - prompt_values
-    - files_to_patch
+  - files_to_patch
+  - prompt_values
 ExtractDiff:
   inputs:
     optional:
-      - severity
+    - severity
     required:
-      - libraries_api_key
-      - github_api_key
-      - update_info
+    - github_api_key
+    - libraries_api_key
+    - update_info
   outputs:
-    - library_name
-    - prompt_values
-    - platform_type
+  - library_name
+  - platform_type
+  - prompt_values
 ExtractModelResponse:
   inputs:
     optional:
-      - response_partitions
+    - response_partitions
     required:
-      - openai_responses
+    - openai_responses
   outputs:
-    - extracted_responses
+  - extracted_responses
 ExtractPackageManagerFile:
   inputs:
     optional:
-      - upgrade_threshold
-      - package_manager_file
-      - sbom_vdr_values
-      - sbom_vdr_file_path
-      - severity
+    - package_manager_file
+    - sbom_vdr_file_path
+    - sbom_vdr_values
+    - severity
+    - upgrade_threshold
     required: []
   outputs:
-    - prompt_values
-    - files_to_patch
+  - files_to_patch
+  - prompt_values
 GenerateCodeRepositoryEmbeddings:
   inputs:
     optional:
-      - disable_cache
+    - disable_cache
     required: []
   outputs:
-    - documents
-    - embedding_name
+  - documents
+  - embedding_name
 GenerateEmbeddings:
   inputs:
     optional:
-      - disable_cache
+    - disable_cache
     required:
-      - documents
-      - embedding_name
+    - documents
+    - embedding_name
   outputs: []
 ModifyCode:
   inputs:
     optional: []
     required:
-      - files_to_patch
-      - extracted_responses
+    - extracted_responses
+    - files_to_patch
   outputs:
-    - modified_code_files
+  - modified_code_files
 PreparePR:
   inputs:
     optional:
-      - pr_header
+    - pr_header
     required:
-      - modified_code_files
+    - modified_code_files
   outputs:
-    - pr_body
+  - pr_body
 PreparePrompt:
   inputs:
     optional:
-      - prompt_values
-      - prompt_value_file
+    - prompt_value_file
+    - prompt_values
     required:
-      - prompt_template_file
-      - prompt_id
+    - prompt_id
+    - prompt_template_file
   outputs:
-    - prompts
+  - prompts
 QueryEmbeddings:
   inputs:
     optional:
-      - token_limit
-      - top_k
+    - token_limit
+    - top_k
     required:
-      - embedding_name
-      - texts
+    - embedding_name
+    - texts
   outputs:
-    - embedding_results
+  - embedding_results
 ReadIssues:
   inputs:
     optional:
-      - scm_url
-      - gitlab_api_key
-      - github_api_key
+    - github_api_key
+    - gitlab_api_key
+    - scm_url
     required:
-      - issue_url
+    - issue_url
   outputs:
-    - issue_text
+  - issue_text
 ReadPRDiffs:
   inputs:
     optional:
-      - scm_url
-      - gitlab_api_key
-      - github_api_key
+    - github_api_key
+    - gitlab_api_key
+    - scm_url
     required:
-      - pr_url
+    - pr_url
   outputs:
-    - prompt_values
-    - prompt_value_file
+  - prompt_value_file
+  - prompt_values
 ScanDepscan:
   inputs:
     optional:
-      - language
+    - language
     required: []
   outputs:
-    - sbom_vdr_values
+  - sbom_vdr_values
 ScanSemgrep:
   inputs:
     optional:
-      - semgrep_extra_args
-      - sarif_values
-      - sarif_file_path
+    - sarif_file_path
+    - sarif_values
+    - semgrep_extra_args
     required: []
   outputs:
-    - sarif_values
+  - sarif_values
+
