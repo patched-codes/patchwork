@@ -8,7 +8,6 @@ from types import ModuleType
 import yaml
 from typing_extensions import get_type_hints, _TypedDictMeta
 
-
 def filter_attr(module_type: ModuleType, attr: str) -> bool:
     if attr.startswith("__"):
         return False
@@ -18,7 +17,6 @@ def filter_attr(module_type: ModuleType, attr: str) -> bool:
         return False
 
     return True
-
 
 def adjust(module_hints) -> dict:
     adjusted_hints = defaultdict(dict)
@@ -40,9 +38,8 @@ def adjust(module_hints) -> dict:
 
     return dict(adjusted_hints)
 
-
 def main():
-    sub_module = importlib.import_module(f"patchwork.steps")
+    sub_module = importlib.import_module("patchwork.steps")
     module_hints = {}
     for name in dir(sub_module):
         if name.startswith("__"):
@@ -69,7 +66,6 @@ def main():
     module_hints = adjust(module_hints)
 
     return module_hints
-
 
 if __name__ == "__main__":
     print(yaml.dump(main()))
