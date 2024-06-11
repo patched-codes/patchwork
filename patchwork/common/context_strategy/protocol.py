@@ -8,10 +8,10 @@ class ContextStrategyProtocol(Protocol):
     def get_contexts(self, src: list[str]) -> list[Position]:
         """
         Retrieve a list of Positions derived from a given list of source strings.
-    
+
         Args:
         src (list[str]): A list of source strings from which to derive positions.
-    
+
         Returns:
         list[Position]: A list of Position objects that have been derived from the source strings.
         """
@@ -50,7 +50,7 @@ class TreeSitterStrategy(ContextStrategyProtocol):
     def __init__(self, language: str, query: str, exts: list[str]):
         """
         Initialize the instance with specified language, query, and file extensions.
-    
+
         Args:
             language (str): The programming language for the search.
             query (str): The search query.
@@ -139,11 +139,11 @@ class TreeSitterStrategy(ContextStrategyProtocol):
     def is_file_supported(self, filename: str, src: list[str]) -> bool:
         """
         Check if a file is supported based on its extension and ensures the source is not empty.
-    
+
         Args:
         filename (str): The name of the file to check.
         src (list[str]): The list of source files being checked.
-    
+
         Returns:
         bool: True if the file's extension is in the list of supported extensions and `src` is not empty, otherwise False.
         """

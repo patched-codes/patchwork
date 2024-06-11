@@ -9,10 +9,11 @@ from patchwork.step import Step
 
 
 def get_source_code_contexts(
-        filepath: str,
-        source_lines: list[str],
-        context_strategies: list[str],
-        force_code_contexts: bool
+    filepath: str,
+    source_lines: list[str],
+    context_strategies: list[str],
+    force_code_contexts: bool,
+    allow_overlap_contexts: bool,
 ) -> list[Position]:
     context_strategies = ContextStrategies.get_context_strategies(*context_strategies)
     context_strategies = [
@@ -26,6 +27,8 @@ def get_source_code_contexts(
         logger.debug(f'"{context_strategy.__class__.__name__}" Context Strategy used: {len(contexts)} contexts found')
         positions.extend(contexts)
 
+    positions = sorted(positions, key=lambda x: x.start)
+
     if force_code_contexts:
         for position in positions:
             comment_position = position.meta_positions.get("comment")
@@ -38,10 +41,23 @@ def get_source_code_contexts(
             position.end = max(position.end, comment_position.end)
             if position.end == comment_position.end:
                 position.end_col = comment_position.end_col
+    else:
+        positions = [position for position in positions if position.meta_positions.get("comment") is None]
 
-        return positions
+    if not allow_overlap_contexts:
+        del_idxs = []
+        for i in range(len(positions) - 1):
+            if i in del_idxs:
+                continue
+            for j in range(i + 1, len(positions) - 1):
+                if positions[i].end < positions[j].start:
+                    break
+                del_idxs.append(j)
 
-    return [position for position in positions if position.meta_positions.get("comment") is None]
+        for idx in reversed(del_idxs):
+            positions.pop(idx)
+
+    return positions
 
 
 class ExtractCodeContexts(Step):
@@ -57,6 +73,7 @@ class ExtractCodeContexts(Step):
         self.context_grouping = inputs.get("context_grouping", "ALL")
         # rethink this, should be one level up and true by default
         self.force_code_contexts = inputs.get("force_code_contexts", False)
+        self.allow_overlap_contexts = inputs.get("allow_overlap_contexts", True)
 
     def run(self) -> dict:
         files_to_consider = []
@@ -79,12 +96,15 @@ class ExtractCodeContexts(Step):
         extracted_code_contexts = []
         for file in files_to_consider:
             src = file.read_text().splitlines(keepends=True)
-            for position in get_source_code_contexts(str(file), src, grouping, self.force_code_contexts):
+            positions = get_source_code_contexts(
+                str(file), src, grouping, self.force_code_contexts, self.allow_overlap_contexts
+            )
+            for position in positions:
                 extracted_code_context = dict(
                     uri=str(file),
                     startLine=position.start,
                     endLine=position.end,
-                    affectedCode=''.join(src[position.start : position.end]),
+                    affectedCode="".join(src[position.start : position.end]),
                 )
                 extracted_code_contexts.append(extracted_code_context)
 

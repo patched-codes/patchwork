@@ -33,6 +33,7 @@ class GenerateDocstring(Step):
         final_inputs["pr_title"] = f"PatchWork {self.__class__.__name__}"
         final_inputs["branch_prefix"] = f"{self.__class__.__name__.lower()}-"
         final_inputs["context_grouping"] = "FUNCTION"
+        final_inputs["allow_overlap_contexts"] = False
 
         self.inputs: dict[str, Any] = final_inputs
 
@@ -56,7 +57,9 @@ class GenerateDocstring(Step):
         self.inputs.update(outputs)
 
         # Commit changes and create PR
-        self.inputs["pr_header"] = f'This pull request from patchwork fixes {self.inputs["prompt_values"]} docstrings.'
+        self.inputs[
+            "pr_header"
+        ] = f'This pull request from patchwork fixes {len(self.inputs["prompt_values"])} docstrings.'
         outputs = CommitChanges(self.inputs).run()
         self.inputs.update(outputs)
         outputs = PreparePR(self.inputs).run()

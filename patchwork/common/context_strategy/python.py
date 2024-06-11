@@ -24,10 +24,10 @@ class _PythonCollector(libcst.CSTVisitor):
         """
         Initialize a new instance of the class, setting up properties and defaults.
         Inherits from a parent class using super() and initializes an empty list to store positions.
-    
+
         Parameters:
         None
-    
+
         Returns:
         None
         """
@@ -37,15 +37,15 @@ class _PythonCollector(libcst.CSTVisitor):
     def _visit(self, node: libcst.CSTNode) -> Position:
         """
         Visit a CSTNode and record its position within the source code.
-    
+
         This method leverages the WhitespaceInclusivePositionProvider to obtain
         the start and end positions (lines and columns) of the node, which are then
         adjusted to be zero-indexed. The adjusted position is encapsulated in a
         Position object, added to the `positions` list, and returned.
-    
+
         Args:
             node (libcst.CSTNode): The CST node whose position is to be determined.
-    
+
         Returns:
             Position: A Position object representing the zero-indexed start and end
                       line and column numbers of the node within the source code.
@@ -105,12 +105,12 @@ class _FunctionCollector(_PythonCollector):
     ) -> Expr | None:
         """
         Copied from FunctionDef::get_docstring()
-    
+
         This method is used to extract the docstring from the given node.
-    
+
         Args:
             body (BaseSuite | Sequence[SimpleStatementLine | BaseCompoundStatement]): The body of the node.
-    
+
         Returns:
             Expr | None: The extracted docstring node or None if not found.
         """
@@ -147,10 +147,10 @@ class _BlockCollector(_PythonCollector):
     def visit_IndentedBlock(self, node: IndentedBlock) -> Optional[bool]:
         """
         Visit a node of type IndentedBlock and process it using the _visit method.
-    
+
         Args:
             node (IndentedBlock): The indented block node to visit.
-    
+
         Returns:
             Optional[bool]: Always returns True after visiting the node.
         """
@@ -162,7 +162,7 @@ class PythonStrategy(ContextStrategyProtocol):
     def __init__(self, visitor_func: Callable[[int, int], _PythonCollector]):
         """
         Initialize the PythonCollector instance.
-    
+
         Args:
             visitor_func (Callable[[int, int], _PythonCollector]): A function that processes or
                 handles two integer values and returns an instance of _PythonCollector.
@@ -189,12 +189,12 @@ class PythonStrategy(ContextStrategyProtocol):
         """
         Finds the first context in the source list where the specified start and end indices are both
         within the bounds of a context position.
-    
+
         Parameters:
         src (list[str]): List of strings representing the contexts.
         start (int): The starting index to check within the contexts.
         end (int): The ending index to check within the constraints of the contexts.
-    
+
         Returns:
         Position | None: Returns the Position object if the start and end indices are contained within any
         context's bounds; otherwise, returns None.
@@ -207,14 +207,14 @@ class PythonStrategy(ContextStrategyProtocol):
     def is_file_supported(self, filename: str, src: list[str]) -> bool:
         """
         Check if the provided file and source code are supported.
-    
+
         This method checks if the given source code can be parsed as a Python module and if the
         filename ends with '.py'. Also, it checks if the source code list is not empty.
-    
+
         Args:
             filename (str): The name of the file to check.
             src (list[str]): A list of strings representing the source code.
-    
+
         Returns:
             bool: True if the file is supported, False otherwise.
         """
@@ -230,7 +230,7 @@ class PythonFunctionStrategy(PythonStrategy):
         """
         Initialize a new instance of the class which automatically
         collects function calls and definitions for processing.
-    
+
         This method calls the parent class constructor to initialize
         the function collector with the _FunctionCollector class.
         """

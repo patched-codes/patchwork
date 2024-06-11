@@ -5,7 +5,7 @@ class JavaStrategy(TreeSitterStrategy):
     def __init__(self, query: str):
         """
         Initialize the JavaSearcher instance.
-    
+
         Args:
         query (str): The search query string to be used for Java file search.
         """
@@ -52,7 +52,7 @@ class JavaBlockStrategy(JavaStrategy):
     def __init__(self):
         """
         Initialize the class by calling the parent class's constructor.
-        
+
         Parameters:
         - self: The object instance.
         """
