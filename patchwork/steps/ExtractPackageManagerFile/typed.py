@@ -1,7 +1,7 @@
 from typing_extensions import Iterable, NotRequired, TypedDict
 
 
-class ExtractPackageManagerInputs(TypedDict):
+class ExtractPackageManagerFileInputs(TypedDict):
     sbom_vdr_file_path: NotRequired[str]
     sbom_vdr_values: NotRequired[dict]
     package_manager_file: NotRequired[str]
@@ -9,6 +9,6 @@ class ExtractPackageManagerInputs(TypedDict):
     severity: NotRequired[str]
 
 
-class ExtractPackageManagerOutputs(TypedDict):
+class ExtractPackageManagerFileOutputs(TypedDict):
     prompt_values: Iterable[dict]
     files_to_patch: Iterable[dict]

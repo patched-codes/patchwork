@@ -55,12 +55,16 @@ class PreparePrompt(Step):
     def run(self) -> dict:
         prompts = []
         for prompt_value in self.prompt_values:
+            dict_value = prompt_value
+            if not isinstance(dict_value, dict):
+                dict_value = prompt_value.__dict__
+
             prompt = []
             for prompt_part in self.prompt_template:
                 prompt_instance = {}
                 for key, value in prompt_part.items():
                     new_value = value
-                    for replacement_key, replacement_value in prompt_value.items():
+                    for replacement_key, replacement_value in dict_value.items():
                         new_value = new_value.replace("{{" + replacement_key + "}}", str(replacement_value))
                     prompt_instance[key] = new_value
                 prompt.append(prompt_instance)
