@@ -87,7 +87,10 @@ class ExtractCodeContexts(Step):
             for file in files:
                 if any(file.endswith(ext) for ext in IGNORE_EXTS):
                     continue
-                files_to_consider.append(self.base_path / file)
+                file_path = self.base_path / file
+                if not file_path.is_file():
+                    continue
+                files_to_consider.append(file_path)
 
         grouping = getattr(ContextStrategies, self.context_grouping, ContextStrategies.ALL)
         if not isinstance(grouping, list):
