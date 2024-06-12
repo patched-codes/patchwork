@@ -29,6 +29,9 @@ class GenerateDocstring(Step):
 
         if "prompt_template_file" not in final_inputs.keys():
             final_inputs["prompt_template_file"] = _DEFAULT_PROMPT_JSON
+            
+        if "force_code_contexts" not in final_inputs.keys() and "rewrite_existing" in final_inputs.keys():
+            final_inputs["force_code_contexts"] = final_inputs["rewrite_existing"]
 
         final_inputs["pr_title"] = f"PatchWork {self.__class__.__name__}"
         final_inputs["branch_prefix"] = f"{self.__class__.__name__.lower()}-"
