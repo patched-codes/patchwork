@@ -89,4 +89,4 @@ You can update the default [prompt template](./prompt.json). The basic prompt th
 Here are some example PRs generated with the DependencyUpgrade patchflow:
 
 - https://github.com/codelion/example-python/pull/45
-- https://github.com/codelion/example-java-maven/pull/3
+- https://github.com/codelion/example-java-maven/pull/4
