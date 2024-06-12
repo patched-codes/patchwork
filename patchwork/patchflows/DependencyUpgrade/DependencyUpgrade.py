@@ -91,7 +91,6 @@ class DependencyUpgrade(Step):
                     modified_files = modified_files + outputs["modified_code_files"]
 
             self.inputs["prompt_id"] = "depupgrade"
-            self.inputs["response_partitions"] = {"patch": []}
             outputs = PreparePrompt(self.inputs).run()
             self.inputs.update(outputs)
             outputs = CallLLM(self.inputs).run()
