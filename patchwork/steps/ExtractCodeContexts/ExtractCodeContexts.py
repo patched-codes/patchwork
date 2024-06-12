@@ -81,13 +81,17 @@ class ExtractCodeContexts(Step):
         if self.base_path.is_file():
             files_to_consider.append(self.base_path)
         for root, dirs, files in os.walk(self.base_path):
-            if IGNORE_DIRS.intersection(Path(root).parents):
+            root_path = Path(root)
+            if IGNORE_DIRS.intersection(root_path.parents):
                 continue
 
             for file in files:
                 if any(file.endswith(ext) for ext in IGNORE_EXTS):
                     continue
-                files_to_consider.append(self.base_path / file)
+                file_path = root_path / file
+                if not file_path.is_file():
+                    continue
+                files_to_consider.append(file_path)
 
         grouping = getattr(ContextStrategies, self.context_grouping, ContextStrategies.ALL)
         if not isinstance(grouping, list):
@@ -95,7 +99,12 @@ class ExtractCodeContexts(Step):
 
         extracted_code_contexts = []
         for file in files_to_consider:
-            src = file.read_text().splitlines(keepends=True)
+            try:
+                src = file.read_text().splitlines(keepends=True)
+            except UnicodeDecodeError:
+                logger.debug(f"Failed to read file: {file}")
+                continue
+
             positions = get_source_code_contexts(
                 str(file), src, grouping, self.force_code_contexts, self.allow_overlap_contexts
             )
