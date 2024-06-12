@@ -3,7 +3,7 @@ from pathlib import Path
 
 from patchwork.common.context_strategy.context_strategies import ContextStrategies
 from patchwork.common.context_strategy.position import Position
-from patchwork.common.ignore import IGNORE_DIRS, IGNORE_EXTS
+from patchwork.common.ignore import is_ignored
 from patchwork.logger import logger
 from patchwork.step import Step
 
@@ -81,15 +81,9 @@ class ExtractCodeContexts(Step):
         if self.base_path.is_file():
             files_to_consider.append(self.base_path)
         for root, dirs, files in os.walk(self.base_path):
-            root_path = Path(root)
-            if IGNORE_DIRS.intersection(root_path.parents):
-                continue
-
             for file in files:
-                if any(file.endswith(ext) for ext in IGNORE_EXTS):
-                    continue
-                file_path = root_path / file
-                if not file_path.is_file():
+                file_path = Path(root) / file
+                if not file_path.is_file() or is_ignored(file_path):
                     continue
                 files_to_consider.append(file_path)
 
