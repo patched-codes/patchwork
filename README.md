@@ -19,8 +19,8 @@
 </div>
 
 
-⭐ As part of [Github Constellation](https://githubconstellation.com) community, Patched is contributing INR 100 (USD 1.25) to open-source projects for every new star the patchwork repository receives in June.
-Join us in giving back to the open source community that we have all benefited from!
+_⭐ As part of [Github Constellation](https://githubconstellation.com) community, Patched is contributing INR 100 (USD 1.25) to open-source projects for every new star the patchwork repository receives in June.
+Join us in giving back to the open source community that we have all benefited from!_
 
 # PatchWork
 
