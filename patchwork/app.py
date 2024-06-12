@@ -201,6 +201,8 @@ def cli(
             file.write(serialize(inputs))
 
 
+WHITELISTED_MODULES = ["module1", "module2"]
+
 def find_module(possible_module_paths: Iterable[str], patchflow: str) -> ModuleType | None:
     for module_path in possible_module_paths:
         try:
@@ -211,10 +213,11 @@ def find_module(possible_module_paths: Iterable[str], patchflow: str) -> ModuleT
         except Exception:
             logger.debug(f"Patchflow {patchflow} not found as a file/directory in {module_path}")
 
-        try:
-            return importlib.import_module(module_path)
-        except ModuleNotFoundError:
-            logger.debug(f"Patchflow {patchflow} not found as a module in {module_path}")
+        if module_path in WHITELISTED_MODULES:
+            try:
+                return importlib.import_module(module_path)
+            except ModuleNotFoundError:
+                logger.debug(f"Patchflow {patchflow} not found as a module in {module_path}")
 
     return None
 
