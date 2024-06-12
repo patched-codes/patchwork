@@ -211,6 +211,10 @@ def find_module(possible_module_paths: Iterable[str], patchflow: str) -> ModuleT
         except Exception:
             logger.debug(f"Patchflow {patchflow} not found as a file/directory in {module_path}")
 
+        if module_path not in ['allowed_module_1', 'allowed_module_2']:
+            logger.error(f"Attempted to import unauthorized module: {module_path}")
+            raise Exception("Unauthorized module import detected")
+
         try:
             return importlib.import_module(module_path)
         except ModuleNotFoundError:
