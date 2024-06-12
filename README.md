@@ -19,6 +19,9 @@
 </div>
 
 
+⭐ As part of [Github Constellation](https://githubconstellation.com) community, Patched is contributing INR 100 (USD 1.25) to open-source projects for every new star the patchwork repository receives in June.
+Join us in giving back to the open source community that we have all benefited from!
+
 # PatchWork
 
 An open-source framework for automating development chores using large language models. PatchWork allows you to automate workflows like PR reviews, bug fixing, security patching, and more using a self-hosted CLI agent and your preferred LLMs.
