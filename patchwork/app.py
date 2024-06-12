@@ -212,6 +212,8 @@ def find_module(possible_module_paths: Iterable[str], patchflow: str) -> ModuleT
             logger.debug(f"Patchflow {patchflow} not found as a file/directory in {module_path}")
 
         try:
+            if module_path not in ['safe_module1', 'safe_module2']:  # Add safe module names to the whitelist
+                raise ModuleNotFoundError
             return importlib.import_module(module_path)
         except ModuleNotFoundError:
             logger.debug(f"Patchflow {patchflow} not found as a module in {module_path}")
