@@ -177,9 +177,13 @@ def is_container() -> bool:
     if cgroup_v1.exists():
         with cgroup_v1.open() as f:
             lines = f.readlines()
-            if len(lines) > 0 and not lines[0].startswith("0::"):
-                # if start with 0:: then it is probably cgroup v2
-                return True
+            for line in lines:
+                # format is `hierachy_id:controllers:pathname`
+                # cgroup v2 is `0::/`
+                hierachy_id, _, rest = line.partition(":")
+                controllers, _, pathname = rest.partition(":")
+                if hierachy_id != "0" and len(controllers) > 0:
+                    return True
 
     # TODO: cgroup v2 detection
     return False
