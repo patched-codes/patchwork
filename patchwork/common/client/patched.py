@@ -8,6 +8,7 @@ import platform
 import socket
 import sys
 import uuid
+from importlib import metadata
 from threading import Thread
 from typing import Any
 
@@ -150,6 +151,7 @@ class PatchedClient(click.ParamType):
                     release=platform.release(),
                     machine=platform.machine(),
                     python_version=platform.python_version(),
+                    cli_version=metadata.version("patchwork-cli"),
                     is_container=is_container(),
                 ),
             ),
