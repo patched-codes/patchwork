@@ -1,5 +1,6 @@
 # GenerateDocstring Inputs
 base_path: .
+rewrite_existing: false
 
 # CallLLM Inputs
 # For OpenAI API use the following the select the model
