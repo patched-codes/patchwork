@@ -166,3 +166,24 @@ def get_current_branch(repo: Repo) -> Head:
 
 def get_required_keys(cls: TypedDict) -> set:
     return getattr(cls, "__required_keys__", set())
+
+
+def is_container() -> bool:
+    test_files = ["/.dockerenv", "/run/.containerenv"]
+    if any(Path(file).exists() for file in test_files):
+        return True
+
+    cgroup_v1 = Path("/proc/self/cgroup")
+    if cgroup_v1.exists():
+        with cgroup_v1.open() as f:
+            lines = f.readlines()
+            for line in lines:
+                # format is `hierachy_id:controllers:pathname`
+                # cgroup v2 is `0::/`
+                hierachy_id, _, rest = line.partition(":")
+                controllers, _, pathname = rest.partition(":")
+                if hierachy_id != "0" and len(controllers) > 0:
+                    return True
+
+    # TODO: cgroup v2 detection
+    return False

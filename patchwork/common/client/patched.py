@@ -1,7 +1,16 @@
+import asyncio
 import atexit
 import contextlib
+import hashlib
+import http.client
+import json
+import platform
 import socket
 import sys
+import uuid
+from importlib import metadata
+from threading import Thread
+from typing import Any
 
 import click
 import requests
@@ -10,7 +19,7 @@ from requests import Response, Session
 from requests.adapters import DEFAULT_POOLBLOCK, HTTPAdapter
 from urllib3 import HTTPConnectionPool, HTTPSConnectionPool, PoolManager
 
-from patchwork.common.utils import get_current_branch
+from patchwork.common.utils import get_current_branch, is_container
 from patchwork.logger import logger
 
 
@@ -64,6 +73,7 @@ class KeepAliveHTTPSAdapter(HTTPAdapter):
 class PatchedClient(click.ParamType):
     TOKEN_URL = "https://app.patched.codes/signin"
     DEFAULT_PATCH_URL = "https://patchwork.patched.codes"
+    ALLOWED_TELEMETRY_KEYS = {"model",}
 
     def __init__(self, access_token: str, url: str = DEFAULT_PATCH_URL):
         self.access_token = access_token
@@ -118,6 +128,41 @@ class PatchedClient(click.ParamType):
             return False
 
         return body["msg"] == "ok"
+
+    def __handle_telemetry_inputs(self, inputs: dict[str, Any]) -> dict:
+        diff_keys = set(inputs.keys()).difference(self.ALLOWED_TELEMETRY_KEYS)
+
+        inputs_copy = inputs.copy()
+        for key in diff_keys:
+            inputs_copy[key] = True
+
+        return inputs_copy
+
+    async def _public_telemetry(self, patchflow: str, inputs: dict[str, Any]):
+        requests.post(
+            url=self.url + "/v1/telemetry/",
+            headers={"Authorization": f"Bearer {self.access_token}"},
+            json=dict(
+                client_id=hashlib.sha256(str(uuid.getnode()).encode()).hexdigest(),
+                patchflow=patchflow,
+                inputs=self.__handle_telemetry_inputs(inputs),
+                environment=dict(
+                    system=platform.system(),
+                    release=platform.release(),
+                    machine=platform.machine(),
+                    python_version=platform.python_version(),
+                    cli_version=metadata.version("patchwork-cli"),
+                    is_container=is_container(),
+                ),
+            ),
+        )
+
+    def send_public_telemetry(self, patchflow: str, inputs: dict):
+        try:
+            _thread = Thread(target=asyncio.run, args=(self._public_telemetry(patchflow, inputs),))
+            _thread.start()
+        except Exception as e:
+            logger.debug(f"Failed to send public telemetry: {e}")
 
     @contextlib.contextmanager
     def patched_telemetry(self, patchflow: str, repo: Repo, inputs: dict):
