@@ -115,6 +115,9 @@ def list_option_callback(ctx: click.Context, param: click.Parameter, value: str 
     "data_format", "--format", type=click.Choice(["yaml", "json"]), default="json", help="Format of the output file."
 )
 @click.option("patched_api_key", "--patched_api_key", help="API key to use with the patched.codes service.")
+@click.option(
+    "disable_telemetry", "--disable-telemetry", is_flag=True, help="Disable telemetry.", default=False
+)
 def cli(
     log: str,
     patchflow: str,
@@ -123,6 +126,7 @@ def cli(
     output: str | None,
     data_format: str,
     patched_api_key: str | None,
+    disable_telemetry: bool,
 ):
     if "::" in patchflow:
         module_path, _, patchflow_name = patchflow.partition("::")
@@ -187,7 +191,11 @@ def cli(
 
     try:
         repo = Repo(Path.cwd(), search_parent_directories=True)
-        with PatchedClient(inputs.get("patched_api_key")).patched_telemetry(patchflow_name, repo, {}):
+        patched = PatchedClient(inputs.get("patched_api_key"))
+        if not disable_telemetry:
+            patched.send_public_telemetry(patchflow_name, inputs)
+
+        with patched.patched_telemetry(patchflow_name, repo, {}):
             patchflow_instance = patchflow_class(inputs)
             patchflow_instance.run()
     except Exception as e:
