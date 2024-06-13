@@ -1,5 +1,6 @@
 import os
 import subprocess
+from pathlib import Path
 
 from patchwork.logger import logger
 from patchwork.step import Step
@@ -19,7 +20,7 @@ class CallCode2Prompt(Step):
         self.folder_path = inputs[FOLDER_PATH]
         self.filter = inputs.get("filter", None)
         self.suppress_comments = inputs.get("suppress_comments", False)
-        self.code_file_path = str(self.folder_path / "README.md")
+        self.code_file_path = str(Path(self.folder_path) / "README.md")
         # Check if the file exists
         if not os.path.exists(self.code_file_path):
             # The file does not exist, create it by opening it in append mode and then closing it
