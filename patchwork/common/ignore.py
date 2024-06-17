@@ -1,5 +1,4 @@
 import itertools
-from itertools import chain
 from pathlib import Path
 from typing import Iterable
 
@@ -35,5 +34,6 @@ IGNORE_FILES_GLOBS = {
 def is_ignored(file_path: Path, ignored_dirs: Iterable[str] | None = None, *globs: Iterable[str]) -> bool:
     final_ignore_globs = globs if globs else itertools.chain(IGNORE_EXTS_GLOBS, IGNORE_FILES_GLOBS)
     final_ignored_dirs = ignored_dirs if ignored_dirs else IGNORE_DIRS
-    return (any(file_path.match(ignore_glob) for ignore_glob in final_ignore_globs) or
-            any(ignore_dir in file_path.parts[:-1] for ignore_dir in final_ignored_dirs))
+    return any(file_path.match(ignore_glob) for ignore_glob in final_ignore_globs) or any(
+        ignore_dir in file_path.parts[:-1] for ignore_dir in final_ignored_dirs
+    )

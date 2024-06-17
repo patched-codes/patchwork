@@ -26,11 +26,9 @@ classifiers = [
 python = "^3.8"
 typing-extensions = "^4.11.0"
 click = "~8.1.0"
-semgrep = "^1.51.0"
 openai = "^1.13.3"
 tree-sitter-languages = "~1.10.2"
 python-gitlab = "^4.4.0"
-owasp-depscan = "~5.2.12"
 pygithub = "~2.1.1"
 gitpython = "~3.1.40"
 pydantic = "~2.6.4"
@@ -42,12 +40,28 @@ packageurl-python = "~0.15.0"
 semver = "~3.0.2"
 requests = "~2.31.0"
 chardet = "^5.2.0"
+# pinning transitive dependencies
+tree-sitter = "~0.21.3"
+
+[tool.poetry.group.all.dependencies]
+semgrep = "^1.51.0"
+owasp-depscan = "~5.2.12"
 chromadb = "~0.4.24"
 sentence-transformers = "~2.7.0"
 # pinning transitive dependencies
-orjson = "~3.9.15"
 torch = "~2.2.2"
-tree-sitter = "~0.21.3"
+orjson = "~3.9.15"
+
+[tool.poetry.group.security.dependencies]
+semgrep = "^1.51.0"
+owasp-depscan = "~5.2.12"
+
+[tool.poetry.group.rag.dependencies]
+chromadb = "~0.4.24"
+sentence-transformers = "~2.7.0"
+# pinning transitive dependencies
+torch = "~2.2.2"
+orjson = "~3.9.15"
 
 [tool.poetry.group.dev.dependencies]
 setuptools = "*"

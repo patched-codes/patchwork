@@ -2,8 +2,6 @@ import asyncio
 import atexit
 import contextlib
 import hashlib
-import http.client
-import json
 import platform
 import socket
 import sys
@@ -72,8 +70,10 @@ class KeepAliveHTTPSAdapter(HTTPAdapter):
 
 class PatchedClient(click.ParamType):
     TOKEN_URL = "https://app.patched.codes/signin"
-    DEFAULT_PATCH_URL = "https://patchwork.patched.codes"
-    ALLOWED_TELEMETRY_KEYS = {"model",}
+    DEFAULT_PATCH_URL = "https://patch-function-dev-ps63srnnsq-de.a.run.app"
+    ALLOWED_TELEMETRY_KEYS = {
+        "model",
+    }
 
     def __init__(self, access_token: str, url: str = DEFAULT_PATCH_URL):
         self.access_token = access_token

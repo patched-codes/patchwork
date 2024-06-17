@@ -5,6 +5,7 @@ import subprocess
 import tempfile
 from pathlib import Path
 
+from patchwork.common.utils.dependency import import_with_dependency_group
 from patchwork.logger import logger
 from patchwork.step import Step
 
@@ -57,6 +58,7 @@ class ScanDepscan(Step):
         - Depending on system configuration, administrative privileges may be required to install global npm packages.
         """
         logger.info(f"Run started {self.__class__.__name__}")
+        import_with_dependency_group("depscan")
         install_cdxgen()
 
         self.language = inputs.get("language", None)

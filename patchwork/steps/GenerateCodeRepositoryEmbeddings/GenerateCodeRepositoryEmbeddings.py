@@ -3,114 +3,18 @@ import time
 from itertools import islice
 from pathlib import Path
 
-import chromadb
 import git
 from typing_extensions import Iterable
 
-from patchwork.common.utils import get_vector_db_path, open_with_chardet
+from patchwork.common.utils.dependency import chromadb
+from patchwork.common.utils.utils import get_vector_db_path, open_with_chardet
 from patchwork.logger import logger
 from patchwork.step import Step
+from patchwork.steps.GenerateCodeRepositoryEmbeddings.filter_lists import (
+    _DIRECTORY_BLACKLIST,
+    _EXTENSION_WHITELIST,
+)
 from patchwork.steps.GenerateEmbeddings.GenerateEmbeddings import GenerateEmbeddings
-
-_EXTENSION_WHITELIST = [
-    # JavaScript
-    ".js",
-    ".ts",
-    ".jsx",
-    ".tsx",
-    # Python
-    ".py",
-    # Java
-    ".java",
-    # C#
-    ".cs",
-    ".csx",
-    # C++
-    ".cpp",
-    ".hpp",
-    ".cxx",
-    ".hxx",
-    # C
-    ".c",
-    ".h",
-    # PHP
-    ".php",
-    ".php3",
-    ".php4",
-    ".php5",
-    # Go
-    ".go",
-    # HTML
-    ".html",
-    # OCaml
-    ".ml",
-    ".mli",
-    # F#
-    ".fs",
-    ".fsi",
-    # Haskell
-    ".hs",
-    ".lhs",
-    # Kotlin
-    ".kt",
-    ".kts",
-    # Ruby
-    ".rb",
-    # Swift
-    ".swift",
-    # Rust
-    ".rs",
-    # Scala
-    ".scala",
-    # TypeScript
-    ".ts",
-    # Visual Basic.NET
-    ".vb",
-    ".vbs",
-    # Perl
-    ".pl",
-    ".pm",
-    # R
-    ".r",
-    # SQL
-    ".sql",
-    # TypeScript React
-    ".tsx",
-    # Julia
-    ".jl",
-    # Lua
-    ".lua",
-    # MATLAB
-    ".m",
-    # Pascal
-    ".pas",
-    # PowerShell
-    ".ps1",
-    # Racket
-    ".rkt",
-    # Shell
-    ".sh",
-    # SQL
-    ".sql",
-    # Tcl
-    ".tcl",
-    # Visual Basic
-    ".vb",
-    # XML
-    ".xml",
-    # YAML
-    ".yaml",
-    # Zig
-    ".zig",
-]
-
-_DIRECTORY_BLACKLIST = [
-    "test",
-    "tests",
-    "___init__.py",
-    "___main__.py",
-    "__pycache__",
-]
 
 
 def filter_files(files: Iterable[str]) -> set[str]:
@@ -144,7 +48,7 @@ class GenerateCodeRepositoryEmbeddings(Step):
         if not all(key in inputs.keys() for key in self.required_keys):
             raise ValueError(f'Missing required data: "{self.required_keys}"')
 
-        self.client = chromadb.PersistentClient(path=get_vector_db_path())
+        self.client = chromadb().PersistentClient(path=get_vector_db_path())
         self.disable_cache = inputs.get("disable_cache", False)
         self.inputs = inputs
 
