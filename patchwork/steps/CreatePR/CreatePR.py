@@ -19,7 +19,10 @@ def get_slug_from_remote_url(remote_url: str) -> str:
     else:
         potential_slug = "/".join(remote_url.split("/")[-2:])
 
-    return potential_slug.removesuffix(".git")
+    if potential_slug.endswith(".git"):
+        potential_slug = potential_slug[:-4]
+
+    return potential_slug
 
 
 class CreatePR(Step):
