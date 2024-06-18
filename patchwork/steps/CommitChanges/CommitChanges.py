@@ -18,7 +18,7 @@ def get_slug_from_remote_url(remote_url: str) -> str:
         _, _, potential_slug = remote_url.partition(":")
     else:
         potential_slug = "/".join(remote_url.split("/")[-2:])
-        
+
     if potential_slug.endswith(".git"):
         potential_slug = potential_slug[:-4]
 
@@ -147,7 +147,8 @@ class CommitChanges(Step):
             from_branch,
             to_branch,
         ):
-            for modified_file in modified_files:
+            repo_changed_files = {item.a_path for item in repo.index.diff(None)}
+            for modified_file in set(modified_files).intersection(repo_changed_files):
                 repo.git.add(modified_file)
                 commit_with_msg(repo, f"Patched {modified_file}")
 
