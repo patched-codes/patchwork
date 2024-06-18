@@ -133,10 +133,12 @@ class CommitChanges(Step):
             raise ValueError("Both branch_prefix and branch_suffix cannot be empty")
 
     def run(self) -> dict:
-        repo = git.Repo(Path.cwd(), search_parent_directories=True)
-        repo_changed_files = {item.a_path for item in repo.index.diff(None)}
-        repo_untracked_files = {item for item in repo.untracked_files}
-        modified_files = {modified_code_file["path"] for modified_code_file in self.modified_code_files}
+        cwd = Path.cwd()
+        repo = git.Repo(cwd, search_parent_directories=True)
+        repo_dir_path = Path(repo.working_tree_dir)
+        repo_changed_files = {repo_dir_path / item.a_path for item in repo.index.diff(None)}
+        repo_untracked_files = {repo_dir_path / item for item in repo.untracked_files}
+        modified_files = {Path(modified_code_file["path"]).resolve() for modified_code_file in self.modified_code_files}
         true_modified_files = modified_files.intersection(repo_changed_files.union(repo_untracked_files))
         if not self.enabled or len(true_modified_files) < 1:
             logger.debug("Branch creation is disabled.")
