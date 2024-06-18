@@ -1,3 +1,4 @@
+from __future__ import annotations
 import contextlib
 from pathlib import Path
 
@@ -5,7 +6,7 @@ import git
 from git import Repo
 from typing_extensions import Generator
 
-from patchwork.common.utils import get_current_branch
+from patchwork.common.utils.utils import get_current_branch
 from patchwork.logger import logger
 from patchwork.step import Step
 

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 import sys
 from collections import defaultdict
@@ -8,7 +10,7 @@ from urllib.parse import urlparse
 from typing_extensions import Any
 
 from patchwork.common.context_strategy.context_strategies import ContextStrategies
-from patchwork.common.utils import count_openai_tokens, open_with_chardet
+from patchwork.common.utils.utils import count_openai_tokens, open_with_chardet
 from patchwork.logger import logger
 from patchwork.step import Step
 
@@ -39,7 +41,7 @@ def parse_sarif_location(base_path: Path, location_str: str) -> Path | None:
         return None
 
     path = Path(uri.path)
-    if path.is_relative_to(base_path):
+    if not os.path.relpath(path.resolve(), base_path.resolve()).startswith(".."):
         return path
 
     path = str(path).lstrip("/")

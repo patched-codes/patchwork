@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from .generic import FullFileStrategy, NoopStrategy
 from .java import JavaBlockStrategy, JavaClassStrategy, JavaMethodStrategy
 from .javascript import (

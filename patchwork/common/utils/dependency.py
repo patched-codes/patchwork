@@ -1,5 +1,5 @@
 import importlib
-from functools import cache
+from functools import lru_cache
 
 __DEPENDENCY_GROUPS = {
     "rag": ["chromadb"],
@@ -7,7 +7,7 @@ __DEPENDENCY_GROUPS = {
 }
 
 
-@cache
+@lru_cache(maxsize=None)
 def import_with_dependency_group(name):
     try:
         return importlib.import_module(name)

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import asyncio
 import atexit
 import contextlib
@@ -17,7 +19,7 @@ from requests import Response, Session
 from requests.adapters import DEFAULT_POOLBLOCK, HTTPAdapter
 from urllib3 import HTTPConnectionPool, HTTPSConnectionPool, PoolManager
 
-from patchwork.common.utils import get_current_branch, is_container
+from patchwork.common.utils.utils import get_current_branch, is_container
 from patchwork.logger import logger
 
 
@@ -70,7 +72,7 @@ class KeepAliveHTTPSAdapter(HTTPAdapter):
 
 class PatchedClient(click.ParamType):
     TOKEN_URL = "https://app.patched.codes/signin"
-    DEFAULT_PATCH_URL = "https://patch-function-dev-ps63srnnsq-de.a.run.app"
+    DEFAULT_PATCH_URL = "https://patchwork.patched.codes"
     ALLOWED_TELEMETRY_KEYS = {
         "model",
     }

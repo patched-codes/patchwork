@@ -48,9 +48,7 @@ class CallCode2Prompt(Step):
 
         prompt_content_md = p.stdout
 
-        data = {}
-
-        data["fullContent"] = prompt_content_md
+        data = {"fullContent": prompt_content_md}
 
         # Attempt to read the README.md's current content
         try:

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import libcst
 from libcst import (
     BaseCompoundStatement,

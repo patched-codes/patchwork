@@ -91,7 +91,7 @@ class ScanDepscan(Step):
         """
         # Generate a unique temporary file path
         temp_file_path = Path(tempfile.mkdtemp())
-        atexit.register(shutil.rmtree, temp_file_path, ignore_errors=True)
+        atexit.register(shutil.rmtree, temp_file_path, ignore_errors=True, onerror=None)
 
         cmd = [
             "depscan",
