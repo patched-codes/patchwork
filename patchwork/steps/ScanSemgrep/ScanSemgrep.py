@@ -10,7 +10,6 @@ from patchwork.step import Step
 class ScanSemgrep(Step):
     def __init__(self, inputs: dict):
         logger.info(f"Run started {self.__class__.__name__}")
-        import_with_dependency_group("semgrep")
 
         self.extra_args = inputs.get("semgrep_extra_args", "")
         sarif_file_path = inputs.get("sarif_file_path")
@@ -29,6 +28,7 @@ class ScanSemgrep(Step):
         if self.sarif_values is not None:
             return dict(sarif_values=self.sarif_values)
 
+        import_with_dependency_group("semgrep")
         cwd = Path.cwd()
 
         cmd = [

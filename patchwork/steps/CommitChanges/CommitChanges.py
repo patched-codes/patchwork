@@ -133,13 +133,15 @@ class CommitChanges(Step):
 
     def run(self) -> dict:
         repo = git.Repo(Path.cwd(), search_parent_directories=True)
-        if not self.enabled:
+        repo_changed_files = {item.a_path for item in repo.index.diff(None)}
+        repo_untracked_files = {item for item in repo.untracked_files}
+        modified_files = {modified_code_file["path"] for modified_code_file in self.modified_code_files}
+        true_modified_files = modified_files.intersection(repo_changed_files.union(repo_untracked_files))
+        if not self.enabled or len(true_modified_files) < 1:
             logger.debug("Branch creation is disabled.")
             from_branch = get_current_branch(repo)
             from_branch_name = from_branch.name if not from_branch.is_remote() else from_branch.remote_head
             return dict(target_branch=from_branch_name)
-
-        modified_files = {modified_code_file["path"] for modified_code_file in self.modified_code_files}
 
         with transitioning_branches(
             repo, branch_prefix=self.branch_prefix, branch_suffix=self.branch_suffix, force=self.force
@@ -147,8 +149,7 @@ class CommitChanges(Step):
             from_branch,
             to_branch,
         ):
-            repo_changed_files = {item.a_path for item in repo.index.diff(None)}
-            for modified_file in set(modified_files).intersection(repo_changed_files):
+            for modified_file in true_modified_files:
                 repo.git.add(modified_file)
                 commit_with_msg(repo, f"Patched {modified_file}")
 
