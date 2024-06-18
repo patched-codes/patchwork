@@ -36,7 +36,7 @@ jobs:
 
       - name: Install dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: poetry install --no-interaction
+        run: poetry install --no-interaction --all-extras
 
       - name: Deploy to test-pypi
         id: "publish-to-test-pypi"

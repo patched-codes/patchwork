@@ -43,25 +43,22 @@ chardet = "^5.2.0"
 # pinning transitive dependencies
 tree-sitter = "~0.21.3"
 
-[tool.poetry.group.all.dependencies]
-semgrep = "^1.51.0"
-owasp-depscan = "~5.2.12"
-chromadb = "~0.4.24"
-sentence-transformers = "~2.7.0"
-# pinning transitive dependencies
-torch = "~2.2.2"
-orjson = "~3.9.15"
+# extras
+# security
+semgrep = {version = "^1.51.0", optional = true}
+owasp-depscan = {version = "~5.2.12", optional = true }
 
-[tool.poetry.group.security.dependencies]
-semgrep = "^1.51.0"
-owasp-depscan = "~5.2.12"
-
-[tool.poetry.group.rag.dependencies]
-chromadb = "~0.4.24"
-sentence-transformers = "~2.7.0"
+# rag
+chromadb = {version = "~0.4.24", optional = true }
+sentence-transformers = {version = "~2.7.0", optional = true }
 # pinning transitive dependencies
-torch = "~2.2.2"
-orjson = "~3.9.15"
+torch = {version = "~2.2.2", optional = true }
+orjson = {version = "~3.9.15", optional = true }
+
+[tool.poetry.extras]
+security = ["semgrep", "owasp-depscan"]
+rag = ["chromadb", "sentence-transformers", "torch", "orjson"]
+all = ["semgrep", "owasp-depscan", "chromadb", "sentence-transformers", "torch", "orjson"]
 
 [tool.poetry.group.dev.dependencies]
 setuptools = "*"
