@@ -1,9 +1,12 @@
+from __future__ import annotations
+
 import functools
 import hashlib
-from dataclasses import dataclass
+import time
 from itertools import chain
 
 import gitlab.const
+from attrs import define
 from github import Auth, Consts, Github, GithubException, PullRequest
 from gitlab import Gitlab, GitlabAuthenticationError, GitlabError
 from gitlab.v4.objects import ProjectMergeRequest
@@ -12,7 +15,7 @@ from typing_extensions import Protocol
 from patchwork.logger import logger
 
 
-@dataclass(slots=True)
+@define
 class Comment:
     path: str
     body: str
@@ -158,23 +161,29 @@ class GitlabMergeRequest(PullRequestProtocol):
             note = self._mr.notes.create({"body": final_body})
             return f"#note_{note.get_id()}"
 
-        while True:
+        commit = None
+        for i in range(3):
             try:
                 commit = self._mr.commits().next()
             except StopIteration:
-                continue
+                time.sleep(2**i)
 
-            break
+        if commit is None:
+            return None
 
-        while True:
+        diff = None
+        for i in range(3):
             try:
                 iterator = self._mr.diffs.list(iterator=True)
                 diff = iterator.next()  # type: ignore
+                if diff.head_commit_sha == commit.get_id():
+                    break
             except StopIteration:
+                time.sleep(2**i)
                 continue
 
-            if diff.head_commit_sha == commit.get_id():
-                break
+        if diff is None:
+            return None
 
         base_commit = diff.base_commit_sha
         head_commit = diff.head_commit_sha

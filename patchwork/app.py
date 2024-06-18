@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import importlib
 import importlib.util
 import json
@@ -115,9 +117,7 @@ def list_option_callback(ctx: click.Context, param: click.Parameter, value: str 
     "data_format", "--format", type=click.Choice(["yaml", "json"]), default="json", help="Format of the output file."
 )
 @click.option("patched_api_key", "--patched_api_key", help="API key to use with the patched.codes service.")
-@click.option(
-    "disable_telemetry", "--disable-telemetry", is_flag=True, help="Disable telemetry.", default=False
-)
+@click.option("disable_telemetry", "--disable-telemetry", is_flag=True, help="Disable telemetry.", default=False)
 def cli(
     log: str,
     patchflow: str,

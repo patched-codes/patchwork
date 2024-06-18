@@ -3,7 +3,7 @@ import uuid
 import chromadb
 import pytest
 
-from patchwork.common.utils import get_vector_db_path
+from patchwork.common.utils.utils import get_vector_db_path
 from patchwork.steps.QueryEmbeddings.QueryEmbeddings import QueryEmbeddings
 
 

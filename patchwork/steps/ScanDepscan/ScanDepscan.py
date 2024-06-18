@@ -5,6 +5,7 @@ import subprocess
 import tempfile
 from pathlib import Path
 
+from patchwork.common.utils.dependency import import_with_dependency_group
 from patchwork.logger import logger
 from patchwork.step import Step
 
@@ -57,6 +58,7 @@ class ScanDepscan(Step):
         - Depending on system configuration, administrative privileges may be required to install global npm packages.
         """
         logger.info(f"Run started {self.__class__.__name__}")
+        import_with_dependency_group("depscan")
         install_cdxgen()
 
         self.language = inputs.get("language", None)
@@ -89,7 +91,7 @@ class ScanDepscan(Step):
         """
         # Generate a unique temporary file path
         temp_file_path = Path(tempfile.mkdtemp())
-        atexit.register(shutil.rmtree, temp_file_path, ignore_errors=True)
+        atexit.register(shutil.rmtree, temp_file_path, ignore_errors=True, onerror=None)
 
         cmd = [
             "depscan",

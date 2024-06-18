@@ -31,7 +31,11 @@ class CreatePRComment(Step):
             self.pr.reset_comments()
 
         for pr_comment in self.pr_comments:
-            self.pr.create_comment(**pr_comment)
+            comment = self.pr.create_comment(**pr_comment)
+            if comment is None:
+                logger.error(f"Failed to create comment: {pr_comment}")
+            else:
+                logger.info(f"Comment created for PR: {self.pr.url}")
 
         logger.info(f"Run completed {self.__class__.__name__}")
         return dict()

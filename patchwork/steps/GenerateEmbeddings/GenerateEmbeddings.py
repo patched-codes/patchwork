@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 import uuid
 
-import chromadb
 from typing_extensions import Any
 
-from patchwork.common.utils import get_embedding_function, get_vector_db_path
+from patchwork.common.utils.dependency import chromadb
+from patchwork.common.utils.utils import get_embedding_function, get_vector_db_path
 from patchwork.logger import logger
 from patchwork.step import Step
 
@@ -41,7 +43,7 @@ class GenerateEmbeddings(Step):
         if not all(key in inputs.keys() for key in self.required_keys):
             raise ValueError(f'Missing required data: "{self.required_keys}"')
 
-        client = chromadb.PersistentClient(path=get_vector_db_path())
+        client = chromadb().PersistentClient(path=get_vector_db_path())
 
         if inputs.get("disable_cache", False):
             delete_collection(client, inputs["embedding_name"])

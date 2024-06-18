@@ -46,7 +46,7 @@ Patchflows can be run locally in your CLI and IDE, or as part of your CI/CD pipe
 PatchWork is available on PyPI and can be installed using pip:
 
 ```bash
-pip install patchwork-cli --upgrade
+pip install patchwork-cli[all] --upgrade
 ```
 
 ### Using Poetry

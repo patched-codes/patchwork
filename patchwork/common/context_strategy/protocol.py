@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from tree_sitter_languages.core import get_language, get_parser
 from typing_extensions import Protocol
 

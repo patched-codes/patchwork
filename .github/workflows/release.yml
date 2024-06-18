@@ -14,6 +14,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up python
+        id: setup-python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.8'
+
       - name: Install Poetry
         uses: snok/install-poetry@v1
         with:
@@ -30,7 +36,7 @@ jobs:
 
       - name: Install dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: poetry install --no-interaction
+        run: poetry install --no-interaction --all-extras
 
       - name: Deploy to test-pypi
         id: "publish-to-test-pypi"

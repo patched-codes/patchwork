@@ -1,9 +1,9 @@
+from __future__ import annotations
+
 import asyncio
 import atexit
 import contextlib
 import hashlib
-import http.client
-import json
 import platform
 import socket
 import sys
@@ -19,7 +19,7 @@ from requests import Response, Session
 from requests.adapters import DEFAULT_POOLBLOCK, HTTPAdapter
 from urllib3 import HTTPConnectionPool, HTTPSConnectionPool, PoolManager
 
-from patchwork.common.utils import get_current_branch, is_container
+from patchwork.common.utils.utils import get_current_branch, is_container
 from patchwork.logger import logger
 
 
@@ -73,7 +73,9 @@ class KeepAliveHTTPSAdapter(HTTPAdapter):
 class PatchedClient(click.ParamType):
     TOKEN_URL = "https://app.patched.codes/signin"
     DEFAULT_PATCH_URL = "https://patchwork.patched.codes"
-    ALLOWED_TELEMETRY_KEYS = {"model",}
+    ALLOWED_TELEMETRY_KEYS = {
+        "model",
+    }
 
     def __init__(self, access_token: str, url: str = DEFAULT_PATCH_URL):
         self.access_token = access_token

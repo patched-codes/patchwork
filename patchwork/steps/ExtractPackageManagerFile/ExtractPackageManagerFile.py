@@ -196,16 +196,19 @@ class ExtractPackageManagerFile(Step):
         # Process each vulnerabiility in SBOM VDR data
         purl_list = []
         for vul in self.sbom_vdr_values.get("vulnerabilities", []):
+            severity = ""
             for rating in vul.get("ratings", []):
                 severity = rating.get("severity", "")
 
-            if SEVERITY_LEVELS.get(severity.lower()) < self.severity_threshold_level:
+            if severity != "" and SEVERITY_LEVELS.get(severity.lower(), 9999) < self.severity_threshold_level:
                 continue
 
+            ref = ""
+            fixed_version = None
+            vuln_version = ""
             for affect in vul.get("affects", []):
                 ref = affect.get("ref", "")
                 src_file = purl_to_srcfile.get(ref, "")
-                fixed_version = None
 
                 for version in affect.get("versions", []):
                     if version.get("status", "") == "affected":

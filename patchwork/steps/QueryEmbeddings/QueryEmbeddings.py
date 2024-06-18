@@ -1,6 +1,7 @@
-import chromadb
+from __future__ import annotations
 
-from patchwork.common.utils import (
+from patchwork.common.utils.dependency import chromadb
+from patchwork.common.utils.utils import (
     count_openai_tokens,
     get_embedding_function,
     get_vector_db_path,
@@ -18,7 +19,7 @@ class QueryEmbeddings(Step):
         if not all(key in inputs.keys() for key in self.required_keys):
             raise ValueError(f'Missing required data: "{self.required_keys}"')
 
-        client = chromadb.PersistentClient(path=get_vector_db_path())
+        client = chromadb().PersistentClient(path=get_vector_db_path())
         embedding_function = get_embedding_function(inputs)
         self.collection = client.get_collection(name=inputs["embedding_name"], embedding_function=embedding_function)
 

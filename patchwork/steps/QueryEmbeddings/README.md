@@ -3,8 +3,8 @@
 ## Inputs
 - Module imports:
   - `chromadb`
-  - `get_embedding_function` from `patchwork.common.utils`
-  - `get_vector_db_path` from `patchwork.common.utils`
+  - `get_embedding_function` from `patchwork.common.utils.utils`
+  - `get_vector_db_path` from `patchwork.common.utils.utils`
 - Classes:
   - `QueryEmbeddings` (extending `Step` class)
 - Attributes:

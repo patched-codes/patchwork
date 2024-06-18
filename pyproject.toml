@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "patchwork-cli"
-version = "0.0.17"
+version = "0.0.18"
 description = ""
 authors = ["patched.codes"]
 license = "AGPL"
@@ -26,11 +26,9 @@ classifiers = [
 python = "^3.8"
 typing-extensions = "^4.11.0"
 click = "~8.1.0"
-semgrep = "^1.51.0"
 openai = "^1.13.3"
 tree-sitter-languages = "~1.10.2"
 python-gitlab = "^4.4.0"
-owasp-depscan = "~5.2.12"
 pygithub = "~2.1.1"
 gitpython = "~3.1.40"
 pydantic = "~2.6.4"
@@ -42,12 +40,25 @@ packageurl-python = "~0.15.0"
 semver = "~3.0.2"
 requests = "~2.31.0"
 chardet = "^5.2.0"
-chromadb = "~0.4.24"
-sentence-transformers = "~2.7.0"
 # pinning transitive dependencies
-orjson = "~3.9.15"
-torch = "~2.2.2"
 tree-sitter = "~0.21.3"
+
+# extras
+# security
+semgrep = {version = "^1.51.0", optional = true}
+owasp-depscan = {version = "~5.2.12", optional = true }
+
+# rag
+chromadb = {version = "~0.4.24", optional = true }
+sentence-transformers = {version = "~2.7.0", optional = true }
+# pinning transitive dependencies
+torch = {version = "~2.2.2", optional = true }
+orjson = {version = "~3.9.15", optional = true }
+
+[tool.poetry.extras]
+security = ["semgrep", "owasp-depscan"]
+rag = ["chromadb", "sentence-transformers", "torch", "orjson"]
+all = ["semgrep", "owasp-depscan", "chromadb", "sentence-transformers", "torch", "orjson"]
 
 [tool.poetry.group.dev.dependencies]
 setuptools = "*"

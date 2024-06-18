@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pathlib import Path
 from typing import Any
 
@@ -35,7 +37,7 @@ class GenerateDocstring(Step):
         final_inputs["context_grouping"] = "FUNCTION"
         final_inputs["allow_overlap_contexts"] = False
         final_inputs["force_code_contexts"] = final_inputs.get("rewrite_existing", False)
-        
+
         self.inputs: dict[str, Any] = final_inputs
 
     def run(self) -> dict:

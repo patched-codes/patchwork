@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from .position import Position
 from .protocol import ContextStrategyProtocol
 

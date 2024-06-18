@@ -1,12 +1,13 @@
+from __future__ import annotations
+
 import re
 import string
 from pathlib import Path
 
 import requests
 from packageurl import PackageURL
-from typing_extensions import Dict, List
 
-from patchwork.common.utils import defered_temp_file
+from patchwork.common.utils.utils import defered_temp_file
 from patchwork.logger import logger
 from patchwork.step import Step
 
@@ -145,7 +146,7 @@ def extract_diff_sections(diff_lines):
     return sections
 
 
-def get_diff_sections(diff_file_path: str, language: str) -> Dict[str, List[str]]:
+def get_diff_sections(diff_file_path: str | Path, language: str) -> list[str]:
     with open(diff_file_path, "r") as file:
         diff_content = file.read()
 

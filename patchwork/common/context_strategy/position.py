@@ -1,13 +1,15 @@
-import dataclasses
+from __future__ import annotations
+
+from attrs import Factory, define
 
 
-@dataclasses.dataclass(slots=True)
+@define
 class Position:
     start: int
     end: int
     start_col: int
     end_col: int
-    meta_positions: dict[str, "Position"] = dataclasses.field(default_factory=dict)
+    meta_positions: dict[str, "Position"] = Factory(dict)
 
     # def extract_lines(self, src: list[str]) -> list[str]:
     #     return src[self.start : self.end]
