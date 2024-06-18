@@ -74,7 +74,7 @@ means that existing docstrings in methods would be replaced by new ones that are
 In addition, there are options to let you manage the PRs as you like, by setting a `branch_prefix`,  or disabling the creation of new branches with `disable_branch` (commits will be made on the current branch). You can also disable PR creation with `disable_pr` or force push commits to existing PR with `force_pr_creation`.
 
 ```yaml
-branch_prefix: Auto-Generated-Dependency-Upgrades
+branch_prefix: Auto-Generated-Docstrings
 disable_branch: false
 disable_pr: false
 force_pr_creation: false
@@ -86,7 +86,7 @@ You can update the default [prompt template](./prompt.json). The basic prompt th
 
 ## Examples
 
-Here are some example PRs generated with the DependencyUpgrade patchflow:
+Here are some example PRs generated with the GenerateDocstring patchflow:
 
 - https://github.com/codelion/example-python/pull/45
 - https://github.com/codelion/example-java-maven/pull/4
