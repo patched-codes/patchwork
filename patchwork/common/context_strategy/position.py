@@ -1,6 +1,6 @@
 from __future__ import annotations
-from attrs import define, Factory
-import dataclasses
+
+from attrs import Factory, define
 
 
 @define

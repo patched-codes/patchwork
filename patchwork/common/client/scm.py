@@ -3,17 +3,16 @@ from __future__ import annotations
 import functools
 import hashlib
 import time
-from dataclasses import dataclass
 from itertools import chain
 
 import gitlab.const
+from attrs import define
 from github import Auth, Consts, Github, GithubException, PullRequest
 from gitlab import Gitlab, GitlabAuthenticationError, GitlabError
 from gitlab.v4.objects import ProjectMergeRequest
 from typing_extensions import Protocol
 
 from patchwork.logger import logger
-from attrs import define
 
 
 @define
