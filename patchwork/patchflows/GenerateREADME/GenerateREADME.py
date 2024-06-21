@@ -2,6 +2,7 @@ from pathlib import Path
 
 import yaml
 
+from patchwork.common.utils.progress_bar import PatchflowProgressBar
 from patchwork.step import Step
 from patchwork.steps import (
     CallCode2Prompt,
@@ -20,6 +21,16 @@ _DEFAULT_INPUT_FILE = Path(__file__).parent / "defaults.yml"
 
 class GenerateREADME(Step):
     def __init__(self, inputs: dict):
+        PatchflowProgressBar(self).register_steps(
+            CallCode2Prompt,
+            CallLLM,
+            CommitChanges,
+            CreatePR,
+            ExtractModelResponse,
+            ModifyCode,
+            PreparePR,
+            PreparePrompt,
+        )
         final_inputs = yaml.safe_load(_DEFAULT_INPUT_FILE.read_text())
         final_inputs.update(inputs)
 

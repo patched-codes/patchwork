@@ -2,6 +2,7 @@ from pathlib import Path
 
 import yaml
 
+from patchwork.common.utils.progress_bar import PatchflowProgressBar
 from patchwork.step import Step
 from patchwork.steps import (
     CallLLM,
@@ -28,6 +29,14 @@ _SUMMARY_LEVEL = {
 
 class PRReview(Step):
     def __init__(self, inputs: dict):
+        PatchflowProgressBar(self).register_steps(
+            CallLLM,
+            CreatePRComment,
+            ExtractModelResponse,
+            PreparePR,
+            PreparePrompt,
+            ReadPRDiffs,
+        )
         final_inputs = yaml.safe_load(_DEFAULT_INPUT_FILE.read_text())
         final_inputs.update(inputs)
 
