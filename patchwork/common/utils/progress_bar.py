@@ -18,19 +18,19 @@ class PatchflowProgressBar:
     def __init__(self, patchflow: Step):
         self.__step_counter = Counter()
         self.__current_progress = 0.00
-        self.__is_open = False
         self.__callbacks = []
         self.patchflow_name = patchflow.__class__.__name__
 
         patchflow_run_func = patchflow.run
 
         def inner_run():
-            self.__outer_tqdm.reset()
-            result = patchflow_run_func()
-            self.__outer_tqdm.set_description(f"Finished {self.patchflow_name}")
-            self.__outer_tqdm.close()
-            self.__do_callbacks()
-            return result
+            try:
+                self.__outer_tqdm.reset()
+                self.__outer_tqdm.set_description(f"Finished {self.patchflow_name}")
+                return patchflow_run_func()
+            finally:
+                self.__outer_tqdm.close()
+                self.__do_callbacks()
 
         patchflow.run = inner_run
 
