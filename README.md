@@ -29,8 +29,8 @@ An open-source framework for automating development chores using large language 
 
 ## Key Components
 
-- **Steps**: Reusable atomic actions like Create PR, commit changes, call an LLM etc
-- **Prompt Templates**: Customizable LLM prompts optimized for a chore like library updates, code generation, issue analysis etc.
+- **Steps**: Reusable atomic actions like create PR, commit changes or call an LLM.
+- **Prompt Templates**: Customizable LLM prompts optimized for a chore like library updates, code generation, issue analysis or vulnerability remediation.
 - **Patchflows**: LLM-assisted automations such as PR reviews, code fixing, documentation etc. built by combining steps and prompts.
 
 Patchflows can be run locally in your CLI and IDE, or as part of your CI/CD pipeline. There are [several patchflows available](#patchflows) out of the box, and you can always [create your own](#contributing).
