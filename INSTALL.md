@@ -34,5 +34,5 @@ PatchWork is built using Poetry, a dependency management and packaging tool for 
 
 5. Install the dependencies using Poetry:
    ```
-   poetry install
+   poetry install --all-extras
    ```
