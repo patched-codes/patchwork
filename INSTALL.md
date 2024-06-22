@@ -1,14 +1,4 @@
-# Installation
-
-## Using Pip
-
-PatchWork is available on PyPI and can be installed using pip:
-
-```bash
-pip install patchwork-cli --upgrade
-```
-
-## Using Poetry
+# Build from source
 
 PatchWork is built using Poetry, a dependency management and packaging tool for Python. To install PatchWork using Poetry, follow these steps:
 
