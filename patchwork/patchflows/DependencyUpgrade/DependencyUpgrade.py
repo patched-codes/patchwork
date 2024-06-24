@@ -3,6 +3,7 @@ from pathlib import Path
 
 import yaml
 
+from patchwork.common.utils.progress_bar import PatchflowProgressBar
 from patchwork.step import Step
 from patchwork.steps import (
     AnalyzeImpact,
@@ -24,6 +25,20 @@ _DEFAULT_INPUT_FILE = Path(__file__).parent / "defaults.yml"
 
 class DependencyUpgrade(Step):
     def __init__(self, inputs: dict):
+        PatchflowProgressBar(self).register_steps(
+            AnalyzeImpact,
+            CallLLM,
+            CommitChanges,
+            CreatePR,
+            ExtractDiff,
+            ExtractModelResponse,
+            ExtractPackageManagerFile,
+            ModifyCode,
+            PreparePR,
+            PreparePrompt,
+            ScanDepscan,
+        )
+
         final_inputs = yaml.safe_load(_DEFAULT_INPUT_FILE.read_text())
         final_inputs.update(inputs)
 

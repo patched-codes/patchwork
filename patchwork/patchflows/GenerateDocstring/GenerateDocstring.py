@@ -5,6 +5,7 @@ from typing import Any
 
 import yaml
 
+from patchwork.common.utils.progress_bar import PatchflowProgressBar
 from patchwork.step import Step
 from patchwork.steps import (
     CallLLM,
@@ -23,6 +24,15 @@ _DEFAULT_PROMPT_JSON = Path(__file__).parent / "prompt.json"
 
 class GenerateDocstring(Step):
     def __init__(self, inputs: dict):
+        PatchflowProgressBar(self).register_steps(
+            CallLLM,
+            CommitChanges,
+            CreatePR,
+            ExtractModelResponse,
+            ModifyCode,
+            PreparePR,
+            PreparePrompt,
+        )
         final_inputs = yaml.safe_load(_DEFAULT_INPUT_FILE.read_text())
 
         if final_inputs is None:

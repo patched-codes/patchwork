@@ -75,7 +75,7 @@ def find_package_manager_files(directory, purl):
             if file in relevant_files:
                 found_files.append(os.path.join(directory, file))
     except FileNotFoundError:
-        print(f"The directory {directory} was not found.")
+        logger.info(f"The directory {directory} was not found.")
 
     return found_files
 

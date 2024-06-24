@@ -4,6 +4,7 @@ from pathlib import Path
 
 import yaml
 
+from patchwork.common.utils.progress_bar import PatchflowProgressBar
 from patchwork.logger import logger
 from patchwork.step import Step
 from patchwork.steps import (
@@ -39,6 +40,17 @@ class Compatibility(IntEnum):
 
 class AutoFix(Step):
     def __init__(self, inputs: dict):
+        PatchflowProgressBar(self).register_steps(
+            CallLLM,
+            CommitChanges,
+            CreatePR,
+            ExtractCode,
+            ExtractModelResponse,
+            ModifyCode,
+            PreparePR,
+            PreparePrompt,
+            ScanSemgrep,
+        )
         final_inputs = yaml.safe_load(_DEFAULT_INPUT_FILE.read_text())
         final_inputs.update(inputs)
 
