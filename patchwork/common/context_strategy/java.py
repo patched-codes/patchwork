@@ -1,3 +1,4 @@
+from patchwork.common.context_strategy.langugues import JavaLanguage
 from patchwork.common.context_strategy.protocol import TreeSitterStrategy
 
 
@@ -9,7 +10,7 @@ class JavaStrategy(TreeSitterStrategy):
         Args:
         query (str): The search query string to be used for Java file search.
         """
-        super().__init__("java", query, [".java"])
+        super().__init__("java", query, [".java"], JavaLanguage())
         self.query = query
 
 

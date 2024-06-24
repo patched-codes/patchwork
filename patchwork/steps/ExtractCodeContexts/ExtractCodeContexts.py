@@ -6,6 +6,7 @@ from pathlib import Path
 from patchwork.common.context_strategy.context_strategies import ContextStrategies
 from patchwork.common.context_strategy.position import Position
 from patchwork.common.ignore import is_ignored
+from patchwork.common.utils.utils import open_with_chardet
 from patchwork.logger import logger
 from patchwork.step import Step
 
@@ -78,8 +79,25 @@ class ExtractCodeContexts(Step):
         self.allow_overlap_contexts = inputs.get("allow_overlap_contexts", True)
 
     def run(self) -> dict:
-        files_to_consider = []
+        extracted_code_contexts = []
+        for file_path, src, position in self.get_positions():
+            extracted_code_context = dict(
+                uri=file_path,
+                startLine=position.start,
+                endLine=position.end,
+                affectedCode="".join(src[position.start : position.end]),
+            )
+            extracted_code_contexts.append(extracted_code_context)
 
+        logger.info(f"Run completed {self.__class__.__name__}")
+
+        return dict(
+            files_to_patch=extracted_code_contexts,
+            prompt_values=extracted_code_contexts,
+        )
+
+    def get_positions(self):
+        files_to_consider = []
         if self.base_path.is_file():
             files_to_consider.append(self.base_path)
         for root, dirs, files in os.walk(self.base_path):
@@ -88,34 +106,19 @@ class ExtractCodeContexts(Step):
                 if not file_path.is_file() or is_ignored(file_path):
                     continue
                 files_to_consider.append(file_path)
-
         grouping = getattr(ContextStrategies, self.context_grouping, ContextStrategies.ALL)
         if not isinstance(grouping, list):
             grouping = [grouping]
 
-        extracted_code_contexts = []
         for file in files_to_consider:
             try:
-                src = file.read_text().splitlines(keepends=True)
+                with open_with_chardet(file, "r") as f:
+                    src = f.read().splitlines(keepends=True)
             except UnicodeDecodeError:
                 logger.debug(f"Failed to read file: {file}")
                 continue
 
-            positions = get_source_code_contexts(
+            for position in get_source_code_contexts(
                 str(file), src, grouping, self.force_code_contexts, self.allow_overlap_contexts
-            )
-            for position in positions:
-                extracted_code_context = dict(
-                    uri=str(file),
-                    startLine=position.start,
-                    endLine=position.end,
-                    affectedCode="".join(src[position.start : position.end]),
-                )
-                extracted_code_contexts.append(extracted_code_context)
-
-        logger.info(f"Run completed {self.__class__.__name__}")
-
-        return dict(
-            files_to_patch=extracted_code_contexts,
-            prompt_values=extracted_code_contexts,
-        )
+            ):
+                yield str(file), src, position

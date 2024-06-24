@@ -26,10 +26,14 @@ def save_file_contents(file_path, content):
         file.write(content)
 
 
-def handle_indent(src: list[str], target: list[str]) -> list[str]:
+def handle_indent(src: list[str], target: list[str], start: int, end: int) -> list[str]:
     if len(target) < 1:
         return target
-    first_src_line = next((line for line in src if line.strip() != ""), "")
+
+    if start == end:
+        end = start + 1
+
+    first_src_line = next((line for line in src[start:end] if line.strip() != ""), "")
     src_indent_count = len(first_src_line) - len(first_src_line.lstrip())
     first_target_line = next((line for line in target if line.strip() != ""), "")
     target_indent_count = len(first_target_line) - len(first_target_line.lstrip())
@@ -51,7 +55,7 @@ def replace_code_in_file(file_path, start_line, end_line, new_code):
     lines = text.splitlines(keepends=True)
 
     # Insert the new code at the start line after converting it into a list of lines
-    lines[start_line:end_line] = handle_indent(lines[start_line:end_line], new_code.splitlines(keepends=True))
+    lines[start_line:end_line] = handle_indent(lines, new_code.splitlines(keepends=True), start_line, end_line)
 
     # Save the modified contents back to the file
     save_file_contents(file_path, "".join(lines))

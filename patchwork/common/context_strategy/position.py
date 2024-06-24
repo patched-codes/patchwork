@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from attrs import Factory, define
 
+from patchwork.common.context_strategy.langugues import LanguageProtocol
+
 
 @define
 class Position:
@@ -9,6 +11,7 @@ class Position:
     end: int
     start_col: int
     end_col: int
+    language: LanguageProtocol
     meta_positions: dict[str, "Position"] = Factory(dict)
 
     # def extract_lines(self, src: list[str]) -> list[str]:

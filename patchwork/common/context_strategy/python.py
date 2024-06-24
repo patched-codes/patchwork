@@ -16,6 +16,7 @@ from typing_extensions import Callable, Optional, Sequence
 
 from patchwork.common.context_strategy.position import Position
 
+from .langugues import PythonLanguage
 from .protocol import ContextStrategyProtocol
 
 
@@ -58,6 +59,7 @@ class _PythonCollector(libcst.CSTVisitor):
             end=code_range.end.line,
             start_col=code_range.start.column - 1,
             end_col=code_range.end.column,
+            language=PythonLanguage(),
         )
         self.positions.append(position)
         return position
@@ -98,6 +100,7 @@ class _FunctionCollector(_PythonCollector):
                 end=code_range.end.line,
                 start_col=code_range.start.column - 1,
                 end_col=code_range.end.column,
+                language=PythonLanguage(),
             )
             position.meta_positions["comment"] = comment_position
         return True
@@ -225,6 +228,10 @@ class PythonStrategy(ContextStrategyProtocol):
         except:
             return False
         return filename.endswith(".py") and len(src) > 0
+
+    @property
+    def language(self) -> PythonLanguage:
+        return PythonLanguage()
 
 
 class PythonFunctionStrategy(PythonStrategy):
