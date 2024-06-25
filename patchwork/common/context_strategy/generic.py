@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from .position import Position
-from .protocol import ContextStrategyProtocol
+from patchwork.common.context_strategy.langugues import GenericLanguage
+from patchwork.common.context_strategy.position import Position
+from patchwork.common.context_strategy.protocol import ContextStrategyProtocol
 
 
 class FullFileStrategy(ContextStrategyProtocol):
@@ -14,7 +15,7 @@ class FullFileStrategy(ContextStrategyProtocol):
         Returns:
             list[Position]: A list of Position objects representing the context of the source code.
         """
-        return [Position(start=0, end=len(src), start_col=0, end_col=len(src[-1]))]
+        return [Position(start=0, end=len(src), start_col=0, end_col=len(src[-1]), language=self.language)]
 
     def get_context_indexes(self, src: list[str], start: int, end: int) -> Position:
         """
@@ -28,7 +29,7 @@ class FullFileStrategy(ContextStrategyProtocol):
         Returns:
             Position: A Position object containing the calculated context indexes.
         """
-        return Position(start=0, end=len(src), start_col=0, end_col=len(src[-1]))
+        return Position(start=0, end=len(src), start_col=0, end_col=len(src[-1]), language=self.language)
 
     def is_file_supported(self, filename: str, src: list[str]) -> bool:
         """
@@ -42,6 +43,16 @@ class FullFileStrategy(ContextStrategyProtocol):
             bool: True if the file's extension is in the list of supported extensions, False otherwise.
         """
         return True
+
+    @property
+    def language(self) -> GenericLanguage:
+        """
+        Retrieve the language for the current context strategy.
+
+        Returns:
+            str: The language for the current context strategy.
+        """
+        return GenericLanguage()
 
 
 class NoopStrategy(ContextStrategyProtocol):
@@ -69,7 +80,7 @@ class NoopStrategy(ContextStrategyProtocol):
         Returns:
             Position: The context position with start and end indexes and start_col and end_col values.
         """
-        return Position(start=0, end=len(src), start_col=0, end_col=len(src[-1]))
+        return Position(start=0, end=len(src), start_col=0, end_col=len(src[-1]), language=self.language)
 
     def is_file_supported(self, filename: str, src: list[str]) -> bool:
         """
@@ -83,3 +94,13 @@ class NoopStrategy(ContextStrategyProtocol):
         bool: True if the file is restricted, False otherwise.
         """
         return True
+
+    @property
+    def language(self) -> GenericLanguage:
+        """
+        Retrieve the language for the current context strategy.
+
+        Returns:
+            str: The language for the current context strategy.
+        """
+        return GenericLanguage()

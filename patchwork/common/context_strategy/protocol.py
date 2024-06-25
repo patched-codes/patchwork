@@ -3,6 +3,7 @@ from __future__ import annotations
 from tree_sitter_languages.core import get_language, get_parser
 from typing_extensions import Protocol
 
+from patchwork.common.context_strategy.langugues import LanguageProtocol
 from patchwork.common.context_strategy.position import Position
 
 
@@ -47,9 +48,19 @@ class ContextStrategyProtocol(Protocol):
         """
         ...
 
+    @property
+    def language(self) -> LanguageProtocol:
+        """
+        Retrieve the language for the current context strategy.
+
+        Returns:
+        str: The language for the current context strategy.
+        """
+        ...
+
 
 class TreeSitterStrategy(ContextStrategyProtocol):
-    def __init__(self, language: str, query: str, exts: list[str]):
+    def __init__(self, language: str, query: str, exts: list[str], language_protocol: LanguageProtocol):
         """
         Initialize the instance with specified language, query, and file extensions.
 
@@ -57,10 +68,12 @@ class TreeSitterStrategy(ContextStrategyProtocol):
             language (str): The programming language for the search.
             query (str): The search query.
             exts (list[str]): The list of file extensions to consider for the search.
+            language_protocol (LanguageProtocol): The language protocol associated.
         """
-        self.language = language
+        self.tree_sitter_language = language
         self.query = query
         self.exts = exts
+        self.language_protocol = language_protocol
 
     def query_src(self, src: list[str]):
         """
@@ -72,8 +85,8 @@ class TreeSitterStrategy(ContextStrategyProtocol):
         Returns:
         list: Returns a list of captures that match the query in the source code's abstract syntax tree (AST).
         """
-        language = get_language(self.language)
-        parser = get_parser(self.language)
+        language = get_language(self.tree_sitter_language)
+        parser = get_parser(self.tree_sitter_language)
         tree = parser.parse("".join(src).encode("utf-8-sig"))
         return language.query(self.query).captures(tree.root_node)
 
@@ -100,6 +113,7 @@ class TreeSitterStrategy(ContextStrategyProtocol):
                 end=node.end_point[0] + 1,
                 start_col=node.start_point[1],
                 end_col=node.end_point[1] + 1,
+                language=self.language,
             )
             positions.append(position)
 
@@ -115,6 +129,7 @@ class TreeSitterStrategy(ContextStrategyProtocol):
                         end=node.end_point[0] + 1,
                         start_col=node.start_point[1],
                         end_col=node.end_point[1] + 1,
+                        language=self.language,
                     )
                     break
 
@@ -150,3 +165,7 @@ class TreeSitterStrategy(ContextStrategyProtocol):
         bool: True if the file's extension is in the list of supported extensions and `src` is not empty, otherwise False.
         """
         return any(filename.endswith(ext) for ext in self.exts) and len(src) > 0
+
+    @property
+    def language(self) -> LanguageProtocol:
+        return self.language_protocol

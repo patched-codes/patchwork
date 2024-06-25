@@ -16,7 +16,9 @@ from patchwork.steps import (
     PreparePR,
     PreparePrompt,
 )
-from patchwork.steps.ExtractCodeContexts.ExtractCodeContexts import ExtractCodeContexts
+from patchwork.steps.ExtractCodeMethodForCommentContexts.ExtractCodeMethodForCommentContexts import (
+    ExtractCodeMethodForCommentContexts,
+)
 
 _DEFAULT_INPUT_FILE = Path(__file__).parent / "defaults.yml"
 _DEFAULT_PROMPT_JSON = Path(__file__).parent / "prompt.json"
@@ -51,12 +53,12 @@ class GenerateDocstring(Step):
         self.inputs: dict[str, Any] = final_inputs
 
     def run(self) -> dict:
-        outputs = ExtractCodeContexts(self.inputs).run()
+        outputs = ExtractCodeMethodForCommentContexts(self.inputs).run()
         self.inputs.update(outputs)
 
         self.inputs["prompt_id"] = "generate_docstring"
         self.inputs["response_partitions"] = {
-            "patch": ["Code with docstring:", "```", "\n", "```"],
+            "patch": ["Documentation:", "```", "\n", "```"],
         }
         outputs = PreparePrompt(self.inputs).run()
         self.inputs.update(outputs)
