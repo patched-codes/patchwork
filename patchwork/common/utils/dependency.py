@@ -10,7 +10,10 @@ __DEPENDENCY_GROUPS = {
 @lru_cache(maxsize=None)
 def import_with_dependency_group(name):
     try:
-        return importlib.import_module(name)
+        if name in __DEPENDENCY_GROUPS["rag"] or name in __DEPENDENCY_GROUPS["security"]:
+            return importlib.import_module(name)
+        else:
+            raise ImportError(f"Unauthorized dependency: {name}")
     except ImportError:
         error_msg = f"Missing dependency for {name}, please `pip install {name}`"
         dependency_group = next(
