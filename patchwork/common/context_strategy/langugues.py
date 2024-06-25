@@ -43,6 +43,7 @@ class JavaLanguage(LanguageProtocol):
 * @param <Parameter name> <Parameter description>
 * @return <Return description>
 */
+
 """
 
     @property
@@ -95,6 +96,7 @@ class JavascriptLanguage(LanguageProtocol):
  * @param {<Parameter type>}  <Parameter Name> - <Parameter description>
  * @returns {<Return type>} <Return description>
  */
+ 
 """
 
     @property
