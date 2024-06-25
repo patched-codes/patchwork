@@ -47,7 +47,7 @@ def test_save_file_contents(tmp_path):
     ],
 )
 def test_handle_indent(src, target, expected):
-    indented_target = handle_indent(src, target)
+    indented_target = handle_indent(src, target, 0, 999)
     assert indented_target == expected
 
 
