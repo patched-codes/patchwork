@@ -7,6 +7,7 @@ import traceback
 from collections import deque
 from pathlib import Path
 from types import ModuleType
+from typing import Any
 
 import click
 import yaml
@@ -26,14 +27,6 @@ _DATA_FORMAT_MAPPING = {
 _CONFIG_NAME = "config.yml"
 _PROMPT_NAME = "prompt.json"
 _PATCHFLOW_MODULE_NAME = "patchwork.patchflows"
-
-
-def _get_config_path(config: str | None, patchflow: str) -> Path | None:
-    config_path = Path(config)
-    if config_path.is_dir():
-        patchwork_path = config_path / patchflow
-        if patchwork_path.is_dir():
-            return patchwork_path
 
 
 def _get_patchflow_names(base_path: Path | str | None) -> Iterable[str]:
@@ -181,12 +174,9 @@ def cli(
             # treat --key=value as a key-value pair
             inputs[key] = value
 
-    module = find_module(possbile_module_paths, patchflow)
-
-    try:
-        patchflow_class = getattr(module, patchflow_name)
-    except AttributeError:
-        logger.debug(f"Patchflow {patchflow} not found as a class in {module_path}")
+    patchflow_class = find_patchflow(possbile_module_paths, patchflow_name)
+    if patchflow_class is None:
+        logger.error(f"Patchflow {patchflow_name} not found in {possbile_module_paths}")
         exit(1)
 
     try:
@@ -208,20 +198,27 @@ def cli(
             file.write(serialize(inputs))
 
 
-def find_module(possible_module_paths: Iterable[str], patchflow: str) -> ModuleType | None:
+def find_patchflow(possible_module_paths: Iterable[str], patchflow: str) -> Any | None:
+    module = None
     for module_path in possible_module_paths:
         try:
             spec = importlib.util.spec_from_file_location("custom_module", module_path)
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
-            return module
         except Exception:
             logger.debug(f"Patchflow {patchflow} not found as a file/directory in {module_path}")
 
-        try:
-            return importlib.import_module(module_path)
-        except ModuleNotFoundError:
-            logger.debug(f"Patchflow {patchflow} not found as a module in {module_path}")
+        if module is None:
+            try:
+                module = importlib.import_module(module_path)
+            except ModuleNotFoundError:
+                logger.debug(f"Patchflow {patchflow} not found as a module in {module_path}")
+
+        if module is not None:
+            try:
+                return getattr(module, patchflow)
+            except AttributeError:
+                logger.debug(f"Patchflow {patchflow} not found as a class in {module_path}")
 
     return None
 
