@@ -7,10 +7,10 @@ on:
       - autofix-*
       - dependencyupgrade-*
       - generatereadme-*
+      - generatedocstring-*
 
 jobs:
-  test:
-
+  all-test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -39,7 +39,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ./.venv
-          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('./poetry.lock') }}
+          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('./poetry.lock') }}-${{ github.job }}
 
       - name: Install dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
@@ -47,6 +47,41 @@ jobs:
 
       - name: Run tests
         run: poetry run pytest
+
+  security-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+
+      - uses: jwalton/gh-find-current-pr@master
+        id: findPr
+
+      - name: Set up python
+        id: setup-python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.8'
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+          installer-parallel: true
+
+      - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v3
+        with:
+          path: ./.venv
+          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('./poetry.lock') }}-${{ github.job }}
+
+      - name: Install dependencies
+        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        run: poetry install --no-interaction --extras security
 
       - name: AutoFix Patchwork
         run: |
@@ -63,6 +98,83 @@ jobs:
           --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
           --language=python \
           --force_pr_creation
+
+  rag-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+
+      - uses: jwalton/gh-find-current-pr@master
+        id: findPr
+
+      - name: Set up python
+        id: setup-python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.8'
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+          installer-parallel: true
+
+      - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v3
+        with:
+          path: ./.venv
+          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('./poetry.lock') }}-${{ github.job }}
+
+      - name: Install dependencies
+        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        run: poetry install --no-interaction --extras rag
+
+      - name: Propose relevant file to issues
+        run: |
+          poetry run patchwork ResolveIssue --log debug \
+          --openai_api_key=${{ secrets.OPENAI_KEY }} \
+          --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
+          --issue_url=https://github.com/patched-codes/patchwork/issues/20
+
+  main-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+
+      - uses: jwalton/gh-find-current-pr@master
+        id: findPr
+
+      - name: Set up python
+        id: setup-python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.8'
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+          installer-parallel: true
+
+      - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v3
+        with:
+          path: ./.venv
+          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('./poetry.lock') }}-${{ github.job }}
+
+      - name: Install dependencies
+        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        run: poetry install --no-interaction
 
       - name: PR Review
         run: |
@@ -83,7 +195,7 @@ jobs:
           # Specify the parent folder you want to check
           PARENT_FOLDER="./patchwork/steps"
           # Command to run if README.md is not found
-  
+          
           find "$PARENT_FOLDER" -mindepth 1 -maxdepth 1 -type d | grep -vE '/\.\.?/' | grep -vE '/__' | while read -r dir; do
             if [[ ! -f "$dir/README.md" ]]; then
               echo "No README.md in $dir"
@@ -91,7 +203,7 @@ jobs:
               base_name=$(basename "$dir")
               # Convert to a Git-friendly branch name: replace spaces with underscores, remove slashes, etc.
               branch_name=$(echo "$base_name" | sed -e 's/[^a-zA-Z0-9]/_/g' -e 's/__*/_/g' -e 's/^_//g' -e 's/_$//g')
-        
+          
               poetry run patchwork GenerateREADME --log debug \
               --openai_api_key=${{ secrets.OPENAI_KEY }} \
               --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
@@ -102,10 +214,3 @@ jobs:
               echo "Found README.md in $dir"
             fi
           done
-
-      - name: Propose relevant file to issues
-        run: |
-          poetry run patchwork ResolveIssue --log debug \
-          --openai_api_key=${{ secrets.OPENAI_KEY }} \
-          --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
-          --issue_url=https://github.com/patched-codes/patchwork/issues/20
