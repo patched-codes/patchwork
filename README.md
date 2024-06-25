@@ -49,6 +49,12 @@ PatchWork is available on PyPI and can be installed using pip:
 pip install 'patchwork-cli[all]' --upgrade
 ```
 
+The following optional dependency groups are available.
+
+- `security`: Installs `Semgrep` and `Depscan` with `pip install 'patchwork-cli[security]'` and is required for `AutoFix` and `DependencyUpgrade` patchflows.
+- `rag`: Installs `chromadb` with `pip install 'patchwork-cli[rag]'` and is required for the `ResolveIssue` patchflow.
+- `all`: Installs everything.
+
 ### Using Poetry
 
 If you'd like to build from source using poetry, please see detailed documentation [here](INSTALL.md) .
