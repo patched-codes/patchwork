@@ -81,7 +81,7 @@ jobs:
 
       - name: Install dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: poetry install --no-interaction --extras security
+        run: poetry install --no-interaction --only main --extras security
 
       - name: AutoFix Patchwork
         run: |
@@ -132,7 +132,7 @@ jobs:
 
       - name: Install dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: poetry install --no-interaction --extras rag
+        run: poetry install --no-interaction --only main --extras rag
 
       - name: Propose relevant file to issues
         run: |
@@ -174,7 +174,7 @@ jobs:
 
       - name: Install dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: poetry install --no-interaction
+        run: poetry install --no-interaction --only main
 
       - name: PR Review
         run: |
