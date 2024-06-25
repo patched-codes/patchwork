@@ -190,12 +190,11 @@ def cli(
         exit(1)
 
     try:
-        repo = Repo(Path.cwd(), search_parent_directories=True)
         patched = PatchedClient(inputs.get("patched_api_key"))
         if not disable_telemetry:
             patched.send_public_telemetry(patchflow_name, inputs)
 
-        with patched.patched_telemetry(patchflow_name, repo, {}):
+        with patched.patched_telemetry(patchflow_name, {}):
             patchflow_instance = patchflow_class(inputs)
             patchflow_instance.run()
     except Exception as e:
