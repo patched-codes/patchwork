@@ -19,16 +19,16 @@ class PatchflowProgressBar:
         self.__step_counter = Counter()
         self.__current_progress = 0.00
         self.__callbacks = []
-        self.patchflow_name = patchflow.__class__.__name__
+        self.__patchflow_name = patchflow.__class__.__name__
 
         patchflow_run_func = patchflow.run
 
         def inner_run():
             try:
                 self.__outer_tqdm.reset()
-                self.__outer_tqdm.set_description(f"Finished {self.patchflow_name}")
                 return patchflow_run_func()
             finally:
+                self.__outer_tqdm.set_description(f"Finished {self.__patchflow_name}")
                 self.__outer_tqdm.close()
                 self.__do_callbacks()
 
@@ -67,7 +67,7 @@ class PatchflowProgressBar:
         self.__intercept_click_echo()
         return tqdm(
             total=self.__MAX_PROGRESS,
-            desc=f"Running {self.patchflow_name}",
+            desc=f"Running {self.__patchflow_name}",
             smoothing=0,
             miniters=1,
             unit_scale=True,
