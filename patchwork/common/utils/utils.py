@@ -7,11 +7,10 @@ from pathlib import Path
 
 import tiktoken
 from chardet.universaldetector import UniversalDetector
-from patchwork.common.utils.dependency import chromadb
-
 from git import Head, Repo
 from typing_extensions import Callable, TypedDict
 
+from patchwork.common.utils.dependency import chromadb
 from patchwork.managed_files import HOME_FOLDER
 
 _CLEANUP_FILES: set[Path] = set()
@@ -99,7 +98,9 @@ def get_vector_db_path() -> str:
         return ".chroma.db"
 
 
-def openai_embedding_model(inputs: dict) -> "chromadb.api.types.EmbeddingFunction"["chromadb.api.types.Documents"] | None:
+def openai_embedding_model(
+    inputs: dict,
+) -> "chromadb.api.types.EmbeddingFunction"["chromadb.api.types.Documents"] | None:
     model = inputs.get(openai_embedding_model.__name__)
     if model is None:
         return None
@@ -114,7 +115,9 @@ def openai_embedding_model(inputs: dict) -> "chromadb.api.types.EmbeddingFunctio
     )
 
 
-def huggingface_embedding_model(inputs: dict) -> "chromadb.api.types.EmbeddingFunction"["chromadb.api.types.Documents"] | None:
+def huggingface_embedding_model(
+    inputs: dict,
+) -> "chromadb.api.types.EmbeddingFunction"["chromadb.api.types.Documents"] | None:
     model = inputs.get(huggingface_embedding_model.__name__)
     if model is None:
         return None
@@ -131,9 +134,9 @@ def huggingface_embedding_model(inputs: dict) -> "chromadb.api.types.EmbeddingFu
 
 _EMBEDDING_FUNCS = [openai_embedding_model, huggingface_embedding_model]
 
-_EMBEDDING_TO_API_KEY_NAME: dict[str, Callable[[dict], "chromadb.api.type.EmbeddingFunction"["chromadb.api.types.Documents"] | None]] = {
-    func.__name__: func for func in _EMBEDDING_FUNCS
-}
+_EMBEDDING_TO_API_KEY_NAME: dict[
+    str, Callable[[dict], "chromadb.api.type.EmbeddingFunction"["chromadb.api.types.Documents"] | None]
+] = {func.__name__: func for func in _EMBEDDING_FUNCS}
 
 
 def get_embedding_function(inputs: dict) -> "chromadb.api.types.EmbeddingFunction"["chromadb.api.types.Documents"]:
