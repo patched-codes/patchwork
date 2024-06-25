@@ -51,11 +51,11 @@ def test_default_list_option_callback(runner):
     assert result.exit_code == 0
     assert result.output.strip() == """\
 AutoFix
-ResolveIssue
 DependencyUpgrade
 GenerateDocstring
+GenerateREADME
 PRReview
-GenerateREADME"""
+ResolveIssue"""
 
 
 def test_config_list_option_callback(runner, config_dir, patchflow_file):
@@ -65,11 +65,11 @@ def test_config_list_option_callback(runner, config_dir, patchflow_file):
     assert result.exit_code == 0
     assert result.output.strip() == f"""\
 AutoFix
-ResolveIssue
 DependencyUpgrade
 GenerateDocstring
-PRReview
 GenerateREADME
+PRReview
+ResolveIssue
 {name_without_ext}"""
 
 

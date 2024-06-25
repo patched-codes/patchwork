@@ -41,7 +41,7 @@ def _get_patchflow_names(base_path: Path | str | None) -> Iterable[str]:
     for path in base_path.iterdir():
         if path.is_dir() and (path / f"{path.name}.py").is_file():
             names.append(path.name)
-    return names
+    return sorted(names)
 
 
 def list_option_callback(ctx: click.Context, param: click.Parameter, value: str | None) -> None:
