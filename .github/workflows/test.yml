@@ -71,6 +71,13 @@ jobs:
           --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
           --pr_url=https://github.com/patched-codes/patchwork/pull/${{ steps.findPr.outputs.number }}
 
+      - name: Generate Docstring
+        run: |
+          poetry run patchwork GenerateDocstring --log debug \
+          --openai_api_key=${{ secrets.OPENAI_KEY }} \
+          --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
+          --base_path=tests/cicd/generate_docstring
+
       - name: Generate README
         run: |
           # Specify the parent folder you want to check
