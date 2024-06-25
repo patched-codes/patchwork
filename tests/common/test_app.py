@@ -2,7 +2,7 @@ from types import ModuleType
 
 import pytest
 import os
-from patchwork.app import cli, find_patchflow, _get_config_path, _get_patchflow_names
+from patchwork.app import cli, find_patchflow, _get_patchflow_names
 
 import click
 import yaml
