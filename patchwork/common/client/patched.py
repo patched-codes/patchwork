@@ -9,6 +9,7 @@ import socket
 import sys
 import uuid
 from importlib import metadata
+from pathlib import Path
 from threading import Thread
 from typing import Any
 
@@ -167,7 +168,7 @@ class PatchedClient(click.ParamType):
             logger.debug(f"Failed to send public telemetry: {e}")
 
     @contextlib.contextmanager
-    def patched_telemetry(self, patchflow: str, repo: Repo, inputs: dict):
+    def patched_telemetry(self, patchflow: str, inputs: dict):
         if not self.access_token:
             yield
             return
@@ -184,7 +185,8 @@ class PatchedClient(click.ParamType):
             return
 
         try:
-            patchflow_run_id = self.record_patchflow_run(patchflow, repo, inputs)
+            repo = Repo(Path.cwd(), search_parent_directories=True)
+            patchflow_run_id = self.record_patchflow_run(patchflow, repo, self.__handle_telemetry_inputs(inputs))
         except Exception as e:
             logger.error(f"Failed to record patchflow run: {e}")
             yield

@@ -7,6 +7,7 @@ import traceback
 from collections import deque
 from pathlib import Path
 from types import ModuleType
+from typing import Any
 
 import click
 import yaml
@@ -28,14 +29,6 @@ _PROMPT_NAME = "prompt.json"
 _PATCHFLOW_MODULE_NAME = "patchwork.patchflows"
 
 
-def _get_config_path(config: str | None, patchflow: str) -> Path | None:
-    config_path = Path(config)
-    if config_path.is_dir():
-        patchwork_path = config_path / patchflow
-        if patchwork_path.is_dir():
-            return patchwork_path
-
-
 def _get_patchflow_names(base_path: Path | str | None) -> Iterable[str]:
     names = []
     if base_path is None:
@@ -48,7 +41,7 @@ def _get_patchflow_names(base_path: Path | str | None) -> Iterable[str]:
     for path in base_path.iterdir():
         if path.is_dir() and (path / f"{path.name}.py").is_file():
             names.append(path.name)
-    return names
+    return sorted(names)
 
 
 def list_option_callback(ctx: click.Context, param: click.Parameter, value: str | None) -> None:
@@ -181,21 +174,17 @@ def cli(
             # treat --key=value as a key-value pair
             inputs[key] = value
 
-    module = find_module(possbile_module_paths, patchflow)
-
-    try:
-        patchflow_class = getattr(module, patchflow_name)
-    except AttributeError:
-        logger.debug(f"Patchflow {patchflow} not found as a class in {module_path}")
+    patchflow_class = find_patchflow(possbile_module_paths, patchflow_name)
+    if patchflow_class is None:
+        logger.error(f"Patchflow {patchflow_name} not found in {possbile_module_paths}")
         exit(1)
 
     try:
-        repo = Repo(Path.cwd(), search_parent_directories=True)
         patched = PatchedClient(inputs.get("patched_api_key"))
         if not disable_telemetry:
             patched.send_public_telemetry(patchflow_name, inputs)
 
-        with patched.patched_telemetry(patchflow_name, repo, {}):
+        with patched.patched_telemetry(patchflow_name, {}):
             patchflow_instance = patchflow_class(inputs)
             patchflow_instance.run()
     except Exception as e:
@@ -209,20 +198,25 @@ def cli(
             file.write(serialize(inputs))
 
 
-def find_module(possible_module_paths: Iterable[str], patchflow: str) -> ModuleType | None:
+def find_patchflow(possible_module_paths: Iterable[str], patchflow: str) -> Any | None:
     for module_path in possible_module_paths:
         try:
             spec = importlib.util.spec_from_file_location("custom_module", module_path)
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
-            return module
+            return getattr(module, patchflow)
+        except AttributeError:
+            logger.debug(f"Patchflow {patchflow} not found in {module_path}")
         except Exception:
             logger.debug(f"Patchflow {patchflow} not found as a file/directory in {module_path}")
 
         try:
-            return importlib.import_module(module_path)
+            module = importlib.import_module(module_path)
+            return getattr(module, patchflow)
         except ModuleNotFoundError:
             logger.debug(f"Patchflow {patchflow} not found as a module in {module_path}")
+        except AttributeError:
+            logger.debug(f"Patchflow {patchflow} not found in {module_path}")
 
     return None
 
