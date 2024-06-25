@@ -11,7 +11,6 @@ on:
 
 jobs:
   all-test:
-
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -48,8 +47,8 @@ jobs:
 
       - name: Run tests
         run: poetry run pytest
-  security-test:
 
+  security-test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -101,7 +100,6 @@ jobs:
           --force_pr_creation
 
   rag-test:
-
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -143,9 +141,7 @@ jobs:
           --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
           --issue_url=https://github.com/patched-codes/patchwork/issues/20
 
-
   main-test:
-
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -218,4 +214,3 @@ jobs:
               echo "Found README.md in $dir"
             fi
           done
-
