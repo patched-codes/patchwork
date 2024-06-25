@@ -58,7 +58,7 @@ class GenerateDocstring(Step):
 
         self.inputs["prompt_id"] = "generate_docstring"
         self.inputs["response_partitions"] = {
-            "patch": ["Documentation:", "\n", ""],
+            "patch": ["Documentation:", "```", "\n", "```"],
         }
         outputs = PreparePrompt(self.inputs).run()
         self.inputs.update(outputs)

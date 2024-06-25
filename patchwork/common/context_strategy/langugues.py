@@ -43,7 +43,6 @@ class JavaLanguage(LanguageProtocol):
 * @param <Parameter name> <Parameter description>
 * @return <Return description>
 */
-
 """
 
     @property
@@ -63,7 +62,7 @@ class PythonLanguage(LanguageProtocol):
         Initialize the PythonLanguage instance.
         """
         # This is currently google docstring format
-        self._comment_format = '''
+        self._comment_format = '''\
 """<Method description>
 
 Args:
@@ -72,7 +71,6 @@ Args:
 Returns:
     <Return type>: <Return description>
 """
-
 '''
 
     @property
@@ -97,7 +95,6 @@ class JavascriptLanguage(LanguageProtocol):
  * @param {<Parameter type>}  <Parameter Name> - <Parameter description>
  * @returns {<Return type>} <Return description>
  */
- 
 """
 
     @property
