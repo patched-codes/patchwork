@@ -17,6 +17,11 @@ function a_plus_b(a, b) {
  * @returns {void} This function does not return anything.
  */
 const sqlite = (db, query, callback) => {
+    /**
+     * Serializes the database operation to ensure proper execution order
+     * @param {function} callback - The callback function to be executed for each row returned by the query
+     * @returns {void} Executes the query in a serialized manner
+     */
     db.serialize(function () {
         db.each(query, callback);
     });
