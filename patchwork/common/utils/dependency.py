@@ -6,9 +6,14 @@ __DEPENDENCY_GROUPS = {
     "security": ["semgrep", "depscan"],
 }
 
+ALLOWED_MODULES = ["chromadb", "semgrep", "depscan"]
+
 
 @lru_cache(maxsize=None)
 def import_with_dependency_group(name):
+    if name not in ALLOWED_MODULES:
+        raise ImportError(f"Module {name} is not allowed to be imported")
+    
     try:
         return importlib.import_module(name)
     except ImportError:
