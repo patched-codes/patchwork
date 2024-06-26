@@ -59,6 +59,7 @@ class DependencyUpgrade(Step):
         self.inputs.update(outputs)
         outputs = ExtractPackageManagerFile(self.inputs).run()
         self.inputs.update(outputs)
+        self.inputs["prompt_values"] = self.inputs.get("files_to_patch", [])
 
         number = 0
         modified_files = []
@@ -96,6 +97,7 @@ class DependencyUpgrade(Step):
                     analyze_inputs.update(outputs)
                     analyze_inputs["prompt_id"] = "migratecode"
                     analyze_inputs["response_partitions"] = {"patch": []}
+                    analyze_inputs["prompt_values"] = outputs["files_to_patch"]
                     outputs = PreparePrompt(analyze_inputs).run()
                     analyze_inputs.update(outputs)
                     outputs = CallLLM(analyze_inputs).run()

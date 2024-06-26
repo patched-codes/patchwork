@@ -81,6 +81,7 @@ class AutoFix(Step):
         self.inputs.update(outputs)
 
         for i in range(self.n):
+            self.inputs["prompt_values"] = outputs.get("files_to_patch", [])
             outputs = PreparePrompt(self.inputs).run()
             self.inputs.update(outputs)
             outputs = CallLLM(self.inputs).run()
