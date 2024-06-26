@@ -65,7 +65,7 @@ def test_extract_code_run(extract_code_instance, tmp_path):
     assert extract_code_instance.extracted_code_contexts[0]["affectedCode"] == "print('Hello, world!')"
     assert extract_code_instance.extracted_code_contexts[0]["messageText"] == "Error message"
 
-    assert result.keys() == {"files_to_patch", "prompt_values"}
+    assert result.keys() == {"files_to_patch"}
     for output_data in result.values():
         assert len(output_data) == 1
         assert output_data[0]["uri"] == "test.py"
