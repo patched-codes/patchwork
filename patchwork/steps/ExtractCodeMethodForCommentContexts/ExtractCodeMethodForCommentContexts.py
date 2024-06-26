@@ -59,5 +59,4 @@ class ExtractCodeMethodForCommentContexts(Step):
 
         return dict(
             files_to_patch=extracted_code_contexts,
-            prompt_values=extracted_code_contexts,
         )
