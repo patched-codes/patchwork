@@ -10,7 +10,9 @@ __DEPENDENCY_GROUPS = {
 @lru_cache(maxsize=None)
 def import_with_dependency_group(name):
     try:
-        return importlib.import_module(name)
+        if name == "chromadb":
+            return chromadb()
+        raise ImportError(f"Module {name} is not whitelisted")
     except ImportError:
         error_msg = f"Missing dependency for {name}, please `pip install {name}`"
         dependency_group = next(
@@ -22,4 +24,4 @@ def import_with_dependency_group(name):
 
 
 def chromadb():
-    return import_with_dependency_group("chromadb")
+    return importlib.import_module("chromadb")
