@@ -66,4 +66,4 @@ class CallCode2Prompt(Step):
         self.extracted_data.append(data)
 
         logger.info(f"Run completed {self.__class__.__name__}")
-        return dict(prompt_values=self.extracted_data, files_to_patch=self.extracted_data)
+        return dict(files_to_patch=self.extracted_data)

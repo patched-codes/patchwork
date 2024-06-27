@@ -192,4 +192,4 @@ class CallLLM(Step):
         contents = self.llm.call(self.prompts)
 
         logger.info(f"Run completed {self.__class__.__name__}")
-        return dict(new_code=contents, openai_responses=contents)
+        return dict(openai_responses=contents)

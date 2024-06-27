@@ -143,4 +143,4 @@ class AnalyzeImpact(Step):
             extracted_data.append(data)
 
         logger.info(f"Run completed {self.__class__.__name__}")
-        return dict(prompt_values=extracted_data, files_to_patch=extracted_data)
+        return dict(files_to_patch=extracted_data)

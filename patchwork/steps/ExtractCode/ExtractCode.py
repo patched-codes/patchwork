@@ -289,5 +289,4 @@ class ExtractCode(Step):
 
         return dict(
             files_to_patch=self.extracted_code_contexts,
-            prompt_values=self.extracted_code_contexts,
         )
