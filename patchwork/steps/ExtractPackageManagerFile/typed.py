@@ -10,5 +10,4 @@ class ExtractPackageManagerFileInputs(TypedDict):
 
 
 class ExtractPackageManagerFileOutputs(TypedDict):
-    prompt_values: Iterable[dict]
     files_to_patch: Iterable[dict]

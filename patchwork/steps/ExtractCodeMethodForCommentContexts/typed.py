@@ -8,7 +8,6 @@ class ExtractCodeInputs(TypedDict):
 
 class ExtractCodeOutputs(TypedDict):
     files_to_patch: Iterable["ExtractedCode"]
-    prompt_values: Iterable["ExtractedCode"]
 
 
 class ExtractedCode(TypedDict):

@@ -8,5 +8,4 @@ class CallCode2PromptInputs(TypedDict):
 
 
 class CallCode2PromptOutputs(TypedDict):
-    prompt_values: Iterable[dict]
     files_to_patch: Iterable[dict]
