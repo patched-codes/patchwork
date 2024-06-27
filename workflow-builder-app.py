@@ -157,6 +157,21 @@ class WorkflowScene(QGraphicsScene):
                     self.edges.append(edge)
                     self.graph.add_edge(source.unique_name, target.unique_name, mapping=mapping)
                     self.main_window.update_status(f"Edge created with custom mapping: {source.unique_name} -> {target.unique_name}")
+
+                    # Update the target step's user_assigned_inputs
+                    for source_output, target_input in mapping.items():
+                        if hasattr(target, 'composite') and target.composite:
+                            # For composite steps, update the underlying workflow data
+                            for substep_data in target.workflow_data['steps'].values():
+                                if target_input in substep_data.get('inputs', []):
+                                    substep_data['user_assigned_inputs'] = substep_data.get('user_assigned_inputs', {})
+                                    substep_data['user_assigned_inputs'][target_input] = f"From: {source.unique_name}.{source_output}"
+                        else:
+                            # For simple steps, update the user_assigned_inputs
+                            target.user_assigned_inputs[target_input] = f"From: {source.unique_name}.{source_output}"
+
+                    # Update the graph to reflect this change
+                    self.graph.nodes[target.unique_name]['user_assigned_inputs'] = target.user_assigned_inputs
                 else:
                     self.main_window.update_status("No mapping selected, edge not created")
             else:
@@ -334,17 +349,20 @@ class MainWindow(QMainWindow):
         save_workflow_button = QPushButton("Save Workflow")
         load_workflow_button = QPushButton("Load Workflow")
         export_button = QPushButton("Export")
+        clear_all_button = QPushButton("Clear All")  # New Clear All button
         zoom_in_button.clicked.connect(lambda: self.view.scale(1.2, 1.2))
         zoom_out_button.clicked.connect(lambda: self.view.scale(0.8, 0.8))
         save_workflow_button.clicked.connect(self.save_workflow)
         load_workflow_button.clicked.connect(self.load_workflow)
         export_button.clicked.connect(self.export_workflow)
+        clear_all_button.clicked.connect(self.clear_all)  # Connect Clear All button
         
         button_layout.addWidget(zoom_in_button)
         button_layout.addWidget(zoom_out_button)
         button_layout.addWidget(save_workflow_button)
         button_layout.addWidget(load_workflow_button)
         button_layout.addWidget(export_button)
+        button_layout.addWidget(clear_all_button)  # Add Clear All button to layout
         
         middle_layout.addLayout(button_layout)
         
@@ -384,6 +402,32 @@ class MainWindow(QMainWindow):
 
         self.scene.selectionChanged.connect(self.update_io_display)
 
+    def clear_all(self):
+        # Clear the scene
+        self.scene.clear()
+        self.scene.steps = {}
+        self.scene.edges = []
+        self.scene.graph.clear()
+        
+        # Reset the view
+        self.view.resetTransform()
+        
+        # Clear the I/O display
+        self.clear_io_display()
+        
+        # Reset other data structures
+        self.current_step = None
+        self.temp_input_values = {}
+        
+        # Reset the step counter in the scene
+        self.scene.step_counter = {}
+        
+        # Update the status
+        self.update_status("Workflow cleared")
+        
+        # Disable the save button
+        self.save_button.setEnabled(False)
+
     def update_status(self, message):
         self.status_bar.showMessage(message)
         
@@ -408,7 +452,7 @@ class MainWindow(QMainWindow):
                     'outputs': outputs,
                     'composite': True,
                     'workflow_data': workflow_data,
-                    'user_assigned_inputs': user_assigned_inputs  # Include user-assigned inputs
+                    'user_assigned_inputs': user_assigned_inputs  # Include user-assigned inputs, but not as visible inputs
                 }
 
                 # Add the new step to the list widget
@@ -434,9 +478,8 @@ class MainWindow(QMainWindow):
             node_data = graph.nodes[node]
             for input_data in node_data['inputs']:
                 input_name = input_data['name']
-                # Check if the input is not user-assigned and not connected to any other node's output
-                if (input_name not in node_data.get('user_assigned_inputs', {}) and
-                    not any(edge['mapping'].get(input_name) for _, _, edge in graph.in_edges(node, data=True))):
+                # Only include inputs that are not connected to any other node's output
+                if not any(edge['mapping'].get(input_name) for _, _, edge in graph.in_edges(node, data=True)):
                     inputs.append(input_data)
 
         # Identify outputs (nodes with no outgoing edges)
@@ -454,20 +497,23 @@ class MainWindow(QMainWindow):
         y = 100 + (len(self.scene.steps) // 3) * 150
         
         if step_data.get('composite', False):
-            # For composite steps, we need to create a special kind of step
             self.add_composite_step_to_canvas(step_name, step_data, x, y)
         else:
             self.scene.add_step(step_name, step_data, x, y)
 
     def add_composite_step_to_canvas(self, step_name, step_data, x, y):
-        # Create a special kind of step for composite workflows
         composite_step = Step(step_name, len(self.scene.steps) + 1, step_data['inputs'], step_data['outputs'], x, y)
         composite_step.composite = True
         composite_step.workflow_data = step_data['workflow_data']
         
+        # Include user-assigned inputs from the underlying workflow
+        composite_step.user_assigned_inputs = {}
+        for substep_data in step_data['workflow_data']['steps'].values():
+            composite_step.user_assigned_inputs.update(substep_data.get('user_assigned_inputs', {}))
+        
         self.scene.addItem(composite_step)
         self.scene.steps[composite_step.unique_name] = composite_step
-        self.scene.graph.add_node(composite_step.unique_name)
+        self.scene.graph.add_node(composite_step.unique_name, user_assigned_inputs=composite_step.user_assigned_inputs)
         
     def closeEvent(self, event):
         self.is_closing = True
@@ -491,28 +537,20 @@ class MainWindow(QMainWindow):
                 self.io_form_layout.addRow(QLabel(f"Node: {step.unique_name}"))
                 self.io_form_layout.addRow(QLabel("Inputs:"))
 
-                for input_data in step.inputs:
-                    input_name = input_data['name']
-                    input_type = input_data['type']
-                    input_value = self.get_input_value(step, input_name)
-                    
-                    input_field = QLineEdit(input_value)
-                    input_field.setPlaceholderText(f"Type: {input_type}")
-                    input_field.textChanged.connect(lambda text, n=input_name: self.update_temp_input_value(n, text))
-                    
-                    self.io_form_layout.addRow(f"{input_name}:", input_field)
+                # Display all inputs, including automatically mapped ones
+                if hasattr(step, 'composite') and step.composite:
+                    # For composite steps, show inputs from the underlying workflow
+                    for substep_data in step.workflow_data['steps'].values():
+                        for input_data in substep_data.get('inputs', []):
+                            self.add_input_to_form(step, input_data)
+                else:
+                    # For simple steps, show all inputs
+                    for input_data in step.inputs:
+                        self.add_input_to_form(step, input_data)
 
                 self.io_form_layout.addRow(QLabel("Outputs:"))
                 for output in step.outputs:
                     self.io_form_layout.addRow(f"{output['name']} ({output['type']})", QLabel(""))
-
-                # Display mappings
-                self.io_form_layout.addRow(QLabel("Mappings:"))
-                incoming_edges = self.scene.graph.in_edges(step.unique_name, data=True)
-                for source, target, edge_data in incoming_edges:
-                    if 'mapping' in edge_data:
-                        for src, tgt in edge_data['mapping'].items():
-                            self.io_form_layout.addRow(f"{source} -> {src}:", QLabel(tgt))
 
                 self.save_button.setEnabled(True)
             else:
@@ -524,18 +562,40 @@ class MainWindow(QMainWindow):
             # If we get here, it means the scene has been deleted
             pass
 
+    def add_input_to_form(self, step, input_data):
+        input_name = input_data['name']
+        input_type = input_data['type']
+        input_value = self.get_input_value(step, input_name)
+        
+        input_field = QLineEdit(input_value)
+        input_field.setPlaceholderText(f"Type: {input_type}")
+        input_field.textChanged.connect(lambda text, n=input_name: self.update_temp_input_value(n, text))
+        self.io_form_layout.addRow(f"{input_name}:", input_field)
+    
     def get_input_value(self, step, input_name):
         # First, check if there's a user-assigned value
-        if input_name in step.user_assigned_inputs:
+        if hasattr(step, 'composite') and step.composite:
+            for substep_data in step.workflow_data['steps'].values():
+                if input_name in substep_data.get('user_assigned_inputs', {}):
+                    return substep_data['user_assigned_inputs'][input_name]
+        elif input_name in step.user_assigned_inputs:
             return step.user_assigned_inputs[input_name]
         
-        # If not, check for connected inputs
+        # Check for connected inputs (including automatic mappings)
         incoming_edges = self.scene.graph.in_edges(step.unique_name, data=True)
         for source, target, edge_data in incoming_edges:
+            source_step = self.scene.steps[source]
             if 'mapping' in edge_data:
+                # Explicit mapping
                 for src, tgt in edge_data['mapping'].items():
                     if tgt == input_name:
-                        return f"From: {self.scene.steps[source].unique_name}.{src}"
+                        return f"From: {source_step.unique_name}.{src}"
+            else:
+                # Automatic mapping
+                for output in source_step.outputs:
+                    if output['name'] == input_name:
+                        return f"From: {source_step.unique_name}.{output['name']}"
+        
         return ""
 
     def update_temp_input_value(self, input_name, value):
@@ -545,15 +605,20 @@ class MainWindow(QMainWindow):
         if self.current_step:
             for input_name, value in self.temp_input_values.items():
                 if value.startswith("From: "):
-                    # This input is connected to another node's output, so we don't store a user-assigned value
                     if input_name in self.current_step.user_assigned_inputs:
                         del self.current_step.user_assigned_inputs[input_name]
                 else:
-                    # Store the user-assigned value
                     self.current_step.user_assigned_inputs[input_name] = value
             
             # Update the graph to reflect this change
             self.scene.graph.nodes[self.current_step.unique_name]['user_assigned_inputs'] = self.current_step.user_assigned_inputs
+
+            if hasattr(self.current_step, 'composite') and self.current_step.composite:
+                # For composite steps, also update the underlying workflow data
+                for substep_data in self.current_step.workflow_data['steps'].values():
+                    for input_name, value in self.current_step.user_assigned_inputs.items():
+                        if input_name in substep_data.get('user_assigned_inputs', {}):
+                            substep_data['user_assigned_inputs'][input_name] = value
 
             self.update_io_display()  # Refresh the display
             self.update_status(f"Input values saved for {self.current_step.unique_name}")
@@ -680,16 +745,6 @@ class MainWindow(QMainWindow):
                     f.write("        initial_inputs = yaml.safe_load(_DEFAULT_INPUT_FILE.read_text())\n")
                     f.write("        self.inputs = {**initial_inputs, **inputs}\n\n")
                     
-                    # Add user-assigned input values
-                    f.write("        # User-assigned input values\n")
-                    for step in workflow_order:
-                        step_obj = self.scene.steps[step]
-                        if step_obj.user_assigned_inputs:
-                            f.write(f"        # {step_obj.unique_name} inputs\n")
-                            for input_name, input_value in step_obj.user_assigned_inputs.items():
-                                f.write(f"        self.inputs['{input_name}'] = {repr(input_value)}\n")
-                    f.write("\n")
-
                     f.write("    def validate_inputs(self):\n")
                     f.write("        missing_inputs = []\n")
                     
@@ -724,10 +779,16 @@ class MainWindow(QMainWindow):
                     
                     for step in workflow_order:
                         step_name, _ = step.rsplit('_', 1)
+                        step_obj = self.scene.steps[step]
                         incoming_edges = list(self.scene.graph.in_edges(step, data=True))
                         
+                        # Handle user-assigned inputs
+                        f.write(f"        # User-assigned inputs for {step}\n")
+                        for input_name, input_value in step_obj.user_assigned_inputs.items():
+                            f.write(f"        inputs['{input_name}'] = {repr(input_value)}\n")
+                        
                         if not incoming_edges:
-                            # No incoming edges, use self.inputs
+                            # No incoming edges, use inputs directly
                             f.write(f"        outputs_{step} = {step_name}(inputs).run()\n")
                         else:
                             # Construct input dictionary from incoming edges
