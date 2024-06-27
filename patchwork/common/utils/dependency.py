@@ -9,16 +9,14 @@ __DEPENDENCY_GROUPS = {
 
 @lru_cache(maxsize=None)
 def import_with_dependency_group(name):
-    try:
-        return importlib.import_module(name)
-    except ImportError:
-        error_msg = f"Missing dependency for {name}, please `pip install {name}`"
-        dependency_group = next(
-            (group for group, dependencies in __DEPENDENCY_GROUPS.items() if name in dependencies), None
-        )
-        if dependency_group is not None:
-            error_msg = f"Please `pip install patchwork-cli[{dependency_group}]` to use this step"
-        raise ImportError(error_msg)
+    if name not in __DEPENDENCY_GROUPS:
+        raise ImportError(f"Unknown dependency group for {name}")
+    
+    dependencies = __DEPENDENCY_GROUPS[name]
+    for dependency in dependencies:
+        globals()[dependency] = importlib.import_module(dependency)
+
+    return globals()[name]
 
 
 def chromadb():
