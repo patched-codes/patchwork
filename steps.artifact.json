@@ -1,0 +1,722 @@
+{
+  "AnalyzeImpact": {
+    "inputs": [
+      {
+        "name": "extracted_responses",
+        "required": true,
+        "type": "json"
+      },
+      {
+        "name": "library_name",
+        "required": true,
+        "type": "string"
+      },
+      {
+        "name": "platform_type",
+        "required": true,
+        "type": "string"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "files_to_patch",
+        "required": false,
+        "type": "json"
+      },
+      {
+        "name": "prompt_values",
+        "required": false,
+        "type": "json"
+      }
+    ]
+  },
+  "CallCode2Prompt": {
+    "inputs": [
+      {
+        "name": "filter",
+        "required": false,
+        "type": "string"
+      },
+      {
+        "name": "folder_path",
+        "required": true,
+        "type": "string"
+      },
+      {
+        "name": "suppress_comments",
+        "required": false,
+        "type": "boolean"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "files_to_patch",
+        "required": false,
+        "type": "json"
+      },
+      {
+        "name": "prompt_values",
+        "required": false,
+        "type": "json"
+      }
+    ]
+  },
+  "CallLLM": {
+    "inputs": [
+      {
+        "name": "allow_truncated",
+        "required": true,
+        "type": "boolean"
+      },
+      {
+        "name": "client_args",
+        "required": true,
+        "type": "string"
+      },
+      {
+        "name": "google_api_key",
+        "required": true,
+        "type": "string"
+      },
+      {
+        "name": "model",
+        "required": true,
+        "type": "string"
+      },
+      {
+        "name": "model_args",
+        "required": true,
+        "type": "string"
+      },
+      {
+        "name": "openai_api_key",
+        "required": true,
+        "type": "string"
+      },
+      {
+        "name": "patched_api_key",
+        "required": true,
+        "type": "string"
+      },
+      {
+        "name": "prompt_file",
+        "required": true,
+        "type": "string"
+      },
+      {
+        "name": "prompts",
+        "required": true,
+        "type": "json"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "new_code",
+        "required": false,
+        "type": "json"
+      },
+      {
+        "name": "openai_responses",
+        "required": false,
+        "type": "json"
+      }
+    ]
+  },
+  "CommitChanges": {
+    "inputs": [
+      {
+        "name": "branch_prefix",
+        "required": true,
+        "type": "string"
+      },
+      {
+        "name": "branch_suffix",
+        "required": true,
+        "type": "string"
+      },
+      {
+        "name": "disable_branch",
+        "required": true,
+        "type": "boolean"
+      },
+      {
+        "name": "force_branch_creation",
+        "required": true,
+        "type": "boolean"
+      },
+      {
+        "name": "modified_code_files",
+        "required": true,
+        "type": "json"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "base_branch",
+        "required": false,
+        "type": "string"
+      },
+      {
+        "name": "target_branch",
+        "required": false,
+        "type": "string"
+      }
+    ]
+  },
+  "CreateIssueComment": {
+    "inputs": [
+      {
+        "name": "github_api_key",
+        "required": true,
+        "type": "string"
+      },
+      {
+        "name": "gitlab_api_key",
+        "required": true,
+        "type": "string"
+      },
+      {
+        "name": "issue_text",
+        "required": true,
+        "type": "json"
+      },
+      {
+        "name": "issue_url",
+        "required": true,
+        "type": "string"
+      },
+      {
+        "name": "scm_url",
+        "required": true,
+        "type": "string"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "issue_comment_url",
+        "required": false,
+        "type": "string"
+      }
+    ]
+  },
+  "CreatePR": {
+    "inputs": [
+      {
+        "name": "base_branch",
+        "required": false,
+        "type": "string"
+      },
+      {
+        "name": "disable_pr",
+        "required": false,
+        "type": "boolean"
+      },
+      {
+        "name": "force_pr_creation",
+        "required": false,
+        "type": "boolean"
+      },
+      {
+        "name": "github_api_key",
+        "required": false,
+        "type": "string"
+      },
+      {
+        "name": "gitlab_api_key",
+        "required": false,
+        "type": "string"
+      },
+      {
+        "name": "pr_body",
+        "required": false,
+        "type": "string"
+      },
+      {
+        "name": "pr_title",
+        "required": false,
+        "type": "string"
+      },
+      {
+        "name": "scm_url",
+        "required": false,
+        "type": "string"
+      },
+      {
+        "name": "target_branch",
+        "required": true,
+        "type": "string"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "pr_url",
+        "required": false,
+        "type": "string"
+      }
+    ]
+  },
+  "CreatePRComment": {
+    "inputs": [
+      {
+        "name": "github_api_key",
+        "required": false,
+        "type": "string"
+      },
+      {
+        "name": "gitlab_api_key",
+        "required": false,
+        "type": "string"
+      },
+      {
+        "name": "noisy_comments",
+        "required": false,
+        "type": "boolean"
+      },
+      {
+        "name": "pr_comments",
+        "required": true,
+        "type": "string"
+      },
+      {
+        "name": "pr_url",
+        "required": true,
+        "type": "string"
+      },
+      {
+        "name": "scm_url",
+        "required": false,
+        "type": "string"
+      }
+    ],
+    "outputs": []
+  },
+  "ExtractCode": {
+    "inputs": [
+      {
+        "name": "context_size",
+        "required": false,
+        "type": "number"
+      },
+      {
+        "name": "sarif_values",
+        "required": true,
+        "type": "json"
+      },
+      {
+        "name": "severity",
+        "required": false,
+        "type": "string"
+      },
+      {
+        "name": "vulnerability_limit",
+        "required": false,
+        "type": "number"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "files_to_patch",
+        "required": false,
+        "type": "json"
+      },
+      {
+        "name": "prompt_values",
+        "required": false,
+        "type": "json"
+      }
+    ]
+  },
+  "ExtractDiff": {
+    "inputs": [
+      {
+        "name": "github_api_key",
+        "required": true,
+        "type": "string"
+      },
+      {
+        "name": "libraries_api_key",
+        "required": true,
+        "type": "string"
+      },
+      {
+        "name": "severity",
+        "required": false,
+        "type": "string"
+      },
+      {
+        "name": "update_info",
+        "required": true,
+        "type": "json"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "library_name",
+        "required": false,
+        "type": "string"
+      },
+      {
+        "name": "platform_type",
+        "required": false,
+        "type": "string"
+      },
+      {
+        "name": "prompt_values",
+        "required": false,
+        "type": "json"
+      }
+    ]
+  },
+  "ExtractModelResponse": {
+    "inputs": [
+      {
+        "name": "openai_responses",
+        "required": true,
+        "type": "json"
+      },
+      {
+        "name": "response_partitions",
+        "required": true,
+        "type": "json"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "extracted_responses",
+        "required": false,
+        "type": "json"
+      }
+    ]
+  },
+  "ExtractPackageManagerFile": {
+    "inputs": [
+      {
+        "name": "package_manager_file",
+        "required": false,
+        "type": "string"
+      },
+      {
+        "name": "sbom_vdr_file_path",
+        "required": false,
+        "type": "string"
+      },
+      {
+        "name": "sbom_vdr_values",
+        "required": false,
+        "type": "json"
+      },
+      {
+        "name": "severity",
+        "required": false,
+        "type": "string"
+      },
+      {
+        "name": "upgrade_threshold",
+        "required": false,
+        "type": "string"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "files_to_patch",
+        "required": false,
+        "type": "json"
+      },
+      {
+        "name": "prompt_values",
+        "required": false,
+        "type": "json"
+      }
+    ]
+  },
+  "GenerateCodeRepositoryEmbeddings": {
+    "inputs": [
+      {
+        "name": "disable_cache",
+        "required": false,
+        "type": "boolean"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "documents",
+        "required": false,
+        "type": "string"
+      },
+      {
+        "name": "embedding_name",
+        "required": false,
+        "type": "string"
+      }
+    ]
+  },
+  "GenerateEmbeddings": {
+    "inputs": [
+      {
+        "name": "disable_cache",
+        "required": true,
+        "type": "boolean"
+      },
+      {
+        "name": "documents",
+        "required": true,
+        "type": "json"
+      },
+      {
+        "name": "embedding_name",
+        "required": true,
+        "type": "string"
+      }
+    ],
+    "outputs": []
+  },
+  "ModifyCode": {
+    "inputs": [
+      {
+        "name": "extracted_responses",
+        "required": true,
+        "type": "json"
+      },
+      {
+        "name": "files_to_patch",
+        "required": true,
+        "type": "json"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "modified_code_files",
+        "required": false,
+        "type": "json"
+      }
+    ]
+  },
+  "PreparePR": {
+    "inputs": [
+      {
+        "name": "modified_code_files",
+        "required": true,
+        "type": "json"
+      },
+      {
+        "name": "pr_header",
+        "required": true,
+        "type": "string"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "pr_body",
+        "required": false,
+        "type": "string"
+      }
+    ]
+  },
+  "PreparePrompt": {
+    "inputs": [
+      {
+        "name": "prompt_id",
+        "required": true,
+        "type": "string"
+      },
+      {
+        "name": "prompt_template_file",
+        "required": true,
+        "type": "string"
+      },
+      {
+        "name": "prompt_value_file",
+        "required": true,
+        "type": "string"
+      },
+      {
+        "name": "prompt_values",
+        "required": true,
+        "type": "json"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "prompts",
+        "required": false,
+        "type": "json"
+      }
+    ]
+  },
+  "QueryEmbeddings": {
+    "inputs": [
+      {
+        "name": "embedding_name",
+        "required": true,
+        "type": "string"
+      },
+      {
+        "name": "texts",
+        "required": true,
+        "type": "json"
+      },
+      {
+        "name": "token_limit",
+        "required": true,
+        "type": "number"
+      },
+      {
+        "name": "top_k",
+        "required": true,
+        "type": "number"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "embedding_results",
+        "required": false,
+        "type": "json"
+      }
+    ]
+  },
+  "ReadIssues": {
+    "inputs": [
+      {
+        "name": "github_api_key",
+        "required": true,
+        "type": "string"
+      },
+      {
+        "name": "gitlab_api_key",
+        "required": true,
+        "type": "string"
+      },
+      {
+        "name": "issue_url",
+        "required": true,
+        "type": "string"
+      },
+      {
+        "name": "scm_url",
+        "required": true,
+        "type": "string"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "issue_text",
+        "required": false,
+        "type": "json"
+      }
+    ]
+  },
+  "ReadPRDiffs": {
+    "inputs": [
+      {
+        "name": "github_api_key",
+        "required": true,
+        "type": "string"
+      },
+      {
+        "name": "gitlab_api_key",
+        "required": true,
+        "type": "string"
+      },
+      {
+        "name": "pr_url",
+        "required": true,
+        "type": "string"
+      },
+      {
+        "name": "scm_url",
+        "required": true,
+        "type": "string"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "prompt_value_file",
+        "required": false,
+        "type": "string"
+      },
+      {
+        "name": "prompt_values",
+        "required": false,
+        "type": "json"
+      }
+    ]
+  },
+  "ScanDepscan": {
+    "inputs": [
+      {
+        "name": "language",
+        "required": false,
+        "type": "string"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "sbom_vdr_values",
+        "required": false,
+        "type": "json"
+      }
+    ]
+  },
+  "ScanSemgrep": {
+    "inputs": [
+      {
+        "name": "sarif_file_path",
+        "required": false,
+        "type": "string"
+      },
+      {
+        "name": "sarif_values",
+        "required": false,
+        "type": "json"
+      },
+      {
+        "name": "semgrep_extra_args",
+        "required": false,
+        "type": "json"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "sarif_values",
+        "required": false,
+        "type": "json"
+      }
+    ]
+  },
+  "SlackMessage": {
+    "inputs": [
+      {
+        "name": "slack_channel",
+        "required": true,
+        "type": "string"
+      },
+      {
+        "name": "slack_message_template",
+        "required": false,
+        "type": "string"
+      },
+      {
+        "name": "slack_message_template_file",
+        "required": false,
+        "type": "string"
+      },
+      {
+        "name": "slack_message_values",
+        "required": false,
+        "type": "json"
+      },
+      {
+        "name": "slack_token",
+        "required": true,
+        "type": "string"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "is_slack_message_sent",
+        "required": false,
+        "type": "boolean"
+      }
+    ]
+  }
+}
