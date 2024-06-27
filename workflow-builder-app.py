@@ -1,13 +1,14 @@
 import sys
 import json
-from PyQt6.QtWidgets import (QApplication, QMainWindow, QGraphicsView, QGraphicsScene, 
-                             QGraphicsItem, QGraphicsRectItem, QGraphicsTextItem, 
+from PyQt6.QtWidgets import (QApplication, QMainWindow, QGraphicsView, QGraphicsScene, QDialog, 
+                             QGraphicsItem, QGraphicsRectItem, QGraphicsTextItem, QComboBox,
                              QGraphicsLineItem, QWidget, QHBoxLayout, QVBoxLayout, 
                              QListWidget, QPushButton, QInputDialog, QMessageBox, QLabel,
                              QStatusBar, QScrollArea, QLineEdit, QFormLayout, QFileDialog)
 from PyQt6.QtCore import Qt, QRectF
 from PyQt6.QtGui import QPen, QColor, QBrush, QPainter, QFont
 import networkx as nx
+from networkx.exception import NetworkXError
 
 class Step(QGraphicsRectItem):
     def __init__(self, name, id, inputs, outputs, x, y, color=QColor(200, 255, 200)):
@@ -46,10 +47,11 @@ class Step(QGraphicsRectItem):
             painter.drawRect(self.boundingRect())
 
 class Edge(QGraphicsLineItem):
-    def __init__(self, source, target):
+    def __init__(self, source, target, mapping=None):
         super().__init__()
         self.source = source
         self.target = target
+        self.mapping = mapping or {}
         self.setPen(QPen(Qt.GlobalColor.white, 2))
         self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsSelectable)
         self.setZValue(0)
@@ -84,8 +86,8 @@ class WorkflowScene(QGraphicsScene):
         if name not in self.step_counter:
             self.step_counter[name] = 0
         self.step_counter[name] += 1
-        id = self.step_counter[name]
-        step = Step(name, id, data['inputs'], data['outputs'], x, y)
+        i = self.step_counter[name]
+        step = Step(name, i, data['inputs'], data['outputs'], x, y)
         self.addItem(step)
         self.steps[step.unique_name] = step
         self.graph.add_node(step.unique_name)
@@ -123,15 +125,7 @@ class WorkflowScene(QGraphicsScene):
                 self.main_window.clear_io_display()
                 self.main_window.update_status(f"Step '{clicked_item.unique_name}' unselected")
             else:
-                if self.validate_connection(self.selected_step, clicked_item):
-                    edge = Edge(self.selected_step, clicked_item)
-                    self.addItem(edge)
-                    self.edges.append(edge)
-                    self.graph.add_edge(self.selected_step.unique_name, clicked_item.unique_name)
-                    self.main_window.update_status(f"Edge created: {self.selected_step.unique_name} -> {clicked_item.unique_name}")
-                else:
-                    self.main_window.update_status("Invalid connection: Output types don't match input types")
-                
+                self.create_edge(self.selected_step, clicked_item)
                 self.selected_step = None
                 self.main_window.clear_io_display()
         elif isinstance(clicked_item, Edge):
@@ -145,11 +139,72 @@ class WorkflowScene(QGraphicsScene):
 
         self.update()
         super().mousePressEvent(event)
-
+    
+    def create_edge(self, source, target):
+        if self.validate_connection(source, target):
+            edge = Edge(source, target)
+            self.addItem(edge)
+            self.edges.append(edge)
+            self.graph.add_edge(source.unique_name, target.unique_name)
+            self.main_window.update_status(f"Edge created: {source.unique_name} -> {target.unique_name}")
+        else:
+            dialog = InputOutputMappingDialog(source.outputs, target.inputs)
+            if dialog.exec() == QDialog.DialogCode.Accepted:
+                mapping = dialog.get_mapping()
+                if mapping:
+                    edge = Edge(source, target, mapping)
+                    self.addItem(edge)
+                    self.edges.append(edge)
+                    self.graph.add_edge(source.unique_name, target.unique_name, mapping=mapping)
+                    self.main_window.update_status(f"Edge created with custom mapping: {source.unique_name} -> {target.unique_name}")
+                else:
+                    self.main_window.update_status("No mapping selected, edge not created")
+            else:
+                self.main_window.update_status("Edge creation cancelled")
+    
+    def validate_connection(self, source, target):
+        source_outputs = {output['name']: output['type'] for output in source.outputs}
+        target_inputs = {input['name']: input['type'] for input in target.inputs}
+        
+        for input_name, input_type in target_inputs.items():
+            if input_name in source_outputs and source_outputs[input_name] == input_type:
+                return True
+        return False
+                    
     def mouseMoveEvent(self, event):
         super().mouseMoveEvent(event)
         for edge in self.edges:
             edge.update_position()
+
+    def remove_edge(self, edge):
+        print(f"Removing edge: {edge}")
+        self.removeItem(edge)
+        self.edges.remove(edge)
+        try:
+            self.graph.remove_edge(edge.source.unique_name, edge.target.unique_name)
+        except NetworkXError:
+            print(f"Warning: Edge {edge.source.unique_name}-{edge.target.unique_name} not found in graph")
+
+    def remove_step(self, step):
+        print(f"Removing step: {step.unique_name}")
+        
+        # Remove all edges connected to this step
+        edges_to_remove = [edge for edge in self.edges if edge.source == step or edge.target == step]
+        for edge in edges_to_remove:
+            self.remove_edge(edge)
+        
+        # Remove the step from the scene and the steps dictionary
+        self.removeItem(step)
+        del self.steps[step.unique_name]
+        
+        # Remove the node from the graph
+        if step.unique_name in self.graph:
+            self.graph.remove_node(step.unique_name)
+        else:
+            print(f"Warning: Node {step.unique_name} not found in graph")
+
+        # Update the scene
+        self.update()
 
     def keyPressEvent(self, event):
         print(f"Key pressed: {event.key()}")
@@ -165,34 +220,61 @@ class WorkflowScene(QGraphicsScene):
             self.main_window.clear_io_display()
             self.update()
         super().keyPressEvent(event)
-
-    def remove_edge(self, edge):
-        print(f"Removing edge: {edge}")
-        self.removeItem(edge)
-        self.edges.remove(edge)
-        self.graph.remove_edge(edge.source.unique_name, edge.target.unique_name)
-
-    def remove_step(self, step):
-        print(f"Removing step: {step.unique_name}")
-        edges_to_remove = [edge for edge in self.edges if edge.source == step or edge.target == step]
-        for edge in edges_to_remove:
-            self.remove_edge(edge)
         
-        self.removeItem(step)
-        del self.steps[step.unique_name]
-        self.graph.remove_node(step.unique_name)
-
-    def validate_connection(self, source, target):
-        source_outputs = {output['name']: output['type'] for output in source.outputs}
-        target_inputs = {input['name']: input['type'] for input in target.inputs}
-        
-        for input_name, input_type in target_inputs.items():
-            if input_name in source_outputs and source_outputs[input_name] == input_type:
-                return True
-        return False
-    
     def get_workflow_order(self):
         return list(nx.topological_sort(self.graph))
+
+class InputOutputMappingDialog(QDialog):
+    def __init__(self, source_outputs, target_inputs):
+        super().__init__()
+        self.source_outputs = source_outputs
+        self.target_inputs = target_inputs
+        self.mapping = {}
+        self.initUI()
+
+    def initUI(self):
+        self.setWindowTitle("Map Outputs to Inputs")
+        layout = QVBoxLayout()
+
+        scroll_area = QScrollArea()
+        scroll_widget = QWidget()
+        scroll_layout = QVBoxLayout()
+
+        for output in self.source_outputs:
+            row_layout = QHBoxLayout()
+            output_label = QLabel(f"{output['name']} ({output['type']})")
+            row_layout.addWidget(output_label)
+
+            input_combo = QComboBox()
+            input_combo.addItem("None")
+            for input in self.target_inputs:
+                if input['type'] == output['type']:
+                    input_combo.addItem(f"{input['name']} ({input['type']})")
+            input_combo.currentTextChanged.connect(lambda text, output=output['name']: self.update_mapping(output, text))
+            row_layout.addWidget(input_combo)
+
+            scroll_layout.addLayout(row_layout)
+
+        scroll_widget.setLayout(scroll_layout)
+        scroll_area.setWidget(scroll_widget)
+        scroll_area.setWidgetResizable(True)
+        layout.addWidget(scroll_area)
+
+        map_button = QPushButton("Map")
+        map_button.clicked.connect(self.accept)
+        layout.addWidget(map_button)
+
+        self.setLayout(layout)
+
+    def update_mapping(self, output, input_text):
+        if input_text != "None":
+            input_name = input_text.split(" (")[0]
+            self.mapping[output] = input_name
+        elif output in self.mapping:
+            del self.mapping[output]
+
+    def get_mapping(self):
+        return self.mapping
 
 class WorkflowView(QGraphicsView):
     def __init__(self, scene):
@@ -216,6 +298,7 @@ class MainWindow(QMainWindow):
         self.current_step = None
         self.temp_input_values = {}
         self.initUI()
+        self.is_closing = False
 
     def initUI(self):
         self.setWindowTitle("Workflow Builder")
@@ -232,6 +315,12 @@ class MainWindow(QMainWindow):
         self.step_list.addItems(self.steps_data.keys())
         self.step_list.itemClicked.connect(self.add_step_to_canvas)
         left_layout.addWidget(self.step_list)
+
+        # Add "Add Step" button
+        add_step_button = QPushButton("Add Step")
+        add_step_button.clicked.connect(self.add_composite_step)
+        left_layout.addWidget(add_step_button)
+
         left_widget.setLayout(left_layout)
 
         middle_widget = QWidget()
@@ -297,49 +386,143 @@ class MainWindow(QMainWindow):
 
     def update_status(self, message):
         self.status_bar.showMessage(message)
+        
+    def add_composite_step(self):
+        filename, _ = QFileDialog.getOpenFileName(self, "Load Workflow", "", "JSON Files (*.json)")
+        if filename:
+            try:
+                with open(filename, 'r') as f:
+                    workflow_data = json.load(f)
+
+                step_name = filename.split('/')[-1].split('_')[0]  # Extract name from filename
+                inputs, outputs = self.process_workflow_for_composite_step(workflow_data)
+
+                # Collect all user-assigned inputs from the workflow
+                user_assigned_inputs = {}
+                for step_data in workflow_data['steps'].values():
+                    user_assigned_inputs.update(step_data.get('user_assigned_inputs', {}))
+
+                # Add the new step to steps_data
+                self.steps_data[step_name] = {
+                    'inputs': inputs,
+                    'outputs': outputs,
+                    'composite': True,
+                    'workflow_data': workflow_data,
+                    'user_assigned_inputs': user_assigned_inputs  # Include user-assigned inputs
+                }
+
+                # Add the new step to the list widget
+                self.step_list.addItem(step_name)
+
+                QMessageBox.information(self, "Step Added", f"Composite step '{step_name}' added successfully.")
+            except Exception as e:
+                QMessageBox.critical(self, "Error", f"Failed to add composite step: {str(e)}")
+
+    def process_workflow_for_composite_step(self, workflow_data):
+        graph = nx.DiGraph()
+        
+        # Add nodes and edges to the graph
+        for step_name, step_data in workflow_data['steps'].items():
+            graph.add_node(step_name, **step_data)
+        
+        for edge in workflow_data['edges']:
+            graph.add_edge(edge['source'], edge['target'], mapping=edge.get('mapping', {}))
+
+        # Identify inputs (nodes with no incoming edges or unmapped inputs)
+        inputs = []
+        for node in graph.nodes():
+            node_data = graph.nodes[node]
+            for input_data in node_data['inputs']:
+                input_name = input_data['name']
+                # Check if the input is not user-assigned and not connected to any other node's output
+                if (input_name not in node_data.get('user_assigned_inputs', {}) and
+                    not any(edge['mapping'].get(input_name) for _, _, edge in graph.in_edges(node, data=True))):
+                    inputs.append(input_data)
+
+        # Identify outputs (nodes with no outgoing edges)
+        outputs = []
+        for node in graph.nodes():
+            if not any(graph.out_edges(node)):
+                outputs.extend(graph.nodes[node]['outputs'])
+
+        return inputs, outputs
 
     def add_step_to_canvas(self, item):
         step_name = item.text()
         step_data = self.steps_data[step_name]
         x = 200 + (len(self.scene.steps) % 3) * 200
         y = 100 + (len(self.scene.steps) // 3) * 150
-        self.scene.add_step(step_name, step_data, x, y)
+        
+        if step_data.get('composite', False):
+            # For composite steps, we need to create a special kind of step
+            self.add_composite_step_to_canvas(step_name, step_data, x, y)
+        else:
+            self.scene.add_step(step_name, step_data, x, y)
+
+    def add_composite_step_to_canvas(self, step_name, step_data, x, y):
+        # Create a special kind of step for composite workflows
+        composite_step = Step(step_name, len(self.scene.steps) + 1, step_data['inputs'], step_data['outputs'], x, y)
+        composite_step.composite = True
+        composite_step.workflow_data = step_data['workflow_data']
+        
+        self.scene.addItem(composite_step)
+        self.scene.steps[composite_step.unique_name] = composite_step
+        self.scene.graph.add_node(composite_step.unique_name)
+        
+    def closeEvent(self, event):
+        self.is_closing = True
+        super().closeEvent(event)
 
     def update_io_display(self):
+        if self.is_closing:
+            return
+
         # Clear previous form layout
         while self.io_form_layout.rowCount() > 0:
             self.io_form_layout.removeRow(0)
 
-        selected_items = self.scene.selectedItems()
-        if len(selected_items) == 1 and isinstance(selected_items[0], Step):
-            step = selected_items[0]
-            self.current_step = step
-            self.temp_input_values = {}  # Reset temporary values
-            
-            self.io_form_layout.addRow(QLabel(f"Node: {step.unique_name}"))
-            self.io_form_layout.addRow(QLabel("Inputs:"))
-
-            for input_data in step.inputs:
-                input_name = input_data['name']
-                input_type = input_data['type']
-                input_value = self.get_input_value(step, input_name)
+        try:
+            selected_items = self.scene.selectedItems()
+            if len(selected_items) == 1 and isinstance(selected_items[0], Step):
+                step = selected_items[0]
+                self.current_step = step
+                self.temp_input_values = {}  # Reset temporary values
                 
-                input_field = QLineEdit(input_value)
-                input_field.setPlaceholderText(f"Type: {input_type}")
-                input_field.textChanged.connect(lambda text, n=input_name: self.update_temp_input_value(n, text))
-                
-                self.io_form_layout.addRow(f"{input_name}:", input_field)
+                self.io_form_layout.addRow(QLabel(f"Node: {step.unique_name}"))
+                self.io_form_layout.addRow(QLabel("Inputs:"))
 
-            self.io_form_layout.addRow(QLabel("Outputs:"))
-            for output in step.outputs:
-                self.io_form_layout.addRow(f"{output['name']} ({output['type']})", QLabel(""))
+                for input_data in step.inputs:
+                    input_name = input_data['name']
+                    input_type = input_data['type']
+                    input_value = self.get_input_value(step, input_name)
+                    
+                    input_field = QLineEdit(input_value)
+                    input_field.setPlaceholderText(f"Type: {input_type}")
+                    input_field.textChanged.connect(lambda text, n=input_name: self.update_temp_input_value(n, text))
+                    
+                    self.io_form_layout.addRow(f"{input_name}:", input_field)
 
-            self.save_button.setEnabled(True)
-        else:
-            self.current_step = None
-            self.save_button.setEnabled(False)
+                self.io_form_layout.addRow(QLabel("Outputs:"))
+                for output in step.outputs:
+                    self.io_form_layout.addRow(f"{output['name']} ({output['type']})", QLabel(""))
 
-        self.io_form.adjustSize()
+                # Display mappings
+                self.io_form_layout.addRow(QLabel("Mappings:"))
+                incoming_edges = self.scene.graph.in_edges(step.unique_name, data=True)
+                for source, target, edge_data in incoming_edges:
+                    if 'mapping' in edge_data:
+                        for src, tgt in edge_data['mapping'].items():
+                            self.io_form_layout.addRow(f"{source} -> {src}:", QLabel(tgt))
+
+                self.save_button.setEnabled(True)
+            else:
+                self.current_step = None
+                self.save_button.setEnabled(False)
+
+            self.io_form.adjustSize()
+        except RuntimeError:
+            # If we get here, it means the scene has been deleted
+            pass
 
     def get_input_value(self, step, input_name):
         # First, check if there's a user-assigned value
@@ -347,12 +530,12 @@ class MainWindow(QMainWindow):
             return step.user_assigned_inputs[input_name]
         
         # If not, check for connected inputs
-        incoming_edges = self.scene.graph.in_edges(step.unique_name)
-        for source, target in incoming_edges:
-            source_step = self.scene.steps[source]
-            for output in source_step.outputs:
-                if output['name'] == input_name:
-                    return f"From: {source_step.unique_name}.{output['name']}"
+        incoming_edges = self.scene.graph.in_edges(step.unique_name, data=True)
+        for source, target, edge_data in incoming_edges:
+            if 'mapping' in edge_data:
+                for src, tgt in edge_data['mapping'].items():
+                    if tgt == input_name:
+                        return f"From: {self.scene.steps[source].unique_name}.{src}"
         return ""
 
     def update_temp_input_value(self, input_name, value):
@@ -442,10 +625,12 @@ class MainWindow(QMainWindow):
             }
 
         for edge in self.scene.edges:
-            workflow_data['edges'].append({
+            edge_data = {
                 'source': edge.source.unique_name,
-                'target': edge.target.unique_name
-            })
+                'target': edge.target.unique_name,
+                'mapping': edge.mapping
+            }
+            workflow_data['edges'].append(edge_data)
 
         return workflow_data
 
@@ -466,10 +651,11 @@ class MainWindow(QMainWindow):
         for edge_data in workflow_data['edges']:
             source_step = self.scene.steps[edge_data['source']]
             target_step = self.scene.steps[edge_data['target']]
-            edge = Edge(source_step, target_step)
+            mapping = edge_data.get('mapping', {})
+            edge = Edge(source_step, target_step, mapping)
             self.scene.addItem(edge)
             self.scene.edges.append(edge)
-            self.scene.graph.add_edge(edge_data['source'], edge_data['target'])
+            self.scene.graph.add_edge(edge_data['source'], edge_data['target'], mapping=mapping)
 
         self.scene.update()
         self.view.update()
@@ -537,8 +723,8 @@ class MainWindow(QMainWindow):
                     f.write("        inputs = self.inputs.copy()\n")
                     
                     for step in workflow_order:
-                        step_name, step_id = step.rsplit('_', 1)
-                        incoming_edges = list(self.scene.graph.in_edges(step))
+                        step_name, _ = step.rsplit('_', 1)
+                        incoming_edges = list(self.scene.graph.in_edges(step, data=True))
                         
                         if not incoming_edges:
                             # No incoming edges, use self.inputs
@@ -546,10 +732,15 @@ class MainWindow(QMainWindow):
                         else:
                             # Construct input dictionary from incoming edges
                             input_dict = {}
-                            for source, _ in incoming_edges:
+                            for source, _, edge_data in incoming_edges:
                                 source_obj = self.scene.steps[source]
+                                mapping = edge_data.get('mapping', {})
                                 for output in source_obj.outputs:
-                                    input_dict[output['name']] = f"outputs_{source}['{output['name']}']"
+                                    if mapping:
+                                        if output['name'] in mapping:
+                                            input_dict[mapping[output['name']]] = f"outputs_{source}['{output['name']}']"
+                                    else:
+                                        input_dict[output['name']] = f"outputs_{source}['{output['name']}']"
                             
                             input_str = ", ".join(f"'{k}': {v}" for k, v in input_dict.items())
                             f.write(f"        step_inputs = {{**inputs, {input_str}}}\n")
@@ -558,12 +749,19 @@ class MainWindow(QMainWindow):
                     # Determine the final outputs
                     final_steps = [step for step in workflow_order if not list(self.scene.graph.out_edges(step))]
                     final_outputs = {}
+                    has_outputs = False
                     for step in final_steps:
-                        for output in self.scene.steps[step].outputs:
-                            final_outputs[output['name']] = f"outputs_{step}['{output['name']}']"
-                    
-                    final_outputs_str = ", ".join(f"'{k}': {v}" for k, v in final_outputs.items())
-                    f.write(f"        final_outputs = {{**inputs, {final_outputs_str}}}\n")
+                        step_obj = self.scene.steps[step]
+                        if step_obj.outputs:
+                            has_outputs = True
+                            for output in step_obj.outputs:
+                                final_outputs[output['name']] = f"outputs_{step}['{output['name']}']"
+
+                    if has_outputs:
+                        final_outputs_str = ", ".join(f"'{k}': {v}" for k, v in final_outputs.items())
+                        f.write(f"        final_outputs = {{**inputs, {final_outputs_str}}}\n")
+                    else:
+                        f.write("        final_outputs = inputs\n")
                     f.write("        return final_outputs\n")
                 
                 if missing_required_inputs:
@@ -573,8 +771,7 @@ class MainWindow(QMainWindow):
                     QMessageBox.information(self, "Export Successful", f"Workflow exported to {filename}")
             except Exception as e:
                 QMessageBox.critical(self, "Export Failed", f"Failed to export workflow: {str(e)}")
-
-
+                
 if __name__ == "__main__":
     with open("steps.artifact.json", "r") as f:
         steps_data = json.load(f)
