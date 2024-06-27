@@ -6,13 +6,11 @@ import json
 import traceback
 from collections import deque
 from pathlib import Path
-from types import ModuleType
 from typing import Any
 
 import click
 import yaml
 from click import echo
-from git import Repo
 from typing_extensions import Iterable
 
 from patchwork.common.client.patched import PatchedClient

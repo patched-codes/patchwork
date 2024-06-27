@@ -1,13 +1,7 @@
-from types import ModuleType
-
 import pytest
-import os
-from patchwork.app import cli, find_patchflow, _get_patchflow_names
-
-import click
-import yaml
-from patchwork.app import list_option_callback
 from click.testing import CliRunner
+
+from patchwork.app import cli, find_patchflow
 
 
 @pytest.fixture
@@ -47,23 +41,28 @@ def runner():
 
 
 def test_default_list_option_callback(runner):
-    result = runner.invoke(cli, ['--list'])
+    result = runner.invoke(cli, ["--list"])
     assert result.exit_code == 0
-    assert result.output.strip() == """\
+    assert (
+        result.output.strip()
+        == """\
 AutoFix
 DependencyUpgrade
 GenerateDocstring
 GenerateREADME
 PRReview
 ResolveIssue"""
+    )
 
 
 def test_config_list_option_callback(runner, config_dir, patchflow_file):
     filename = patchflow_file.name
-    name_without_ext = filename.replace(patchflow_file.suffix, '')
-    result = runner.invoke(cli, ['--list', '--config', str(config_dir)])
+    name_without_ext = filename.replace(patchflow_file.suffix, "")
+    result = runner.invoke(cli, ["--list", "--config", str(config_dir)])
     assert result.exit_code == 0
-    assert result.output.strip() == f"""\
+    assert (
+        result.output.strip()
+        == f"""\
 AutoFix
 DependencyUpgrade
 GenerateDocstring
@@ -71,6 +70,7 @@ GenerateREADME
 PRReview
 ResolveIssue
 {name_without_ext}"""
+    )
 
 
 def test_cli_success(runner, config_dir, patchflow_file):
@@ -83,13 +83,13 @@ class noop:
 """
     patchflow_file.write_text(code)
 
-    result = runner.invoke(cli, ['noop', '--config', str(config_dir)])
+    result = runner.invoke(cli, ["noop", "--config", str(config_dir)])
 
     assert result.exit_code == 0
 
 
 def test_cli_failure(runner):
-    result = runner.invoke(cli, ['noop', '--config', 'nonexistent'])
+    result = runner.invoke(cli, ["noop", "--config", "nonexistent"])
     assert result.exit_code == 2
 
 

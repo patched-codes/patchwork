@@ -12,20 +12,6 @@ from patchwork.logger import logger
 from patchwork.step import Step
 
 
-def get_slug_from_remote_url(remote_url: str) -> str:
-    # TODO: consider using https://github.com/nephila/giturlparse instead
-    if remote_url.startswith("git@"):
-        # ssh
-        _, _, potential_slug = remote_url.partition(":")
-    else:
-        potential_slug = "/".join(remote_url.split("/")[-2:])
-
-    if potential_slug.endswith(".git"):
-        potential_slug = potential_slug[:-4]
-
-    return potential_slug
-
-
 @contextlib.contextmanager
 def transitioning_branches(
     repo: Repo, branch_prefix: str, branch_suffix: str = "", force: bool = True
