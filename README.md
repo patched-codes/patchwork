@@ -19,10 +19,6 @@
 
 </div>
 
-
-_⭐ As part of [Github Constellation](https://githubconstellation.com) community, Patched is contributing INR 100 (USD 1.25) to open-source projects for every new star the patchwork repository receives in June.
-Join us in giving back to the open source community that we have all benefited from!_
-
 # PatchWork
 
 An open-source framework for automating development chores using large language models. PatchWork allows you to automate workflows like PR reviews, bug fixing, security patching, and more using a self-hosted CLI agent and your preferred LLMs.
@@ -51,9 +47,10 @@ pip install 'patchwork-cli[all]' --upgrade
 
 The following optional dependency groups are available.
 
-- `security`: Installs `Semgrep` and `Depscan` with `pip install 'patchwork-cli[security]'` and is required for `AutoFix` and `DependencyUpgrade` patchflows.
-- `rag`: Installs `chromadb` with `pip install 'patchwork-cli[rag]'` and is required for the `ResolveIssue` patchflow.
-- `all`: Installs everything.
+- security: installs semgrep and depscan with `pip install 'patchwork-cli[security]'` and is required for **AutoFix** and **DependencyUpgrade** patchflows.
+- rag: installs chromadb with `pip install 'patchwork-cli[rag]'` and is required for the **ResolveIssue** patchflow.
+- all: installs everything.
+- not specifying any dependency group (`pip install patchwork-cli`) will install a core set of dependencies that are sufficient to run the **GenerateDocstring**, **PRReview** and **GenerateREADME** patchflows.
 
 ### Using Poetry
 
@@ -136,8 +133,8 @@ Contributions for new patchflows and steps, or even to the core framework are we
 
 We also provide chat assistants to help you create new steps and patchflows easily. Fair warning: they suffer from the same limitations as their underlying model.
 
-- [Patchwork Assistant GPT](https://chatgpt.com/g/g-0G4sCAd2y-patchwork-assistant) (requires ChatGPT pro subscription)
-- [Patchwork Assistant on HuggingChat ](https://hf.co/chat/assistant/66322701fd4787e0c1f7696b) (free)
+- [Patchwork Assistant GPT](https://chatgpt.com/g/g-0G4sCAd2y-patchwork-assistant) (based on GPT-4)
+- [Patchwork Assistant on HuggingChat ](https://hf.co/chat/assistant/66322701fd4787e0c1f7696b) (based on Llama-3)
 
 ## Roadmap
 
