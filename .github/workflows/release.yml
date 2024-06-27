@@ -41,48 +41,55 @@ jobs:
       - name: Deploy to test-pypi
         id: "publish-to-test-pypi"
         run: |
+          VERSION=${{ github.ref_name }}
+          poetry version ${VERSION:1}
           poetry config repositories.test "https://test.pypi.org/legacy/"
-          poetry publish --skip-existing --build --repository test --username '__token__' --password ${{ secrets.TEST_PYPI_PASSWORD }}
+          poetry version
+#          poetry publish --skip-existing --build --repository test --username '__token__' --password ${{ secrets.TEST_PYPI_PASSWORD }}
 
       - name: Deploy to pypi
         id: "publish-to-pypi"
         if: steps.publish-to-test-pypi.outcome == 'success'
-        run: poetry publish --skip-existing --username '__token__' --password ${{ secrets.PYPI_PASSWORD }}
+        run: |
+          VERSION=${{ github.ref_name }}
+          poetry version ${VERSION:1}
+          poetry version
+#          poetry publish --skip-existing --username '__token__' --password ${{ secrets.PYPI_PASSWORD }}
 
-      - name: Store the distribution packages
-        uses: actions/upload-artifact@v3
-        if: steps.publish-to-pypi.outcome == 'success'
-        with:
-          name: python-package-distributions
-          path: dist/
-
-  github-release:
-    needs:
-      - publish-to-pypi
-    runs-on: ubuntu-latest
-
-    permissions:
-      contents: write
-      id-token: write
-
-    steps:
-      - name: Download all the dists
-        uses: actions/download-artifact@v3
-        with:
-          name: python-package-distributions
-          path: dist/
-
-      - name: Sign the dists with Sigstore
-        uses: sigstore/gh-action-sigstore-python@v2.1.1
-        with:
-          inputs: >-
-            ./dist/*.tar.gz
-            ./dist/*.whl
-
-      - name: Upload artifact signatures to GitHub Release
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        run: >-
-          gh release upload
-          '${{ github.ref_name }}' dist/**
-          --repo '${{ github.repository }}'
+#      - name: Store the distribution packages
+#        uses: actions/upload-artifact@v3
+#        if: steps.publish-to-pypi.outcome == 'success'
+#        with:
+#          name: python-package-distributions
+#          path: dist/
+#
+#  github-release:
+#    needs:
+#      - publish-to-pypi
+#    runs-on: ubuntu-latest
+#
+#    permissions:
+#      contents: write
+#      id-token: write
+#
+#    steps:
+#      - name: Download all the dists
+#        uses: actions/download-artifact@v3
+#        with:
+#          name: python-package-distributions
+#          path: dist/
+#
+#      - name: Sign the dists with Sigstore
+#        uses: sigstore/gh-action-sigstore-python@v2.1.1
+#        with:
+#          inputs: >-
+#            ./dist/*.tar.gz
+#            ./dist/*.whl
+#
+#      - name: Upload artifact signatures to GitHub Release
+#        env:
+#          GITHUB_TOKEN: ${{ github.token }}
+#        run: >-
+#          gh release upload
+#          '${{ github.ref_name }}' dist/**
+#          --repo '${{ github.repository }}'
