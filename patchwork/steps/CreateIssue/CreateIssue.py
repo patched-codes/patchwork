@@ -1,7 +1,12 @@
+from pathlib import Path
+
+import git
+
 from patchwork.common.client.scm import (
     GithubClient,
     GitlabClient,
-    ScmPlatformClientProtocol, get_slug_from_remote_url,
+    ScmPlatformClientProtocol,
+    get_slug_from_remote_url,
 )
 from patchwork.logger import logger
 from patchwork.step import Step
@@ -29,12 +34,8 @@ class CreateIssue(Step):
         self.issue_title = inputs["issue_title"]
         self.issue_text = inputs["issue_text"]
 
-
     def run(self) -> dict:
         repo = git.Repo(Path.cwd(), search_parent_directories=True)
-
-        if not self.enabled:
-            return dict()
 
         original_remote_name = "origin"
         original_remote_url = repo.remotes[original_remote_name].url
