@@ -1,9 +1,12 @@
 name: Build
 
 on:
-  push:
-    tags:
-      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        type: string
+        description: "Version name"
+        required: true
 
 
 jobs:
@@ -41,8 +44,7 @@ jobs:
       - name: Deploy to test-pypi
         id: "publish-to-test-pypi"
         run: |
-          VERSION=${{ github.ref_name }}
-          poetry version ${VERSION:1}
+          poetry version ${{ github.event.inputs.version }}
           poetry config repositories.test "https://test.pypi.org/legacy/"
           poetry publish --build --repository test --username '__token__' --password ${{ secrets.TEST_PYPI_PASSWORD }}
 
@@ -50,9 +52,8 @@ jobs:
         id: "publish-to-pypi"
         if: steps.publish-to-test-pypi.outcome == 'success'
         run: |
-          VERSION=${{ github.ref_name }}
-          poetry version ${VERSION:1}
-          poetry publish --username '__token__' --password ${{ secrets.PYPI_PASSWORD }}
+          poetry version ${{ github.event.inputs.version }}
+          poetry publish --skip-existing --username '__token__' --password ${{ secrets.PYPI_PASSWORD }}
 
       - name: Store the distribution packages
         uses: actions/upload-artifact@v3
