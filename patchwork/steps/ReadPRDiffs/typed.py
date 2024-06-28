@@ -11,7 +11,6 @@ class ReadPRDiffsInputs(TypedDict):
 
 
 class ReadPRDiffsOutputs(TypedDict):
-    prompt_value_file: str
     prompt_values: list["Diff"]
 
 

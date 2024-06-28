@@ -25,6 +25,10 @@ from patchwork.steps.ReadIssues.ReadIssues import ReadIssues
 from patchwork.steps.ReadPRDiffs.ReadPRDiffs import ReadPRDiffs
 from patchwork.steps.ScanDepscan.ScanDepscan import ScanDepscan
 from patchwork.steps.ScanSemgrep.ScanSemgrep import ScanSemgrep
+from patchwork.steps.LLM.LLM import LLM
+from patchwork.steps.PR.PR import PR
+from patchwork.steps.SlackMessage.SlackMessage import SlackMessage
+from patchwork.steps.CallAPI.CallAPI import CallAPI
 
 __all__ = [
     "AnalyzeImpact",
@@ -48,4 +52,8 @@ __all__ = [
     "ReadPRDiffs",
     "ScanDepscan",
     "ScanSemgrep",
+    "LLM",
+    "PR",
+    "SlackMessage",
+    "CallAPI"
 ]

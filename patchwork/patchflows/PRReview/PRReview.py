@@ -10,7 +10,7 @@ from patchwork.steps import (
     ExtractModelResponse,
     PreparePR,
     PreparePrompt,
-    ReadPRDiffs,
+    ReadPRDiffs, LLM,
 )
 
 _DEFAULT_PROMPT_JSON = Path(__file__).parent / "pr_review_prompt.json"
@@ -70,11 +70,7 @@ class PRReview(Step):
             "summary": ["A. Summary:", ""],
             "suggestion": ["B. Suggestion:", "A. Summary:"],
         }
-        outputs = PreparePrompt(self.inputs).run()
-        self.inputs.update(outputs)
-        outputs = CallLLM(self.inputs).run()
-        self.inputs.update(outputs)
-        outputs = ExtractModelResponse(self.inputs).run()
+        outputs = LLM(self.inputs).run()
         self.inputs.update(outputs)
 
         summaries = []

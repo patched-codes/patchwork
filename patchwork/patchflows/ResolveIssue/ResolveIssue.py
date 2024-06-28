@@ -15,7 +15,7 @@ from patchwork.steps import (
     PreparePR,
     PreparePrompt,
     QueryEmbeddings,
-    ReadIssues,
+    ReadIssues, LLM, PR,
 )
 
 _DEFAULT_INPUT_FILE = Path(__file__).parent / "defaults.yml"
@@ -103,11 +103,7 @@ The following files in the repository may be relevant to the issue:
         self.inputs["response_partitions"] = {
             "patch": ["Fixed Code:", "```", "\n", "```"],
         }
-        outputs = PreparePrompt(self.inputs).run()
-        self.inputs.update(outputs)
-        outputs = CallLLM(self.inputs).run()
-        self.inputs.update(outputs)
-        outputs = ExtractModelResponse(self.inputs).run()
+        outputs = LLM(self.inputs).run()
         self.inputs.update(outputs)
 
         # Modify code files with the suggested changes
@@ -116,11 +112,7 @@ The following files in the repository may be relevant to the issue:
 
         # Commit changes and create PR
         self.inputs["pr_header"] = f'This pull request from patchwork fixes {self.inputs["issue_url"]}.'
-        outputs = CommitChanges(self.inputs).run()
-        self.inputs.update(outputs)
-        outputs = PreparePR(self.inputs).run()
-        self.inputs.update(outputs)
-        outputs = CreatePR(self.inputs).run()
+        outputs = PR(self.inputs).run()
         self.inputs.update(outputs)
 
         return self.inputs

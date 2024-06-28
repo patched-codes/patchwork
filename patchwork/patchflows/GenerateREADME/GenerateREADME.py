@@ -12,7 +12,7 @@ from patchwork.steps import (
     ExtractModelResponse,
     ModifyCode,
     PreparePR,
-    PreparePrompt,
+    PreparePrompt, LLM, PR,
 )
 
 _DEFAULT_PROMPT_JSON = Path(__file__).parent / "generate_readme_prompt.json"
@@ -58,22 +58,14 @@ class GenerateREADME(Step):
 
         self.inputs["prompt_values"] = self.inputs.get("files_to_patch", [])
         self.inputs["response_partitions"] = {"patch": []}
-        outputs = PreparePrompt(self.inputs).run()
-        self.inputs.update(outputs)
-        outputs = CallLLM(self.inputs).run()
-        self.inputs.update(outputs)
-        outputs = ExtractModelResponse(self.inputs).run()
+        outputs = LLM(self.inputs).run()
         self.inputs.update(outputs)
         outputs = ModifyCode(self.inputs).run()
         self.inputs.update(outputs)
 
         number = len(self.inputs["modified_code_files"])
         self.inputs["pr_header"] = f"This pull request from patchwork adds {number} READMEs."
-        outputs = CommitChanges(self.inputs).run()
-        self.inputs.update(outputs)
-        outputs = PreparePR(self.inputs).run()
-        self.inputs.update(outputs)
-        outputs = CreatePR(self.inputs).run()
+        outputs = PR(self.inputs).run()
         self.inputs.update(outputs)
 
         return self.inputs

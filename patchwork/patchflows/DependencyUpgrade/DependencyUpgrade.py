@@ -16,7 +16,7 @@ from patchwork.steps import (
     ModifyCode,
     PreparePR,
     PreparePrompt,
-    ScanDepscan,
+    ScanDepscan, LLM, PR,
 )
 
 _DEFAULT_PROMPT_JSON = Path(__file__).parent / "dependency_upgrade_prompt.json"
@@ -85,11 +85,7 @@ class DependencyUpgrade(Step):
                     analyze_inputs.update(outputs)
                     analyze_inputs["prompt_id"] = "getimpact"
                     analyze_inputs["response_partitions"] = {"impacted_methods": ["A. Impacted methods:", ""]}
-                    outputs = PreparePrompt(analyze_inputs).run()
-                    analyze_inputs.update(outputs)
-                    outputs = CallLLM(analyze_inputs).run()
-                    analyze_inputs.update(outputs)
-                    outputs = ExtractModelResponse(analyze_inputs).run()
+                    outputs = LLM(analyze_inputs).run()
                     analyze_inputs.update(outputs)
 
                     # Do analysis on potential dependency upgrades and migrate the code as needed.
@@ -98,21 +94,13 @@ class DependencyUpgrade(Step):
                     analyze_inputs["prompt_id"] = "migratecode"
                     analyze_inputs["response_partitions"] = {"patch": []}
                     analyze_inputs["prompt_values"] = outputs["files_to_patch"]
-                    outputs = PreparePrompt(analyze_inputs).run()
-                    analyze_inputs.update(outputs)
-                    outputs = CallLLM(analyze_inputs).run()
-                    analyze_inputs.update(outputs)
-                    outputs = ExtractModelResponse(analyze_inputs).run()
+                    outputs = LLM(analyze_inputs).run()
                     analyze_inputs.update(outputs)
                     outputs = ModifyCode(analyze_inputs).run()
                     modified_files = modified_files + outputs["modified_code_files"]
 
             self.inputs["prompt_id"] = "depupgrade"
-            outputs = PreparePrompt(self.inputs).run()
-            self.inputs.update(outputs)
-            outputs = CallLLM(self.inputs).run()
-            self.inputs.update(outputs)
-            outputs = ExtractModelResponse(self.inputs).run()
+            outputs = LLM(self.inputs).run()
             self.inputs.update(outputs)
             outputs = ModifyCode(self.inputs).run()
             self.inputs.update(outputs)
@@ -133,11 +121,7 @@ class DependencyUpgrade(Step):
                 number = number + len(vulns["Updates"])
 
         self.inputs["pr_header"] = f"This pull request from patchwork fixes {number} vulnerabilities."
-        outputs = CommitChanges(self.inputs).run()
-        self.inputs.update(outputs)
-        outputs = PreparePR(self.inputs).run()
-        self.inputs.update(outputs)
-        outputs = CreatePR(self.inputs).run()
+        outputs = PR(self.inputs).run()
         self.inputs.update(outputs)
 
         return self.inputs

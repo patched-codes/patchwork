@@ -14,7 +14,7 @@ from patchwork.steps import (
     ExtractModelResponse,
     ModifyCode,
     PreparePR,
-    PreparePrompt,
+    PreparePrompt, LLM, PR,
 )
 from patchwork.steps.ExtractCodeMethodForCommentContexts.ExtractCodeMethodForCommentContexts import (
     ExtractCodeMethodForCommentContexts,
@@ -61,11 +61,7 @@ class GenerateDocstring(Step):
         self.inputs["response_partitions"] = {
             "patch": ["Documentation:", "```", "\n", "```"],
         }
-        outputs = PreparePrompt(self.inputs).run()
-        self.inputs.update(outputs)
-        outputs = CallLLM(self.inputs).run()
-        self.inputs.update(outputs)
-        outputs = ExtractModelResponse(self.inputs).run()
+        outputs = LLM(self.inputs).run()
         self.inputs.update(outputs)
 
         # Modify code files with the suggested changes
@@ -76,11 +72,7 @@ class GenerateDocstring(Step):
         self.inputs[
             "pr_header"
         ] = f'This pull request from patchwork fixes {len(self.inputs["prompt_values"])} docstrings.'
-        outputs = CommitChanges(self.inputs).run()
-        self.inputs.update(outputs)
-        outputs = PreparePR(self.inputs).run()
-        self.inputs.update(outputs)
-        outputs = CreatePR(self.inputs).run()
+        outputs = PR(self.inputs).run()
         self.inputs.update(outputs)
 
         return self.inputs
