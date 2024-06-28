@@ -1,4 +1,5 @@
 import sys
+import traceback
 import json
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QGraphicsView, QGraphicsScene, QDialog, 
                              QGraphicsItem, QGraphicsRectItem, QGraphicsTextItem, QComboBox,
@@ -142,10 +143,15 @@ class WorkflowScene(QGraphicsScene):
     
     def create_edge(self, source, target):
         if self.validate_connection(source, target):
-            edge = Edge(source, target)
+            mapping = {}
+            for output in source.outputs:
+                for input in target.inputs:
+                    if output['name'] == input['name'] and output['type'] == input['type']:
+                        mapping[output['name']] = input['name']
+            edge = Edge(source, target, mapping)
             self.addItem(edge)
             self.edges.append(edge)
-            self.graph.add_edge(source.unique_name, target.unique_name)
+            self.graph.add_edge(source.unique_name, target.unique_name, mapping=mapping)
             self.main_window.update_status(f"Edge created: {source.unique_name} -> {target.unique_name}")
         else:
             dialog = InputOutputMappingDialog(source.outputs, target.inputs)
@@ -452,7 +458,7 @@ class MainWindow(QMainWindow):
                     'outputs': outputs,
                     'composite': True,
                     'workflow_data': workflow_data,
-                    'user_assigned_inputs': user_assigned_inputs  # Include user-assigned inputs, but not as visible inputs
+                    'user_assigned_inputs': user_assigned_inputs
                 }
 
                 # Add the new step to the list widget
@@ -472,15 +478,40 @@ class MainWindow(QMainWindow):
         for edge in workflow_data['edges']:
             graph.add_edge(edge['source'], edge['target'], mapping=edge.get('mapping', {}))
 
-        # Identify inputs (nodes with no incoming edges or unmapped inputs)
-        inputs = []
+        # Identify inputs
+        required_inputs = []
+        optional_inputs = []
+        all_inputs = set()
+
         for node in graph.nodes():
             node_data = graph.nodes[node]
             for input_data in node_data['inputs']:
                 input_name = input_data['name']
-                # Only include inputs that are not connected to any other node's output
-                if not any(edge['mapping'].get(input_name) for _, _, edge in graph.in_edges(node, data=True)):
-                    inputs.append(input_data)
+                input_type = input_data['type']
+                
+                if input_name not in all_inputs:
+                    all_inputs.add(input_name)
+                    
+                    # Check if this input is connected to any other node's output
+                    is_connected = any(
+                        input_name in edge.get('mapping', {}).values()
+                        for _, _, edge in graph.in_edges(node, data=True)
+                    )
+                    
+                    if is_connected:
+                        # Connected inputs are optional
+                        optional_inputs.append({
+                            'name': input_name,
+                            'type': input_type,
+                            'required': False
+                        })
+                    else:
+                        # Unconnected inputs are required
+                        required_inputs.append({
+                            'name': input_name,
+                            'type': input_type,
+                            'required': True
+                        })
 
         # Identify outputs (nodes with no outgoing edges)
         outputs = []
@@ -488,7 +519,10 @@ class MainWindow(QMainWindow):
             if not any(graph.out_edges(node)):
                 outputs.extend(graph.nodes[node]['outputs'])
 
-        return inputs, outputs
+        # Combine required and optional inputs, with required inputs first
+        combined_inputs = required_inputs + optional_inputs
+
+        return combined_inputs, outputs
 
     def add_step_to_canvas(self, item):
         step_name = item.text()
@@ -513,7 +547,9 @@ class MainWindow(QMainWindow):
         
         self.scene.addItem(composite_step)
         self.scene.steps[composite_step.unique_name] = composite_step
-        self.scene.graph.add_node(composite_step.unique_name, user_assigned_inputs=composite_step.user_assigned_inputs)
+        self.scene.graph.add_node(composite_step.unique_name, 
+                                user_assigned_inputs=composite_step.user_assigned_inputs,
+                                inputs=step_data['inputs'])  # Include full input data
         
     def closeEvent(self, event):
         self.is_closing = True
@@ -749,9 +785,13 @@ class MainWindow(QMainWindow):
                     f.write("        missing_inputs = []\n")
                     
                     missing_required_inputs = set()
+                    checked_inputs = set()  # To avoid duplicate checks
                     for step in workflow_order:
                         step_obj = self.scene.steps[step]
-                        required_inputs = [inp['name'] for inp in step_obj.inputs if inp.get('required', True)]
+                        if hasattr(step_obj, 'composite') and step_obj.composite:
+                            required_inputs = [inp['name'] for inp in step_obj.inputs if inp.get('required', True)]
+                        else:
+                            required_inputs = [inp['name'] for inp in step_obj.inputs if inp.get('required', True)]
                         incoming_edges = list(self.scene.graph.in_edges(step))
                         
                         # Get the actual input names that are assigned from incoming edges
@@ -765,10 +805,11 @@ class MainWindow(QMainWindow):
                         assigned_inputs.update(step_obj.user_assigned_inputs.keys())
                         
                         for req_input in required_inputs:
-                            if req_input not in assigned_inputs:
+                            if req_input not in assigned_inputs and req_input not in checked_inputs:
                                 f.write(f"        if '{req_input}' not in self.inputs:\n")
                                 f.write(f"            missing_inputs.append('{req_input}')\n")
                                 missing_required_inputs.add(req_input)
+                                checked_inputs.add(req_input)
 
                     f.write("        if missing_inputs:\n")
                     f.write("            raise ValueError(f'Missing required inputs: {missing_inputs}. Please add them to the defaults.yml file.')\n\n")
@@ -831,7 +872,8 @@ class MainWindow(QMainWindow):
                 else:
                     QMessageBox.information(self, "Export Successful", f"Workflow exported to {filename}")
             except Exception as e:
-                QMessageBox.critical(self, "Export Failed", f"Failed to export workflow: {str(e)}")
+                    error_message = f"Failed to export workflow: {str(e)}\n\n{traceback.format_exc()}"
+                    QMessageBox.critical(self, "Export Failed", error_message)
                 
 if __name__ == "__main__":
     with open("steps.artifact.json", "r") as f:
