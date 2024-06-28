@@ -1,7 +1,6 @@
 import logging
 
-from slack_sdk import WebClient
-
+from patchwork.common.utils.dependency import slack_sdk
 from patchwork.step import Step
 from patchwork.steps.SlackMessage.typed import SlackMessageInputs
 
@@ -12,7 +11,7 @@ class SlackMessage(Step):
         if key_diff:
             raise ValueError(f'Missing required data: "{key_diff}"')
 
-        self.slack_client = WebClient(token=inputs["slack_token"])
+        self.slack_client = slack_sdk().WebClient(token=inputs["slack_token"])
         if not self.slack_client.auth_test().get("ok", False):
             raise ValueError("Invalid Slack Token")
 
