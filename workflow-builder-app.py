@@ -883,8 +883,38 @@ class MainWindow(QMainWindow):
                     QMessageBox.critical(self, "Export Failed", error_message)
                 
 if __name__ == "__main__":
+    
+    def transform_steps_data(new_steps_data):
+        old_format = {}
+        
+        for step in new_steps_data:
+            step_name = step['name']
+            old_format[step_name] = {
+                'inputs': [],
+                'outputs': []
+            }
+            
+            for input_param in step['inputs']:
+                old_input = {
+                    'name': input_param['name'],
+                    'type': input_param['type'],
+                    'required': input_param['is_required']
+                }
+                old_format[step_name]['inputs'].append(old_input)
+            
+            for output_param in step['outputs']:
+                old_output = {
+                    'name': output_param['name'],
+                    'type': output_param['type'],
+                    'required': not output_param['is_required']  # Note: we invert this boolean
+                }
+                old_format[step_name]['outputs'].append(old_output)
+        
+        return old_format
+
     with open("steps.artifact.json", "r") as f:
-        steps_data = json.load(f)
+        new_steps_data = json.load(f)
+        steps_data = transform_steps_data(new_steps_data)
 
     app = QApplication(sys.argv)
     window = MainWindow(steps_data)

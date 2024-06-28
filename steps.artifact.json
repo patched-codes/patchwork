@@ -1,722 +1,1440 @@
-{
-  "AnalyzeImpact": {
+[
+  {
+    "name": "AnalyzeImpact",
+    "description": "",
+    "friendly_label": "",
+    "category": "",
     "inputs": [
       {
         "name": "extracted_responses",
-        "required": true,
-        "type": "json"
+        "description": "",
+        "friendly_label": "",
+        "type": "json",
+        "default": "",
+        "is_required": true
       },
       {
         "name": "library_name",
-        "required": true,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
       },
       {
         "name": "platform_type",
-        "required": true,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
       }
     ],
     "outputs": [
       {
         "name": "files_to_patch",
-        "required": false,
-        "type": "json"
-      },
-      {
-        "name": "prompt_values",
-        "required": false,
-        "type": "json"
+        "description": "",
+        "friendly_label": "",
+        "type": "json",
+        "default": "",
+        "is_required": false
       }
     ]
   },
-  "CallCode2Prompt": {
+  {
+    "name": "CallCode2Prompt",
+    "description": "",
+    "friendly_label": "",
+    "category": "",
     "inputs": [
       {
         "name": "filter",
-        "required": false,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": false
       },
       {
         "name": "folder_path",
-        "required": true,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
       },
       {
         "name": "suppress_comments",
-        "required": false,
-        "type": "boolean"
+        "description": "",
+        "friendly_label": "",
+        "type": "boolean",
+        "default": "",
+        "is_required": false
       }
     ],
     "outputs": [
       {
         "name": "files_to_patch",
-        "required": false,
-        "type": "json"
-      },
-      {
-        "name": "prompt_values",
-        "required": false,
-        "type": "json"
+        "description": "",
+        "friendly_label": "",
+        "type": "json",
+        "default": "",
+        "is_required": false
       }
     ]
   },
-  "CallLLM": {
+  {
+    "name": "CallLLM",
+    "description": "",
+    "friendly_label": "",
+    "category": "",
     "inputs": [
       {
         "name": "allow_truncated",
-        "required": true,
-        "type": "boolean"
+        "description": "",
+        "friendly_label": "",
+        "type": "boolean",
+        "default": "",
+        "is_required": true
       },
       {
         "name": "client_args",
-        "required": true,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
       },
       {
         "name": "google_api_key",
-        "required": true,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
       },
       {
         "name": "model",
-        "required": true,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
       },
       {
         "name": "model_args",
-        "required": true,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
       },
       {
         "name": "openai_api_key",
-        "required": true,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
       },
       {
         "name": "patched_api_key",
-        "required": true,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
       },
       {
         "name": "prompt_file",
-        "required": true,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
       },
       {
         "name": "prompts",
-        "required": true,
-        "type": "json"
+        "description": "",
+        "friendly_label": "",
+        "type": "json",
+        "default": "",
+        "is_required": true
       }
     ],
     "outputs": [
       {
-        "name": "new_code",
-        "required": false,
-        "type": "json"
-      },
-      {
         "name": "openai_responses",
-        "required": false,
-        "type": "json"
+        "description": "",
+        "friendly_label": "",
+        "type": "json",
+        "default": "",
+        "is_required": false
       }
     ]
   },
-  "CommitChanges": {
+  {
+    "name": "CommitChanges",
+    "description": "",
+    "friendly_label": "",
+    "category": "",
     "inputs": [
       {
         "name": "branch_prefix",
-        "required": true,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
       },
       {
         "name": "branch_suffix",
-        "required": true,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
       },
       {
         "name": "disable_branch",
-        "required": true,
-        "type": "boolean"
+        "description": "",
+        "friendly_label": "",
+        "type": "boolean",
+        "default": "",
+        "is_required": true
       },
       {
         "name": "force_branch_creation",
-        "required": true,
-        "type": "boolean"
+        "description": "",
+        "friendly_label": "",
+        "type": "boolean",
+        "default": "",
+        "is_required": true
       },
       {
         "name": "modified_code_files",
-        "required": true,
-        "type": "json"
+        "description": "",
+        "friendly_label": "",
+        "type": "json",
+        "default": "",
+        "is_required": true
       }
     ],
     "outputs": [
       {
         "name": "base_branch",
-        "required": false,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": false
       },
       {
         "name": "target_branch",
-        "required": false,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": false
       }
     ]
   },
-  "CreateIssueComment": {
+  {
+    "name": "CreateIssueComment",
+    "description": "",
+    "friendly_label": "",
+    "category": "",
     "inputs": [
       {
         "name": "github_api_key",
-        "required": true,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
       },
       {
         "name": "gitlab_api_key",
-        "required": true,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
       },
       {
         "name": "issue_text",
-        "required": true,
-        "type": "json"
+        "description": "",
+        "friendly_label": "",
+        "type": "json",
+        "default": "",
+        "is_required": true
       },
       {
         "name": "issue_url",
-        "required": true,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
       },
       {
         "name": "scm_url",
-        "required": true,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
       }
     ],
     "outputs": [
       {
         "name": "issue_comment_url",
-        "required": false,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": false
       }
     ]
   },
-  "CreatePR": {
+  {
+    "name": "CreatePR",
+    "description": "",
+    "friendly_label": "",
+    "category": "",
     "inputs": [
       {
         "name": "base_branch",
-        "required": false,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": false
       },
       {
         "name": "disable_pr",
-        "required": false,
-        "type": "boolean"
+        "description": "",
+        "friendly_label": "",
+        "type": "boolean",
+        "default": "",
+        "is_required": false
       },
       {
         "name": "force_pr_creation",
-        "required": false,
-        "type": "boolean"
+        "description": "",
+        "friendly_label": "",
+        "type": "boolean",
+        "default": "",
+        "is_required": false
       },
       {
         "name": "github_api_key",
-        "required": false,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": false
       },
       {
         "name": "gitlab_api_key",
-        "required": false,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": false
       },
       {
         "name": "pr_body",
-        "required": false,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": false
       },
       {
         "name": "pr_title",
-        "required": false,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": false
       },
       {
         "name": "scm_url",
-        "required": false,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": false
       },
       {
         "name": "target_branch",
-        "required": true,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
       }
     ],
     "outputs": [
       {
         "name": "pr_url",
-        "required": false,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": false
       }
     ]
   },
-  "CreatePRComment": {
+  {
+    "name": "CreatePRComment",
+    "description": "",
+    "friendly_label": "",
+    "category": "",
     "inputs": [
       {
         "name": "github_api_key",
-        "required": false,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": false
       },
       {
         "name": "gitlab_api_key",
-        "required": false,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": false
       },
       {
         "name": "noisy_comments",
-        "required": false,
-        "type": "boolean"
+        "description": "",
+        "friendly_label": "",
+        "type": "boolean",
+        "default": "",
+        "is_required": false
       },
       {
         "name": "pr_comments",
-        "required": true,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
       },
       {
         "name": "pr_url",
-        "required": true,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
       },
       {
         "name": "scm_url",
-        "required": false,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": false
       }
     ],
     "outputs": []
   },
-  "ExtractCode": {
+  {
+    "name": "ExtractCode",
+    "description": "",
+    "friendly_label": "",
+    "category": "",
     "inputs": [
       {
         "name": "context_size",
-        "required": false,
-        "type": "number"
+        "description": "",
+        "friendly_label": "",
+        "type": "number",
+        "default": "",
+        "is_required": false
       },
       {
         "name": "sarif_values",
-        "required": true,
-        "type": "json"
+        "description": "",
+        "friendly_label": "",
+        "type": "json",
+        "default": "",
+        "is_required": true
       },
       {
         "name": "severity",
-        "required": false,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": false
       },
       {
         "name": "vulnerability_limit",
-        "required": false,
-        "type": "number"
+        "description": "",
+        "friendly_label": "",
+        "type": "number",
+        "default": "",
+        "is_required": false
       }
     ],
     "outputs": [
       {
         "name": "files_to_patch",
-        "required": false,
-        "type": "json"
-      },
-      {
-        "name": "prompt_values",
-        "required": false,
-        "type": "json"
+        "description": "",
+        "friendly_label": "",
+        "type": "json",
+        "default": "",
+        "is_required": false
       }
     ]
   },
-  "ExtractDiff": {
+  {
+    "name": "ExtractDiff",
+    "description": "",
+    "friendly_label": "",
+    "category": "",
     "inputs": [
       {
         "name": "github_api_key",
-        "required": true,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
       },
       {
         "name": "libraries_api_key",
-        "required": true,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
       },
       {
         "name": "severity",
-        "required": false,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": false
       },
       {
         "name": "update_info",
-        "required": true,
-        "type": "json"
+        "description": "",
+        "friendly_label": "",
+        "type": "json",
+        "default": "",
+        "is_required": true
       }
     ],
     "outputs": [
       {
         "name": "library_name",
-        "required": false,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": false
       },
       {
         "name": "platform_type",
-        "required": false,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": false
       },
       {
         "name": "prompt_values",
-        "required": false,
-        "type": "json"
+        "description": "",
+        "friendly_label": "",
+        "type": "json",
+        "default": "",
+        "is_required": false
       }
     ]
   },
-  "ExtractModelResponse": {
+  {
+    "name": "ExtractModelResponse",
+    "description": "",
+    "friendly_label": "",
+    "category": "",
     "inputs": [
       {
         "name": "openai_responses",
-        "required": true,
-        "type": "json"
+        "description": "",
+        "friendly_label": "",
+        "type": "json",
+        "default": "",
+        "is_required": true
       },
       {
         "name": "response_partitions",
-        "required": true,
-        "type": "json"
+        "description": "",
+        "friendly_label": "",
+        "type": "json",
+        "default": "",
+        "is_required": true
       }
     ],
     "outputs": [
       {
         "name": "extracted_responses",
-        "required": false,
-        "type": "json"
+        "description": "",
+        "friendly_label": "",
+        "type": "json",
+        "default": "",
+        "is_required": false
       }
     ]
   },
-  "ExtractPackageManagerFile": {
+  {
+    "name": "ExtractPackageManagerFile",
+    "description": "",
+    "friendly_label": "",
+    "category": "",
     "inputs": [
       {
         "name": "package_manager_file",
-        "required": false,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": false
       },
       {
         "name": "sbom_vdr_file_path",
-        "required": false,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": false
       },
       {
         "name": "sbom_vdr_values",
-        "required": false,
-        "type": "json"
+        "description": "",
+        "friendly_label": "",
+        "type": "json",
+        "default": "",
+        "is_required": false
       },
       {
         "name": "severity",
-        "required": false,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": false
       },
       {
         "name": "upgrade_threshold",
-        "required": false,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": false
       }
     ],
     "outputs": [
       {
         "name": "files_to_patch",
-        "required": false,
-        "type": "json"
-      },
-      {
-        "name": "prompt_values",
-        "required": false,
-        "type": "json"
+        "description": "",
+        "friendly_label": "",
+        "type": "json",
+        "default": "",
+        "is_required": false
       }
     ]
   },
-  "GenerateCodeRepositoryEmbeddings": {
+  {
+    "name": "GenerateCodeRepositoryEmbeddings",
+    "description": "",
+    "friendly_label": "",
+    "category": "",
     "inputs": [
       {
         "name": "disable_cache",
-        "required": false,
-        "type": "boolean"
+        "description": "",
+        "friendly_label": "",
+        "type": "boolean",
+        "default": "",
+        "is_required": false
       }
     ],
     "outputs": [
       {
         "name": "documents",
-        "required": false,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": false
       },
       {
         "name": "embedding_name",
-        "required": false,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": false
       }
     ]
   },
-  "GenerateEmbeddings": {
+  {
+    "name": "GenerateEmbeddings",
+    "description": "",
+    "friendly_label": "",
+    "category": "",
     "inputs": [
       {
         "name": "disable_cache",
-        "required": true,
-        "type": "boolean"
+        "description": "",
+        "friendly_label": "",
+        "type": "boolean",
+        "default": "",
+        "is_required": true
       },
       {
         "name": "documents",
-        "required": true,
-        "type": "json"
+        "description": "",
+        "friendly_label": "",
+        "type": "json",
+        "default": "",
+        "is_required": true
       },
       {
         "name": "embedding_name",
-        "required": true,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
       }
     ],
     "outputs": []
   },
-  "ModifyCode": {
+  {
+    "name": "ModifyCode",
+    "description": "",
+    "friendly_label": "",
+    "category": "",
     "inputs": [
       {
         "name": "extracted_responses",
-        "required": true,
-        "type": "json"
+        "description": "",
+        "friendly_label": "",
+        "type": "json",
+        "default": "",
+        "is_required": true
       },
       {
         "name": "files_to_patch",
-        "required": true,
-        "type": "json"
+        "description": "",
+        "friendly_label": "",
+        "type": "json",
+        "default": "",
+        "is_required": true
       }
     ],
     "outputs": [
       {
         "name": "modified_code_files",
-        "required": false,
-        "type": "json"
+        "description": "",
+        "friendly_label": "",
+        "type": "json",
+        "default": "",
+        "is_required": false
       }
     ]
   },
-  "PreparePR": {
+  {
+    "name": "PreparePR",
+    "description": "",
+    "friendly_label": "",
+    "category": "",
     "inputs": [
       {
         "name": "modified_code_files",
-        "required": true,
-        "type": "json"
+        "description": "",
+        "friendly_label": "",
+        "type": "json",
+        "default": "",
+        "is_required": true
       },
       {
         "name": "pr_header",
-        "required": true,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
       }
     ],
     "outputs": [
       {
         "name": "pr_body",
-        "required": false,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": false
       }
     ]
   },
-  "PreparePrompt": {
+  {
+    "name": "PreparePrompt",
+    "description": "",
+    "friendly_label": "",
+    "category": "",
     "inputs": [
       {
         "name": "prompt_id",
-        "required": true,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
       },
       {
         "name": "prompt_template_file",
-        "required": true,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
       },
       {
         "name": "prompt_value_file",
-        "required": true,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
       },
       {
         "name": "prompt_values",
-        "required": true,
-        "type": "json"
+        "description": "",
+        "friendly_label": "",
+        "type": "json",
+        "default": "",
+        "is_required": true
       }
     ],
     "outputs": [
       {
         "name": "prompts",
-        "required": false,
-        "type": "json"
+        "description": "",
+        "friendly_label": "",
+        "type": "json",
+        "default": "",
+        "is_required": false
       }
     ]
   },
-  "QueryEmbeddings": {
+  {
+    "name": "QueryEmbeddings",
+    "description": "",
+    "friendly_label": "",
+    "category": "",
     "inputs": [
       {
         "name": "embedding_name",
-        "required": true,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
       },
       {
         "name": "texts",
-        "required": true,
-        "type": "json"
+        "description": "",
+        "friendly_label": "",
+        "type": "json",
+        "default": "",
+        "is_required": true
       },
       {
         "name": "token_limit",
-        "required": true,
-        "type": "number"
+        "description": "",
+        "friendly_label": "",
+        "type": "number",
+        "default": "",
+        "is_required": true
       },
       {
         "name": "top_k",
-        "required": true,
-        "type": "number"
+        "description": "",
+        "friendly_label": "",
+        "type": "number",
+        "default": "",
+        "is_required": true
       }
     ],
     "outputs": [
       {
         "name": "embedding_results",
-        "required": false,
-        "type": "json"
+        "description": "",
+        "friendly_label": "",
+        "type": "json",
+        "default": "",
+        "is_required": false
       }
     ]
   },
-  "ReadIssues": {
+  {
+    "name": "ReadIssues",
+    "description": "",
+    "friendly_label": "",
+    "category": "",
     "inputs": [
       {
         "name": "github_api_key",
-        "required": true,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
       },
       {
         "name": "gitlab_api_key",
-        "required": true,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
       },
       {
         "name": "issue_url",
-        "required": true,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
       },
       {
         "name": "scm_url",
-        "required": true,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
       }
     ],
     "outputs": [
       {
         "name": "issue_text",
-        "required": false,
-        "type": "json"
+        "description": "",
+        "friendly_label": "",
+        "type": "json",
+        "default": "",
+        "is_required": false
       }
     ]
   },
-  "ReadPRDiffs": {
+  {
+    "name": "ReadPRDiffs",
+    "description": "",
+    "friendly_label": "",
+    "category": "",
     "inputs": [
       {
         "name": "github_api_key",
-        "required": true,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
       },
       {
         "name": "gitlab_api_key",
-        "required": true,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
       },
       {
         "name": "pr_url",
-        "required": true,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
       },
       {
         "name": "scm_url",
-        "required": true,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
       }
     ],
     "outputs": [
       {
         "name": "prompt_value_file",
-        "required": false,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": false
       },
       {
         "name": "prompt_values",
-        "required": false,
-        "type": "json"
+        "description": "",
+        "friendly_label": "",
+        "type": "json",
+        "default": "",
+        "is_required": false
       }
     ]
   },
-  "ScanDepscan": {
+  {
+    "name": "ScanDepscan",
+    "description": "",
+    "friendly_label": "",
+    "category": "",
     "inputs": [
       {
         "name": "language",
-        "required": false,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": false
       }
     ],
     "outputs": [
       {
         "name": "sbom_vdr_values",
-        "required": false,
-        "type": "json"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": false
       }
     ]
   },
-  "ScanSemgrep": {
+  {
+    "name": "ScanSemgrep",
+    "description": "",
+    "friendly_label": "",
+    "category": "",
     "inputs": [
       {
         "name": "sarif_file_path",
-        "required": false,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": false
       },
       {
         "name": "sarif_values",
-        "required": false,
-        "type": "json"
+        "description": "",
+        "friendly_label": "",
+        "type": "json",
+        "default": "",
+        "is_required": false
       },
       {
         "name": "semgrep_extra_args",
-        "required": false,
-        "type": "json"
+        "description": "",
+        "friendly_label": "",
+        "type": "json",
+        "default": "",
+        "is_required": false
       }
     ],
     "outputs": [
       {
         "name": "sarif_values",
-        "required": false,
-        "type": "json"
+        "description": "",
+        "friendly_label": "",
+        "type": "json",
+        "default": "",
+        "is_required": false
       }
     ]
   },
-  "SlackMessage": {
+  {
+    "name": "LLM",
+    "description": "",
+    "friendly_label": "",
+    "category": "",
+    "inputs": [
+      {
+        "name": "allow_truncated",
+        "description": "",
+        "friendly_label": "",
+        "type": "boolean",
+        "default": "",
+        "is_required": true
+      },
+      {
+        "name": "client_args",
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
+      },
+      {
+        "name": "google_api_key",
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
+      },
+      {
+        "name": "model",
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
+      },
+      {
+        "name": "model_args",
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
+      },
+      {
+        "name": "openai_api_key",
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
+      },
+      {
+        "name": "openai_responses",
+        "description": "",
+        "friendly_label": "",
+        "type": "json",
+        "default": "",
+        "is_required": true
+      },
+      {
+        "name": "patched_api_key",
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
+      },
+      {
+        "name": "prompt_file",
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
+      },
+      {
+        "name": "prompt_id",
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
+      },
+      {
+        "name": "prompt_template_file",
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
+      },
+      {
+        "name": "prompt_value_file",
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
+      },
+      {
+        "name": "prompt_values",
+        "description": "",
+        "friendly_label": "",
+        "type": "json",
+        "default": "",
+        "is_required": true
+      },
+      {
+        "name": "prompts",
+        "description": "",
+        "friendly_label": "",
+        "type": "json",
+        "default": "",
+        "is_required": true
+      },
+      {
+        "name": "response_partitions",
+        "description": "",
+        "friendly_label": "",
+        "type": "json",
+        "default": "",
+        "is_required": true
+      }
+    ],
+    "outputs": [
+      {
+        "name": "extracted_responses",
+        "description": "",
+        "friendly_label": "",
+        "type": "json",
+        "default": "",
+        "is_required": false
+      },
+      {
+        "name": "openai_responses",
+        "description": "",
+        "friendly_label": "",
+        "type": "json",
+        "default": "",
+        "is_required": false
+      },
+      {
+        "name": "prompts",
+        "description": "",
+        "friendly_label": "",
+        "type": "json",
+        "default": "",
+        "is_required": false
+      }
+    ]
+  },
+  {
+    "name": "PR",
+    "description": "",
+    "friendly_label": "",
+    "category": "",
+    "inputs": [
+      {
+        "name": "base_branch",
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": false
+      },
+      {
+        "name": "branch_prefix",
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
+      },
+      {
+        "name": "branch_suffix",
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
+      },
+      {
+        "name": "disable_branch",
+        "description": "",
+        "friendly_label": "",
+        "type": "boolean",
+        "default": "",
+        "is_required": true
+      },
+      {
+        "name": "disable_pr",
+        "description": "",
+        "friendly_label": "",
+        "type": "boolean",
+        "default": "",
+        "is_required": false
+      },
+      {
+        "name": "force_branch_creation",
+        "description": "",
+        "friendly_label": "",
+        "type": "boolean",
+        "default": "",
+        "is_required": true
+      },
+      {
+        "name": "force_pr_creation",
+        "description": "",
+        "friendly_label": "",
+        "type": "boolean",
+        "default": "",
+        "is_required": false
+      },
+      {
+        "name": "github_api_key",
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": false
+      },
+      {
+        "name": "gitlab_api_key",
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": false
+      },
+      {
+        "name": "modified_code_files",
+        "description": "",
+        "friendly_label": "",
+        "type": "json",
+        "default": "",
+        "is_required": true
+      },
+      {
+        "name": "pr_body",
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": false
+      },
+      {
+        "name": "pr_header",
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
+      },
+      {
+        "name": "pr_title",
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": false
+      },
+      {
+        "name": "scm_url",
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": false
+      },
+      {
+        "name": "target_branch",
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
+      }
+    ],
+    "outputs": [
+      {
+        "name": "base_branch",
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": false
+      },
+      {
+        "name": "pr_body",
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": false
+      },
+      {
+        "name": "pr_url",
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": false
+      },
+      {
+        "name": "target_branch",
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": false
+      }
+    ]
+  },
+  {
+    "name": "SlackMessage",
+    "description": "",
+    "friendly_label": "",
+    "category": "",
     "inputs": [
       {
         "name": "slack_channel",
-        "required": true,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
       },
       {
         "name": "slack_message_template",
-        "required": false,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": false
       },
       {
         "name": "slack_message_template_file",
-        "required": false,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": false
       },
       {
         "name": "slack_message_values",
-        "required": false,
-        "type": "json"
+        "description": "",
+        "friendly_label": "",
+        "type": "json",
+        "default": "",
+        "is_required": false
       },
       {
         "name": "slack_token",
-        "required": true,
-        "type": "string"
+        "description": "",
+        "friendly_label": "",
+        "type": "string",
+        "default": "",
+        "is_required": true
       }
     ],
     "outputs": [
       {
         "name": "is_slack_message_sent",
-        "required": false,
-        "type": "boolean"
+        "description": "",
+        "friendly_label": "",
+        "type": "boolean",
+        "default": "",
+        "is_required": false
       }
     ]
   }
-}
+]
