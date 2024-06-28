@@ -142,6 +142,13 @@ class WorkflowScene(QGraphicsScene):
         super().mousePressEvent(event)
     
     def create_edge(self, source, target):
+        # Check if an edge already exists between source and target
+        existing_edge = next((edge for edge in self.edges if edge.source == source and edge.target == target), None)
+        
+        if existing_edge:
+            self.main_window.update_status(f"Edge already exists: {source.unique_name} -> {target.unique_name}")
+            return
+
         if self.validate_connection(source, target):
             mapping = {}
             for output in source.outputs:
