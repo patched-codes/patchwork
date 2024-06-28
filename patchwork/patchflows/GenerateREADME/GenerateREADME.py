@@ -5,6 +5,8 @@ import yaml
 from patchwork.common.utils.progress_bar import PatchflowProgressBar
 from patchwork.step import Step
 from patchwork.steps import (
+    LLM,
+    PR,
     CallCode2Prompt,
     CallLLM,
     CommitChanges,
@@ -12,7 +14,7 @@ from patchwork.steps import (
     ExtractModelResponse,
     ModifyCode,
     PreparePR,
-    PreparePrompt, LLM, PR,
+    PreparePrompt,
 )
 
 _DEFAULT_PROMPT_JSON = Path(__file__).parent / "generate_readme_prompt.json"

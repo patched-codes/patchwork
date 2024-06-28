@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing_extensions import TypedDict, Any, Literal
+from typing_extensions import Any, Literal, TypedDict
 
 
 class CallAPIInputs(TypedDict):

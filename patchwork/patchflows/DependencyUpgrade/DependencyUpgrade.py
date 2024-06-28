@@ -6,6 +6,8 @@ import yaml
 from patchwork.common.utils.progress_bar import PatchflowProgressBar
 from patchwork.step import Step
 from patchwork.steps import (
+    LLM,
+    PR,
     AnalyzeImpact,
     CallLLM,
     CommitChanges,
@@ -16,7 +18,7 @@ from patchwork.steps import (
     ModifyCode,
     PreparePR,
     PreparePrompt,
-    ScanDepscan, LLM, PR,
+    ScanDepscan,
 )
 
 _DEFAULT_PROMPT_JSON = Path(__file__).parent / "dependency_upgrade_prompt.json"

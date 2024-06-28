@@ -5,6 +5,8 @@ import yaml
 from patchwork.common.utils.progress_bar import PatchflowProgressBar
 from patchwork.step import Step
 from patchwork.steps import (
+    LLM,
+    PR,
     CallLLM,
     CommitChanges,
     CreateIssueComment,
@@ -15,7 +17,7 @@ from patchwork.steps import (
     PreparePR,
     PreparePrompt,
     QueryEmbeddings,
-    ReadIssues, LLM, PR,
+    ReadIssues,
 )
 
 _DEFAULT_INPUT_FILE = Path(__file__).parent / "defaults.yml"

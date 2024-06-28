@@ -1,8 +1,8 @@
 import logging
 
-from patchwork.step import Step
 from slack_sdk import WebClient
 
+from patchwork.step import Step
 from patchwork.steps.SlackMessage.typed import SlackMessageInputs
 
 

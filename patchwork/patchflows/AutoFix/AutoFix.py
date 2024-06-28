@@ -8,6 +8,8 @@ from patchwork.common.utils.progress_bar import PatchflowProgressBar
 from patchwork.logger import logger
 from patchwork.step import Step
 from patchwork.steps import (
+    LLM,
+    PR,
     CallLLM,
     CommitChanges,
     CreatePR,
@@ -16,7 +18,7 @@ from patchwork.steps import (
     ModifyCode,
     PreparePR,
     PreparePrompt,
-    ScanSemgrep, LLM, PR,
+    ScanSemgrep,
 )
 
 _DEFAULT_PROMPT_JSON = Path(__file__).parent / "default_prompt.json"

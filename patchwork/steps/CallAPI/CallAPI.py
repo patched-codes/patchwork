@@ -1,5 +1,6 @@
-from patchwork.step import Step
 from requests import request
+
+from patchwork.step import Step
 
 
 class CallAPI(Step):
@@ -16,14 +17,10 @@ class CallAPI(Step):
         res = request(self.method, self.url, headers=self.headers, data=self.body)
         status_code = res.status_code
         if (
-                (self.is_fail_on_3xx and 300 <= status_code < 400) or
-                (self.is_fail_on_4xx and 400 <= status_code < 500) or
-                (self.is_fail_on_5xx and 500 <= status_code < 600)
+            (self.is_fail_on_3xx and 300 <= status_code < 400)
+            or (self.is_fail_on_4xx and 400 <= status_code < 500)
+            or (self.is_fail_on_5xx and 500 <= status_code < 600)
         ):
             raise ValueError(f"Request failed with status code {status_code}")
 
-        return dict(
-            status_code=res.status_code,
-            headers=res.headers,
-            body=res.text
-        )
+        return dict(status_code=res.status_code, headers=res.headers, body=res.text)

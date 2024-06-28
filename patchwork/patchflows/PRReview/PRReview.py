@@ -5,12 +5,13 @@ import yaml
 from patchwork.common.utils.progress_bar import PatchflowProgressBar
 from patchwork.step import Step
 from patchwork.steps import (
+    LLM,
     CallLLM,
     CreatePRComment,
     ExtractModelResponse,
     PreparePR,
     PreparePrompt,
-    ReadPRDiffs, LLM,
+    ReadPRDiffs,
 )
 
 _DEFAULT_PROMPT_JSON = Path(__file__).parent / "pr_review_prompt.json"
