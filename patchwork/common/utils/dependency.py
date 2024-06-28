@@ -6,9 +6,14 @@ __DEPENDENCY_GROUPS = {
     "security": ["semgrep", "depscan"],
 }
 
+WHITELIST_MODULES = ["chromadb", "semgrep", "depscan"]
+
 
 @lru_cache(maxsize=None)
 def import_with_dependency_group(name):
+    if name not in WHITELIST_MODULES:
+        raise ImportError(f"Module {name} not found in whitelist.")
+    
     try:
         return importlib.import_module(name)
     except ImportError:
