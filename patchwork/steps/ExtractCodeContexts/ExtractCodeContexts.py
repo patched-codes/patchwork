@@ -17,7 +17,14 @@ def get_source_code_contexts(
     context_strategies: list[str],
     force_code_contexts: bool,
     allow_overlap_contexts: bool,
+    context_token_length: int  # Add parameter for context_token_length
 ) -> list[Position]:
+
+    # Check if context is larger than the context_token_length
+    if len(source_lines) > context_token_length:
+        logger.warn("The context selected is larger than the context_token_length. Consider increasing the context_token_length to process the larger context.")
+        return None, None
+
     context_strategies = ContextStrategies.get_context_strategies(*context_strategies)
     context_strategies = [
         strategy for strategy in context_strategies if strategy.is_file_supported(filepath, source_lines)
@@ -77,6 +84,7 @@ class ExtractCodeContexts(Step):
         # rethink this, should be one level up and true by default
         self.force_code_contexts = inputs.get("force_code_contexts", False)
         self.allow_overlap_contexts = inputs.get("allow_overlap_contexts", True)
+        self.context_token_length = inputs.get("context_token_length", 1000)  # Add default context_token_length
 
     def run(self) -> dict:
         extracted_code_contexts = []
@@ -118,6 +126,6 @@ class ExtractCodeContexts(Step):
                 continue
 
             for position in get_source_code_contexts(
-                str(file), src, grouping, self.force_code_contexts, self.allow_overlap_contexts
+                str(file), src, grouping, self.force_code_contexts, self.allow_overlap_contexts, self.context_token_length
             ):
                 yield str(file), src, position
