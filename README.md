@@ -97,12 +97,12 @@ patchwork AutoFix --config /path/to/patchwork-configs/patchflows
 
 Patchwork comes with a set of predefined patchflows, and more will be added over time. Below is a sample list of patchflows:
 
-- **GenerateDocstring**: Generate docstrings for methods in your code.
-- **AutoFix**: Generate and apply fixes to code vulnerabilities in a repository.
-- **PRReview**: On PR creation, extract code diff, summarize changes, and comment on PR.
-- **GenerateREADME**: Create a README markdown file for a given folder, to add documentation to your repository.
-- **[Experimental] DependencyUpgrade**: Update your dependencies from vulnerable to fixed versions.
-- **[Experimental] ResolveIssue**: Identify the files in your repository that need to be updated to resolve an issue (or bug) and create a PR to fix it.
+- [**GenerateDocstring**](patchwork/patchflows/GenerateDocstring): Generate docstrings for methods in your code.
+- [**AutoFix**](patchwork/patchflows/AutoFix): Generate and apply fixes to code vulnerabilities in a repository.
+- [**PRReview**](patchwork/patchflows/PRReview): On PR creation, extract code diff, summarize changes, and comment on PR.
+- [**GenerateREADME**](patchwork/patchflows/GenerateREADME): Create a README markdown file for a given folder, to add documentation to your repository.
+- [**DependencyUpgrade**](patchwork/patchflows/DependencyUpgrade): Update your dependencies from vulnerable to fixed versions.
+- [**ResolveIssue**](patchwork/patchflows/ResolveIssue): Identify the files in your repository that need to be updated to resolve an issue (or bug) and create a PR to fix it.
 
 ## Prompt Templates
 
