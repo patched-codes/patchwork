@@ -2045,7 +2045,7 @@ testing = ["coverage", "pytest", "pytest-cov", "pytest-regressions"]
 name = "markupsafe"
 version = "2.1.5"
 description = "Safely add untrusted strings to HTML/XML markup."
-optional = true
+optional = false
 python-versions = ">=3.7"
 files = [
     {file = "MarkupSafe-2.1.5-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:a17a92de5231666cfbe003f0e4b9b3a7ae3afb1ec2845aadc2bacc93ff85febc"},
@@ -3904,6 +3904,23 @@ tomli = {version = ">=1", markers = "python_version < \"3.11\""}
 
 [package.extras]
 dev = ["argcomplete", "attrs (>=19.2)", "hypothesis (>=3.56)", "mock", "pygments (>=2.7.2)", "requests", "setuptools", "xmlschema"]
+
+[[package]]
+name = "pytest-localserver"
+version = "0.8.1"
+description = "pytest plugin to test server connections locally."
+optional = false
+python-versions = ">=3.5"
+files = [
+    {file = "pytest-localserver-0.8.1.tar.gz", hash = "sha256:66569c34fef31a5750b16effd1cd1288a7a90b59155d005e7f916accd3dee4f1"},
+    {file = "pytest_localserver-0.8.1-py3-none-any.whl", hash = "sha256:13bc3d9aca719a60a2d1e535c5f0a58c7c1c2ad749f6e9cf198a358f5345e1d0"},
+]
+
+[package.dependencies]
+werkzeug = ">=0.10"
+
+[package.extras]
+smtp = ["aiosmtpd"]
 
 [[package]]
 name = "pytest-mock"
@@ -6001,7 +6018,7 @@ files = [
 name = "werkzeug"
 version = "3.0.3"
 description = "The comprehensive WSGI web application library."
-optional = true
+optional = false
 python-versions = ">=3.8"
 files = [
     {file = "werkzeug-3.0.3-py3-none-any.whl", hash = "sha256:fc9645dc43e03e4d630d23143a04a7f947a9a3b5727cd535fdfe155a17cc48c8"},
@@ -6424,4 +6441,4 @@ security = ["owasp-depscan", "semgrep"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "52eb2081cb12343c7081823e8903946f931b9855f788619f17be9f42172c72c4"
+content-hash = "8c6dcecbd592bdb8d8acf46027c2f473d2ffa33c624cef3005f341312094da91"
