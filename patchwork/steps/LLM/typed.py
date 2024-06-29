@@ -1,25 +1,28 @@
 from __future__ import annotations
 
-from typing_extensions import Any, Iterable, NotRequired, TypedDict
+from typing_extensions import Any, Iterable, TypedDict
 
 
-class LLMInputs(TypedDict):
+class __LLMInputsRequired(TypedDict):
     # PreparePromptInputs
     prompt_template_file: str
     prompt_id: str
-    prompt_value_file: NotRequired[str]
-    prompt_values: NotRequired[Iterable[dict[str, Any]]]
+
+
+class LLMInputs(__LLMInputsRequired, total=False):
+    prompt_value_file: str
+    prompt_values: Iterable[dict[str, Any]]
     # CallLLMInputs
-    prompt_file: NotRequired[str]
-    model: NotRequired[str]
-    allow_truncated: NotRequired[bool]
-    model_args: NotRequired[str]
-    client_args: NotRequired[str]
-    openai_api_key: NotRequired[str]
-    patched_api_key: NotRequired[str]
-    google_api_key: NotRequired[str]
+    prompt_file: str
+    model: str
+    allow_truncated: bool
+    model_args: str
+    client_args: str
+    openai_api_key: str
+    patched_api_key: str
+    google_api_key: str
     # ExtractModelResponseInputs
-    response_partitions: NotRequired[dict[str, list[str]]]
+    response_partitions: dict[str, list[str]]
 
 
 class LLMOutputs(TypedDict):
