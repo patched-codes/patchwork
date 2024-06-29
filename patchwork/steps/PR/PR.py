@@ -17,32 +17,14 @@ class PR(Step):
         return
 
     def run(self):
-        commit_changes_output = CommitChanges(
-            dict(
-                modified_code_files=self.inputs.get("modified_code_files"),
-                disable_branch=self.inputs.get("disable_branch"),
-                force_branch_creation=self.inputs.get("force_branch_creation"),
-                branch_prefix=self.inputs.get("branch_prefix"),
-                branch_suffix=self.inputs.get("branch_suffix"),
-            )
-        ).run()
-        prepare_pr_output = PreparePR(
-            dict(
-                modified_code_files=self.inputs.get("modified_code_files"),
-                pr_header=self.inputs.get("pr_header"),
-            )
-        ).run()
+        commit_changes_output = CommitChanges(self.inputs).run()
+        prepare_pr_output = PreparePR(self.inputs).run()
         create_pr_outputs = CreatePR(
             dict(
                 base_branch=commit_changes_output.get("base_branch"),
                 target_branch=commit_changes_output.get("target_branch"),
                 pr_body=prepare_pr_output.get("pr_body"),
-                pr_title=self.inputs.get("pr_title"),
-                force_pr_creation=self.inputs.get("force_pr_creation"),
-                disable_pr=self.inputs.get("disable_pr"),
-                scm_url=self.inputs.get("scm_url"),
-                gitlab_api_key=self.inputs.get("gitlab_api_key"),
-                github_api_key=self.inputs.get("github_api_key"),
+                **self.inputs,
             )
         ).run()
 

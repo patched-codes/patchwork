@@ -18,33 +18,17 @@ class LLM(Step):
         self.inputs = inputs
 
     def run(self) -> dict:
-        prepare_prompt_outputs = PreparePrompt(
-            dict(
-                prompt_template_file=self.inputs.get("prompt_template_file"),
-                prompt_id=self.inputs.get("prompt_id"),
-                prompt_value_file=self.inputs.get("prompt_value_file"),
-                prompt_values=self.inputs.get("prompt_values"),
-            )
-        ).run()
+        prepare_prompt_outputs = PreparePrompt(self.inputs).run()
         call_llm_outputs = CallLLM(
             dict(
                 prompts=prepare_prompt_outputs.get("prompts"),
-                model=self.inputs.get("model"),
-                allow_truncated=self.inputs.get("allow_truncated"),
-                openai_api_key=self.inputs.get("openai_api_key"),
-                patched_api_key=self.inputs.get("patched_api_key"),
-                google_api_key=self.inputs.get("google_api_key"),
-                **{
-                    key: value
-                    for key, value in self.inputs.items()
-                    if key.startswith("model_") or key.startswith("client_")
-                },
+                **self.inputs,
             )
         ).run()
         extract_model_response_outputs = ExtractModelResponse(
             dict(
                 openai_responses=call_llm_outputs.get("openai_responses"),
-                response_partitions=self.inputs.get("response_partitions"),
+                **self.inputs,
             )
         ).run()
         return dict(
