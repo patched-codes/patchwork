@@ -16,10 +16,7 @@ class PRInputs(TypedDict):
     modified_code_files: list["ModifiedCodeFile"]
     pr_header: NotRequired[str]
     # CreatePRInputs
-    target_branch: str
-    base_branch: NotRequired[str]
     pr_title: NotRequired[str]
-    pr_body: NotRequired[str]
     force_pr_creation: NotRequired[bool]
     disable_pr: NotRequired[bool]
     scm_url: NotRequired[str]

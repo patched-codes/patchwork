@@ -11,7 +11,6 @@ class LLMInputs(TypedDict):
     prompt_values: NotRequired[Iterable[dict[str, Any]]]
     # CallLLMInputs
     prompt_file: NotRequired[str]
-    prompts: NotRequired[Iterable[dict]]
     model: NotRequired[str]
     allow_truncated: NotRequired[bool]
     model_args: NotRequired[str]
@@ -20,7 +19,6 @@ class LLMInputs(TypedDict):
     patched_api_key: NotRequired[str]
     google_api_key: NotRequired[str]
     # ExtractModelResponseInputs
-    openai_responses: Iterable[str]
     response_partitions: NotRequired[dict[str, list[str]]]
 
 
