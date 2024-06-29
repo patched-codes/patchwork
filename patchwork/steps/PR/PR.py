@@ -1,16 +1,12 @@
 from patchwork.step import Step
 from patchwork.steps.CommitChanges.CommitChanges import CommitChanges
-from patchwork.steps.CommitChanges.typed import CommitChangesInputs
 from patchwork.steps.CreatePR.CreatePR import CreatePR
-from patchwork.steps.CreatePR.typed import CreatePRInputs
+from patchwork.steps.PR.typed import PRInputs
 from patchwork.steps.PreparePR.PreparePR import PreparePR
-from patchwork.steps.PreparePR.typed import PreparePRInputs
 
 
 class PR(Step):
-    required_keys = (
-        CreatePRInputs.__required_keys__ | CommitChangesInputs.__required_keys__ | PreparePRInputs.__required_keys__
-    )
+    required_keys = PRInputs.__required_keys__
 
     def __init__(self, inputs):
         if not all(key in inputs.keys() for key in self.required_keys):

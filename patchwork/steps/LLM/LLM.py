@@ -1,20 +1,14 @@
 from patchwork.step import Step
 from patchwork.steps.CallLLM.CallLLM import CallLLM
-from patchwork.steps.CallLLM.typed import CallLLMInputs
 from patchwork.steps.ExtractModelResponse.ExtractModelResponse import (
     ExtractModelResponse,
 )
-from patchwork.steps.ExtractModelResponse.typed import ExtractModelResponseInputs
+from patchwork.steps.LLM.typed import LLMInputs
 from patchwork.steps.PreparePrompt.PreparePrompt import PreparePrompt
-from patchwork.steps.PreparePrompt.typed import PreparePromptInputs
 
 
 class LLM(Step):
-    required_keys = (
-        PreparePromptInputs.__required_keys__
-        | CallLLMInputs.__required_keys__
-        | ExtractModelResponseInputs.__required_keys__
-    )
+    required_keys = LLMInputs.__required_keys__
 
     def __init__(self, inputs):
         if not all(key in inputs.keys() for key in self.required_keys):

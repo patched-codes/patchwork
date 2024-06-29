@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import logging
 
 from patchwork.common.utils.dependency import slack_sdk
