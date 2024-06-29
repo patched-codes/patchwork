@@ -31,11 +31,14 @@ class LLM(Step):
                 prompts=prepare_prompt_outputs.get("prompts"),
                 model=self.inputs.get("model"),
                 allow_truncated=self.inputs.get("allow_truncated"),
-                model_args=self.inputs.get("model_args"),
-                client_args=self.inputs.get("client_args"),
                 openai_api_key=self.inputs.get("openai_api_key"),
                 patched_api_key=self.inputs.get("patched_api_key"),
                 google_api_key=self.inputs.get("google_api_key"),
+                **{
+                    key: value
+                    for key, value in self.inputs.items()
+                    if key.startswith("model_") or key.startswith("client_")
+                },
             )
         ).run()
         extract_model_response_outputs = ExtractModelResponse(
