@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing_extensions import Iterable, NotRequired, TypedDict, Annotated
+from typing_extensions import Annotated, TypedDict
 
 from patchwork.common.utils.types import IS_CONFIG
 

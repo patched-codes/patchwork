@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from typing_extensions import TypedDict
+from typing_extensions import Annotated, TypedDict
 
+from patchwork.common.utils.types import IS_CONFIG
 from patchwork.steps.PreparePR.typed import ModifiedCodeFile
 
 
@@ -12,19 +13,19 @@ class __PRInputsRequired(TypedDict):
 
 class PRInputs(__PRInputsRequired, total=False):
     # CommitChangesInputs
-    disable_branch: bool
-    force_branch_creation: bool
-    branch_prefix: str
-    branch_suffix: str
+    disable_branch: Annotated[bool, IS_CONFIG]
+    force_branch_creation: Annotated[bool, IS_CONFIG]
+    branch_prefix: Annotated[str, IS_CONFIG]
+    branch_suffix: Annotated[str, IS_CONFIG]
     # PreparePRInputs
-    pr_header: str
+    pr_header: Annotated[str, IS_CONFIG]
     # CreatePRInputs
-    pr_title: str
-    force_pr_creation: bool
-    disable_pr: bool
-    scm_url: str
-    gitlab_api_key: str
-    github_api_key: str
+    pr_title: Annotated[str, IS_CONFIG]
+    force_pr_creation: Annotated[bool, IS_CONFIG]
+    disable_pr: Annotated[bool, IS_CONFIG]
+    scm_url: Annotated[str, IS_CONFIG]
+    gitlab_api_key: Annotated[str, IS_CONFIG]
+    github_api_key: Annotated[str, IS_CONFIG]
 
 
 class PROutputs(TypedDict):

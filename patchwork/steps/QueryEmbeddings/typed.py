@@ -1,13 +1,18 @@
 from __future__ import annotations
 
-from typing_extensions import Any, NotRequired, TypedDict
+from typing_extensions import Annotated, Any, TypedDict
+
+from patchwork.common.utils.types import IS_CONFIG
 
 
-class QueryEmbeddingsInputs(TypedDict):
-    embedding_name: str
+class __QueryEmbeddingsRequiredInputs(TypedDict):
+    embedding_name: Annotated[str, IS_CONFIG]
     texts: list[str]
-    top_k: NotRequired[int]
-    token_limit: NotRequired[int]
+
+
+class QueryEmbeddingsInputs(__QueryEmbeddingsRequiredInputs, total=False):
+    top_k: Annotated[int, IS_CONFIG]
+    token_limit: Annotated[int, IS_CONFIG]
 
 
 class QueryEmbeddingsOutputs(TypedDict):

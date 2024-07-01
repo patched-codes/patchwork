@@ -1,11 +1,16 @@
 from __future__ import annotations
 
-from typing_extensions import NotRequired, TypedDict
+from typing_extensions import Annotated, TypedDict
+
+from patchwork.common.utils.types import IS_CONFIG
 
 
-class PreparePRInputs(TypedDict):
+class __PreparePRRequiredInputs(TypedDict):
     modified_code_files: list["ModifiedCodeFile"]
-    pr_header: NotRequired[str]
+
+
+class PreparePRInputs(__PreparePRRequiredInputs, total=False):
+    pr_header: Annotated[str, IS_CONFIG]
 
 
 class PreparePROutputs(TypedDict):

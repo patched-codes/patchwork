@@ -1,4 +1,4 @@
-from typing_extensions import Iterable, NotRequired, TypedDict, Annotated
+from typing_extensions import Annotated, Iterable, TypedDict
 
 from patchwork.common.utils.types import IS_CONFIG
 
