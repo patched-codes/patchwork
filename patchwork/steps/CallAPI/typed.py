@@ -11,9 +11,6 @@ class __CallAPIRequiredInputs(TypedDict):
 class CallAPIInputs(__CallAPIRequiredInputs, total=False):
     headers: dict[str, str]
     body: dict[str, Any]
-    is_fail_on_3xx: bool
-    is_fail_on_4xx: bool
-    is_fail_on_5xx: bool
 
 
 class CallAPIOutputs(TypedDict):

@@ -5,9 +5,6 @@
 - `method (str)`: The HTTP method to use for the request (GET, POST, PUT, PATCH, DELETE, HEAD).
 - `headers (dict)`: Optional. Headers to include in the request.
 - `body (dict)`: Optional. The body of the request.
-- `is_fail_on_3xx (bool)`: Optional. Whether to fail if the response status code is in the 3xx range.
-- `is_fail_on_4xx (bool)`: Optional. Whether to fail if the response status code is in the 4xx range.
-- `is_fail_on_5xx (bool)`: Optional. Whether to fail if the response status code is in the 5xx range.
 
 ## Outputs:
 - `status_code (int)`: The status code of the API response.
