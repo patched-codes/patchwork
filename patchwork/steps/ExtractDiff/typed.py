@@ -1,11 +1,16 @@
-from typing_extensions import Iterable, NotRequired, TypedDict
+from typing_extensions import Iterable, NotRequired, TypedDict, Annotated
+
+from patchwork.common.utils.types import IS_CONFIG
 
 
-class ExtractDiffInputs(TypedDict):
+class __ExtractDiffRequiredInputs(TypedDict):
     update_info: "UpdateInfo"
-    libraries_api_key: str
-    github_api_key: str
-    severity: NotRequired[str]
+    libraries_api_key: Annotated[str, IS_CONFIG]
+    github_api_key: Annotated[str, IS_CONFIG]
+
+
+class ExtractDiffInputs(__ExtractDiffRequiredInputs, total=False):
+    severity: Annotated[str, IS_CONFIG]
 
 
 class ExtractDiffOutputs(TypedDict):

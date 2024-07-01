@@ -1,14 +1,19 @@
 from __future__ import annotations
 
-from typing_extensions import Any, NotRequired, TypedDict
+from typing_extensions import Any, NotRequired, TypedDict, Annotated
+
+from patchwork.common.utils.types import IS_CONFIG
 
 
-class CommitChangesInputs(TypedDict):
+class __CommitChangesRequiredInputs(TypedDict):
     modified_code_files: list[dict[str, Any]]
-    disable_branch: NotRequired[bool]
-    force_branch_creation: NotRequired[bool]
-    branch_prefix: NotRequired[str]
-    branch_suffix: NotRequired[str]
+
+
+class CommitChangesInputs(__CommitChangesRequiredInputs, total=False):
+    disable_branch: Annotated[bool, IS_CONFIG]
+    force_branch_creation: Annotated[bool, IS_CONFIG]
+    branch_prefix: Annotated[str, IS_CONFIG]
+    branch_suffix: Annotated[str, IS_CONFIG]
 
 
 class CommitChangesOutputs(TypedDict):

@@ -1,15 +1,21 @@
-from typing_extensions import Iterable, NotRequired, TypedDict
+from __future__ import annotations
+from typing_extensions import Iterable, NotRequired, TypedDict, Annotated
+
+from patchwork.common.utils.types import IS_CONFIG
 
 
-class ExtractCodeInputs(TypedDict):
+class __ExtractCodeRequiredInputs(TypedDict):
     sarif_values: dict
-    context_size: NotRequired[int]
-    vulnerability_limit: NotRequired[int]
-    severity: NotRequired[str]
+
+
+class ExtractCodeInputs(__ExtractCodeRequiredInputs, total=False):
+    context_size: Annotated[int, IS_CONFIG]
+    vulnerability_limit: Annotated[int, IS_CONFIG]
+    severity: Annotated[str, IS_CONFIG]
 
 
 class ExtractCodeOutputs(TypedDict):
-    files_to_patch: Iterable["ExtractedCode"]
+    files_to_patch: list["ExtractedCode"]
 
 
 class ExtractedCode(TypedDict):

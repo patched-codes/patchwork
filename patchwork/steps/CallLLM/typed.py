@@ -1,18 +1,20 @@
 from __future__ import annotations
 
-from typing_extensions import Iterable, NotRequired, TypedDict
+from typing_extensions import TypedDict, Annotated
+
+from patchwork.common.utils.types import IS_CONFIG
 
 
-class CallLLMInputs(TypedDict):
-    prompt_file: NotRequired[str]
-    prompts: NotRequired[Iterable[dict]]
-    model: NotRequired[str]
-    allow_truncated: NotRequired[bool]
-    model_args: NotRequired[str]
-    client_args: NotRequired[str]
-    openai_api_key: NotRequired[str]
-    patched_api_key: NotRequired[str]
-    google_api_key: NotRequired[str]
+class CallLLMInputs(TypedDict, total=False):
+    prompt_file: Annotated[str, IS_CONFIG]
+    prompts: list[dict]
+    model: Annotated[str, IS_CONFIG]
+    allow_truncated: Annotated[bool, IS_CONFIG]
+    model_args: Annotated[str, IS_CONFIG]
+    client_args: Annotated[str, IS_CONFIG]
+    openai_api_key: Annotated[str, IS_CONFIG]
+    patched_api_key: Annotated[str, IS_CONFIG]
+    google_api_key: Annotated[str, IS_CONFIG]
 
 
 class CallLLMOutputs(TypedDict):
