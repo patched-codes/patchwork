@@ -5,6 +5,7 @@ import yaml
 from patchwork.common.utils.progress_bar import PatchflowProgressBar
 from patchwork.step import Step
 from patchwork.steps import (
+    LLM,
     CallLLM,
     CreatePRComment,
     ExtractModelResponse,
@@ -70,11 +71,7 @@ class PRReview(Step):
             "summary": ["A. Summary:", ""],
             "suggestion": ["B. Suggestion:", "A. Summary:"],
         }
-        outputs = PreparePrompt(self.inputs).run()
-        self.inputs.update(outputs)
-        outputs = CallLLM(self.inputs).run()
-        self.inputs.update(outputs)
-        outputs = ExtractModelResponse(self.inputs).run()
+        outputs = LLM(self.inputs).run()
         self.inputs.update(outputs)
 
         summaries = []

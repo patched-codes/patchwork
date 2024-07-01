@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "patchwork-cli"
-version = "0.0.24"
+version = "0.0.25"
 description = ""
 authors = ["patched.codes"]
 license = "AGPL"
@@ -57,10 +57,18 @@ sentence-transformers = {version = "~2.7.0", optional = true }
 torch = {version = "~2.2.2", optional = true }
 orjson = {version = "~3.9.15", optional = true }
 
+# notifications
+slack-sdk = {version = "~3.28.0", optional = true }
+
 [tool.poetry.extras]
 security = ["semgrep", "owasp-depscan"]
 rag = ["chromadb", "sentence-transformers", "torch", "orjson"]
-all = ["semgrep", "owasp-depscan", "chromadb", "sentence-transformers", "torch", "orjson"]
+notifications = ["slack-sdk"]
+all = [
+    "semgrep", "owasp-depscan",
+    "chromadb", "sentence-transformers", "torch", "orjson",
+    "slack-sdk"
+]
 
 [tool.poetry.group.dev.dependencies]
 setuptools = "*"
@@ -72,7 +80,7 @@ isort = "^5.13.2"
 autoflake = "^2.3.1"
 pytest = "^8.1.1"
 pytest-mock = "^3.8.0"
-
+pytest-localserver = "^0.8.1"
 datasets = "^1.14.0"
 
 [build-system]
