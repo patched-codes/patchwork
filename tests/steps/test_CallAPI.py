@@ -9,17 +9,17 @@ from patchwork.steps.CallAPI.CallAPI import (
 
 @pytest.mark.parametrize(
     "method, path, headers, body, return_code",
-     [
-         ["GET", "/", None, None, 200],
-         ["POST", "/", None, None, 200],
-         ["POST", "/", None, None, 404],
-         ["POST", "/something", None, None, 200],
-         ["POST", "/something", {"header1": "value"}, None, 200],
-         ["POST", "/something", '{"header1": "value"}', None, 200],
-         ["POST", "/something", {"Content-Type": "text/plain"}, "something", 200],
-         ["POST", "/something", {"Content-Type": "text/plain"}, {"key": "value"}, 200],
-         ["POST", "/something", {"Content-Type": "text/plain"}, '{"key": "value"}', 200],
-     ]
+    [
+        ["GET", "/", None, None, 200],
+        ["POST", "/", None, None, 200],
+        ["POST", "/", None, None, 404],
+        ["POST", "/something", None, None, 200],
+        ["POST", "/something", {"header1": "value"}, None, 200],
+        ["POST", "/something", '{"header1": "value"}', None, 200],
+        ["POST", "/something", {"Content-Type": "text/plain"}, "something", 200],
+        ["POST", "/something", {"Content-Type": "text/plain"}, {"key": "value"}, 200],
+        ["POST", "/something", {"Content-Type": "text/plain"}, '{"key": "value"}', 200],
+    ],
 )
 def test_call_api_outputs(httpserver, path, method, headers, body, return_code):
     response_body = "some data"
