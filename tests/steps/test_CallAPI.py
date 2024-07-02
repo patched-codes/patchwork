@@ -44,7 +44,7 @@ def test_call_api_outputs(httpserver, path, method, headers, body, return_code):
     request = httpserver.requests[-1]
     assert request.method == method
     assert request.path == path
-    assert request.data == expected_body.encode()
+    assert request.get_data() == expected_body.encode()
     if expected_headers is not None:
         for key, value in expected_headers.items():
             assert request.headers[key] == value
