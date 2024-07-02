@@ -49,6 +49,7 @@ The following optional dependency groups are available.
 
 - security: installs semgrep and depscan with `pip install 'patchwork-cli[security]'` and is required for **AutoFix** and **DependencyUpgrade** patchflows.
 - rag: installs chromadb with `pip install 'patchwork-cli[rag]'` and is required for the **ResolveIssue** patchflow.
+- notifications: Used by steps sending notifications, e.g. slack messages.
 - all: installs everything.
 - not specifying any dependency group (`pip install patchwork-cli`) will install a core set of dependencies that are sufficient to run the **GenerateDocstring**, **PRReview** and **GenerateREADME** patchflows.
 
