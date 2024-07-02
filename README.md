@@ -138,13 +138,13 @@ We also provide chat assistants to help you create new steps and patchflows easi
 
 ## Roadmap
 
-### Short Term Q2 '24
+### Short Term
 - Expand patchflow library and integration options
 - Patchflow debugger and validation module
 - Bug fixing and performance improvements
 - Refactor code and documentation
 
-### Long Term Q3/Q4 '24
+### Long Term
 - Support large-scale code embeddings in patchflows
 - Support parallelization and branching
 - Fine-tuned models that can be self-hosted
