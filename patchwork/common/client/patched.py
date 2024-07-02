@@ -21,7 +21,7 @@ from requests.adapters import DEFAULT_POOLBLOCK, HTTPAdapter
 from urllib3 import HTTPConnectionPool, HTTPSConnectionPool, PoolManager
 
 from patchwork.common.utils.user_config import get_user_config
-from patchwork.common.utils.utils import get_current_branch, is_container, get_distinct_ids, get_distinct_id
+from patchwork.common.utils.utils import get_current_branch, is_container
 from patchwork.logger import logger
 
 
