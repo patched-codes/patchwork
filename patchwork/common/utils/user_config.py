@@ -1,6 +1,9 @@
+from __future__ import annotations
+
+import functools
 import hashlib
+import logging
 import uuid
-from functools import lru_cache
 
 from pydantic import BaseModel
 
@@ -11,19 +14,25 @@ class UserConfig(BaseModel):
     id: str = hashlib.sha256(str(uuid.getnode()).encode()).hexdigest()
 
     def persist(self):
-        CONFIG_FILE.write_text(self.json())
+        try:
+            CONFIG_FILE.write_text(self.json())
+        except Exception as e:
+            logging.error(f"Failed to persist user config: {e}")
 
     @staticmethod
-    def read():
-        return UserConfig.model_validate_strings(CONFIG_FILE.read_text())
+    def read() -> 'UserConfig' | None:
+        try:
+            return UserConfig.model_validate_strings(CONFIG_FILE.read_text())
+        except Exception as e:
+            logging.error(f"Failed to read user config: {e}")
+            return None
 
 
-@lru_cache(maxsize=None)
+@functools.lru_cache(maxsize=None)
 def get_user_config():
-    try:
-        return UserConfig.read()
-    except Exception:
-        pass
+    user_config = UserConfig.read()
+    if user_config is not None:
+        return user_config
 
     user_config = UserConfig()
     user_config.persist()
