@@ -200,9 +200,10 @@ def find_patchflow(possible_module_paths: Iterable[str], patchflow: str) -> Any 
     for module_path in possible_module_paths:
         try:
             spec = importlib.util.spec_from_file_location("custom_module", module_path)
-            module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(module)
-            return getattr(module, patchflow)
+            if spec is not None:
+                module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(module)
+                return getattr(module, patchflow)
         except AttributeError:
             logger.debug(f"Patchflow {patchflow} not found in {module_path}")
         except Exception:
