@@ -49,6 +49,7 @@ The following optional dependency groups are available.
 
 - security: installs semgrep and depscan with `pip install 'patchwork-cli[security]'` and is required for **AutoFix** and **DependencyUpgrade** patchflows.
 - rag: installs chromadb with `pip install 'patchwork-cli[rag]'` and is required for the **ResolveIssue** patchflow.
+- notifications: Used by steps sending notifications, e.g. slack messages.
 - all: installs everything.
 - not specifying any dependency group (`pip install patchwork-cli`) will install a core set of dependencies that are sufficient to run the **GenerateDocstring**, **PRReview** and **GenerateREADME** patchflows.
 
@@ -97,12 +98,12 @@ patchwork AutoFix --config /path/to/patchwork-configs/patchflows
 
 Patchwork comes with a set of predefined patchflows, and more will be added over time. Below is a sample list of patchflows:
 
-- **GenerateDocstring**: Generate docstrings for methods in your code.
-- **AutoFix**: Generate and apply fixes to code vulnerabilities in a repository.
-- **PRReview**: On PR creation, extract code diff, summarize changes, and comment on PR.
-- **GenerateREADME**: Create a README markdown file for a given folder, to add documentation to your repository.
-- **[Experimental] DependencyUpgrade**: Update your dependencies from vulnerable to fixed versions.
-- **[Experimental] ResolveIssue**: Identify the files in your repository that need to be updated to resolve an issue (or bug) and create a PR to fix it.
+- [**GenerateDocstring**](patchwork/patchflows/GenerateDocstring): Generate docstrings for methods in your code.
+- [**AutoFix**](patchwork/patchflows/AutoFix): Generate and apply fixes to code vulnerabilities in a repository.
+- [**PRReview**](patchwork/patchflows/PRReview): On PR creation, extract code diff, summarize changes, and comment on PR.
+- [**GenerateREADME**](patchwork/patchflows/GenerateREADME): Create a README markdown file for a given folder, to add documentation to your repository.
+- [**DependencyUpgrade**](patchwork/patchflows/DependencyUpgrade): Update your dependencies from vulnerable to fixed versions.
+- [**ResolveIssue**](patchwork/patchflows/ResolveIssue): Identify the files in your repository that need to be updated to resolve an issue (or bug) and create a PR to fix it.
 
 ## Prompt Templates
 
@@ -138,13 +139,13 @@ We also provide chat assistants to help you create new steps and patchflows easi
 
 ## Roadmap
 
-### Short Term Q2 '24
+### Short Term
 - Expand patchflow library and integration options
 - Patchflow debugger and validation module
 - Bug fixing and performance improvements
 - Refactor code and documentation
 
-### Long Term Q3/Q4 '24
+### Long Term
 - Support large-scale code embeddings in patchflows
 - Support parallelization and branching
 - Fine-tuned models that can be self-hosted

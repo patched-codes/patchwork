@@ -88,7 +88,8 @@ jobs:
           poetry run patchwork AutoFix --log debug \
           --openai_api_key=${{ secrets.OPENAI_KEY }} \
           --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
-          --force_pr_creation
+          --force_pr_creation \
+          --disable_telemetry
 
       - name: Dependency Upgrade
         run: |
@@ -97,7 +98,8 @@ jobs:
           --openai_api_key=${{ secrets.OPENAI_KEY }} \
           --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
           --language=python \
-          --force_pr_creation
+          --force_pr_creation \
+          --disable_telemetry
 
   rag-test:
     runs-on: ubuntu-latest
@@ -139,7 +141,8 @@ jobs:
           poetry run patchwork ResolveIssue --log debug \
           --openai_api_key=${{ secrets.OPENAI_KEY }} \
           --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
-          --issue_url=https://github.com/patched-codes/patchwork/issues/20
+          --issue_url=https://github.com/patched-codes/patchwork/issues/20 \
+          --disable_telemetry
 
   main-test:
     runs-on: ubuntu-latest
@@ -181,14 +184,16 @@ jobs:
           poetry run patchwork PRReview --log debug \
           --openai_api_key=${{ secrets.OPENAI_KEY }} \
           --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
-          --pr_url=https://github.com/patched-codes/patchwork/pull/${{ steps.findPr.outputs.number }}
+          --pr_url=https://github.com/patched-codes/patchwork/pull/${{ steps.findPr.outputs.number }} \
+          --disable_telemetry
 
       - name: Generate Docstring
         run: |
           poetry run patchwork GenerateDocstring --log debug \
           --openai_api_key=${{ secrets.OPENAI_KEY }} \
           --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
-          --base_path=tests/cicd/generate_docstring
+          --base_path=tests/cicd/generate_docstring \
+          --disable_telemetry
 
       - name: Generate README
         run: |
@@ -210,6 +215,7 @@ jobs:
               --filter=*.py \
               --folder_path=$dir \
               --branch_prefix=generatereadme-$branch_name \
+              --disable_telemetry
             else
               echo "Found README.md in $dir"
             fi
