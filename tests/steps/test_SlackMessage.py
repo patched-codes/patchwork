@@ -5,7 +5,7 @@ import pytest
 from slack_sdk import WebClient
 
 from patchwork.steps.SlackMessage.SlackMessage import (
-    SlackMessage,  # replace with the actual module name
+    SlackMessage,
 )
 
 
