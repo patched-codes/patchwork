@@ -11,6 +11,8 @@ __DEPENDENCY_GROUPS = {
 @lru_cache(maxsize=None)
 def import_with_dependency_group(name):
     try:
+        if name not in __DEPENDENCY_GROUPS.values():
+            raise ImportError(f"Invalid dependency group: {name}")
         return importlib.import_module(name)
     except ImportError:
         error_msg = f"Missing dependency for {name}, please `pip install {name}`"
