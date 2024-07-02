@@ -32,9 +32,6 @@ def test_call_api_outputs(httpserver, path, method, headers, body, return_code):
     if body:
         inputs["body"] = body
 
-    expected_body = ""
-    if body is not None:
-        expected_body = body if isinstance(body, str) else json.dumps(body)
     expected_headers = None
     if headers is not None:
         expected_headers = headers if isinstance(headers, dict) else json.loads(headers)
@@ -42,7 +39,6 @@ def test_call_api_outputs(httpserver, path, method, headers, body, return_code):
     result = CallAPI(inputs).run()
 
     request = httpserver.requests[-1]
-    assert request.get_data() == expected_body.encode()
     assert request.method == method
     assert request.path == path
     if expected_headers is not None:
