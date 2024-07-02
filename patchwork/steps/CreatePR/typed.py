@@ -1,16 +1,21 @@
-from typing_extensions import NotRequired, TypedDict
+from typing_extensions import Annotated, TypedDict
+
+from patchwork.common.utils.types import IS_CONFIG
 
 
-class CreatePRInputs(TypedDict):
+class __CreatePRRequiredInputs(TypedDict):
     target_branch: str
-    base_branch: NotRequired[str]
-    pr_title: NotRequired[str]
-    pr_body: NotRequired[str]
-    force_pr_creation: NotRequired[bool]
-    disable_pr: NotRequired[bool]
-    scm_url: NotRequired[str]
-    gitlab_api_key: NotRequired[str]
-    github_api_key: NotRequired[str]
+
+
+class CreatePRInputs(__CreatePRRequiredInputs, total=False):
+    base_branch: str
+    pr_title: str
+    pr_body: str
+    force_pr_creation: Annotated[bool, IS_CONFIG]
+    disable_pr: Annotated[bool, IS_CONFIG]
+    scm_url: Annotated[str, IS_CONFIG]
+    gitlab_api_key: Annotated[str, IS_CONFIG]
+    github_api_key: Annotated[str, IS_CONFIG]
 
 
 class CreatePROutputs(TypedDict):

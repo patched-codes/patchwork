@@ -1,14 +1,19 @@
 from __future__ import annotations
 
-from typing_extensions import NotRequired, TypedDict
+from typing_extensions import Annotated, TypedDict
+
+from patchwork.common.utils.types import IS_CONFIG
 
 
-class CreateIssueCommentInputs(TypedDict):
-    issue_text: list[str]
-    issue_url: str
-    scm_url: NotRequired[str]
-    gitlab_api_key: NotRequired[str]
-    github_api_key: NotRequired[str]
+class __CreateIssueCommentRequiredInputs(TypedDict):
+    issue_text: Annotated[str, IS_CONFIG]
+    issue_url: Annotated[str, IS_CONFIG]
+
+
+class CreateIssueCommentInputs(__CreateIssueCommentRequiredInputs, total=False):
+    scm_url: Annotated[str, IS_CONFIG]
+    gitlab_api_key: Annotated[str, IS_CONFIG]
+    github_api_key: Annotated[str, IS_CONFIG]
 
 
 class CreateIssueCommentOutputs(TypedDict):

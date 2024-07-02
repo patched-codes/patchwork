@@ -1,14 +1,19 @@
 from __future__ import annotations
 
-from typing_extensions import Any, Iterable, NotRequired, TypedDict
+from typing_extensions import Annotated, Any, TypedDict
+
+from patchwork.common.utils.types import IS_CONFIG
 
 
-class PreparePromptInputs(TypedDict):
-    prompt_template_file: str
-    prompt_id: str
-    prompt_value_file: NotRequired[str]
-    prompt_values: NotRequired[Iterable[dict[str, Any]]]
+class __PreparePromptRequiredInputs(TypedDict):
+    prompt_template_file: Annotated[str, IS_CONFIG]
+    prompt_id: Annotated[str, IS_CONFIG]
+
+
+class PreparePromptInputs(__PreparePromptRequiredInputs, total=False):
+    prompt_value_file: Annotated[str, IS_CONFIG]
+    prompt_values: list[dict[str, Any]]
 
 
 class PreparePromptOutputs(TypedDict):
-    prompts: Iterable[dict]
+    prompts: list[dict]

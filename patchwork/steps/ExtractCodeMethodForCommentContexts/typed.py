@@ -1,13 +1,17 @@
-from typing_extensions import Iterable, NotRequired, TypedDict
+from __future__ import annotations
+
+from typing_extensions import Annotated, TypedDict
+
+from patchwork.common.utils.types import IS_CONFIG
 
 
-class ExtractCodeInputs(TypedDict):
-    base_path: NotRequired[str]
-    context_grouping: NotRequired[str]
+class ExtractCodeMethodForCommentContextsInputs(TypedDict):
+    base_path: Annotated[str, IS_CONFIG]
+    context_grouping: Annotated[str, IS_CONFIG]
 
 
-class ExtractCodeOutputs(TypedDict):
-    files_to_patch: Iterable["ExtractedCode"]
+class ExtractCodeMethodForCommentContextsOutputs(TypedDict):
+    files_to_patch: list["ExtractedCode"]
 
 
 class ExtractedCode(TypedDict):

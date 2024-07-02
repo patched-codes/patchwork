@@ -1,11 +1,16 @@
 from __future__ import annotations
 
-from typing_extensions import Iterable, NotRequired, TypedDict
+from typing_extensions import Annotated, TypedDict
+
+from patchwork.common.utils.types import IS_CONFIG
 
 
-class ExtractModelResponseInputs(TypedDict):
-    openai_responses: Iterable[str]
-    response_partitions: NotRequired[dict[str, list[str]]]
+class __ExtractModelResponseRequiredInputs(TypedDict):
+    openai_responses: list[str]
+
+
+class ExtractModelResponseInputs(__ExtractModelResponseRequiredInputs, total=False):
+    response_partitions: Annotated[dict[str, list[str]], IS_CONFIG]
 
 
 class ExtractModelResponseOutputs(TypedDict):

@@ -1,12 +1,16 @@
-from typing_extensions import Iterable, NotRequired, TypedDict
+from __future__ import annotations
+
+from typing_extensions import Annotated, Iterable, TypedDict
+
+from patchwork.common.utils.types import IS_CONFIG
 
 
-class ExtractPackageManagerFileInputs(TypedDict):
-    sbom_vdr_file_path: NotRequired[str]
-    sbom_vdr_values: NotRequired[dict]
-    package_manager_file: NotRequired[str]
-    upgrade_threshold: NotRequired[str]
-    severity: NotRequired[str]
+class ExtractPackageManagerFileInputs(TypedDict, total=False):
+    sbom_vdr_file_path: Annotated[str, IS_CONFIG]
+    sbom_vdr_values: Annotated[dict, IS_CONFIG]
+    package_manager_file: Annotated[str, IS_CONFIG]
+    upgrade_threshold: Annotated[str, IS_CONFIG]
+    severity: Annotated[str, IS_CONFIG]
 
 
 class ExtractPackageManagerFileOutputs(TypedDict):

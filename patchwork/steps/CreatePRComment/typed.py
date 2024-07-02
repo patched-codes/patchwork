@@ -1,13 +1,18 @@
-from typing_extensions import NotRequired, TypedDict
+from typing_extensions import Annotated, TypedDict
+
+from patchwork.common.utils.types import IS_CONFIG
 
 
-class CreatePRCommentInputs(TypedDict):
+class __CreatePRCommentRequiredInputs(TypedDict):
     pr_url: str
     pr_comments: str
-    noisy_comments: NotRequired[bool]
-    scm_url: NotRequired[str]
-    gitlab_api_key: NotRequired[str]
-    github_api_key: NotRequired[str]
+
+
+class CreatePRCommentInputs(__CreatePRCommentRequiredInputs, total=False):
+    noisy_comments: Annotated[bool, IS_CONFIG]
+    scm_url: Annotated[str, IS_CONFIG]
+    gitlab_api_key: Annotated[str, IS_CONFIG]
+    github_api_key: Annotated[str, IS_CONFIG]
 
 
 class CreatePRCommentOutputs(TypedDict):
