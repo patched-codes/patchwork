@@ -1,3 +1,4 @@
+from patchwork.common.utils.utils import exclude_none_dict
 from patchwork.step import Step
 from patchwork.steps.CommitChanges.CommitChanges import CommitChanges
 from patchwork.steps.CreatePR.CreatePR import CreatePR
@@ -28,11 +29,11 @@ class PR(Step):
             )
         ).run()
 
-        return dict(
+        return exclude_none_dict(dict(
             base_branch=commit_changes_output.get("base_branch"),
             target_branch=commit_changes_output.get("target_branch"),
             pr_url=create_pr_outputs.get("pr_url"),
             pr_number=create_pr_outputs.get("pr_number"),
             pr_title=prepare_pr_output.get("pr_title"),
             pr_body=prepare_pr_output.get("pr_body"),
-        )
+        ))

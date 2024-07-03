@@ -1,6 +1,7 @@
 import json
 import tempfile
 
+from patchwork.common.utils.utils import exclude_none_dict
 from patchwork.step import Step
 from patchwork.steps.CallLLM.CallLLM import CallLLM
 from patchwork.steps.ExtractModelResponse.ExtractModelResponse import (
@@ -66,8 +67,8 @@ class SimplifiedLLM(Step):
                 extract_model_response_inputs["response_partitions"] = self.inputs["response_partitions"]
             extract_model_response_outputs = ExtractModelResponse(extract_model_response_inputs).run()
 
-        return dict(
+        return exclude_none_dict(dict(
             prompts=prepare_prompt_outputs.get("prompts"),
             openai_responses=call_llm_outputs.get("openai_responses"),
             extracted_responses=extract_model_response_outputs.get("extracted_responses"),
-        )
+        ))
