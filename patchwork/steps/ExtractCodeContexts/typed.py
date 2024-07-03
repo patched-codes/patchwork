@@ -6,7 +6,7 @@ from patchwork.common.utils.types import IS_CONFIG
 
 
 class ExtractCodeContextsInputs(TypedDict, total=False):
-    base_path: Annotated[str, IS_CONFIG]
+    base_path: str
     context_grouping: Annotated[str, IS_CONFIG]
 
 

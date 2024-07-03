@@ -6,7 +6,7 @@ from patchwork.common.utils.types import IS_CONFIG
 
 
 class __CreateIssueRequiredInputs(TypedDict):
-    issue_text: Annotated[str, IS_CONFIG]
+    issue_text: str
     issue_title: Annotated[str, IS_CONFIG]
     scm_url: Annotated[str, IS_CONFIG]
 
