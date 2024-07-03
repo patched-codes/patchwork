@@ -29,22 +29,34 @@ from patchwork.steps.ReadPRDiffs.ReadPRDiffs import ReadPRDiffs
 from patchwork.steps.ScanDepscan.ScanDepscan import ScanDepscan
 from patchwork.steps.ScanSemgrep.ScanSemgrep import ScanSemgrep
 from patchwork.steps.SlackMessage.SlackMessage import SlackMessage
+from patchwork.steps.CreateIssue.CreateIssue import CreateIssue
+from patchwork.steps.ExtractCodeContexts.ExtractCodeContexts import ExtractCodeContexts
+from patchwork.steps.ExtractCodeMethodForCommentContexts.ExtractCodeMethodForCommentContexts import (
+    ExtractCodeMethodForCommentContexts,
+)
+from patchwork.steps.SimplifiedLLM.SimplifiedLLM import SimplifiedLLM
 
 __all__ = [
     "AnalyzeImpact",
+    "CallAPI",
     "CallCode2Prompt",
     "CallLLM",
     "CommitChanges",
+    "CreateIssue",
+    "CreateIssueComment",
     "CreatePR",
     "CreatePRComment",
-    "CreateIssueComment",
     "ExtractCode",
+    "ExtractCodeContexts",
+    "ExtractCodeMethodForCommentContexts",
     "ExtractDiff",
     "ExtractModelResponse",
     "ExtractPackageManagerFile",
     "GenerateCodeRepositoryEmbeddings",
     "GenerateEmbeddings",
+    "LLM",
     "ModifyCode",
+    "PR",
     "PreparePR",
     "PreparePrompt",
     "QueryEmbeddings",
@@ -52,8 +64,6 @@ __all__ = [
     "ReadPRDiffs",
     "ScanDepscan",
     "ScanSemgrep",
-    "LLM",
-    "PR",
+    "SimplifiedLLM",
     "SlackMessage",
-    "CallAPI",
 ]
