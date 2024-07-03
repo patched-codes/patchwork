@@ -10,6 +10,13 @@ from patchwork.steps.SimplifiedLLM.typed import SimplifiedLLMInputs
 from patchwork.steps.PreparePrompt.PreparePrompt import PreparePrompt
 
 
+def json_loads(s: str) -> dict:
+    try:
+        return json.loads(s)
+    except json.JSONDecodeError:
+        return dict()
+
+
 class SimplifiedLLM(Step):
     def __init__(self, inputs):
         missing_keys = SimplifiedLLMInputs.__required_keys__.difference(set(inputs.keys()))
@@ -47,7 +54,7 @@ class SimplifiedLLM(Step):
         call_llm_outputs = CallLLM(call_llm_inputs).run()
 
         if self.is_json_mode:
-            json_response = [json.loads(response) for response in call_llm_outputs.get("openai_responses")]
+            json_response = [json_loads(response) for response in call_llm_outputs.get("openai_responses")]
             extract_model_response_outputs = dict(extracted_responses=json_response)
         else:
             extract_model_response_inputs = dict(

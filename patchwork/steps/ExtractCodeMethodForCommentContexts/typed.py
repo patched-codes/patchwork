@@ -7,7 +7,6 @@ from patchwork.common.utils.types import IS_CONFIG
 
 class ExtractCodeMethodForCommentContextsInputs(TypedDict):
     base_path: Annotated[str, IS_CONFIG]
-    context_grouping: Annotated[str, IS_CONFIG]
 
 
 class ExtractCodeMethodForCommentContextsOutputs(TypedDict):
