@@ -8,11 +8,11 @@ from patchwork.common.utils.types import IS_CONFIG
 class __SimplifiedLLMInputsRequired(TypedDict):
     # PreparePromptInputs
     prompt_user: Annotated[str, IS_CONFIG]
+    prompt_values: list[dict[str, Any]]
 
 
 class SimplifiedLLMInputs(__SimplifiedLLMInputsRequired, total=False):
     prompt_system: Annotated[str, IS_CONFIG]
-    prompt_values: list[dict[str, Any]]
     # CallLLMInputs
     model: Annotated[str, IS_CONFIG]
     openai_api_key: Annotated[str, IS_CONFIG]
