@@ -18,6 +18,7 @@ class SimplifiedLLMInputs(__SimplifiedLLMInputsRequired, total=False):
     openai_api_key: Annotated[str, IS_CONFIG]
     patched_api_key: Annotated[str, IS_CONFIG]
     google_api_key: Annotated[str, IS_CONFIG]
+    json: Annotated[bool, IS_CONFIG]
     # ExtractModelResponseInputs
     response_partitions: Annotated[dict[str, list[str]], IS_CONFIG]
 
