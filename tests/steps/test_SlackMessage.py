@@ -4,9 +4,7 @@ from random import choices
 import pytest
 from slack_sdk import WebClient
 
-from patchwork.steps.SlackMessage.SlackMessage import (
-    SlackMessage,
-)
+from patchwork.steps.SlackMessage.SlackMessage import SlackMessage
 
 
 @pytest.fixture

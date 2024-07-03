@@ -3,19 +3,24 @@ from pathlib import Path
 import pytest
 
 from patchwork.steps.CallLLM.CallLLM import CallLLM
-from patchwork.steps.ExtractModelResponse.ExtractModelResponse import ExtractModelResponse
+from patchwork.steps.ExtractModelResponse.ExtractModelResponse import (
+    ExtractModelResponse,
+)
 from patchwork.steps.PreparePrompt.PreparePrompt import PreparePrompt
 from patchwork.steps.SimplifiedLLM.SimplifiedLLM import SimplifiedLLM
 
 
-@pytest.mark.parametrize("inputs", [
-    {
-         "prompt_user": "user",
-         "model": "model",
-         "openai_api_key": "openai_api_key",
-         "json": True,
-     },
-])
+@pytest.mark.parametrize(
+    "inputs",
+    [
+        {
+            "prompt_user": "user",
+            "model": "model",
+            "openai_api_key": "openai_api_key",
+            "json": True,
+        },
+    ],
+)
 def test_invalid(inputs):
     with pytest.raises(ValueError):
         SimplifiedLLM(inputs)
@@ -35,7 +40,9 @@ def test_non_json_run(mocker):
     mocked_call_llm = mocker.MagicMock()
     mocked_call_llm_class = mocker.patch.object(CallLLM, "__new__", return_value=mocked_call_llm)
     mocked_extract_model_response = mocker.MagicMock()
-    mocked_extract_model_response_class = mocker.patch.object(ExtractModelResponse, "__new__", return_value=mocked_extract_model_response)
+    mocked_extract_model_response_class = mocker.patch.object(
+        ExtractModelResponse, "__new__", return_value=mocked_extract_model_response
+    )
 
     simplified_llm = SimplifiedLLM(inputs)
     output = simplified_llm.run()
@@ -75,7 +82,9 @@ def test_json_run(mocker):
     mocked_call_llm = mocker.MagicMock()
     mocked_call_llm_class = mocker.patch.object(CallLLM, "__new__", return_value=mocked_call_llm)
     mocked_extract_model_response = mocker.MagicMock()
-    mocked_extract_model_response_class = mocker.patch.object(ExtractModelResponse, "__new__", return_value=mocked_extract_model_response)
+    mocked_extract_model_response_class = mocker.patch.object(
+        ExtractModelResponse, "__new__", return_value=mocked_extract_model_response
+    )
 
     simplified_llm = SimplifiedLLM(inputs)
     output = simplified_llm.run()

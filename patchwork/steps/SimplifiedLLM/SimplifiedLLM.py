@@ -6,8 +6,8 @@ from patchwork.steps.CallLLM.CallLLM import CallLLM
 from patchwork.steps.ExtractModelResponse.ExtractModelResponse import (
     ExtractModelResponse,
 )
-from patchwork.steps.SimplifiedLLM.typed import SimplifiedLLMInputs
 from patchwork.steps.PreparePrompt.PreparePrompt import PreparePrompt
+from patchwork.steps.SimplifiedLLM.typed import SimplifiedLLMInputs
 
 
 def json_loads(s: str) -> dict:
@@ -48,9 +48,10 @@ class SimplifiedLLM(Step):
             model_response_format=dict(type="json_object" if self.is_json_mode else "text"),
             prompts=prepare_prompt_outputs.get("prompts"),
             **{
-                key: self.inputs[key] for key in ["model", "openai_api_key", "patched_api_key", "google_api_key"]
+                key: self.inputs[key]
+                for key in ["model", "openai_api_key", "patched_api_key", "google_api_key"]
                 if self.inputs.get(key) is not None
-            }
+            },
         )
         call_llm_outputs = CallLLM(call_llm_inputs).run()
 

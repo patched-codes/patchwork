@@ -3,11 +3,9 @@ from __future__ import annotations
 import asyncio
 import atexit
 import contextlib
-import hashlib
 import platform
 import socket
 import sys
-import uuid
 from importlib import metadata
 from pathlib import Path
 from threading import Thread

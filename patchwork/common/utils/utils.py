@@ -1,10 +1,8 @@
 from __future__ import annotations
 
 import atexit
-import hashlib
 import signal
 import tempfile
-import uuid
 from pathlib import Path
 
 import tiktoken
