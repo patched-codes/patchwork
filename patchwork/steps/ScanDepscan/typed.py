@@ -8,4 +8,4 @@ class ScanDepscanInputs(TypedDict, total=False):
 
 
 class ScanDepscanOutputs(TypedDict):
-    sbom_vdr_values: str
+    sbom_vdr_values: dict
