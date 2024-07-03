@@ -7,7 +7,6 @@ from patchwork.common.utils.types import IS_CONFIG
 
 class __SimplifiedLLMInputsRequired(TypedDict):
     # PreparePromptInputs
-    prompt_template: Annotated[str, IS_CONFIG]
     prompt_user: Annotated[str, IS_CONFIG]
 
 
