@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing_extensions import Annotated, Any, Literal, TypedDict
 
-from patchwork.common.utils.types import IS_CONFIG
+from patchwork.common.utils.typing import IS_CONFIG
 
 
 class __CallAPIRequiredInputs(TypedDict):

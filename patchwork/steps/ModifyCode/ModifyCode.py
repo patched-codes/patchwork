@@ -7,19 +7,6 @@ from patchwork.logger import logger
 from patchwork.step import Step
 
 
-def load_json_file(file_path):
-    """Utility function to load a json file."""
-    file_path = Path(file_path)
-
-    if not file_path.is_file():
-        raise ValueError(f'Unable to find input file: "{file_path}"')
-    try:
-        with open(file_path, "r") as fp:
-            return json.load(fp)
-    except json.JSONDecodeError as e:
-        raise ValueError(f'Invalid input file "{file_path}": {e}')
-
-
 def save_file_contents(file_path, content):
     """Utility function to save content to a file."""
     with open(file_path, "w") as file:

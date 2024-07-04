@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from typing_extensions import Annotated, TypedDict
 
-from patchwork.common.utils.types import IS_CONFIG
+from patchwork.common.utils.typing import IS_CONFIG, IS_PATH
 
 
 class ExtractCodeContextsInputs(TypedDict, total=False):
-    base_path: str
+    base_path: Annotated[str, IS_PATH]
     context_grouping: Annotated[str, IS_CONFIG]
 
 
