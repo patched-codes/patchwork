@@ -6,7 +6,7 @@ from patchwork.common.utils.types import IS_CONFIG
 
 
 class __QueryEmbeddingsRequiredInputs(TypedDict):
-    embedding_name: Annotated[str, IS_CONFIG]
+    embedding_name: str
     texts: list[str]
 
 

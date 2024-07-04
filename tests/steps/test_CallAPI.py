@@ -2,9 +2,7 @@ import json
 
 import pytest
 
-from patchwork.steps.CallAPI.CallAPI import (
-    CallAPI,
-)
+from patchwork.steps.CallAPI.CallAPI import CallAPI
 
 
 @pytest.mark.parametrize(

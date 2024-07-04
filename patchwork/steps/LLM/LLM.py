@@ -1,3 +1,4 @@
+from patchwork.common.utils.utils import exclude_none_dict
 from patchwork.step import Step
 from patchwork.steps.CallLLM.CallLLM import CallLLM
 from patchwork.steps.ExtractModelResponse.ExtractModelResponse import (
@@ -8,10 +9,8 @@ from patchwork.steps.PreparePrompt.PreparePrompt import PreparePrompt
 
 
 class LLM(Step):
-    required_keys = LLMInputs.__required_keys__
-
     def __init__(self, inputs):
-        missing_keys = self.required_keys.difference(set(inputs.keys()))
+        missing_keys = LLMInputs.__required_keys__.difference(set(inputs.keys()))
         if len(missing_keys) > 0:
             raise ValueError(f'Missing required data: "{missing_keys}"')
 
@@ -31,8 +30,8 @@ class LLM(Step):
                 **self.inputs,
             )
         ).run()
-        return dict(
+        return exclude_none_dict(dict(
             prompts=prepare_prompt_outputs.get("prompts"),
             openai_responses=call_llm_outputs.get("openai_responses"),
             extracted_responses=extract_model_response_outputs.get("extracted_responses"),
-        )
+        ))
