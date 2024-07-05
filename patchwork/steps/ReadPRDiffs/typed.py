@@ -6,7 +6,7 @@ from patchwork.common.utils.typing import IS_CONFIG
 
 
 class __ReadPRDiffsRequiredInputs(TypedDict):
-    pr_url: Annotated[str, IS_CONFIG]
+    pr_url: str
 
 
 class ReadPRDiffsInputs(__ReadPRDiffsRequiredInputs, total=False):
