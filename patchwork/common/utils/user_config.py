@@ -23,7 +23,7 @@ class __UserConfig(BaseModel):
 @functools.lru_cache(maxsize=None)
 def get_user_config():
     try:
-        return __UserConfig.model_validate_strings(CONFIG_FILE.read_text())
+        return __UserConfig.model_validate_json(CONFIG_FILE.read_text())
     except Exception as e:
         logging.error(f"Failed to read user config: {e}")
 
