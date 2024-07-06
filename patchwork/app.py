@@ -209,8 +209,12 @@ def find_patchflow(possible_module_paths: Iterable[str], patchflow: str) -> Any 
             logger.debug(f"Patchflow {patchflow} not found as a file/directory in {module_path}")
 
         try:
-            module = importlib.import_module(module_path)
-            return getattr(module, patchflow)
+            whitelist = ['allowed_module']
+            if module_path in whitelist:
+                module = importlib.import_module(module_path)
+                return getattr(module, patchflow)
+            else:
+                logger.debug(f"Module {module_path} is not whitelisted for dynamic import")
         except ModuleNotFoundError:
             logger.debug(f"Patchflow {patchflow} not found as a module in {module_path}")
         except AttributeError:
