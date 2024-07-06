@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from typing_extensions import Annotated, TypedDict
 
-from patchwork.common.utils.types import IS_CONFIG
+from patchwork.common.utils.typing import IS_CONFIG
 
 
 class __ReadPRDiffsRequiredInputs(TypedDict):
-    pr_url: Annotated[str, IS_CONFIG]
+    pr_url: str
 
 
 class ReadPRDiffsInputs(__ReadPRDiffsRequiredInputs, total=False):
