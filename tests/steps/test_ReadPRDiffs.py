@@ -33,7 +33,7 @@ def test_read_prdiffs(mocker, inputs_extra, method_path, diffs, expected_values)
     inputs = {**base_inputs, **inputs_extra}
 
     mocked_pr = mocker.Mock(spec=PullRequestProtocol)
-    mocked_pr.file_diffs.return_value = diffs
+    mocked_pr.texts.return_value = diffs
     mocked_scm_client = mocker.patch(method_path)
     mocked_scm_client.return_value = mocked_pr
 

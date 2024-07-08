@@ -37,10 +37,14 @@ class Comment:
     end_line: int
 
 
-class Issue(TypedDict):
+class IssueText(TypedDict):
     title: str
     body: str
     comments: list[str]
+
+
+class PullRequestTexts(IssueText):
+    diffs: dict[str, str]
 
 
 _COMMENT_MARKER = "<!-- PatchWork comment marker -->"
@@ -61,7 +65,7 @@ class PullRequestProtocol(Protocol):
     def reset_comments(self) -> None:
         ...
 
-    def file_diffs(self) -> dict[str, str]:
+    def texts(self) -> PullRequestTexts:
         ...
 
     @staticmethod
@@ -131,10 +135,10 @@ class ScmPlatformClientProtocol(Protocol):
     def get_slug_and_id_from_url(self, url: str) -> tuple[str, int] | None:
         ...
 
-    def find_issue_by_url(self, url: str) -> Issue | None:
+    def find_issue_by_url(self, url: str) -> IssueText | None:
         ...
 
-    def find_issue_by_id(self, slug: str, issue_id: int) -> Issue | None:
+    def find_issue_by_id(self, slug: str, issue_id: int) -> IssueText | None:
         ...
 
     def get_pr_by_url(self, url: str) -> PullRequestProtocol | None:
@@ -239,14 +243,28 @@ class GitlabMergeRequest(PullRequestProtocol):
                 if note["body"].startswith(_COMMENT_MARKER):
                     discussion.notes.delete(note["id"])
 
-    def file_diffs(self) -> dict[str, str]:
+    def texts(self) -> PullRequestTexts:
+        title = self._mr.title
+        body = self._mr.description
+        notes = [note.body for note in self._mr.notes.list() if note.system is False]
+
         diffs = self._mr.diffs.list()
         latest_diff = max(diffs, key=lambda diff: diff.created_at, default=None)
         if latest_diff is None:
-            return {}
+            return dict(
+                title=title,
+                body=body,
+                comments=notes,
+                diffs={}
+            )
 
         files = self._mr.diffs.get(latest_diff.id).diffs
-        return {file["new_path"]: file["diff"] for file in files}
+        return dict(
+            title=title,
+            body=body,
+            comments=notes,
+            diffs={file["new_path"]: file["diff"] for file in files}
+        )
 
 
 class GithubPullRequest(PullRequestProtocol):
@@ -283,9 +301,13 @@ class GithubPullRequest(PullRequestProtocol):
             if comment.body.startswith(_COMMENT_MARKER):
                 comment.delete()
 
-    def file_diffs(self) -> dict[str, str]:
-        files = self._pr.get_files()
-        return {file.filename: file.patch for file in files}
+    def texts(self) -> PullRequestTexts:
+        return dict(
+            title=self._pr.title or "",
+            body=self._pr.body or "",
+            comments=[comment.body for comment in self._pr.get_comments()],
+            diffs={file.filename: file.patch for file in self._pr.get_files()}
+        )
 
 
 class GithubClient(ScmPlatformClientProtocol):
@@ -322,11 +344,11 @@ class GithubClient(ScmPlatformClientProtocol):
 
         return slug, resource_id
 
-    def find_issue_by_url(self, url: str) -> Issue | None:
+    def find_issue_by_url(self, url: str) -> IssueText | None:
         slug, issue_id = self.get_slug_and_id_from_url(url)
         return self.find_issue_by_id(slug, issue_id)
 
-    def find_issue_by_id(self, slug: str, issue_id: int) -> Issue | None:
+    def find_issue_by_id(self, slug: str, issue_id: int) -> IssueText | None:
         repo = self.github.get_repo(slug)
         try:
             issue = repo.get_issue(issue_id)
@@ -422,11 +444,11 @@ class GitlabClient(ScmPlatformClientProtocol):
 
         return slug, resource_id
 
-    def find_issue_by_url(self, url: str) -> Issue | None:
+    def find_issue_by_url(self, url: str) -> IssueText | None:
         slug, issue_id = self.get_slug_and_id_from_url(url)
         return self.find_issue_by_id(slug, issue_id)
 
-    def find_issue_by_id(self, slug: str, issue_id: int) -> Issue | None:
+    def find_issue_by_id(self, slug: str, issue_id: int) -> IssueText | None:
         project = self.gitlab.projects.get(slug)
         try:
             issue = project.issues.get(issue_id)
