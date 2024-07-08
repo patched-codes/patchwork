@@ -48,7 +48,7 @@ class ReadPRDiffs(Step):
         pr_texts = self.pr.texts()
         body = pr_texts.get("body", "") or pr_texts.get("title", "")
         prompt_values = []
-        for path, diffs in pr_texts.get("diffs", []):
+        for path, diffs in pr_texts.get("diffs", {}).items():
             if filter_by_extension(path, _IGNORED_EXTENSIONS):
                 continue
             prompt_values.append(dict(path=path, diff=diffs, body=body))
