@@ -10,7 +10,7 @@ from attrs import define
 from github import Auth, Consts, Github, GithubException, PullRequest
 from gitlab import Gitlab, GitlabAuthenticationError, GitlabError
 from gitlab.v4.objects import ProjectMergeRequest
-from typing_extensions import Protocol
+from typing_extensions import Protocol, TypedDict
 
 from patchwork.logger import logger
 
@@ -35,6 +35,12 @@ class Comment:
     body: str
     start_line: int | None
     end_line: int
+
+
+class Issue(TypedDict):
+    title: str
+    body: str
+    comments: list[str]
 
 
 _COMMENT_MARKER = "<!-- PatchWork comment marker -->"
@@ -125,10 +131,10 @@ class ScmPlatformClientProtocol(Protocol):
     def get_slug_and_id_from_url(self, url: str) -> tuple[str, int] | None:
         ...
 
-    def find_issue_by_url(self, url: str) -> list[str] | None:
+    def find_issue_by_url(self, url: str) -> Issue | None:
         ...
 
-    def find_issue_by_id(self, slug: str, issue_id: int) -> list[str] | None:
+    def find_issue_by_id(self, slug: str, issue_id: int) -> Issue | None:
         ...
 
     def get_pr_by_url(self, url: str) -> PullRequestProtocol | None:
@@ -316,17 +322,19 @@ class GithubClient(ScmPlatformClientProtocol):
 
         return slug, resource_id
 
-    def find_issue_by_url(self, url: str) -> list[str] | None:
+    def find_issue_by_url(self, url: str) -> Issue | None:
         slug, issue_id = self.get_slug_and_id_from_url(url)
         return self.find_issue_by_id(slug, issue_id)
 
-    def find_issue_by_id(self, slug: str, issue_id: int) -> list[str] | None:
+    def find_issue_by_id(self, slug: str, issue_id: int) -> Issue | None:
         repo = self.github.get_repo(slug)
         try:
             issue = repo.get_issue(issue_id)
-            body = issue.body
-            comments = [issue_comment.body for issue_comment in issue.get_comments()]
-            return [body] + comments
+            return dict(
+                title=issue.title,
+                body=issue.body,
+                comments=[issue_comment.body for issue_comment in issue.get_comments()]
+            )
         except GithubException as e:
             logger.warn(f"Failed to get issue: {e}")
             return None
@@ -414,17 +422,19 @@ class GitlabClient(ScmPlatformClientProtocol):
 
         return slug, resource_id
 
-    def find_issue_by_url(self, url: str) -> list[str] | None:
+    def find_issue_by_url(self, url: str) -> Issue | None:
         slug, issue_id = self.get_slug_and_id_from_url(url)
         return self.find_issue_by_id(slug, issue_id)
 
-    def find_issue_by_id(self, slug: str, issue_id: int) -> list[str] | None:
+    def find_issue_by_id(self, slug: str, issue_id: int) -> Issue | None:
         project = self.gitlab.projects.get(slug)
         try:
             issue = project.issues.get(issue_id)
-            body = issue["description"]
-            comments = [note["body"] for note in issue.notes.list()]
-            return [body] + comments
+            return dict(
+                title=issue.get("title", ""),
+                body=issue.get("description", ""),
+                comments=[note["body"] for note in issue.notes.list()]
+            )
         except GitlabError as e:
             logger.warn(f"Failed to get issue: {e}")
             return None

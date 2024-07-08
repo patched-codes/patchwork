@@ -51,7 +51,7 @@ class PreparePR(Step):
                 elif title == "" and patch_msg != "":
                     expandable = (
                         f"<details>"
-                        f"<summary>({placeholder_inner_text})[{chunk_link}]</summary>"
+                        f"<summary>[{placeholder_inner_text}]({chunk_link})</summary>"
                         f"{indent(patch_msg.strip(), '  ')}"
                         f"</details>"
                     )

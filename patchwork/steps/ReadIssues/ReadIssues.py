@@ -27,7 +27,13 @@ class ReadIssues(Step):
         if "scm_url" in inputs.keys():
             self.scm_client.set_url(inputs["scm_url"])
 
-        self.issue_texts = self.scm_client.find_issue_by_url(inputs["issue_url"])
+        self.issue = self.scm_client.find_issue_by_url(inputs["issue_url"])
+        if not self.issue:
+            raise ValueError(f"Could not find issue with url: {inputs['issue_url']}")
 
     def run(self) -> dict:
-        return dict(issue_text=[self.issue_texts[0]])
+        return dict(
+            issue_title=self.issue.get("title"),
+            issue_body=self.issue.get("body"),
+            issue_comments=self.issue.get("comments"),
+        )
