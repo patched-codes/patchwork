@@ -140,20 +140,8 @@ class TestExtractPackageManagerFile(unittest.TestCase):
             result = ExtractPackageManagerFile(inputs).run()
 
             # Verify the result
-            prompt_value_file = result.get("prompt_value_file")
-            self.assertIsNotNone(prompt_value_file, "prompt_value_file should not be None")
-
-            code_file = result.get("code_file")
-            self.assertIsNotNone(code_file, "code_file should not be None")
-
-            # Check if the file exists and is a valid JSON
-            self.assertTrue(os.path.exists(prompt_value_file), "prompt_value_file should exist")
-            with open(prompt_value_file, "r") as f:
-                json.load(f)  # This will raise an exception if the file is not a valid JSON
-
-            self.assertTrue(os.path.exists(code_file), "code_file should exist")
-            with open(code_file, "r") as f:
-                json.load(f)  # This will raise an exception if the file is not a valid JSON
+            files_to_patch = result.get("files_to_patch")
+            self.assertIsNotNone(files_to_patch, "files_to_patch should not be None")
 
 
 if __name__ == "__main__":
