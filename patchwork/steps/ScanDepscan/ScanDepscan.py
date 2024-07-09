@@ -10,7 +10,6 @@ from patchwork.common.utils.dependency import import_with_dependency_group
 from patchwork.logger import logger
 from patchwork.step import Step
 
-
 __target_cdxgen_version = "10.7.1"
 
 
@@ -22,8 +21,12 @@ def is_cdxgen_installed():
         logger.debug(f"cdxgen version: {p.stdout}")
         cdxgen_version = Version.parse(p.stdout.strip())
         if cdxgen_version.compare(__target_cdxgen_version) > 0:
-            logger.debug(f"cdxgen version {cdxgen_version} is installed, but version {__target_cdxgen_version} is required.")
-            raise ValueError(f"cdxgen version {cdxgen_version} is installed, but version {__target_cdxgen_version} is required.")
+            logger.debug(
+                f"cdxgen version {cdxgen_version} is installed, but version {__target_cdxgen_version} is required."
+            )
+            raise ValueError(
+                f"cdxgen version {cdxgen_version} is installed, but version {__target_cdxgen_version} is required."
+            )
 
         return True
     except subprocess.CalledProcessError as e:

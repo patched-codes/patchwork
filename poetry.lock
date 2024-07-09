@@ -170,13 +170,13 @@ files = [
 
 [[package]]
 name = "appthreat-vulnerability-db"
-version = "5.6.4"
+version = "5.6.6"
 description = "AppThreat's vulnerability database and package search library with a built-in file based storage. OSV, CVE, GitHub, npm are the primary sources of vulnerabilities."
 optional = true
 python-versions = ">=3.8"
 files = [
-    {file = "appthreat-vulnerability-db-5.6.4.tar.gz", hash = "sha256:9fcc675b0726bffa5cf929e47e2d2ada9ef21a6d6fde91b94a18ec673b693fd6"},
-    {file = "appthreat_vulnerability_db-5.6.4-py3-none-any.whl", hash = "sha256:1e755359dd61d621b1f3533fc95743b7ff55e85e15ed48be8ca337a9d2be844f"},
+    {file = "appthreat-vulnerability-db-5.6.6.tar.gz", hash = "sha256:b372e367c6ca41f7d0c9152dbf5f398baf76625f9f271cd9497712e0b5aeb97d"},
+    {file = "appthreat_vulnerability_db-5.6.6-py3-none-any.whl", hash = "sha256:61917db074790861c88d12467c6e28a811b906baa1810e3be6bc3e3e34400c0b"},
 ]
 
 [package.dependencies]
@@ -3036,17 +3036,17 @@ files = [
 
 [[package]]
 name = "owasp-depscan"
-version = "5.2.12"
+version = "5.2.15"
 description = "Fully open-source security audit for project dependencies based on known vulnerabilities and advisories."
 optional = true
 python-versions = ">=3.8"
 files = [
-    {file = "owasp-depscan-5.2.12.tar.gz", hash = "sha256:1a2943aa4e1be0c57a84ece2ab98d36eabec0b6d366ef76428f1a86880b57335"},
-    {file = "owasp_depscan-5.2.12-py3-none-any.whl", hash = "sha256:e67416cc2ab665ae670045badba87dbadc1fa45609c4756b2d5a205c02184661"},
+    {file = "owasp-depscan-5.2.15.tar.gz", hash = "sha256:b9158bdd3087c1cb7f499cc3517fd5021a6352d92a1ac0dc4c4a71360c52dae2"},
+    {file = "owasp_depscan-5.2.15-py3-none-any.whl", hash = "sha256:44ec4d6074bfe72eae8fe2b2e0b4092ef0f42c1ed878cd387b0f04465495eb4f"},
 ]
 
 [package.dependencies]
-appthreat-vulnerability-db = "5.6.4"
+appthreat-vulnerability-db = "5.6.6"
 cvss = "*"
 defusedxml = "*"
 Jinja2 = "*"
@@ -6455,4 +6455,4 @@ security = ["owasp-depscan", "semgrep"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "c75becf835ea1ea172712356732f1af76c20d059d41f97d01891f4c9773c773f"
+content-hash = "1a0842c0c066febc45449579b52751d07b0253e9ddb80c0e499091d0069056b5"
