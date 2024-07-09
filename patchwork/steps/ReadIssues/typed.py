@@ -16,4 +16,6 @@ class ReadIssuesInputs(__ReadIssuesRequiredInputs, total=False):
 
 
 class ReadIssuesOutputs(TypedDict):
-    issue_text: list[str]
+    issue_title: str
+    issue_body: str
+    issue_comments: list[str]

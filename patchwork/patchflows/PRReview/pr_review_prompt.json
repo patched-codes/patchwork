@@ -8,7 +8,7 @@
       },
       {
         "role": "user",
-        "content": "Path:\n{{path}}\n\nDiff:\n{{diff}}\n"
+        "content": "Body:\n{{body}}\n\nPath:\n{{path}}\n\nDiff:\n{{diff}}\n"
       }
     ]
   },

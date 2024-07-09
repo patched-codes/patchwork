@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "patchwork-cli"
-version = "0.0.28"
+version = "0.0.29"
 description = ""
 authors = ["patched.codes"]
 license = "AGPL"
@@ -48,7 +48,7 @@ tree-sitter = "~0.21.3"
 # extras
 # security
 semgrep = {version = "^1.51.0", optional = true}
-owasp-depscan = {version = "~5.2.12", optional = true }
+owasp-depscan = {version = "5.2.15", optional = true }
 
 # rag
 chromadb = {version = "~0.4.24", optional = true }

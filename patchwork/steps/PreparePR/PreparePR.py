@@ -47,11 +47,11 @@ class PreparePR(Step):
                 chunk_link = "{{" + placeholder_inner_text + "}}"
 
                 if title != "" and patch_msg == "":
-                    expandable = f"\n  [{title.strip()}]({chunk_link})"
+                    expandable = f"\n  {title.strip()}"
                 elif title == "" and patch_msg != "":
                     expandable = (
                         f"<details>"
-                        f"<summary>({placeholder_inner_text})[{chunk_link}]</summary>"
+                        f"<summary>[{placeholder_inner_text}]({chunk_link})</summary>"
                         f"{indent(patch_msg.strip(), '  ')}"
                         f"</details>"
                     )

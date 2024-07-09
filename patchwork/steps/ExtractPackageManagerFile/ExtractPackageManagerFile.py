@@ -119,7 +119,7 @@ class ExtractPackageManagerFile(Step):
                 raise ValueError(f'SBOM VDR file path does not exist or is not a file: "{sbom_vdr_file_path}"')
             with open(sbom_vdr_file_path, "r") as file:
                 self.sbom_vdr_values = json.load(file)
-        if "sbom_vdr_values" in inputs.keys():
+        elif "sbom_vdr_values" in inputs.keys():
             self.sbom_vdr_values = inputs["sbom_vdr_values"]
         else:
             raise ValueError('"sbom_vdr_file_path" or "sbom_vdr_values" not found in inputs')

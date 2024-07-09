@@ -61,7 +61,7 @@ class ResolveIssue(Step):
         outputs = ReadIssues(self.inputs).run()
         self.inputs.update(outputs)
 
-        self.inputs["texts"] = self.inputs["issue_text"]
+        self.inputs["texts"] = self.inputs.get("issue_body") or self.inputs.get("issue_title")
 
         outputs = QueryEmbeddings(self.inputs).run()
         self.inputs.update(outputs)

@@ -16,4 +16,4 @@ class CreatePRCommentInputs(__CreatePRCommentRequiredInputs, total=False):
 
 
 class CreatePRCommentOutputs(TypedDict):
-    pass
+    pr_url: str

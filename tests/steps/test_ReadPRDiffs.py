@@ -5,35 +5,35 @@ from patchwork.steps.ReadPRDiffs.ReadPRDiffs import _IGNORED_EXTENSIONS, ReadPRD
 
 
 @pytest.mark.parametrize(
-    "inputs_extra,method_path,diffs,expected_values",
+    "inputs_extra,method_path,texts,expected",
     [
         (
             {"github_api_key": "key"},
             "patchwork.common.client.scm.GithubClient.get_pr_by_url",
-            {"path": "diff"},
-            [{"path": "path", "diff": "diff"}],
+            dict(title="this", body="", comments=[], diffs=dict(path="diff")),
+            [dict(path="path", diff="diff", body="this")],
         ),
         (
             {"gitlab_api_key": "key"},
             "patchwork.common.client.scm.GitlabClient.get_pr_by_url",
-            {"path": "diff"},
-            [{"path": "path", "diff": "diff"}],
+            dict(title="", body="that", comments=[], diffs=dict(path="diff")),
+            [dict(path="path", diff="diff", body="that")],
         ),
         (
             {"github_api_key": "key"},
             "patchwork.common.client.scm.GithubClient.get_pr_by_url",
-            {f"path{ext}": "diff" for ext in _IGNORED_EXTENSIONS},
+            dict(title="", body="", comments=[], diffs={f"path{ext}": "diff" for ext in _IGNORED_EXTENSIONS}),
             [],
         ),
     ],
 )
-def test_read_prdiffs(mocker, inputs_extra, method_path, diffs, expected_values):
+def test_read_prdiffs(mocker, inputs_extra, method_path, texts, expected):
     # Set up
     base_inputs = {"pr_url": "https://example.com/pr"}
     inputs = {**base_inputs, **inputs_extra}
 
     mocked_pr = mocker.Mock(spec=PullRequestProtocol)
-    mocked_pr.file_diffs.return_value = diffs
+    mocked_pr.texts.return_value = texts
     mocked_scm_client = mocker.patch(method_path)
     mocked_scm_client.return_value = mocked_pr
 
@@ -42,4 +42,4 @@ def test_read_prdiffs(mocker, inputs_extra, method_path, diffs, expected_values)
     results = read_pr_diffs.run()
 
     # Assertions
-    assert results.get("prompt_values") == expected_values
+    assert results.get("prompt_values") == expected

@@ -1,8 +1,5 @@
 from __future__ import annotations
 
-import json
-from pathlib import Path
-
 from patchwork.logger import logger
 from patchwork.step import Step
 
