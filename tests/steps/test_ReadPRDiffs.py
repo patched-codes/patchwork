@@ -23,7 +23,7 @@ from patchwork.steps.ReadPRDiffs.ReadPRDiffs import _IGNORED_EXTENSIONS, ReadPRD
             {"github_api_key": "key"},
             "patchwork.common.client.scm.GithubClient.get_pr_by_url",
             dict(title="", body="", comments=[], diffs={f"path{ext}": "diff" for ext in _IGNORED_EXTENSIONS}),
-            []
+            [],
         ),
     ],
 )

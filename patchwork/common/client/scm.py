@@ -251,20 +251,10 @@ class GitlabMergeRequest(PullRequestProtocol):
         diffs = self._mr.diffs.list()
         latest_diff = max(diffs, key=lambda diff: diff.created_at, default=None)
         if latest_diff is None:
-            return dict(
-                title=title,
-                body=body,
-                comments=notes,
-                diffs={}
-            )
+            return dict(title=title, body=body, comments=notes, diffs={})
 
         files = self._mr.diffs.get(latest_diff.id).diffs
-        return dict(
-            title=title,
-            body=body,
-            comments=notes,
-            diffs={file["new_path"]: file["diff"] for file in files}
-        )
+        return dict(title=title, body=body, comments=notes, diffs={file["new_path"]: file["diff"] for file in files})
 
 
 class GithubPullRequest(PullRequestProtocol):
@@ -306,7 +296,7 @@ class GithubPullRequest(PullRequestProtocol):
             title=self._pr.title or "",
             body=self._pr.body or "",
             comments=[comment.body for comment in self._pr.get_comments()],
-            diffs={file.filename: file.patch for file in self._pr.get_files()}
+            diffs={file.filename: file.patch for file in self._pr.get_files()},
         )
 
 
@@ -355,7 +345,7 @@ class GithubClient(ScmPlatformClientProtocol):
             return dict(
                 title=issue.title,
                 body=issue.body,
-                comments=[issue_comment.body for issue_comment in issue.get_comments()]
+                comments=[issue_comment.body for issue_comment in issue.get_comments()],
             )
         except GithubException as e:
             logger.warn(f"Failed to get issue: {e}")
@@ -455,7 +445,7 @@ class GitlabClient(ScmPlatformClientProtocol):
             return dict(
                 title=issue.get("title", ""),
                 body=issue.get("description", ""),
-                comments=[note["body"] for note in issue.notes.list()]
+                comments=[note["body"] for note in issue.notes.list()],
             )
         except GitlabError as e:
             logger.warn(f"Failed to get issue: {e}")
