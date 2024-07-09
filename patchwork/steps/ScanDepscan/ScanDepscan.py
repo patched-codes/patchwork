@@ -29,7 +29,7 @@ def install_cdxgen():
     if not is_cdxgen_installed():
         logger.info(f"Installing now...")
         # Install cdxgen globally using npm
-        subprocess.run(["npm", "install", "-g", "@cyclonedx/cdxgen"], check=True)
+        subprocess.run(["npm", "install", "-g", "@cyclonedx/cdxgen@10.7.1"], check=True)
         logger.info(f"cdxgen installed successfully.")
     else:
         logger.debug(f"cdxgen is already installed.")
@@ -116,8 +116,6 @@ class ScanDepscan(Step):
             except FileNotFoundError as e:
                 logger.debug("stdout:\n" + p.stdout)
                 logger.debug("stderr:\n" + p.stderr)
-                logger.debug(f"scan-dir: {list(Path(os.getcwd()).iterdir())}")
-                logger.debug(f"report-dir: {list(Path(temp_file_path).iterdir())}")
                 logger.debug(e)
                 raise ValueError(f"SBOM VDR file not found from Depscan")
 
