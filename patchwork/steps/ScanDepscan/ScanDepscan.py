@@ -91,6 +91,7 @@ class ScanDepscan(Step):
         with tempfile.TemporaryDirectory() as temp_file_path:
             cmd = [
                 "depscan",
+                "--debug",
                 "--reports-dir",
                 temp_file_path,
             ]
