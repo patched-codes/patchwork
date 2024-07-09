@@ -15,7 +15,7 @@ class __UserConfig(BaseModel):
 
     def persist(self):
         try:
-            CONFIG_FILE.write_text(self.json())
+            CONFIG_FILE.write_text(self.model_dump_json())
         except Exception as e:
             logger.debug(f"Failed to persist user config: {e}")
 

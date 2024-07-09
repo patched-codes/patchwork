@@ -90,34 +90,32 @@ class ScanDepscan(Step):
         temporary directory exists and is writable.
         """
         # Generate a unique temporary file path
-        temp_file_path = Path(tempfile.mkdtemp())
-        atexit.register(shutil.rmtree, temp_file_path, ignore_errors=True, onerror=None)
+        with tempfile.TemporaryDirectory() as temp_file_path:
+            cmd = [
+                "depscan",
+                "--reports-dir",
+                temp_file_path,
+            ]
 
-        cmd = [
-            "depscan",
-            "--reports-dir",
-            str(temp_file_path),
-        ]
+            if self.language is not None:
+                cmd.append("-t")
+                cmd.append(self.language)
+                sbom_vdr_file_name = "sbom-" + self.language
+            else:
+                sbom_vdr_file_name = "sbom-universal"
 
-        if self.language is not None:
-            cmd.append("-t")
-            cmd.append(self.language)
-            sbom_vdr_file_name = "sbom-" + self.language
-        else:
-            sbom_vdr_file_name = "sbom-universal"
+            p = subprocess.run(cmd, capture_output=True, text=True)
 
-        p = subprocess.run(cmd, capture_output=True, text=True)
-
-        sbom_vdr_file_path = temp_file_path / f"{sbom_vdr_file_name}.vdr.json"
-        try:
-            with open(sbom_vdr_file_path, "r") as f:
-                sbom_values = json.load(f)
-        except json.JSONDecodeError as e:
-            logger.debug(e)
-            raise ValueError(f"Error reading SBOM VDR file from Depscan")
-        except FileNotFoundError as e:
-            logger.debug(e)
-            raise ValueError(f"SBOM VDR file not found from Depscan")
+            sbom_vdr_file_path = Path(temp_file_path) / f"{sbom_vdr_file_name}.vdr.json"
+            try:
+                with open(sbom_vdr_file_path, "r") as f:
+                    sbom_values = json.load(f)
+            except json.JSONDecodeError as e:
+                logger.debug(e)
+                raise ValueError(f"Error reading SBOM VDR file from Depscan")
+            except FileNotFoundError as e:
+                logger.debug(e)
+                raise ValueError(f"SBOM VDR file not found from Depscan")
 
         logger.info(f"Run completed {self.__class__.__name__}")
         return {"sbom_vdr_values": sbom_values}
