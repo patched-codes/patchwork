@@ -1,4 +1,5 @@
 import json
+import os
 import subprocess
 import tempfile
 from pathlib import Path
@@ -103,7 +104,7 @@ class ScanDepscan(Step):
             else:
                 sbom_vdr_file_name = "sbom-universal"
 
-            p = subprocess.run(cmd, capture_output=True, text=True)
+            p = subprocess.run(cmd, capture_output=True, text=True, cwd=os.getcwd())
 
             sbom_vdr_file_path = Path(temp_file_path) / f"{sbom_vdr_file_name}.vdr.json"
             try:
@@ -115,7 +116,8 @@ class ScanDepscan(Step):
             except FileNotFoundError as e:
                 logger.debug("stdout:\n" + p.stdout)
                 logger.debug("stderr:\n" + p.stderr)
-                logger.debug(list(Path(temp_file_path).iterdir()))
+                logger.debug(f"scan-dir: {list(Path(os.getcwd()).iterdir())}")
+                logger.debug(f"report-dir: {list(Path(temp_file_path).iterdir())}")
                 logger.debug(e)
                 raise ValueError(f"SBOM VDR file not found from Depscan")
 
