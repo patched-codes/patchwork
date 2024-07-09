@@ -1,5 +1,6 @@
 import atexit
 import json
+import logging
 import shutil
 import subprocess
 import tempfile
@@ -114,6 +115,8 @@ class ScanDepscan(Step):
                 logger.debug(e)
                 raise ValueError(f"Error reading SBOM VDR file from Depscan")
             except FileNotFoundError as e:
+                logger.debug("stdout:\n" + p.stdout)
+                logger.debug("stderr:\n" + p.stderr)
                 logger.debug(e)
                 raise ValueError(f"SBOM VDR file not found from Depscan")
 
