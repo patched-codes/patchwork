@@ -117,6 +117,7 @@ class ScanDepscan(Step):
             except FileNotFoundError as e:
                 logger.debug("stdout:\n" + p.stdout)
                 logger.debug("stderr:\n" + p.stderr)
+                logger.debug(list(Path(temp_file_path).iterdir()))
                 logger.debug(e)
                 raise ValueError(f"SBOM VDR file not found from Depscan")
 
