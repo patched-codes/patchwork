@@ -21,6 +21,11 @@ jobs:
       - uses: jwalton/gh-find-current-pr@master
         id: findPr
 
+      - name: Set up node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
       - name: Set up python
         id: setup-python
         uses: actions/setup-python@v5
