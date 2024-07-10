@@ -1,11 +1,13 @@
 from __future__ import annotations
 
-from typing import TypedDict
+from typing_extensions import TypedDict, Annotated
+
+from patchwork.common.utils.typing import IS_CONFIG
 
 
 class JoinListInputs(TypedDict):
     list: list[str]
-    delimiter: str
+    delimiter: Annotated[str, IS_CONFIG]
 
 
 class JoinListOutputs(TypedDict):
