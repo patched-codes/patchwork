@@ -1,13 +1,12 @@
 from patchwork.step import Step
+from patchwork.steps.JoinList.typed import JoinListInputs
 
 
 class JoinList(Step):
-    required_keys = {"list", "delimiter"}
-
     def __init__(self, inputs):
-        diff_keys = self.required_keys.difference(inputs.keys())
-        if len(diff_keys) > 0:
-            raise ValueError(f'Missing required data: {diff_keys}')
+        missing_keys = JoinListInputs.__required_keys__.difference(inputs.keys())
+        if len(missing_keys) > 0:
+            raise ValueError(f'Missing required data: {missing_keys}')
 
         self.list = inputs['list']
         self.delimiter = inputs['delimiter']
