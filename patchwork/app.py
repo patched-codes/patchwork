@@ -208,6 +208,10 @@ def find_patchflow(possible_module_paths: Iterable[str], patchflow: str) -> Any 
         except Exception:
             logger.debug(f"Patchflow {patchflow} not found as a file/directory in {module_path}")
 
+        if module_path not in WHITELIST:
+            logger.debug(f"Invalid module path: {module_path}")
+            continue
+
         try:
             module = importlib.import_module(module_path)
             return getattr(module, patchflow)
