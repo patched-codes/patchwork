@@ -102,7 +102,7 @@ class PRReview(Step):
         outputs = PreparePR(self.inputs).run()
         self.inputs.update(outputs)
 
-        self.inputs["pr_comments"] = [{"body": self.inputs["pr_body"]}]
+        self.inputs["pr_comment"] = self.inputs["pr_body"]
         outputs = CreatePRComment(self.inputs).run()
         self.inputs.update(outputs)
 
