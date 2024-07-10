@@ -62,14 +62,19 @@ class PRReview(Step):
 
         other_fields = ""
         if self.is_suggestion_required:
-            other_fields = "B. Suggestion:\n<Improvement suggestion>"
+            other_fields = """\
+B. Suggestion:
+```
+<Improvement suggestion>
+```
+"""
         for prompt_values in self.inputs["prompt_values"]:
             prompt_values["other_fields"] = other_fields
 
         self.inputs["prompt_id"] = "diffreview"
         self.inputs["response_partitions"] = {
-            "summary": ["A. Summary:", ""],
-            "suggestion": ["B. Suggestion:", "A. Summary:"],
+            "summary": ["A. Review:", "```", "\n", "```"],
+            "suggestion": ["B. Suggestion:", "```", "\n", "```"],
         }
         outputs = LLM(self.inputs).run()
         self.inputs.update(outputs)
