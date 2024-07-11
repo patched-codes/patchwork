@@ -11,13 +11,13 @@ from patchwork.steps.ReadPRDiffs.ReadPRDiffs import _IGNORED_EXTENSIONS, ReadPRD
             {"github_api_key": "key"},
             "patchwork.common.client.scm.GithubClient.get_pr_by_url",
             dict(title="this", body="", comments=[], diffs=dict(path="diff")),
-            [dict(path="path", diff="diff", body="this")],
+            [dict(path="path", diff="diff", title="this", body="")],
         ),
         (
             {"gitlab_api_key": "key"},
             "patchwork.common.client.scm.GitlabClient.get_pr_by_url",
             dict(title="", body="that", comments=[], diffs=dict(path="diff")),
-            [dict(path="path", diff="diff", body="that")],
+            [dict(path="path", diff="diff", body="that", title="")],
         ),
         (
             {"github_api_key": "key"},
