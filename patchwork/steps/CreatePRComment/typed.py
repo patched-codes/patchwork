@@ -5,7 +5,7 @@ from patchwork.common.utils.typing import IS_CONFIG
 
 class __CreatePRCommentRequiredInputs(TypedDict):
     pr_url: str
-    pr_comments: str
+    pr_comment: str
 
 
 class CreatePRCommentInputs(__CreatePRCommentRequiredInputs, total=False):
