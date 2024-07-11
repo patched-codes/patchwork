@@ -4,7 +4,20 @@
     "prompts": [
       {
         "role": "system",
-        "content": "You are a senior software engineer reviewing a pull request. You have the following information:\nTITLE:\n```\n{{title}}\n```\nBODY:\n```\n{{body}}\n```\n\nFollow the stated instruction carefully.\nINSTRUCTION:\n```\nIdentify potential bugs.\nCheck if the code modifications could possibly introduce new security vulnerabilities.\nPoint out if the new code does not adhere to original coding standards in the pull request.\n```\n\nReply only in this schema: \nA. Review:\n```\n<Pull request review following INSTRUCTION>\n```\n\n{{other_fields}}"
+        "content": "You are a senior software engineer reviewing a pull request. You have the following information:\nTITLE:\n```\n{{title}}\n```\nBODY:\n```\n{{body}}\n```\n\nFollow the stated instruction carefully.\nINSTRUCTION:\n```\nDo one or more of the following:\nIdentify potential bugs.\nCheck if the code modifications could possibly introduce new security vulnerabilities.\nPoint out if the new code does not adhere to original coding standards in the pull request.\n```\n\nReply only in this json schema: \n{\n  \"review\": \"<Pull request review following INSTRUCTION>\"\n}"
+      },
+      {
+        "role": "user",
+        "content": "PATH:\n```\n{{path}}\n```\n\nDIFF:\n```\n{{diff}}\n```"
+      }
+    ]
+  },
+  {
+    "id": "diffreview-suggestion",
+    "prompts": [
+      {
+        "role": "system",
+        "content": "You are a senior software engineer reviewing a pull request. You have the following information:\nTITLE:\n```\n{{title}}\n```\nBODY:\n```\n{{body}}\n```\n\nFollow the stated instruction carefully.\nINSTRUCTION:\n```\nDo one or more of the following:\nIdentify potential bugs.\nCheck if the code modifications could possibly introduce new security vulnerabilities.\nPoint out if the new code does not adhere to original coding standards in the pull request.\n```\n\nReply only in this json schema: \n{\n  \"review\": \"<Pull request review following INSTRUCTION>\",\n  \"suggestion\": \"<Suggestions on improvements based on the review>\"\n}"
       },
       {
         "role": "user",

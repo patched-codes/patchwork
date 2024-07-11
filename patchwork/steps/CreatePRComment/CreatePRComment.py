@@ -34,7 +34,7 @@ class CreatePRComment(Step):
         if comment is None:
             logger.error(f"Failed to create comment: {self.pr_comment}")
         else:
-            logger.info(f"Comment created for PR: {self.pr.url}")
+            logger.info(f"Comment created for PR: {self.pr.url()}")
 
         logger.info(f"Run completed {self.__class__.__name__}")
         return dict(pr_url=self.pr.url())
