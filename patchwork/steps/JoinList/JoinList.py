@@ -6,10 +6,10 @@ class JoinList(Step):
     def __init__(self, inputs):
         missing_keys = JoinListInputs.__required_keys__.difference(inputs.keys())
         if len(missing_keys) > 0:
-            raise ValueError(f'Missing required data: {missing_keys}')
+            raise ValueError(f"Missing required data: {missing_keys}")
 
-        self.list = inputs['list']
-        self.delimiter = inputs['delimiter']
+        self.list = inputs["list"]
+        self.delimiter = inputs["delimiter"]
 
     def run(self):
         items = []
@@ -17,10 +17,10 @@ class JoinList(Step):
             if isinstance(item, str):
                 items.append(item)
             elif isinstance(item, dict):
-                if 'body' in item.keys() or len(item.keys()) < 1:
-                    items.append(item.get('body'))
-                elif 'text' in item.keys():
-                    items.append(item.get('text'))
+                if "body" in item.keys() or len(item.keys()) < 1:
+                    items.append(item.get("body"))
+                elif "text" in item.keys():
+                    items.append(item.get("text"))
                 else:
                     items.append(str(item))
             else:
