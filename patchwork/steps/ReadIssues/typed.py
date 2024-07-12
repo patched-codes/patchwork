@@ -6,7 +6,7 @@ from patchwork.common.utils.typing import IS_CONFIG
 
 
 class __ReadIssuesRequiredInputs(TypedDict):
-    issue_url: Annotated[str, IS_CONFIG]
+    issue_url: str
 
 
 class ReadIssuesInputs(__ReadIssuesRequiredInputs, total=False):
