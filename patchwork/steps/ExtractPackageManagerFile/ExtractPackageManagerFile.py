@@ -62,7 +62,7 @@ def find_package_manager_files(directory, purl):
     package_manager_files = {
         "pypi": ["requirements.txt", "Pipfile", "pyproject.toml"],
         "maven": ["pom.xml", "build.gradle", "build.gradle.kts"],
-        "npm": ["package.json", "package-lock.json", "yarn.lock"],
+        "npm": ["package.json", "yarn.lock"],
         "golang": ["go.mod", "go.sum"],
     }
 
