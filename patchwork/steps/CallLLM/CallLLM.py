@@ -149,7 +149,8 @@ class CallLLM(Step):
 
         self.model_args = {key[len("model_") :]: value for key, value in inputs.items() if key.startswith("model_")}
         self.client_args = {key[len("client_") :]: value for key, value in inputs.items() if key.startswith("client_")}
-
+        self.save_responses_to_file = inputs.get("save_responses_to_file", None)
+        
         llm_key = inputs.get("openai_api_key") or os.environ.get("OPENAI_API_KEY")
 
         patched_key = inputs.get("patched_api_key")
@@ -190,6 +191,22 @@ class CallLLM(Step):
 
     def run(self) -> dict:
         contents = self.llm.call(self.prompts)
+        
+        if self.save_responses_to_file:
+            # Convert relative path to absolute path
+            file_path = os.path.abspath(self.save_responses_to_file)
+            
+            mode = 'a' if os.path.exists(file_path) else 'w'
 
+            with open(file_path, mode) as f:
+                for prompt, response in zip(self.prompts, contents):
+                    data = {
+                        "model": self.llm.model,
+                        "model_args": self.llm.model_args,
+                        "request": prompt,
+                        "response": response
+                    }
+                    f.write(json.dumps(data) + '\n')
+                
         logger.info(f"Run completed {self.__class__.__name__}")
         return dict(openai_responses=contents)

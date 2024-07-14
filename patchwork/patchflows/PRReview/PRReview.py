@@ -61,11 +61,13 @@ class PRReview(Step):
         outputs = ReadPRDiffs(self.inputs).run()
         self.inputs.update(outputs)
 
-        outputs = LLM(dict(
-            prompt_id="diffreview-suggestion" if self.is_suggestion_required else "diffreview",
-            model_response_format=dict(type="json_object"),
-            **self.inputs
-        )).run()
+        outputs = LLM(
+            dict(
+                prompt_id="diffreview-suggestion" if self.is_suggestion_required else "diffreview",
+                model_response_format=dict(type="json_object"),
+                **self.inputs,
+            )
+        ).run()
         self.inputs.update(outputs)
 
         summaries = []
