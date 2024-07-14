@@ -77,10 +77,11 @@ class ExtractCodeContexts(Step):
         # rethink this, should be one level up and true by default
         self.force_code_contexts = inputs.get("force_code_contexts", False)
         self.allow_overlap_contexts = inputs.get("allow_overlap_contexts", True)
+        self.max_depth = inputs.get("max_depth", float('inf'))
 
     def run(self) -> dict:
         extracted_code_contexts = []
-        for file_path, src, position in self.get_positions():
+        for file_path, src, position in self.get_positions(max_depth=self.max_depth):
             extracted_code_context = dict(
                 uri=file_path,
                 startLine=position.start,
@@ -95,16 +96,22 @@ class ExtractCodeContexts(Step):
             files_to_patch=extracted_code_contexts,
         )
 
-    def get_positions(self):
+    def get_positions(self, max_depth):
         files_to_consider = []
         if self.base_path.is_file():
             files_to_consider.append(self.base_path)
-        for root, dirs, files in os.walk(self.base_path):
-            for file in files:
-                file_path = Path(root) / file
-                if not file_path.is_file() or is_ignored(file_path):
+        else:
+            for root, dirs, files in os.walk(self.base_path):
+                current_depth = len(Path(root).relative_to(self.base_path).parts)
+                if current_depth > max_depth:
+                    dirs[:] = []  # Prune subdirectories
                     continue
-                files_to_consider.append(file_path)
+                for file in files:
+                    file_path = Path(root) / file
+                    if not file_path.is_file() or is_ignored(file_path):
+                        continue
+                    files_to_consider.append(file_path)
+
         grouping = getattr(ContextStrategies, self.context_grouping, ContextStrategies.ALL)
         if not isinstance(grouping, list):
             grouping = [grouping]
