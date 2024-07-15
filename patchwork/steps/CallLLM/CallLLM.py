@@ -96,10 +96,14 @@ class CallOpenAI(LLMModel):
 
     def call(self, prompts) -> list[str]:
         contents = []
+        
+        # Parse model arguments
+        parsed_model_args = self.parse_model_args(self.model_args)
+        
         for prompt in prompts:
             logger.debug(f"Message sent: \n{indent(pformat(prompt), '  ')}")
             try:
-                completion = self.client.chat.completions.create(model=self.model, messages=prompt, **self.model_args)
+                completion = self.client.chat.completions.create(model=self.model, messages=prompt, **parsed_model_args)
             except Exception as e:
                 logger.error(e)
                 completion = None
@@ -123,7 +127,33 @@ class CallOpenAI(LLMModel):
             contents.append(content)
 
         return contents
-
+    
+    def parse_model_args(self, model_args: dict) -> dict:
+        parsed_args = model_args.copy()
+        
+        # List of arguments that should be integers
+        int_args = ['max_tokens', 'n', 'logprobs', 'top_p', 'presence_penalty', 'frequency_penalty']
+        
+        # List of arguments that should be floats
+        float_args = ['temperature']
+        
+        for arg in int_args:
+            if arg in parsed_args and isinstance(parsed_args[arg], str):
+                try:
+                    parsed_args[arg] = int(parsed_args[arg])
+                except ValueError:
+                    logger.warning(f"Failed to parse {arg} as integer. Removing from arguments.")
+                    del parsed_args[arg]
+        
+        for arg in float_args:
+            if arg in parsed_args and isinstance(parsed_args[arg], str):
+                try:
+                    parsed_args[arg] = float(parsed_args[arg])
+                except ValueError:
+                    logger.warning(f"Failed to parse {arg} as float. Removing from arguments.")
+                    del parsed_args[arg]
+        
+        return parsed_args
 
 class CallLLM(Step):
     def __init__(self, inputs: dict):
