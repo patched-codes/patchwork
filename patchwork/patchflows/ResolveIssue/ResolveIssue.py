@@ -95,7 +95,7 @@ The following files in the repository may be relevant to the issue:
                     "startLine": 0,
                     "endLine": len(lines),
                     "affectedCode": file_content,
-                    "messageText": "\n".join(self.inputs["texts"]),
+                    "messageText": self.inputs["texts"],
                 }
             )
 
