@@ -77,7 +77,7 @@ class ExtractCodeContexts(Step):
         # rethink this, should be one level up and true by default
         self.force_code_contexts = inputs.get("force_code_contexts", False)
         self.allow_overlap_contexts = inputs.get("allow_overlap_contexts", True)
-        self.max_depth = float(inputs.get("max_depth", float('inf')))
+        self.max_depth = int(inputs.get("max_depth", -1))
 
     def run(self) -> dict:
         extracted_code_contexts = []
@@ -103,7 +103,7 @@ class ExtractCodeContexts(Step):
         else:
             for root, dirs, files in os.walk(self.base_path):
                 current_depth = len(Path(root).relative_to(self.base_path).parts)
-                if current_depth > max_depth:
+                if max_depth != -1 and current_depth > max_depth:
                     dirs[:] = []  # Prune subdirectories
                     continue
                 for file in files:

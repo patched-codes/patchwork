@@ -129,31 +129,29 @@ class CallOpenAI(LLMModel):
         return contents
     
     def parse_model_args(self, model_args: dict) -> dict:
-        parsed_args = model_args.copy()
-        
-        # List of arguments that should be integers
-        int_args = ['max_tokens', 'n', 'logprobs', 'top_p', 'presence_penalty', 'frequency_penalty']
-        
-        # List of arguments that should be floats
-        float_args = ['temperature']
-        
-        for arg in int_args:
-            if arg in parsed_args and isinstance(parsed_args[arg], str):
+        # List of arguments in their respective types
+        int_args = {'max_tokens', 'n', "top_logprobs"}
+        float_args = {'temperature', 'top_p', "presence_penalty", 'frequency_penalty'}
+        bool_args = {'logprobs'}
+
+        new_model_args = dict()
+        for key, arg in model_args.items():
+            if key in int_args and isinstance(arg, str):
                 try:
-                    parsed_args[arg] = int(parsed_args[arg])
+                    new_model_args[key] = int(arg)
                 except ValueError:
-                    logger.warning(f"Failed to parse {arg} as integer. Removing from arguments.")
-                    del parsed_args[arg]
-        
-        for arg in float_args:
-            if arg in parsed_args and isinstance(parsed_args[arg], str):
+                    logger.warning(f"Failed to parse {key} as integer. Removing from arguments.")
+            elif key in float_args and isinstance(arg, str):
                 try:
-                    parsed_args[arg] = float(parsed_args[arg])
+                    new_model_args[key] = float(arg)
                 except ValueError:
-                    logger.warning(f"Failed to parse {arg} as float. Removing from arguments.")
-                    del parsed_args[arg]
+                    logger.warning(f"Failed to parse {key} as float. Removing from arguments.")
+            elif key in bool_args and isinstance(arg, str):
+                new_model_args[key] = arg.lower() == 'true'
+            else:
+                new_model_args[key] = arg
         
-        return parsed_args
+        return new_model_args
 
 class CallLLM(Step):
     def __init__(self, inputs: dict):
