@@ -12,4 +12,18 @@ class JoinList(Step):
         self.delimiter = inputs["delimiter"]
 
     def run(self):
-        return dict(text=self.delimiter.join(self.list))
+        items = []
+        for item in self.list:
+            if isinstance(item, str):
+                items.append(item)
+            elif isinstance(item, dict):
+                if "body" in item.keys() or len(item.keys()) < 1:
+                    items.append(item.get("body"))
+                elif "text" in item.keys():
+                    items.append(item.get("text"))
+                else:
+                    items.append(str(item))
+            else:
+                items.append(str(item))
+
+        return dict(text=self.delimiter.join(items))

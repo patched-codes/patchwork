@@ -1,4 +1,6 @@
-from typing_extensions import Annotated, Iterable, TypedDict
+from __future__ import annotations
+
+from typing_extensions import Annotated, TypedDict
 
 from patchwork.common.utils.typing import IS_CONFIG
 
@@ -14,7 +16,7 @@ class ExtractDiffInputs(__ExtractDiffRequiredInputs, total=False):
 
 
 class ExtractDiffOutputs(TypedDict):
-    prompt_values: Iterable[dict]
+    prompt_values: list[dict]
     library_name: str
     platform_type: str
 
