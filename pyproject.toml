@@ -60,14 +60,20 @@ orjson = {version = "~3.9.15", optional = true }
 # notifications
 slack-sdk = {version = "~3.28.0", optional = true }
 
+# llms
+google-ai-generativelanguage = {version = "~0.6.7", optional = true }
+anthropic = {version = "~0.31.0", optional = true }
+
 [tool.poetry.extras]
 security = ["semgrep", "owasp-depscan"]
 rag = ["chromadb", "sentence-transformers", "torch", "orjson"]
 notifications = ["slack-sdk"]
+llms = ["google-ai-generativelanguage", "anthropic"]
 all = [
     "semgrep", "owasp-depscan",
     "chromadb", "sentence-transformers", "torch", "orjson",
-    "slack-sdk"
+    "slack-sdk",
+    "google-ai-generativelanguage","anthropic"
 ]
 
 [tool.poetry.group.dev.dependencies]
