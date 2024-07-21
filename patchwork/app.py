@@ -197,24 +197,21 @@ def cli(
 
 
 def find_patchflow(possible_module_paths: Iterable[str], patchflow: str) -> Any | None:
-    for module_path in possible_module_paths:
-        try:
-            spec = importlib.util.spec_from_file_location("custom_module", module_path)
-            module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(module)
-            return getattr(module, patchflow)
-        except AttributeError:
-            logger.debug(f"Patchflow {patchflow} not found in {module_path}")
-        except Exception:
-            logger.debug(f"Patchflow {patchflow} not found as a file/directory in {module_path}")
+    WHITELISTED_PATHS = []  # Add whitelisted paths here
 
-        try:
-            module = importlib.import_module(module_path)
-            return getattr(module, patchflow)
-        except ModuleNotFoundError:
-            logger.debug(f"Patchflow {patchflow} not found as a module in {module_path}")
-        except AttributeError:
-            logger.debug(f"Patchflow {patchflow} not found in {module_path}")
+    for module_path in possible_module_paths:
+        if module_path in WHITELISTED_PATHS:
+            try:
+                spec = importlib.util.spec_from_file_location("custom_module", module_path)
+                module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(module)
+                return getattr(module, patchflow)
+            except AttributeError:
+                logger.debug(f"Patchflow {patchflow} not found in {module_path}")
+            except Exception:
+                logger.debug(f"Patchflow {patchflow} not found as a file/directory in {module_path}")
+        else:
+            logger.debug(f"Module path {module_path} not whitelisted")
 
     return None
 
