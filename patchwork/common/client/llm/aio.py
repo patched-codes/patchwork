@@ -56,4 +56,4 @@ class AioLlmClient(LlmClient):
                     top_logprobs,
                     top_p,
                 )
-        raise ValueError(f"Model {model} is not supported by any client")
+        raise ValueError(f"Model {model} is not supported by {[client.__class__.__name__ for client in self.clients]} clients")

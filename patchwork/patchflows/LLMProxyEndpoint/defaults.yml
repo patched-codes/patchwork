@@ -1,0 +1,23 @@
+# ReadIssues Inputs
+# github_api_key: required-for-github-scm
+# gitlab_api_key: required-for-gitlab-scm
+# issue_url: required
+
+fix_issue: false
+# GenerateEmbeddings Inputs
+# For OpenAI API use the following the select the model
+# openai_embedding_model: text-embedding-3-small
+# For HuggingFace API use the following the select the model
+# huggingface_embedding_model: codellama/CodeLlama-70b-Instruct-hf
+# For either API, use the following to provide the API key
+# openai_api_key: required-for-openai
+# google_api_key: required-for-google
+# client_base_url: https://api.openai.com/v1
+# model: gpt-3.5-turbo
+
+# CommitChanges Inputs
+disable_branch: false
+
+# CreatePR Inputs
+disable_pr: false
+force_pr_creation: true
