@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from functools import lru_cache
-
 from openai.types.chat import (
     ChatCompletion,
     ChatCompletionMessageParam,

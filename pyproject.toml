@@ -42,6 +42,9 @@ requests = "~2.31.0"
 chardet = "~5.2.0"
 tqdm = "~4.66.4"
 attrs = "~23.2.0"
+google-ai-generativelanguage = "~0.6.7"
+anthropic = "~0.31.2"
+
 # pinning transitive dependencies
 tree-sitter = "~0.21.3"
 
@@ -60,20 +63,14 @@ orjson = {version = "~3.9.15", optional = true }
 # notifications
 slack-sdk = {version = "~3.28.0", optional = true }
 
-# llms
-google-ai-generativelanguage = {version = "~0.6.7", optional = true }
-anthropic = {version = "~0.31.2", optional = true }
-
 [tool.poetry.extras]
 security = ["semgrep", "owasp-depscan"]
 rag = ["chromadb", "sentence-transformers", "torch", "orjson"]
 notifications = ["slack-sdk"]
-llms = ["google-ai-generativelanguage", "anthropic"]
 all = [
     "semgrep", "owasp-depscan",
     "chromadb", "sentence-transformers", "torch", "orjson",
     "slack-sdk",
-    "google-ai-generativelanguage","anthropic"
 ]
 
 [tool.poetry.group.dev.dependencies]

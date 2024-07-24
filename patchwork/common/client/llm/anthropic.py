@@ -19,12 +19,7 @@ from patchwork.common.client.llm.protocol import NOT_GIVEN, LlmClient, NotGiven
 
 
 def _anthropic_to_openai_response(model: str, anthropic_response: Message) -> ChatCompletion:
-    stop_reason_map = {
-        "end_turn": "stop",
-        "max_tokens": "length",
-        "stop_sequence": "stop",
-        "tool_use": "tool_calls"
-    }
+    stop_reason_map = {"end_turn": "stop", "max_tokens": "length", "stop_sequence": "stop", "tool_use": "tool_calls"}
 
     choices = []
     for i, content_block in enumerate(anthropic_response.content):

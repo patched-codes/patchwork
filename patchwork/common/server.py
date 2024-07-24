@@ -13,9 +13,9 @@ app = FastAPI()
 
 @app.post("/v1/chat/completions")
 async def handle_openai(
-        authorization: Annotated[str, Header()],
-        request: Request,
-        response: Response,
+    authorization: Annotated[str, Header()],
+    request: Request,
+    response: Response,
 ) -> ChatCompletion:
     _, _, api_key = authorization.partition("Bearer ")
     body = await request.json()

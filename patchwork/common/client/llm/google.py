@@ -113,7 +113,7 @@ class GoogleLlmClient(LlmClient):
             contents=contents,
             model=self.__get_true_model_name(model),
             safety_settings=self.__SAFETY_SETTINGS,
-            generation_config=generation_config
+            generation_config=generation_config,
         )
         request = GenerateContentRequest(request_kwargs)
 

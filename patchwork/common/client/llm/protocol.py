@@ -6,7 +6,6 @@ from openai.types.chat import (
     completion_create_params,
 )
 from typing_extensions import Any, Dict, Iterable, List, Optional, Protocol, Union
-from pydantic import BaseModel
 
 
 class NotGiven:
