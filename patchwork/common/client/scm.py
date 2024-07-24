@@ -303,9 +303,10 @@ class GithubPullRequest(PullRequestProtocol):
 class GithubClient(ScmPlatformClientProtocol):
     DEFAULT_URL = Consts.DEFAULT_BASE_URL
 
-    def __init__(self, access_token: str, url: str = DEFAULT_URL):
+    def __init__(self, access_token: str, url: str = DEFAULT_URL, disable_pr: bool = False):
         self._access_token = access_token
         self._url = url
+        self.disable_pr = disable_pr
 
     @functools.cached_property
     def github(self) -> Github:
@@ -381,6 +382,11 @@ class GithubClient(ScmPlatformClientProtocol):
         original_branch: str,
         feature_branch: str,
     ) -> PullRequestProtocol:
+        if self.disable_pr:
+            logger.info("PR creation is disabled.")
+            return None
+
+
         # before creating a PR, check if one already exists
         repo = self.github.get_repo(slug)
         gh_pr = repo.create_pull(title=title, body=body, base=original_branch, head=feature_branch)
@@ -400,9 +406,10 @@ class GithubClient(ScmPlatformClientProtocol):
 class GitlabClient(ScmPlatformClientProtocol):
     DEFAULT_URL = gitlab.const.DEFAULT_URL
 
-    def __init__(self, access_token: str, url: str = DEFAULT_URL):
+    def __init__(self, access_token: str, url: str = DEFAULT_URL, disable_pr: bool = False):
         self._access_token = access_token
         self._url = url
+        self.disable_pr = disable_pr
 
     @functools.cached_property
     def gitlab(self) -> Gitlab:
@@ -489,6 +496,11 @@ class GitlabClient(ScmPlatformClientProtocol):
         original_branch: str,
         feature_branch: str,
     ) -> PullRequestProtocol:
+        if self.disable_pr:
+            logger.info("PR creation is disabled.")
+            return None
+
+
         # before creating a PR, check if one already exists
         project = self.gitlab.projects.get(slug)
         gl_mr = project.mergerequests.create(
