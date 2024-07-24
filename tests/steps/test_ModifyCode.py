@@ -65,9 +65,27 @@ def test_modify_code_run(tmp_path):
 
     inputs = {
         "files_to_patch": [{"uri": str(file_path), "startLine": 1, "endLine": 2}],
-        "extracted_responses": [{"uri": file_path, "startLine": 1, "endLine": 2, "patch": "new_code"}],
+        "extracted_responses": [{"patch": "new_code"}],
     }
     modify_code = ModifyCode(inputs)
     result = modify_code.run()
     assert result.get("modified_code_files") is not None
     assert len(result["modified_code_files"]) == 1
+
+
+def test_modify_code_empty_edit(tmp_path):
+    file_path = tmp_path / "test.txt"
+    file_path.write_text("line 1\nline 2\nline 3")
+
+    code_snippets_path = tmp_path / "code.json"
+    with open(code_snippets_path, "w") as f:
+        json.dump([{"uri": str(file_path), "startLine": 1, "endLine": 2}], f)
+
+    inputs = {
+        "files_to_patch": [{"uri": str(file_path), "startLine": 1, "endLine": 2}],
+        "extracted_responses": [{"patch": ""}],
+    }
+    modify_code = ModifyCode(inputs)
+    result = modify_code.run()
+    assert result.get("modified_code_files") is not None
+    assert len(result["modified_code_files"]) == 0
