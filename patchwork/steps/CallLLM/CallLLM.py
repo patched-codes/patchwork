@@ -96,10 +96,10 @@ class CallOpenAI(LLMModel):
 
     def call(self, prompts) -> list[str]:
         contents = []
-        
+
         # Parse model arguments
         parsed_model_args = self.parse_model_args(self.model_args)
-        
+
         for prompt in prompts:
             logger.debug(f"Message sent: \n{indent(pformat(prompt), '  ')}")
             try:
@@ -127,12 +127,12 @@ class CallOpenAI(LLMModel):
             contents.append(content)
 
         return contents
-    
+
     def parse_model_args(self, model_args: dict) -> dict:
         # List of arguments in their respective types
-        int_args = {'max_tokens', 'n', "top_logprobs"}
-        float_args = {'temperature', 'top_p', "presence_penalty", 'frequency_penalty'}
-        bool_args = {'logprobs'}
+        int_args = {"max_tokens", "n", "top_logprobs"}
+        float_args = {"temperature", "top_p", "presence_penalty", "frequency_penalty"}
+        bool_args = {"logprobs"}
 
         new_model_args = dict()
         for key, arg in model_args.items():
@@ -147,11 +147,12 @@ class CallOpenAI(LLMModel):
                 except ValueError:
                     logger.warning(f"Failed to parse {key} as float. Removing from arguments.")
             elif key in bool_args and isinstance(arg, str):
-                new_model_args[key] = arg.lower() == 'true'
+                new_model_args[key] = arg.lower() == "true"
             else:
                 new_model_args[key] = arg
-        
+
         return new_model_args
+
 
 class CallLLM(Step):
     def __init__(self, inputs: dict):
@@ -178,7 +179,7 @@ class CallLLM(Step):
         self.model_args = {key[len("model_") :]: value for key, value in inputs.items() if key.startswith("model_")}
         self.client_args = {key[len("client_") :]: value for key, value in inputs.items() if key.startswith("client_")}
         self.save_responses_to_file = inputs.get("save_responses_to_file", None)
-        
+
         llm_key = inputs.get("openai_api_key") or os.environ.get("OPENAI_API_KEY")
 
         patched_key = inputs.get("patched_api_key")
@@ -219,12 +220,12 @@ class CallLLM(Step):
 
     def run(self) -> dict:
         contents = self.llm.call(self.prompts)
-        
+
         if self.save_responses_to_file:
             # Convert relative path to absolute path
             file_path = os.path.abspath(self.save_responses_to_file)
-            
-            mode = 'a' if os.path.exists(file_path) else 'w'
+
+            mode = "a" if os.path.exists(file_path) else "w"
 
             with open(file_path, mode) as f:
                 for prompt, response in zip(self.prompts, contents):
@@ -232,9 +233,9 @@ class CallLLM(Step):
                         "model": self.llm.model,
                         "model_args": self.llm.model_args,
                         "request": prompt,
-                        "response": response
+                        "response": response,
                     }
-                    f.write(json.dumps(data) + '\n')
-                
+                    f.write(json.dumps(data) + "\n")
+
         logger.info(f"Run completed {self.__class__.__name__}")
         return dict(openai_responses=contents)

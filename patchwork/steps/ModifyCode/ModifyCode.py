@@ -69,7 +69,7 @@ class ModifyCode(Step):
             start_line = code_snippet["startLine"]
             end_line = code_snippet["endLine"]
             new_code = extracted_response.get("patch")
-            if new_code is None:
+            if new_code is None or new_code == "":
                 continue
 
             replace_code_in_file(uri, start_line, end_line, new_code)
