@@ -19,11 +19,18 @@ from patchwork.common.client.llm.protocol import NOT_GIVEN, LlmClient, NotGiven
 
 
 def _anthropic_to_openai_response(model: str, anthropic_response: Message) -> ChatCompletion:
+    stop_reason_map = {
+        "end_turn": "stop",
+        "max_tokens": "length",
+        "stop_sequence": "stop",
+        "tool_use": "tool_calls"
+    }
+
     choices = []
     for i, content_block in enumerate(anthropic_response.content):
         choice = Choice(
             index=i,
-            finish_reason=anthropic_response.stop_reason,
+            finish_reason=stop_reason_map.get(anthropic_response.stop_reason, "stop"),
             message=ChatCompletionMessage(
                 role="assistant",
                 content=content_block.text,
@@ -78,21 +85,21 @@ class AnthropicLlmClient(LlmClient):
         system: Union[str, Iterable[TextBlockParam]] | NotGiven = NOT_GIVEN
         other_messages = []
         for message in messages:
-            if message.role == "system":
+            if message.get("role") == "system":
                 if system is NOT_GIVEN:
                     system = list()
-                system.append(TextBlockParam(text=message.content, type="text"))
+                system.append(TextBlockParam(text=message.get("content"), type="text"))
             else:
-                other_messages.append(TextBlockParam(text=message.content, type="text"))
+                other_messages.append(message)
 
+        default_max_token = 1000
         input_kwargs = dict(
             messages=other_messages,
             system=system,
-            max_tokens=max_tokens,
+            max_tokens=default_max_token if max_tokens is None or max_tokens is NOT_GIVEN else max_tokens,
             model=model,
             stop_sequences=[stop] if isinstance(stop, str) else stop,
             temperature=temperature,
-            top_k=top_logprobs if logprobs else NOT_GIVEN,
             top_p=top_p,
         )
 

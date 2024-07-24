@@ -14,14 +14,21 @@ from patchwork.common.client.llm.protocol import NOT_GIVEN, LlmClient, NotGiven
 
 class AioLlmClient(LlmClient):
     def __init__(self, *clients: LlmClient):
-        self.clients = clients
+        self.__original_clients = clients
+        self.__clients = []
+        self.__supported_models = set()
+        for client in clients:
+            try:
+                self.__supported_models.update(client.get_models())
+                self.__clients.append(client)
+            except Exception:
+                pass
 
-    @lru_cache(maxsize=None)
     def get_models(self) -> set[str]:
-        return set().union(*[client.get_models() for client in self.clients])
+        return self.__supported_models
 
     def is_model_supported(self, model: str) -> bool:
-        return any(client.is_model_supported(model) for client in self.clients)
+        return any(client.is_model_supported(model) for client in self.__clients)
 
     def chat_completion(
         self,
@@ -39,7 +46,7 @@ class AioLlmClient(LlmClient):
         top_logprobs: Optional[int] | NotGiven = NOT_GIVEN,
         top_p: Optional[float] | NotGiven = NOT_GIVEN,
     ) -> ChatCompletion:
-        for client in self.clients:
+        for client in self.__clients:
             if client.is_model_supported(model):
                 return client.chat_completion(
                     messages,
@@ -56,4 +63,7 @@ class AioLlmClient(LlmClient):
                     top_logprobs,
                     top_p,
                 )
-        raise ValueError(f"Model {model} is not supported by {[client.__class__.__name__ for client in self.clients]} clients")
+        raise ValueError(
+            f"Model {model} is not supported by "
+            f"{[client.__class__.__name__ for client in self.__original_clients]} clients"
+        )

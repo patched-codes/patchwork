@@ -46,7 +46,7 @@ class GoogleLlmClient(LlmClient):
         )
 
     @lru_cache(maxsize=None)
-    def get_models(self) -> set[str]:
+    def __get_true_model_names(self) -> set[str]:
         request = ListModelsRequest()
         response = self.model_client.list_models(request)
 
@@ -56,8 +56,25 @@ class GoogleLlmClient(LlmClient):
 
         return models
 
+    @staticmethod
+    def __handle_model_name(model_name) -> str:
+        _, _, model = model_name.rpartition("/")
+        return model
+
+    @lru_cache(maxsize=None)
+    def get_models(self) -> set[str]:
+        models = self.__get_true_model_names()
+        return set(map(self.__handle_model_name, models))
+
+    def __get_true_model_name(self, model: str) -> str | None:
+        true_model_names = self.__get_true_model_names()
+        for true_model_name in true_model_names:
+            if true_model_name.endswith(model):
+                return true_model_name
+        return None
+
     def is_model_supported(self, model: str) -> bool:
-        return model in self.get_models()
+        return self.__get_true_model_name(model) is not None
 
     def chat_completion(
         self,
@@ -82,11 +99,22 @@ class GoogleLlmClient(LlmClient):
                     max_output_tokens=max_tokens,
                     temperature=temperature,
                     top_p=top_p,
-                    top_k=top_logprobs if logprobs else NOT_GIVEN,
                 )
             )
         )
-        request_kwargs = dict(model=model, safety_settings=self.__SAFETY_SETTINGS, generation_config=generation_config)
+
+        contents = []
+        for message in messages:
+            role = "model" if message.get("role") in {"system", "assistant"} else "user"
+            parts = [dict(text=message.get("content"))]
+            contents.append(dict(role=role, parts=parts))
+
+        request_kwargs = dict(
+            contents=contents,
+            model=self.__get_true_model_name(model),
+            safety_settings=self.__SAFETY_SETTINGS,
+            generation_config=generation_config
+        )
         request = GenerateContentRequest(request_kwargs)
 
         response = self.generative_client.generate_content(request)
@@ -97,15 +125,21 @@ class GoogleLlmClient(LlmClient):
         choices = []
         for candidate in google_response.candidates:
             # note that instead of system, from openai, its model, from google.
-            role = candidate.content.role
             parts = [part.text or part.inline_data for part in candidate.content.parts]
 
+            # google reasons by index = [FINISH_REASON_UNSPECIFIED, STOP, MAX_TOKENS, SAFETY, RECITATION, OTHER]
+            # openai allowed reasons: 'stop', 'length', 'tool_calls', 'content_filter', 'function_call'
+            finish_reason_map = {
+                2: "length",
+                3: "content_filter",
+            }
+
             choice = Choice(
-                finish_reason=candidate.finish_reason,
+                finish_reason=finish_reason_map.get(candidate.finish_reason, "stop"),
                 index=candidate.index,
                 message=ChatCompletionMessage(
                     content="\n".join(parts),
-                    role=role,
+                    role="assistant",
                 ),
             )
             choices.append(choice)
@@ -117,7 +151,7 @@ class GoogleLlmClient(LlmClient):
         )
 
         return ChatCompletion(
-            id=-1,
+            id="-1",
             choices=choices,
             created=int(time.time()),
             model=model,
