@@ -7,7 +7,7 @@ from patchwork.common.utils.typing import IS_CONFIG
 
 class __CreateIssueCommentRequiredInputs(TypedDict):
     issue_text: str
-    issue_url: Annotated[str, IS_CONFIG]
+    issue_url: str
 
 
 class CreateIssueCommentInputs(__CreateIssueCommentRequiredInputs, total=False):
