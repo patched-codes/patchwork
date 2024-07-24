@@ -35,7 +35,7 @@ class CreateIssueComment(Step):
             slug, issue_id = self.scm_client.get_slug_and_id_from_url(self.issue_url)
             url = self.scm_client.create_issue_comment(slug, self.issue_text, issue_id=issue_id)
         except Exception as e:
-                logger.error(e)
-                return {}
+            logger.error(e)
+            return {}
 
         return dict(issue_comment_url=url)

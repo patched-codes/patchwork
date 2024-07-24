@@ -42,6 +42,9 @@ requests = "~2.31.0"
 chardet = "~5.2.0"
 tqdm = "~4.66.4"
 attrs = "~23.2.0"
+google-ai-generativelanguage = "~0.6.7"
+anthropic = "~0.31.2"
+
 # pinning transitive dependencies
 tree-sitter = "~0.21.3"
 
@@ -67,7 +70,7 @@ notifications = ["slack-sdk"]
 all = [
     "semgrep", "owasp-depscan",
     "chromadb", "sentence-transformers", "torch", "orjson",
-    "slack-sdk"
+    "slack-sdk",
 ]
 
 [tool.poetry.group.dev.dependencies]
