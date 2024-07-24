@@ -20,21 +20,26 @@ class CreatePR(Step):
 
         if not all(key in inputs.keys() for key in self.required_keys):
             raise ValueError(f'Missing required data: "{self.required_keys}"')
-
-        if "github_api_key" in inputs.keys():
-            self.scm_client = GithubClient(inputs["github_api_key"])
-        elif "gitlab_api_key" in inputs.keys():
-            self.scm_client = GitlabClient(inputs["gitlab_api_key"])
-        else:
-            raise ValueError(f'Missing required input data: "github_api_key" or "gitlab_api_key"')
-
-        if "scm_url" in inputs.keys():
-            self.scm_client.set_url(inputs["scm_url"])
-
-        if not self.scm_client.test():
-            raise ValueError(f"{self.scm_client.__class__.__name__} token test failed.")
-
+        
         self.enabled = not bool(inputs.get("disable_pr"))
+
+        if self.enabled:
+            if "github_api_key" in inputs.keys():
+                self.scm_client = GithubClient(inputs["github_api_key"])
+            elif "gitlab_api_key" in inputs.keys():
+                self.scm_client = GitlabClient(inputs["gitlab_api_key"])
+            else:
+                raise ValueError(f'Missing required input data: "github_api_key" or "gitlab_api_key"')
+
+            if "scm_url" in inputs.keys():
+                self.scm_client.set_url(inputs["scm_url"])
+
+            if not self.scm_client.test():
+                raise ValueError(f"{self.scm_client.__class__.__name__} token test failed.")
+        else:
+            if "github_api_key" in inputs.keys() or "gitlab_api_key" in inputs.keys():
+                logger.warn("PR creation is disabled. API keys provided will be ignored.")
+
         self.pr_body = inputs.get("pr_body", "")
         self.title = inputs.get("pr_title", "Patchwork PR")
         self.force = bool(inputs.get("force_pr_creation", False))
