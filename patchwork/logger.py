@@ -5,11 +5,12 @@ import logging
 import os
 
 import click
-from typing_extensions import Callable
 from rich.console import Console, Group
+from rich.live import Live
 from rich.logging import RichHandler
 from rich.panel import Panel
-from rich.live import Live
+from typing_extensions import Callable
+
 from patchwork.managed_files import HOME_FOLDER, LOG_FILE
 
 console = Console()
@@ -27,7 +28,7 @@ class TerminalHandler(RichHandler):
             tracebacks_suppress=[click],
             show_time=False,
             show_path=False,
-            show_level=False
+            show_level=False,
         )
         self.addFilter(self.__get_filter(log_level))
         self.__live = None

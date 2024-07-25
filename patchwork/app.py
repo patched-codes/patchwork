@@ -139,7 +139,6 @@ def cli(
                 inputs = yaml.safe_load(config_path.read_text()) or {}
                 logger.info(f"Input values loaded from {config}")
             elif config_path.is_dir():
-
                 patchwork_path = config_path / patchflow_name
 
                 patchwork_python_path = patchwork_path / f"{patchflow_name}.py"
@@ -208,7 +207,7 @@ def find_patchflow(possible_module_paths: Iterable[str], patchflow: str) -> Any 
             spec = importlib.util.spec_from_file_location("custom_module", module_path)
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
-            logger.info(f"Patchflow `{patchflow}` loaded from \"{module_path}\"")
+            logger.info(f'Patchflow `{patchflow}` loaded from "{module_path}"')
             return getattr(module, patchflow)
         except AttributeError:
             logger.debug(f"Patchflow {patchflow} not found in {module_path}")

@@ -5,8 +5,9 @@ import functools
 import warnings
 from collections import Counter
 
-from typing_extensions import Type
 from rich.progress import Progress, SpinnerColumn, TimeElapsedColumn
+from typing_extensions import Type
+
 from patchwork.logger import console, logger
 from patchwork.step import Step
 
@@ -27,8 +28,7 @@ class PatchflowProgressBar:
                 return patchflow_run_func()
             finally:
                 self.__progress_bar_update(
-                    description=f"[bold green]Finished {self.__patchflow_name}",
-                    completed=self.__MAX_PROGRESS
+                    description=f"[bold green]Finished {self.__patchflow_name}", completed=self.__MAX_PROGRESS
                 )
                 self.__do_callbacks()
 
@@ -66,12 +66,7 @@ class PatchflowProgressBar:
     @functools.cached_property
     def __progress_bar_update(self):
         self.__suppress_warnings()
-        progress = Progress(
-            SpinnerColumn(),
-            *Progress.get_default_columns(),
-            TimeElapsedColumn(),
-            console=console
-        )
+        progress = Progress(SpinnerColumn(), *Progress.get_default_columns(), TimeElapsedColumn(), console=console)
         logger.register_progress_bar(progress)
         task_id = progress.add_task(
             description=f"[bold green]Running {self.__patchflow_name}",
