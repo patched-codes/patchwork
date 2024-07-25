@@ -127,38 +127,49 @@ def cli(
 
     possbile_module_paths = deque((module_path,))
 
-    inputs = {}
-    if patched_api_key is not None:
-        inputs["patched_api_key"] = patched_api_key
+    with logger.panel("Initializing Patchwork CLI"):
+        inputs = {}
+        if patched_api_key is not None:
+            inputs["patched_api_key"] = patched_api_key
 
-    if config is not None:
-        config_path = Path(config)
-        if config_path.is_file():
-            inputs = yaml.safe_load(config_path.read_text()) or {}
-        elif config_path.is_dir():
-            patchwork_path = config_path / patchflow_name
+        if config is not None:
+            logger.info(f"Using given config value: {config}")
+            config_path = Path(config)
+            if config_path.is_file():
+                inputs = yaml.safe_load(config_path.read_text()) or {}
+                logger.info(f"Input values loaded from {config}")
+            elif config_path.is_dir():
 
-            patchwork_python_path = patchwork_path / f"{patchflow_name}.py"
-            if patchwork_python_path.is_file():
-                possbile_module_paths.appendleft(str(patchwork_python_path.resolve()))
+                patchwork_path = config_path / patchflow_name
 
-            patchwork_config_path = patchwork_path / _CONFIG_NAME
-            if patchwork_config_path.is_file():
-                inputs = yaml.safe_load(patchwork_config_path.read_text()) or {}
+                patchwork_python_path = patchwork_path / f"{patchflow_name}.py"
+                if patchwork_python_path.is_file():
+                    possbile_module_paths.appendleft(str(patchwork_python_path.resolve()))
+
+                patchwork_config_path = patchwork_path / _CONFIG_NAME
+                if patchwork_config_path.is_file():
+                    inputs = yaml.safe_load(patchwork_config_path.read_text()) or {}
+                    logger.info(f"Input values loaded from {patchwork_config_path}")
+                else:
+                    logger.debug(
+                        f'Config file "{patchwork_config_path}" not found from directory {config}, using default config'
+                    )
+
+                patchwork_prompt_path = patchwork_path / _PROMPT_NAME
+                if patchwork_prompt_path.is_file():
+                    inputs[PreparePrompt.PROMPT_TEMPLATE_FILE_KEY] = patchwork_prompt_path
+                    logger.info(f"Prompt template loaded from {patchwork_prompt_path}")
+                else:
+                    logger.debug(
+                        f'Prompt file "{patchwork_prompt_path}" not found from directory {config}, using default prompt'
+                    )
             else:
-                logger.warning(
-                    f'Config file "{patchwork_config_path}" not found from directory "{config}", using default config'
-                )
+                logger.error(f"Config path {config} is neither a file nor a directory")
+                exit(1)
 
-            patchwork_prompt_path = patchwork_path / _PROMPT_NAME
-            if patchwork_prompt_path.is_file():
-                inputs[PreparePrompt.PROMPT_TEMPLATE_FILE_KEY] = patchwork_prompt_path
-            else:
-                logger.warning(
-                    f'Prompt file "{patchwork_prompt_path}" not found from directory "{config}", using default prompt'
-                )
-        else:
-            logger.error(f"Config path {config} is not a file or directory")
+        patchflow_class = find_patchflow(possbile_module_paths, patchflow_name)
+        if patchflow_class is None:
+            logger.error(f"Patchflow {patchflow_name} not found in {possbile_module_paths}")
             exit(1)
 
     for opt in opts:
@@ -172,17 +183,12 @@ def cli(
             # treat --key=value as a key-value pair
             inputs[key] = value
 
-    patchflow_class = find_patchflow(possbile_module_paths, patchflow_name)
-    if patchflow_class is None:
-        logger.error(f"Patchflow {patchflow_name} not found in {possbile_module_paths}")
-        exit(1)
-
     try:
         patched = PatchedClient(inputs.get("patched_api_key"))
         if not disable_telemetry:
             patched.send_public_telemetry(patchflow_name, inputs)
 
-        with patched.patched_telemetry(patchflow_name, {}):
+        with patched.patched_telemetry(patchflow_name, {}), logger.panel(f"Patchflow {patchflow} logs") as _:
             patchflow_instance = patchflow_class(inputs)
             patchflow_instance.run()
     except Exception as e:
@@ -202,6 +208,7 @@ def find_patchflow(possible_module_paths: Iterable[str], patchflow: str) -> Any 
             spec = importlib.util.spec_from_file_location("custom_module", module_path)
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
+            logger.info(f"Patchflow `{patchflow}` loaded from \"{module_path}\"")
             return getattr(module, patchflow)
         except AttributeError:
             logger.debug(f"Patchflow {patchflow} not found in {module_path}")
@@ -210,6 +217,7 @@ def find_patchflow(possible_module_paths: Iterable[str], patchflow: str) -> Any 
 
         try:
             module = importlib.import_module(module_path)
+            logger.info(f"Patchflow {patchflow} loaded from {module_path}")
             return getattr(module, patchflow)
         except ModuleNotFoundError:
             logger.debug(f"Patchflow {patchflow} not found as a module in {module_path}")
