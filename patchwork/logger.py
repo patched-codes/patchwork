@@ -74,6 +74,7 @@ class TerminalHandler(RichHandler):
         yield
         self.__live.stop()
         self.__reset_live()
+        self.console.print("\n")
         return
 
     def emit(self, record: logging.LogRecord) -> None:
