@@ -182,18 +182,19 @@ def cli(
             # treat --key=value as a key-value pair
             inputs[key] = value
 
-    try:
-        patched = PatchedClient(inputs.get("patched_api_key"))
-        if not disable_telemetry:
-            patched.send_public_telemetry(patchflow_name, inputs)
+    with logger.panel(f"Patchflow {patchflow} logs") as _:
+        try:
+            patched = PatchedClient(inputs.get("patched_api_key"))
+            if not disable_telemetry:
+                patched.send_public_telemetry(patchflow_name, inputs)
 
-        with patched.patched_telemetry(patchflow_name, {}), logger.panel(f"Patchflow {patchflow} logs") as _:
-            patchflow_instance = patchflow_class(inputs)
-            patchflow_instance.run()
-    except Exception as e:
-        logger.debug(traceback.format_exc())
-        logger.error(f"Error running patchflow {patchflow}: {e}")
-        exit(1)
+            with patched.patched_telemetry(patchflow_name, {}):
+                patchflow_instance = patchflow_class(inputs)
+                patchflow_instance.run()
+        except Exception as e:
+            logger.debug(traceback.format_exc())
+            logger.error(f"Error running patchflow {patchflow}: {e}")
+            exit(1)
 
     if output is not None:
         serialize = _DATA_FORMAT_MAPPING.get(data_format, json.dumps)

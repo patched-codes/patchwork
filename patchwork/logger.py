@@ -70,12 +70,14 @@ class TerminalHandler(RichHandler):
             renderables.append(self.__progress_bar)
 
         self.__live = Live(Group(*renderables), console=console)
-        self.__live.start()
-        yield
-        self.__live.stop()
-        self.__reset_live()
-        self.console.print("\n")
-        return
+        try:
+            self.__live.start()
+            yield
+        except Exception as e:
+            raise e
+        finally:
+            self.__reset_live()
+            self.console.print("\n")
 
     def emit(self, record: logging.LogRecord) -> None:
         markup = getattr(record, "markup", None)
@@ -91,7 +93,7 @@ class TerminalHandler(RichHandler):
         elif record.levelno == logging.INFO:
             record.msg = f"[green]{message}[/]"
 
-        if self.panel is not None:
+        if self.__panel is not None:
             self.__emit_panel(record)
         else:
             setattr(record, "markup", True)
