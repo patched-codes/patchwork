@@ -2,26 +2,23 @@
   <picture>
     <img alt="Patchwork logo" src="https://repository-images.githubusercontent.com/782544882/a9743f35-5e1c-43ed-a0e0-536322056d38" width="36%">
   </picture>
+  <img alt="Patchwork GIF" src="patchwork-banner.gif">
 </div>
-
 <br>
 
 <div align="center">
 
 [![Build](https://github.com/patched-codes/patchwork/actions/workflows/release.yml/badge.svg)](https://github.com/patched-codes/patchwork/actions/workflows/release.yml)
-[![Tests](https://github.com/patched-codes/patchwork/actions/workflows/test.yml/badge.svg)](https://github.com/patched-codes/patchwork/actions/workflows/test.yml)
 [![Discord](https://dcbadge.limes.pink/api/server/XDxA3mJyhE?style=flat&theme=clean-inverted)](https://discord.gg/XDxA3mJyhE)
 [![Downloads](https://img.shields.io/pypi/v/patchwork-cli)](https://pypi.org/project/patchwork-cli/)
 [![Downloads](https://static.pepy.tech/badge/patchwork-cli)](https://pepy.tech/project/patchwork-cli)
 
-[Demo](https://youtu.be/3gRpqQoIino) |
+[Demo](https://youtu.be/MLyn6B3bFMU) |
 [Docs](https://docs.patched.codes/)
 
 </div>
 
-# PatchWork
-
-An open-source framework for automating development chores using large language models. PatchWork allows you to automate workflows like PR reviews, bug fixing, security patching, and more using a self-hosted CLI agent and your preferred LLMs.
+Patchwork allows you to automate development gruntwwork like PR reviews, bug fixing, security patching, and more using a self-hosted CLI agent and your preferred LLMs.
 
 ## Key Components
 
@@ -31,9 +28,9 @@ An open-source framework for automating development chores using large language 
 
 Patchflows can be run locally in your CLI and IDE, or as part of your CI/CD pipeline. There are [several patchflows available](#patchflows) out of the box, and you can always [create your own](#contributing).
 
-## Quickstart
+## Demo
 
-[![Patchwork CLI Quickstart](https://img.youtube.com/vi/3gRpqQoIino/0.jpg)](https://youtu.be/3gRpqQoIino)
+[![Patchwork CLI Quickstart](https://img.youtube.com/vi/3gRpqQoIino/0.jpg)](https://youtu.be/MLyn6B3bFMU)
 
 ## Installation
 
