@@ -10,16 +10,14 @@ __DEPENDENCY_GROUPS = {
 
 @lru_cache(maxsize=None)
 def import_with_dependency_group(name):
+    if name not in __DEPENDENCY_GROUPS.values():
+        raise ImportError(f"Module '{name}' is not in allowed dependencies")
+
+    full_name = f"patchworkcli_{name}" if name != "slack_sdk" else "slack_sdk"
     try:
-        return importlib.import_module(name)
+        return importlib.import_module(full_name)
     except ImportError:
-        error_msg = f"Missing dependency for {name}, please `pip install {name}`"
-        dependency_group = next(
-            (group for group, dependencies in __DEPENDENCY_GROUPS.items() if name in dependencies), None
-        )
-        if dependency_group is not None:
-            error_msg = f"Please `pip install patchwork-cli[{dependency_group}]` to use this step"
-        raise ImportError(error_msg)
+        raise ImportError(f"Missing dependency for {name}, please `pip install {name}`")
 
 
 def chromadb():
