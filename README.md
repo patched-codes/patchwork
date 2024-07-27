@@ -18,7 +18,7 @@
 
 </div>
 
-Patchwork allows you to automate development gruntwwork like PR reviews, bug fixing, security patching, and more using a self-hosted CLI agent and your preferred LLMs.
+Patchwork allows you to automate development gruntwork like PR reviews, bug fixing, security patching, and more using a self-hosted CLI agent and your preferred LLMs.
 
 ## Key Components
 
