@@ -47,10 +47,6 @@ anthropic = "~0.31.2"
 rich = "~13.7.1"
 # pinning transitive dependencies
 tree-sitter = "~0.21.3"
-numpy = [
-    { version = ">=1.26", python = ">=3.9", optional = true},
-    { version = "^1.24", python = ">=3.8, <3.9", optional = true}
-]
 
 # extras
 # security
@@ -78,7 +74,10 @@ all = [
 ]
 
 [tool.poetry.group.dev.dependencies]
-setuptools = "*"
+setuptools = [
+    { version = "<60", python = ">=3.9", optional = true},
+    { version = "*", python = ">=3.8, <3.9", optional = true}
+]
 poethepoet = { version = "^0.24.2", extras = ["poetry-plugin"] }
 mypy = "^1.7.1"
 types-requests = "~2.31.0"
