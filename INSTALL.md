@@ -7,22 +7,22 @@ PatchWork is built using Poetry, a dependency management and packaging tool for 
    curl -sSL https://install.python-poetry.org | python3 -
    ```
 
-3. Clone the PatchWork repository:
+2. Clone the PatchWork repository:
    ```
    git clone https://github.com/patched-codes/patchwork.git
    ```
 
-4. Navigate to the project directory:
+3. Navigate to the project directory:
    ```
    cd patchwork
    ```
 
-5. Activate a shell using virtual environment:
+4. Activate a shell using virtual environment:
    ```
    poetry shell
    ```
 
-6. Install the dependencies using Poetry:
+5. Install the dependencies using Poetry:
    ```
    poetry install --all-extras
    ```
