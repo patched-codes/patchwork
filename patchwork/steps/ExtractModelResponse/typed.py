@@ -1,11 +1,13 @@
-from typing_extensions import Annotated, Dict, List, Optional
+from typing_extensions import Annotated, Dict, List, Optional, TypedDict
 
 from patchwork.common.utils.step_typing import StepTypeConfig
 
-
-class ExtractModelResponseInputs(TypedDict):
+class __ExtractModelResponseRequiredInputs(TypedDict):
     openai_responses: List[str]
-    response_partitions: Optional[Annotated[Dict[str, List[str]], StepTypeConfig(is_config=True)]] = None
+
+
+class ExtractModelResponseInputs(__ExtractModelResponseRequiredInputs, total=False):
+    response_partitions: Annotated[Dict[str, List[str]], StepTypeConfig(is_config=True)]
 
 
 class ExtractModelResponseOutputs(TypedDict):

@@ -3,8 +3,8 @@ from typing_extensions import Annotated, Optional
 from patchwork.common.utils.step_typing import StepTypeConfig
 
 
-class GenerateCodeRepositoryEmbeddingsInputs(TypedDict):
-    disable_cache: Optional[Annotated[bool, StepTypeConfig(is_config=True)]] = None
+class GenerateCodeRepositoryEmbeddingsInputs(TypedDict, total=False):
+    disable_cache: Annotated[bool, StepTypeConfig(is_config=True)]
 
 
 class GenerateCodeRepositoryEmbeddingsOutputs(TypedDict):

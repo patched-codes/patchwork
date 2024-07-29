@@ -3,9 +3,9 @@ from typing_extensions import Annotated, List, Optional, TypedDict
 from patchwork.common.utils.step_typing import StepTypeConfig
 
 
-class ExtractCodeContextsInputs(TypedDict):
-    base_path: Optional[Annotated[str, StepTypeConfig(is_path=True)]] = None
-    context_grouping: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
+class ExtractCodeContextsInputs(TypedDict, total=False):
+    base_path: Annotated[str, StepTypeConfig(is_path=True)]
+    context_grouping: Annotated[str, StepTypeConfig(is_config=True)]
 
 
 class ExtractCodeContextsOutputs(TypedDict):

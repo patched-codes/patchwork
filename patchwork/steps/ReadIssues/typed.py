@@ -1,13 +1,14 @@
-from typing_extensions import Annotated, List, Optional
+from typing_extensions import Annotated, List, Optional, TypedDict
 
 from patchwork.common.utils.step_typing import StepTypeConfig
 
-
-class ReadIssuesInputs(TypedDict):
+class __ReadIssuesRequiredInputs(TypedDict):
     issue_url: str
-    scm_url: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
-    gitlab_api_key: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
-    github_api_key: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
+
+class ReadIssuesInputs(__ReadIssuesRequiredInputs, total=False):
+    scm_url: Annotated[str, StepTypeConfig(is_config=True)]
+    gitlab_api_key: Annotated[str, StepTypeConfig(is_config=True)]
+    github_api_key: Annotated[str, StepTypeConfig(is_config=True)]
 
 
 class ReadIssuesOutputs(TypedDict):

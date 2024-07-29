@@ -1,21 +1,22 @@
-from typing_extensions import Annotated, Any, Dict, List, Optional
+from typing_extensions import Annotated, Any, Dict, List, Optional, TypedDict
 
 from patchwork.common.utils.step_typing import StepTypeConfig
 
-
-class SimplifiedLLMInputs(TypedDict):
+class __SimplifiedLLMInputsRequired(TypedDict):
     # PreparePromptInputs
     prompt_user: Annotated[str, StepTypeConfig(is_config=True)]
     prompt_values: List[Dict[str, Any]]
-    prompt_system: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
+
+class SimplifiedLLMInputs(__SimplifiedLLMInputsRequired, total=False):
+    prompt_system: Annotated[str, StepTypeConfig(is_config=True)]
     # CallLLMInputs
-    model: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
-    openai_api_key: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
-    patched_api_key: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
-    google_api_key: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
-    json: Optional[Annotated[bool, StepTypeConfig(is_config=True)]] = None
+    model: Annotated[str, StepTypeConfig(is_config=True)]
+    openai_api_key: Annotated[str, StepTypeConfig(is_config=True)]
+    patched_api_key: Annotated[str, StepTypeConfig(is_config=True)]
+    google_api_key: Annotated[str, StepTypeConfig(is_config=True)]
+    json: Annotated[bool, StepTypeConfig(is_config=True)]
     # ExtractModelResponseInputs
-    response_partitions: Optional[Annotated[Dict[str, List[str]], StepTypeConfig(is_config=True)]] = None
+    response_partitions: Annotated[Dict[str, List[str]], StepTypeConfig(is_config=True)]
 
 
 class SimplifiedLLMOutputs(TypedDict):

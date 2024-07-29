@@ -1,26 +1,26 @@
-from typing_extensions import Annotated, List, Optional
+from typing_extensions import Annotated, List, Optional, TypedDict
 
 from patchwork.common.utils.step_typing import StepTypeConfig
 from patchwork.steps.PreparePR.typed import ModifiedCodeFile
 
-
-class PRInputs(TypedDict):
+class __PRInputsRequired(TypedDict):
     # CommitChangesInputs & PreparePRInputs
     modified_code_files: List["ModifiedCodeFile"]
+class PRInputs(__PRInputsRequired, total=False):
     # CommitChangesInputs
-    disable_branch: Optional[Annotated[bool, StepTypeConfig(is_config=True)]] = None
-    force_branch_creation: Optional[Annotated[bool, StepTypeConfig(is_config=True)]] = None
-    branch_prefix: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
-    branch_suffix: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
+    disable_branch: Annotated[bool, StepTypeConfig(is_config=True)]
+    force_branch_creation: Annotated[bool, StepTypeConfig(is_config=True)]
+    branch_prefix: Annotated[str, StepTypeConfig(is_config=True)]
+    branch_suffix: Annotated[str, StepTypeConfig(is_config=True)]
     # PreparePRInputs
-    pr_header: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
+    pr_header: Annotated[str, StepTypeConfig(is_config=True)]
     # CreatePRInputs
-    pr_title: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
-    force_pr_creation: Optional[Annotated[bool, StepTypeConfig(is_config=True)]] = None
-    disable_pr: Optional[Annotated[bool, StepTypeConfig(is_config=True)]] = None
-    scm_url: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
-    gitlab_api_key: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
-    github_api_key: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
+    pr_title: Annotated[str, StepTypeConfig(is_config=True)]
+    force_pr_creation: Annotated[bool, StepTypeConfig(is_config=True)]
+    disable_pr: Annotated[bool, StepTypeConfig(is_config=True)]
+    scm_url: Annotated[str, StepTypeConfig(is_config=True)]
+    gitlab_api_key: Annotated[str, StepTypeConfig(is_config=True)]
+    github_api_key: Annotated[str, StepTypeConfig(is_config=True)]
 
 
 class PROutputs(TypedDict):

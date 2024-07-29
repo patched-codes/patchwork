@@ -2,12 +2,14 @@ from typing_extensions import Annotated, Dict, List, Optional, TypedDict
 
 from patchwork.common.utils.step_typing import StepTypeConfig
 
-
-class ExtractCodeInputs(TypedDict):
+class __ExtractCodeRequiredInputs(TypedDict):
     sarif_values: Dict
-    context_size: Optional[Annotated[int, StepTypeConfig(is_config=True)]] = None
-    vulnerability_limit: Optional[Annotated[int, StepTypeConfig(is_config=True)]] = None
-    severity: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
+
+
+class ExtractCodeInputs(__ExtractCodeRequiredInputs, total=False):
+    context_size: Annotated[int, StepTypeConfig(is_config=True)]
+    vulnerability_limit: Annotated[int, StepTypeConfig(is_config=True)]
+    severity: Annotated[str, StepTypeConfig(is_config=True)]
 
 
 class ExtractCodeOutputs(TypedDict):

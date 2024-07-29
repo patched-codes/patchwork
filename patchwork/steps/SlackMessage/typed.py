@@ -1,14 +1,14 @@
-from typing_extensions import Annotated, Dict, Optional
+from typing_extensions import Annotated, Dict, Optional, TypedDict
 
 from patchwork.common.utils.step_typing import StepTypeConfig
 
-
-class SlackMessageInputs(TypedDict):
+class __SlackMessageRequiredInputs(TypedDict):
     slack_channel: Annotated[str, StepTypeConfig(is_config=True)]
     slack_token: Annotated[str, StepTypeConfig(is_config=True)]
-    slack_message_template_file: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
-    slack_message_template: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
-    slack_message_values: Optional[Dict[str, str]] = None
+class SlackMessageInputs(__SlackMessageRequiredInputs, total=False):
+    slack_message_template_file: Annotated[str, StepTypeConfig(is_config=True)]
+    slack_message_template: Annotated[str, StepTypeConfig(is_config=True)]
+    slack_message_values: Dict[str, str]
 
 
 class SlackMessageOutputs(TypedDict):
