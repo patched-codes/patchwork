@@ -6,12 +6,6 @@ PatchWork is built using Poetry, a dependency management and packaging tool for 
    ```
    curl -sSL https://install.python-poetry.org | python3 -
    ```
-   
-   If you are on macOS you can also install poetry using brew:
-   
-   ```
-   brew install poetry
-   ```
 
 3. Clone the PatchWork repository:
    ```
