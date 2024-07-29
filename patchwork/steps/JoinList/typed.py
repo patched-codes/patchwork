@@ -1,14 +1,13 @@
-from __future__ import annotations
+from pydantic import BaseModel
+from typing_extensions import Annotated, List
 
-from typing_extensions import Annotated, TypedDict
-
-from patchwork.common.utils.typing import IS_CONFIG
-
-
-class JoinListInputs(TypedDict):
-    list: list[str]
-    delimiter: Annotated[str, IS_CONFIG]
+from patchwork.common.utils.step_typing import StepTypeConfig
 
 
-class JoinListOutputs(TypedDict):
+class JoinListInputs(BaseModel):
+    list: List[str]
+    delimiter: Annotated[str, StepTypeConfig(is_config=True)]
+
+
+class JoinListOutputs(BaseModel):
     text: str

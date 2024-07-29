@@ -1,20 +1,16 @@
-from __future__ import annotations
+from pydantic import BaseModel
+from typing_extensions import Annotated, Dict, Optional
 
-from typing_extensions import Annotated, TypedDict
-
-from patchwork.common.utils.typing import IS_CONFIG
-
-
-class __SlackMessageRequiredInputs(TypedDict):
-    slack_channel: Annotated[str, IS_CONFIG]
-    slack_token: Annotated[str, IS_CONFIG]
+from patchwork.common.utils.step_typing import StepTypeConfig
 
 
-class SlackMessageInputs(__SlackMessageRequiredInputs, total=False):
-    slack_message_template_file: Annotated[str, IS_CONFIG]
-    slack_message_template: Annotated[str, IS_CONFIG]
-    slack_message_values: dict[str, str]
+class SlackMessageInputs(BaseModel):
+    slack_channel: Annotated[str, StepTypeConfig(is_config=True)]
+    slack_token: Annotated[str, StepTypeConfig(is_config=True)]
+    slack_message_template_file: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
+    slack_message_template: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
+    slack_message_values: Optional[Dict[str, str]] = None
 
 
-class SlackMessageOutputs(TypedDict):
+class SlackMessageOutputs(BaseModel):
     is_slack_message_sent: bool

@@ -1,21 +1,17 @@
-from __future__ import annotations
+from pydantic import BaseModel
+from typing_extensions import Annotated, List, Optional
 
-from typing_extensions import Annotated, TypedDict
-
-from patchwork.common.utils.typing import IS_CONFIG
+from patchwork.common.utils.step_typing import StepTypeConfig
 
 
-class __ReadIssuesRequiredInputs(TypedDict):
+class ReadIssuesInputs(BaseModel):
     issue_url: str
+    scm_url: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
+    gitlab_api_key: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
+    github_api_key: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
 
 
-class ReadIssuesInputs(__ReadIssuesRequiredInputs, total=False):
-    scm_url: Annotated[str, IS_CONFIG]
-    gitlab_api_key: Annotated[str, IS_CONFIG]
-    github_api_key: Annotated[str, IS_CONFIG]
-
-
-class ReadIssuesOutputs(TypedDict):
+class ReadIssuesOutputs(BaseModel):
     issue_title: str
     issue_body: str
-    issue_comments: list[str]
+    issue_comments: List[str]

@@ -1,17 +1,16 @@
-from __future__ import annotations
+from pydantic import BaseModel
+from typing_extensions import Annotated, List, Optional, TypedDict
 
-from typing_extensions import Annotated, TypedDict
-
-from patchwork.common.utils.typing import IS_CONFIG, IS_PATH
-
-
-class ExtractCodeContextsInputs(TypedDict, total=False):
-    base_path: Annotated[str, IS_PATH]
-    context_grouping: Annotated[str, IS_CONFIG]
+from patchwork.common.utils.step_typing import StepTypeConfig
 
 
-class ExtractCodeContextsOutputs(TypedDict):
-    files_to_patch: list["ExtractedCode"]
+class ExtractCodeContextsInputs(BaseModel):
+    base_path: Optional[Annotated[str, StepTypeConfig(is_path=True)]] = None
+    context_grouping: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
+
+
+class ExtractCodeContextsOutputs(BaseModel):
+    files_to_patch: List["ExtractedCode"]
 
 
 class ExtractedCode(TypedDict):

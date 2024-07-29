@@ -1,15 +1,14 @@
-from __future__ import annotations
+from pydantic import BaseModel
+from typing_extensions import Annotated, List, Optional
 
-from typing_extensions import Annotated, TypedDict
-
-from patchwork.common.utils.typing import IS_CONFIG, IS_PATH
-
-
-class ScanSemgrepInputs(TypedDict, total=False):
-    sarif_file_path: Annotated[str, IS_CONFIG, IS_PATH]
-    sarif_values: dict
-    semgrep_extra_args: Annotated[list[str], IS_CONFIG]
+from patchwork.common.utils.step_typing import StepTypeConfig
 
 
-class ScanSemgrepOutputs(TypedDict):
+class ScanSemgrepInputs(BaseModel):
+    sarif_file_path: Optional[Annotated[str, StepTypeConfig(is_config=True, is_path=True)]] = None
+    sarif_values: Optional[dict] = None
+    semgrep_extra_args: Optional[Annotated[List[str], StepTypeConfig(is_config=True)]] = None
+
+
+class ScanSemgrepOutputs(BaseModel):
     sarif_values: dict

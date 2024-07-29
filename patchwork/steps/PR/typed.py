@@ -1,34 +1,30 @@
-from __future__ import annotations
+from pydantic import BaseModel
+from typing_extensions import Annotated, List, Optional
 
-from typing_extensions import Annotated, TypedDict
-
-from patchwork.common.utils.typing import IS_CONFIG
+from patchwork.common.utils.step_typing import StepTypeConfig
 from patchwork.steps.PreparePR.typed import ModifiedCodeFile
 
 
-class __PRInputsRequired(TypedDict):
+class PRInputs(BaseModel):
     # CommitChangesInputs & PreparePRInputs
-    modified_code_files: list["ModifiedCodeFile"]
-
-
-class PRInputs(__PRInputsRequired, total=False):
+    modified_code_files: List["ModifiedCodeFile"]
     # CommitChangesInputs
-    disable_branch: Annotated[bool, IS_CONFIG]
-    force_branch_creation: Annotated[bool, IS_CONFIG]
-    branch_prefix: Annotated[str, IS_CONFIG]
-    branch_suffix: Annotated[str, IS_CONFIG]
+    disable_branch: Optional[Annotated[bool, StepTypeConfig(is_config=True)]] = None
+    force_branch_creation: Optional[Annotated[bool, StepTypeConfig(is_config=True)]] = None
+    branch_prefix: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
+    branch_suffix: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
     # PreparePRInputs
-    pr_header: Annotated[str, IS_CONFIG]
+    pr_header: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
     # CreatePRInputs
-    pr_title: Annotated[str, IS_CONFIG]
-    force_pr_creation: Annotated[bool, IS_CONFIG]
-    disable_pr: Annotated[bool, IS_CONFIG]
-    scm_url: Annotated[str, IS_CONFIG]
-    gitlab_api_key: Annotated[str, IS_CONFIG]
-    github_api_key: Annotated[str, IS_CONFIG]
+    pr_title: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
+    force_pr_creation: Optional[Annotated[bool, StepTypeConfig(is_config=True)]] = None
+    disable_pr: Optional[Annotated[bool, StepTypeConfig(is_config=True)]] = None
+    scm_url: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
+    gitlab_api_key: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
+    github_api_key: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
 
 
-class PROutputs(TypedDict):
+class PROutputs(BaseModel):
     # CommitChangesOutputs
     base_branch: str
     target_branch: str

@@ -1,19 +1,15 @@
-from __future__ import annotations
+from pydantic import BaseModel
+from typing_extensions import Annotated, Any, Dict, List, Optional
 
-from typing_extensions import Annotated, Any, TypedDict
-
-from patchwork.common.utils.typing import IS_CONFIG
+from patchwork.common.utils.step_typing import StepTypeConfig
 
 
-class __QueryEmbeddingsRequiredInputs(TypedDict):
+class QueryEmbeddingsInputs(BaseModel):
     embedding_name: str
-    texts: list[str]
+    texts: List[str]
+    top_k: Optional[Annotated[int, StepTypeConfig(is_config=True)]] = None
+    token_limit: Optional[Annotated[int, StepTypeConfig(is_config=True)]] = None
 
 
-class QueryEmbeddingsInputs(__QueryEmbeddingsRequiredInputs, total=False):
-    top_k: Annotated[int, IS_CONFIG]
-    token_limit: Annotated[int, IS_CONFIG]
-
-
-class QueryEmbeddingsOutputs(TypedDict):
-    embedding_results: list[dict[str, Any]]
+class QueryEmbeddingsOutputs(BaseModel):
+    embedding_results: List[Dict[str, Any]]

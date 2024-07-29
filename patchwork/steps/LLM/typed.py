@@ -1,36 +1,32 @@
-from __future__ import annotations
+from pydantic import BaseModel
+from typing_extensions import Annotated, Any, Dict, List, Optional
 
-from typing_extensions import Annotated, Any, TypedDict
-
-from patchwork.common.utils.typing import IS_CONFIG
+from patchwork.common.utils.step_typing import StepTypeConfig
 
 
-class __LLMInputsRequired(TypedDict):
+class LLMInputs(BaseModel):
     # PreparePromptInputs
-    prompt_template_file: Annotated[str, IS_CONFIG]
-    prompt_id: Annotated[str, IS_CONFIG]
-
-
-class LLMInputs(__LLMInputsRequired, total=False):
-    prompt_value_file: str
-    prompt_values: list[dict[str, Any]]
+    prompt_template_file: Annotated[str, StepTypeConfig(is_config=True)]
+    prompt_id: Annotated[str, StepTypeConfig(is_config=True)]
+    prompt_value_file: Optional[str] = None
+    prompt_values: Optional[List[Dict[str, Any]]] = None
     # CallLLMInputs
-    prompt_file: Annotated[str, IS_CONFIG]
-    model: Annotated[str, IS_CONFIG]
-    allow_truncated: Annotated[bool, IS_CONFIG]
-    model_args: Annotated[str, IS_CONFIG]
-    client_args: Annotated[str, IS_CONFIG]
-    openai_api_key: Annotated[str, IS_CONFIG]
-    patched_api_key: Annotated[str, IS_CONFIG]
-    google_api_key: Annotated[str, IS_CONFIG]
+    prompt_file: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
+    model: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
+    allow_truncated: Optional[Annotated[bool, StepTypeConfig(is_config=True)]] = None
+    model_args: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
+    client_args: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
+    openai_api_key: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
+    patched_api_key: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
+    google_api_key: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
     # ExtractModelResponseInputs
-    response_partitions: Annotated[dict[str, list[str]], IS_CONFIG]
+    response_partitions: Optional[Annotated[Dict[str, List[str]], StepTypeConfig(is_config=True)]] = None
 
 
-class LLMOutputs(TypedDict):
+class LLMOutputs(BaseModel):
     # PreparePromptOutputs
-    prompts: list[dict]
+    prompts: List[Dict]
     # CallLLMOutputs
-    openai_responses: list[str]
+    openai_responses: List[str]
     # ExtractModelResponseOutputs
-    extracted_responses: list[dict[str, str]]
+    extracted_responses: List[Dict[str, str]]

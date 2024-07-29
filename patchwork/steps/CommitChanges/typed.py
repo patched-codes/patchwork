@@ -1,19 +1,15 @@
-from __future__ import annotations
+from pydantic import BaseModel
+from typing_extensions import Annotated, Any, Dict, List, Optional, TypedDict
 
-from typing_extensions import Annotated, Any, TypedDict
-
-from patchwork.common.utils.typing import IS_CONFIG
-
-
-class __CommitChangesRequiredInputs(TypedDict):
-    modified_code_files: list[dict[str, Any]]
+from patchwork.common.utils.step_typing import StepTypeConfig
 
 
-class CommitChangesInputs(__CommitChangesRequiredInputs, total=False):
-    disable_branch: Annotated[bool, IS_CONFIG]
-    force_branch_creation: Annotated[bool, IS_CONFIG]
-    branch_prefix: Annotated[str, IS_CONFIG]
-    branch_suffix: Annotated[str, IS_CONFIG]
+class CommitChangesInputs(BaseModel, total=False):
+    modified_code_files: List[Dict[str, Any]]
+    disable_branch: Optional[Annotated[bool, StepTypeConfig(is_config=True)]] = None
+    force_branch_creation: Optional[Annotated[bool, StepTypeConfig(is_config=True)]] = None
+    branch_prefix: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
+    branch_suffix: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
 
 
 class CommitChangesOutputs(TypedDict):

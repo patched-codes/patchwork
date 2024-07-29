@@ -1,11 +1,12 @@
-from typing_extensions import Annotated, TypedDict
+from pydantic import BaseModel
+from typing_extensions import Annotated, Optional
 
-from patchwork.common.utils.typing import IS_CONFIG
-
-
-class ScanDepscanInputs(TypedDict, total=False):
-    language: Annotated[str, IS_CONFIG]
+from patchwork.common.utils.step_typing import StepTypeConfig
 
 
-class ScanDepscanOutputs(TypedDict):
+class ScanDepscanInputs(BaseModel):
+    language: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
+
+
+class ScanDepscanOutputs(BaseModel):
     sbom_vdr_values: dict

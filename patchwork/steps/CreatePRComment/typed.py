@@ -1,19 +1,17 @@
-from typing_extensions import Annotated, TypedDict
+from pydantic import BaseModel
+from typing_extensions import Annotated, Optional
 
-from patchwork.common.utils.typing import IS_CONFIG
+from patchwork.common.utils.step_typing import StepTypeConfig
 
 
-class __CreatePRCommentRequiredInputs(TypedDict):
+class CreatePRCommentInputs(BaseModel):
     pr_url: str
     pr_comment: str
+    noisy_comments: Optional[Annotated[bool, StepTypeConfig(is_config=True)]] = None
+    scm_url: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
+    gitlab_api_key: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
+    github_api_key: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
 
 
-class CreatePRCommentInputs(__CreatePRCommentRequiredInputs, total=False):
-    noisy_comments: Annotated[bool, IS_CONFIG]
-    scm_url: Annotated[str, IS_CONFIG]
-    gitlab_api_key: Annotated[str, IS_CONFIG]
-    github_api_key: Annotated[str, IS_CONFIG]
-
-
-class CreatePRCommentOutputs(TypedDict):
+class CreatePRCommentOutputs(BaseModel):
     pr_url: str

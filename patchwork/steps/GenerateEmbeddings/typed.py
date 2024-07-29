@@ -1,18 +1,14 @@
-from __future__ import annotations
+from pydantic import BaseModel
+from typing_extensions import Annotated, Any, Dict, List, Optional
 
-from typing_extensions import Annotated, Any, TypedDict
-
-from patchwork.common.utils.typing import IS_CONFIG
-
-
-class __GenerateEmbeddingsRequiredInputs(TypedDict):
-    embedding_name: Annotated[str, IS_CONFIG]
-    documents: list[dict[str, Any]]
+from patchwork.common.utils.step_typing import StepTypeConfig
 
 
-class GenerateEmbeddingsInputs(__GenerateEmbeddingsRequiredInputs, total=False):
-    disable_cache: Annotated[bool, IS_CONFIG]
+class GenerateEmbeddingsInputs(BaseModel):
+    embedding_name: Annotated[str, StepTypeConfig(is_config=True)]
+    documents: List[Dict[str, Any]]
+    disable_cache: Optional[Annotated[bool, StepTypeConfig(is_config=True)]] = None
 
 
-class GenerateEmbeddingsOutputs(TypedDict):
+class GenerateEmbeddingsOutputs(BaseModel):
     pass

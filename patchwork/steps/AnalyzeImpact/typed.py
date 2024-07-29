@@ -1,10 +1,9 @@
-from __future__ import annotations
+from pydantic import BaseModel
+from typing_extensions import List, TypedDict
 
-from typing_extensions import TypedDict
 
-
-class AnalyzeImpactInputs(TypedDict):
-    extracted_responses: list["AnalyzeImpactExtractedResponse"]
+class AnalyzeImpactInputs(BaseModel):
+    extracted_responses: List["AnalyzeImpactExtractedResponse"]
     library_name: str
     platform_type: str
 
@@ -13,8 +12,8 @@ class AnalyzeImpactExtractedResponse(TypedDict):
     impacted_methods: str
 
 
-class AnalyzeImpactOutputs(TypedDict):
-    files_to_patch: list["AnalyzeImpactImpact"]
+class AnalyzeImpactOutputs(BaseModel):
+    files_to_patch: List["AnalyzeImpactImpact"]
 
 
 class AnalyzeImpactImpact(TypedDict):

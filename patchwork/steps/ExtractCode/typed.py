@@ -1,22 +1,18 @@
-from __future__ import annotations
+from pydantic import BaseModel
+from typing_extensions import Annotated, Dict, List, Optional, TypedDict
 
-from typing_extensions import Annotated, TypedDict
-
-from patchwork.common.utils.typing import IS_CONFIG
-
-
-class __ExtractCodeRequiredInputs(TypedDict):
-    sarif_values: dict
+from patchwork.common.utils.step_typing import StepTypeConfig
 
 
-class ExtractCodeInputs(__ExtractCodeRequiredInputs, total=False):
-    context_size: Annotated[int, IS_CONFIG]
-    vulnerability_limit: Annotated[int, IS_CONFIG]
-    severity: Annotated[str, IS_CONFIG]
+class ExtractCodeInputs(BaseModel):
+    sarif_values: Dict
+    context_size: Optional[Annotated[int, StepTypeConfig(is_config=True)]] = None
+    vulnerability_limit: Optional[Annotated[int, StepTypeConfig(is_config=True)]] = None
+    severity: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
 
 
-class ExtractCodeOutputs(TypedDict):
-    files_to_patch: list["ExtractedCode"]
+class ExtractCodeOutputs(BaseModel):
+    files_to_patch: List["ExtractedCode"]
 
 
 class ExtractedCode(TypedDict):

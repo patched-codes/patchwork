@@ -1,32 +1,28 @@
-from __future__ import annotations
+from pydantic import BaseModel
+from typing_extensions import Annotated, Any, Dict, List, Optional
 
-from typing_extensions import Annotated, Any, TypedDict
-
-from patchwork.common.utils.typing import IS_CONFIG
+from patchwork.common.utils.step_typing import StepTypeConfig
 
 
-class __SimplifiedLLMInputsRequired(TypedDict):
+class SimplifiedLLMInputs(BaseModel):
     # PreparePromptInputs
-    prompt_user: Annotated[str, IS_CONFIG]
-    prompt_values: list[dict[str, Any]]
-
-
-class SimplifiedLLMInputs(__SimplifiedLLMInputsRequired, total=False):
-    prompt_system: Annotated[str, IS_CONFIG]
+    prompt_user: Annotated[str, StepTypeConfig(is_config=True)]
+    prompt_values: List[Dict[str, Any]]
+    prompt_system: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
     # CallLLMInputs
-    model: Annotated[str, IS_CONFIG]
-    openai_api_key: Annotated[str, IS_CONFIG]
-    patched_api_key: Annotated[str, IS_CONFIG]
-    google_api_key: Annotated[str, IS_CONFIG]
-    json: Annotated[bool, IS_CONFIG]
+    model: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
+    openai_api_key: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
+    patched_api_key: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
+    google_api_key: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
+    json: Optional[Annotated[bool, StepTypeConfig(is_config=True)]] = None
     # ExtractModelResponseInputs
-    response_partitions: Annotated[dict[str, list[str]], IS_CONFIG]
+    response_partitions: Optional[Annotated[Dict[str, List[str]], StepTypeConfig(is_config=True)]] = None
 
 
-class SimplifiedLLMOutputs(TypedDict):
+class SimplifiedLLMOutputs(BaseModel):
     # PreparePromptOutputs
-    prompts: list[dict]
+    prompts: List[Dict]
     # CallLLMOutputs
-    openai_responses: list[str]
+    openai_responses: List[str]
     # ExtractModelResponseOutputs
-    extracted_responses: list[dict[str, str]]
+    extracted_responses: List[Dict[str, str]]

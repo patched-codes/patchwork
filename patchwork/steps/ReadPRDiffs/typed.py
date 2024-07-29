@@ -1,22 +1,18 @@
-from __future__ import annotations
+from pydantic import BaseModel
+from typing_extensions import Annotated, List, Optional, TypedDict
 
-from typing_extensions import Annotated, TypedDict
-
-from patchwork.common.utils.typing import IS_CONFIG
+from patchwork.common.utils.step_typing import StepTypeConfig
 
 
-class __ReadPRDiffsRequiredInputs(TypedDict):
+class ReadPRDiffsInputs(BaseModel):
     pr_url: str
+    scm_url: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
+    gitlab_api_key: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
+    github_api_key: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
 
 
-class ReadPRDiffsInputs(__ReadPRDiffsRequiredInputs, total=False):
-    scm_url: Annotated[str, IS_CONFIG]
-    gitlab_api_key: Annotated[str, IS_CONFIG]
-    github_api_key: Annotated[str, IS_CONFIG]
-
-
-class ReadPRDiffsOutputs(TypedDict):
-    prompt_values: list["Diff"]
+class ReadPRDiffsOutputs(BaseModel):
+    prompt_values: List["Diff"]
 
 
 class Diff(TypedDict):

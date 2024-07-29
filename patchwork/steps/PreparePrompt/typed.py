@@ -1,19 +1,15 @@
-from __future__ import annotations
+from pydantic import BaseModel
+from typing_extensions import Annotated, Any, Dict, List, Optional
 
-from typing_extensions import Annotated, Any, TypedDict
-
-from patchwork.common.utils.typing import IS_CONFIG
-
-
-class __PreparePromptRequiredInputs(TypedDict):
-    prompt_template_file: Annotated[str, IS_CONFIG]
-    prompt_id: Annotated[str, IS_CONFIG]
+from patchwork.common.utils.step_typing import StepTypeConfig
 
 
-class PreparePromptInputs(__PreparePromptRequiredInputs, total=False):
-    prompt_value_file: Annotated[str, IS_CONFIG]
-    prompt_values: list[dict[str, Any]]
+class PreparePromptInputs(BaseModel):
+    prompt_template_file: Annotated[str, StepTypeConfig(is_config=True)]
+    prompt_id: Annotated[str, StepTypeConfig(is_config=True)]
+    prompt_value_file: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
+    prompt_values: Optional[List[Dict[str, Any]]] = None
 
 
-class PreparePromptOutputs(TypedDict):
-    prompts: list[dict]
+class PreparePromptOutputs(BaseModel):
+    prompts: List[Dict]

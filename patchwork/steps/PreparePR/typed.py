@@ -1,19 +1,15 @@
-from __future__ import annotations
+from pydantic import BaseModel
+from typing_extensions import Annotated, List, Optional, TypedDict
 
-from typing_extensions import Annotated, TypedDict
-
-from patchwork.common.utils.typing import IS_CONFIG
-
-
-class __PreparePRRequiredInputs(TypedDict):
-    modified_code_files: list["ModifiedCodeFile"]
+from patchwork.common.utils.step_typing import StepTypeConfig
 
 
-class PreparePRInputs(__PreparePRRequiredInputs, total=False):
-    pr_header: Annotated[str, IS_CONFIG]
+class PreparePRInputs(BaseModel):
+    modified_code_files: List["ModifiedCodeFile"]
+    pr_header: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
 
 
-class PreparePROutputs(TypedDict):
+class PreparePROutputs(BaseModel):
     pr_body: str
 
 

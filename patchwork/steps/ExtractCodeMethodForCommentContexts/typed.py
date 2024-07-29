@@ -1,16 +1,15 @@
-from __future__ import annotations
+from pydantic import BaseModel
+from typing_extensions import Annotated, List, TypedDict
 
-from typing_extensions import Annotated, TypedDict
-
-from patchwork.common.utils.typing import IS_PATH
-
-
-class ExtractCodeMethodForCommentContextsInputs(TypedDict):
-    base_path: Annotated[str, IS_PATH]
+from patchwork.common.utils.step_typing import StepTypeConfig
 
 
-class ExtractCodeMethodForCommentContextsOutputs(TypedDict):
-    files_to_patch: list["ExtractedCode"]
+class ExtractCodeMethodForCommentContextsInputs(BaseModel):
+    base_path: Annotated[str, StepTypeConfig(is_path=True)]
+
+
+class ExtractCodeMethodForCommentContextsOutputs(BaseModel):
+    files_to_patch: List["ExtractedCode"]
 
 
 class ExtractedCode(TypedDict):
