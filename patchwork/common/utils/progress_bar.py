@@ -64,9 +64,13 @@ class PatchflowProgressBar:
         return increment
 
     @functools.cached_property
+    def __progress_bar(self):
+        return Progress(SpinnerColumn(), *Progress.get_default_columns(), TimeElapsedColumn(), console=console)
+
+    @functools.cached_property
     def __progress_bar_update(self):
         self.__suppress_warnings()
-        progress = Progress(SpinnerColumn(), *Progress.get_default_columns(), TimeElapsedColumn(), console=console)
+        progress = self.__progress_bar
         logger.register_progress_bar(progress)
         task_id = progress.add_task(
             description=f"[bold green]Running {self.__patchflow_name}",

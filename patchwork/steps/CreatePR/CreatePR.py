@@ -51,14 +51,20 @@ class CreatePR(Step):
         repo = git.Repo(Path.cwd(), search_parent_directories=True)
 
         if not self.enabled:
+            logger.warning(f"PR creation is disabled. Skipping PR creation.")
             return dict()
 
         original_remote_name = "origin"
-        original_remote_url = repo.remotes[original_remote_name].url
         push_args = ["--set-upstream", original_remote_name, self.target_branch]
         if self.force:
             push_args.insert(0, "--force")
-        repo.git.push(*push_args)
+
+        with logger.freeze():
+            repo.git.push(*push_args)
+        logger.debug(f"Pushed to {original_remote_name}/{self.target_branch}")
+
+        logger.info(f"Creating PR from {self.base_branch} to {self.target_branch}")
+        original_remote_url = repo.remotes[original_remote_name].url
         repo_slug = get_slug_from_remote_url(original_remote_url)
         url = create_pr(
             repo_slug=repo_slug,

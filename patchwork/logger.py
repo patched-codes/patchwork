@@ -8,7 +8,9 @@ import click
 from rich.console import Console, Group
 from rich.live import Live
 from rich.logging import RichHandler
+from rich.markup import escape
 from rich.panel import Panel
+from rich.progress import Progress
 from typing_extensions import Callable
 
 from patchwork.managed_files import HOME_FOLDER, LOG_FILE
@@ -37,6 +39,16 @@ class TerminalHandler(RichHandler):
         self.__panel_title = None
         self.__progress_bar = None
 
+    @contextlib.contextmanager
+    def freeze(self):
+        if self.__live is not None:
+            self.__live.stop()
+        try:
+            yield
+        finally:
+            if self.__live is not None:
+                self.__live.start()
+
     def __reset_live(self):
         if self.__live is not None:
             self.__live.stop()
@@ -47,7 +59,7 @@ class TerminalHandler(RichHandler):
         self.__panel_title = None
         self.__progress_bar = None
 
-    def register_progress_bar(self, progress_bar):
+    def register_progress_bar(self, progress_bar: Progress):
         self.__progress_bar = progress_bar
         if self.__live is not None:
             self.__live.update(Group(self.__panel, progress_bar))
@@ -69,7 +81,7 @@ class TerminalHandler(RichHandler):
         if self.__progress_bar is not None:
             renderables.append(self.__progress_bar)
 
-        self.__live = Live(Group(*renderables), console=console)
+        self.__live = Live(Group(*renderables), console=console, vertical_overflow="visible")
         try:
             self.__live.start()
             yield
@@ -85,7 +97,7 @@ class TerminalHandler(RichHandler):
             super().emit(record)
             return
 
-        message = record.getMessage()
+        message = escape(record.getMessage())
         if record.levelno == logging.ERROR:
             record.msg = f"[red]{message}[/]"
         elif record.levelno == logging.WARNING:
@@ -117,23 +129,22 @@ def init_cli_logger(log_level: str) -> logging.Logger:
     global logger, __noop
 
     logger.removeHandler(__noop)
+
+    if not os.path.exists(HOME_FOLDER):  # Check if HOME_FOLDER exists at this point
+        os.makedirs(HOME_FOLDER)
+    try:
+        fh = logging.FileHandler(LOG_FILE, mode="w")
+        formatter = logging.Formatter("%(asctime)s :: %(filename)s@%(funcName)s@%(lineno)d :: %(levelname)s :: %(msg)s")
+        fh.setFormatter(formatter)
+        logger.addHandler(fh)
+    except FileNotFoundError:
+        logger.error(f"Unable to create log file: {LOG_FILE}")
+
     th = TerminalHandler(log_level.upper())
     logger.addHandler(th)
     setattr(logger, "panel", th.panel)
     setattr(logger, "register_progress_bar", th.register_progress_bar)
     setattr(logger, "deregister_progress_bar", th.deregister_progress_bar)
+    setattr(logger, "freeze", th.freeze)
     logger.setLevel(logging.DEBUG)
-    if not os.path.exists(HOME_FOLDER):  # Check if HOME_FOLDER exists at this point
-        os.makedirs(HOME_FOLDER)
-
-    try:
-        fh = logging.FileHandler(LOG_FILE, mode="w")
-    except FileNotFoundError:
-        logger.error(f"Unable to create log file: {LOG_FILE}")
-        return logger
-
-    formatter = logging.Formatter("%(asctime)s :: %(filename)s@%(funcName)s@%(lineno)d :: %(levelname)s :: %(msg)s")
-    fh.setFormatter(formatter)
-    logger.addHandler(fh)
-
     return logger
