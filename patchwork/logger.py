@@ -81,7 +81,7 @@ class TerminalHandler(RichHandler):
         if self.__progress_bar is not None:
             renderables.append(self.__progress_bar)
 
-        self.__live = Live(Group(*renderables), console=console, vertical_overflow="visible")
+        self.__live = Live(Group(*renderables), console=console, vertical_overflow="crop")
         try:
             self.__live.start()
             yield
@@ -93,17 +93,14 @@ class TerminalHandler(RichHandler):
 
     def emit(self, record: logging.LogRecord) -> None:
         markup = getattr(record, "markup", None)
-        if markup is not None:
-            super().emit(record)
-            return
-
-        message = escape(record.getMessage())
-        if record.levelno == logging.ERROR:
-            record.msg = f"[red]{message}[/]"
-        elif record.levelno == logging.WARNING:
-            record.msg = f"[yellow bold]{message}[/]"
-        elif record.levelno == logging.INFO:
-            record.msg = f"[green]{message}[/]"
+        if not markup:
+            message = escape(record.getMessage())
+            if record.levelno == logging.ERROR:
+                record.msg = f"[red]{message}[/]"
+            elif record.levelno == logging.WARNING:
+                record.msg = f"[yellow bold]{message}[/]"
+            elif record.levelno == logging.INFO:
+                record.msg = f"[green]{message}[/]"
 
         if self.__panel is not None:
             self.__emit_panel(record)

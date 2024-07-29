@@ -76,7 +76,7 @@ class CreatePR(Step):
             force=self.force,
         )
 
-        logger.info(f"PR created at {url}")
+        logger.info(f"[green]PR created at [link={url}]{url}[/link][/]", extra={"markup": True})
         logger.info(f"Run completed {self.__class__.__name__}")
         return {"pr_url": url}
 
