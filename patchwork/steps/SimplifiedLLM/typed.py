@@ -1,10 +1,9 @@
-from pydantic import BaseModel
 from typing_extensions import Annotated, Any, Dict, List, Optional
 
 from patchwork.common.utils.step_typing import StepTypeConfig
 
 
-class SimplifiedLLMInputs(BaseModel):
+class SimplifiedLLMInputs(TypedDict):
     # PreparePromptInputs
     prompt_user: Annotated[str, StepTypeConfig(is_config=True)]
     prompt_values: List[Dict[str, Any]]
@@ -19,7 +18,7 @@ class SimplifiedLLMInputs(BaseModel):
     response_partitions: Optional[Annotated[Dict[str, List[str]], StepTypeConfig(is_config=True)]] = None
 
 
-class SimplifiedLLMOutputs(BaseModel):
+class SimplifiedLLMOutputs(TypedDict):
     # PreparePromptOutputs
     prompts: List[Dict]
     # CallLLMOutputs

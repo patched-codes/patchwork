@@ -1,17 +1,19 @@
-from pydantic import BaseModel
-from typing_extensions import Annotated, Any, Dict, Literal, Optional
+from typing_extensions import Annotated, Any, Dict, Literal, Optional, TypedDict
 
 from patchwork.common.utils.step_typing import StepTypeConfig
 
 
-class CallAPIInputs(BaseModel):
+class __CallAPIRequiredInputs(TypedDict):
     url: str
     method: Annotated[Literal["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"], StepTypeConfig(is_config=True)]
-    headers: Optional[Annotated[Dict[str, str], StepTypeConfig(is_config=True)]] = None
-    body: Optional[Dict[str, Any]] = None
 
 
-class CallAPIOutputs(BaseModel):
+class CallAPIInputs(__CallAPIRequiredInputs, total=False):
+    headers: Annotated[Dict[str, str], StepTypeConfig(is_config=True)]
+    body: Dict[str, Any]
+
+
+class CallAPIOutputs(TypedDict):
     status_code: int
     headers: Dict[str, str]
     body: str

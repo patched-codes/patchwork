@@ -1,13 +1,12 @@
-from pydantic import BaseModel
 from typing_extensions import Dict, List, TypedDict
 
 
-class ModifyCodeInputs(BaseModel):
+class ModifyCodeInputs(TypedDict):
     files_to_patch: List[Dict]
     extracted_responses: List[Dict[str, str]]
 
 
-class ModifyCodeOutputs(BaseModel):
+class ModifyCodeOutputs(TypedDict):
     modified_code_files: List["ModifiedCodeFile"]
 
 

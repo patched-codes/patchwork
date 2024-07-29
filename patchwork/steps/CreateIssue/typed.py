@@ -1,16 +1,17 @@
-from pydantic import BaseModel
-from typing_extensions import Annotated, Optional
+from typing_extensions import Annotated, Optional, TypedDict
 
 from patchwork.common.utils.step_typing import StepTypeConfig
 
 
-class CreateIssueInputs(BaseModel):
+class __CreateIssueRequiredInputs(TypedDict):
     issue_text: str
-    issue_title: Annotated[str, StepTypeConfig(is_config=True)]
-    scm_url: Annotated[str, StepTypeConfig(is_config=True)]
-    gitlab_api_key: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
-    github_api_key: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
+issue_title: Annotated[str, StepTypeConfig(is_config=True)]
+scm_url: Annotated[str, StepTypeConfig(is_config=True)]
+
+class CreateIssueInputs(__CreateIssueRequiredInputs, total=False):
+    gitlab_api_key: Annotated[str, StepTypeConfig(is_config=True)]
+    github_api_key: Annotated[str, StepTypeConfig(is_config=True)]
 
 
-class CreateIssueOutputs(BaseModel):
+class CreateIssueOutputs(TypedDict):
     issue_url: str

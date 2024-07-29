@@ -1,15 +1,15 @@
-from pydantic import BaseModel
 from typing_extensions import Annotated, Any, Dict, List, Optional, TypedDict
 
 from patchwork.common.utils.step_typing import StepTypeConfig
 
-
-class CommitChangesInputs(BaseModel, total=False):
+class __CommitChangesRequiredInputs(TypedDict):
     modified_code_files: List[Dict[str, Any]]
-    disable_branch: Optional[Annotated[bool, StepTypeConfig(is_config=True)]] = None
-    force_branch_creation: Optional[Annotated[bool, StepTypeConfig(is_config=True)]] = None
-    branch_prefix: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
-    branch_suffix: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
+
+class CommitChangesInputs(__CommitChangesRequiredInputs, total=False):
+    disable_branch: Annotated[bool, StepTypeConfig(is_config=True)]
+    force_branch_creation: Annotated[bool, StepTypeConfig(is_config=True)]
+    branch_prefix: Annotated[str, StepTypeConfig(is_config=True)]
+    branch_suffix: Annotated[str, StepTypeConfig(is_config=True)]
 
 
 class CommitChangesOutputs(TypedDict):

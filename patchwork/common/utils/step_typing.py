@@ -1,6 +1,5 @@
 import importlib
 
-from pydantic import BaseModel
 from typing_extensions import (
     Annotated,
     Any,
@@ -12,7 +11,7 @@ from typing_extensions import (
     Type,
     get_args,
     get_origin,
-    get_type_hints,
+    get_type_hints, TypedDict,
 )
 
 from patchwork.step import Step
@@ -29,9 +28,9 @@ class StepTypeConfig(object):
     ):
         self.is_config = is_config
         self.is_path: bool = is_path
-        self.and_op: list[str] = and_op or []
-        self.or_op: list[str] = or_op or []
-        self.xor_op: list[str] = xor_op or []
+        self.and_op: List[str] = and_op or []
+        self.or_op: List[str] = or_op or []
+        self.xor_op: List[str] = xor_op or []
 
 
 def validate_steps_with_inputs(inputs: Dict[str, Any], *steps: Type[Step]) -> Dict[str, Dict[str, str]]:
@@ -44,7 +43,7 @@ def validate_steps_with_inputs(inputs: Dict[str, Any], *steps: Type[Step]) -> Di
     return report
 
 
-__NOT_GIVEN = BaseModel
+__NOT_GIVEN = TypedDict
 
 
 def validate_step_type_config_with_inputs(
@@ -92,8 +91,8 @@ def validate_step_with_inputs(input_keys: Set[str], step: Type[Step]) -> Tuple[S
         raise ValueError(f"Missing output model for step {step_name}")
 
     step_report = {}
-    for key, field_info in step_input_model.model_fields.items():
-        if field_info.is_required() and key not in input_keys:
+    for key in step_input_model.__required__:
+        if key not in input_keys:
             step_report[key] = f"Missing required input data: {key}"
             continue
 

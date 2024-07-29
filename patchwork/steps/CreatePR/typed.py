@@ -1,10 +1,9 @@
-from pydantic import BaseModel
 from typing_extensions import Annotated, Optional, TypedDict
 
 from patchwork.common.utils.step_typing import StepTypeConfig
 
 
-class CreatePRInputs(BaseModel):
+class CreatePRInputs(TypedDict):
     target_branch: str
     base_branch: Optional[str] = None
     pr_title: Optional[str] = None

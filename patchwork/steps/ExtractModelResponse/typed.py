@@ -1,13 +1,12 @@
-from pydantic import BaseModel
 from typing_extensions import Annotated, Dict, List, Optional
 
 from patchwork.common.utils.step_typing import StepTypeConfig
 
 
-class ExtractModelResponseInputs(BaseModel):
+class ExtractModelResponseInputs(TypedDict):
     openai_responses: List[str]
     response_partitions: Optional[Annotated[Dict[str, List[str]], StepTypeConfig(is_config=True)]] = None
 
 
-class ExtractModelResponseOutputs(BaseModel):
+class ExtractModelResponseOutputs(TypedDict):
     extracted_responses: List[Dict[str, str]]

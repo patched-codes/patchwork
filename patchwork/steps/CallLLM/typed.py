@@ -1,20 +1,19 @@
-from pydantic import BaseModel
-from typing_extensions import Annotated, Dict, List, Optional
+from typing_extensions import Annotated, Dict, List, Optional, TypedDict
 
 from patchwork.common.utils.step_typing import StepTypeConfig
 
 
-class CallLLMInputs(BaseModel):
-    prompt_file: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
-    prompts: Optional[List[Dict]] = None
-    model: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
-    allow_truncated: Optional[Annotated[bool, StepTypeConfig(is_config=True)]] = None
-    model_args: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
-    client_args: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
-    openai_api_key: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
-    patched_api_key: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
-    google_api_key: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
+class CallLLMInputs(TypedDict, total=False):
+    prompt_file: Annotated[str, StepTypeConfig(is_config=True)]
+    prompts: List[Dict]
+    model: Annotated[str, StepTypeConfig(is_config=True)]
+    allow_truncated: Annotated[bool, StepTypeConfig(is_config=True)]
+    model_args: Annotated[str, StepTypeConfig(is_config=True)]
+    client_args: Annotated[str, StepTypeConfig(is_config=True)]
+    openai_api_key: Annotated[str, StepTypeConfig(is_config=True)]
+    patched_api_key: Annotated[str, StepTypeConfig(is_config=True)]
+    google_api_key: Annotated[str, StepTypeConfig(is_config=True)]
 
 
-class CallLLMOutputs(BaseModel):
+class CallLLMOutputs(TypedDict):
     openai_responses: List[str]

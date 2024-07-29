@@ -1,14 +1,16 @@
-from pydantic import BaseModel
-from typing_extensions import Annotated, Iterable, Optional
+from typing_extensions import Annotated, Iterable, Optional, TypedDict
 
 from patchwork.common.utils.step_typing import StepTypeConfig
 
 
-class CallCode2PromptInputs(BaseModel):
+class __CallCode2PromptRequiredInputs(TypedDict):
     folder_path: Annotated[str, StepTypeConfig(is_config=True, is_path=True)]
-    filter: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
-    suppress_comments: Optional[Annotated[bool, StepTypeConfig(is_config=True)]] = None
 
 
-class CallCode2PromptOutputs(BaseModel):
+class CallCode2PromptInputs(__CallCode2PromptRequiredInputs, total=False):
+    filter: Annotated[str, StepTypeConfig(is_config=True)]
+    suppress_comments: Annotated[bool, StepTypeConfig(is_config=True)]
+
+
+class CallCode2PromptOutputs(TypedDict):
     files_to_patch: Iterable[dict]

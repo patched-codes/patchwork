@@ -1,11 +1,10 @@
-from pydantic import BaseModel
 from typing_extensions import Annotated, List, Optional
 
 from patchwork.common.utils.step_typing import StepTypeConfig
 from patchwork.steps.PreparePR.typed import ModifiedCodeFile
 
 
-class PRInputs(BaseModel):
+class PRInputs(TypedDict):
     # CommitChangesInputs & PreparePRInputs
     modified_code_files: List["ModifiedCodeFile"]
     # CommitChangesInputs
@@ -24,7 +23,7 @@ class PRInputs(BaseModel):
     github_api_key: Optional[Annotated[str, StepTypeConfig(is_config=True)]] = None
 
 
-class PROutputs(BaseModel):
+class PROutputs(TypedDict):
     # CommitChangesOutputs
     base_branch: str
     target_branch: str

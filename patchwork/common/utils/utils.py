@@ -8,7 +8,6 @@ from pathlib import Path
 import tiktoken
 from chardet.universaldetector import UniversalDetector
 from git import Head, Repo
-from pydantic import BaseModel
 from typing_extensions import Callable
 
 from patchwork.common.utils.dependency import chromadb
@@ -168,16 +167,6 @@ def get_current_branch(repo: Repo) -> Head:
         )
 
     return from_branch
-
-
-def get_required_keys(model: type[BaseModel]) -> set[str]:
-    required_keys = set()
-    for name, field in model.model_fields.items():
-        if not field.is_required():
-            continue
-        required_keys.add(name)
-
-    return required_keys
 
 
 def is_container() -> bool:
