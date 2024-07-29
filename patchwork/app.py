@@ -216,12 +216,14 @@ def find_patchflow(possible_module_paths: Iterable[str], patchflow: str) -> Any 
             logger.debug(f"Patchflow {patchflow} not found as a file/directory in {module_path}")
 
         try:
+            if module_path not in WHITELIST:
+                raise ValueError(f"Module path {module_path} is not whitelisted")
             module = importlib.import_module(module_path)
             logger.info(f"Patchflow {patchflow} loaded from {module_path}")
             return getattr(module, patchflow)
         except ModuleNotFoundError:
             logger.debug(f"Patchflow {patchflow} not found as a module in {module_path}")
-        except AttributeError:
+        except (AttributeError, ValueError):
             logger.debug(f"Patchflow {patchflow} not found in {module_path}")
 
     return None
