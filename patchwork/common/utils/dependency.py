@@ -10,6 +10,9 @@ __DEPENDENCY_GROUPS = {
 
 @lru_cache(maxsize=None)
 def import_with_dependency_group(name):
+    whitelist = set(["chromadb", "semgrep", "depscan", "slack_sdk"])
+    if name not in whitelist:
+        raise ImportError(f"Invalid dependency: {name}")
     try:
         return importlib.import_module(name)
     except ImportError:
