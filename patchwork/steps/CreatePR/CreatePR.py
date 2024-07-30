@@ -37,7 +37,7 @@ class CreatePR(Step):
             if not self.scm_client.test():
                 raise ValueError(f"{self.scm_client.__class__.__name__} token test failed.")
 
-            self.enabled = not bool(inputs.get("disable_pr"))
+            self.enabled = not bool(inputs.get("disable_pr", False))
         else:
             self.enabled = False
 
