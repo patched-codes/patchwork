@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-from itertools import islice
 from pathlib import Path
 
 from patchwork.common.context_strategy.langugues import PythonLanguage
@@ -24,7 +23,6 @@ class ExtractCodeMethodForCommentContexts(Step):
         self.force_code_contexts = inputs.get("force_code_contexts", False)
         self.allow_overlap_contexts = inputs.get("allow_overlap_contexts", True)
         self.max_depth = int(inputs.get("max_depth", -1))
-        self.context_limit = int(inputs.get("missing_comment_limit", 50))
 
     def run(self) -> dict:
         positions_gen = ExtractCodeContexts(
@@ -37,7 +35,7 @@ class ExtractCodeMethodForCommentContexts(Step):
         ).get_positions(max_depth=self.max_depth)
 
         extracted_code_contexts = []
-        for file_path, src, position in islice(positions_gen, self.context_limit):
+        for file_path, src, position in positions_gen:
             comment_position = position.meta_positions.get("comment")
             if comment_position is not None:
                 start_line = comment_position.start

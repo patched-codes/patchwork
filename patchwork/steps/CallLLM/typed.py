@@ -6,6 +6,7 @@ from patchwork.common.utils.typing import IS_CONFIG
 
 
 class CallLLMInputs(TypedDict, total=False):
+    max_llm_calls: Annotated[int, IS_CONFIG]
     prompt_file: Annotated[str, IS_CONFIG]
     prompts: list[dict]
     model: Annotated[str, IS_CONFIG]
