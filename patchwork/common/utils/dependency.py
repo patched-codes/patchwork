@@ -11,8 +11,13 @@ __DEPENDENCY_GROUPS = {
 @lru_cache(maxsize=None)
 def import_with_dependency_group(name):
     try:
-        return importlib.import_module(name)
-    except ImportError:
+        if name == "chromadb":
+            return chromadb()
+        elif name == "slack_sdk":
+            return slack_sdk()
+        else:
+            raise ImportError("Module not found")
+    except ImportError as e:
         error_msg = f"Missing dependency for {name}, please `pip install {name}`"
         dependency_group = next(
             (group for group, dependencies in __DEPENDENCY_GROUPS.items() if name in dependencies), None
