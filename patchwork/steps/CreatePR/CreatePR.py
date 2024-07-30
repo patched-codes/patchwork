@@ -27,8 +27,8 @@ class CreatePR(Step):
         elif "gitlab_api_key" in inputs.keys():
             self.scm_client = GitlabClient(inputs["gitlab_api_key"])
         else:
-            logger.info(f'Missing required input data: "github_api_key" or "gitlab_api_key",'
-                        f' PR creation will be disabled.')
+            logger.warning(f'Missing required input data: "github_api_key" or "gitlab_api_key",'
+                           f' PR creation will be disabled.')
 
         if self.scm_client is not None:
             if "scm_url" in inputs.keys():
