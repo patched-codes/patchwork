@@ -46,6 +46,7 @@ class CallGemini(LLMModel):
         contents = []
         for prompt in prompts:
             texts = [dict(text=subprompt.get("content", "")) for subprompt in prompt]
+            logger.trace(f"Message sent: \n{indent(pformat(texts), '  ')}")
 
             try:
                 response = requests.post(
@@ -79,7 +80,7 @@ class CallGemini(LLMModel):
                     content = ""
             else:
                 content = text_response
-                logger.debug(f"Response received: \n{indent(content, '  ')}")
+                logger.trace(f"Response received: \n{indent(content, '  ')}")
 
             contents.append(content)
 
@@ -102,7 +103,7 @@ class CallOpenAI(LLMModel):
         parsed_model_args = self.parse_model_args(self.model_args)
 
         for prompt in prompts:
-            logger.debug(f"Message sent: \n{indent(pformat(prompt), '  ')}")
+            logger.trace(f"Message sent: \n{indent(pformat(prompt), '  ')}")
             try:
                 completion = self.client.chat.completions.create(model=self.model, messages=prompt, **parsed_model_args)
             except Exception as e:
@@ -123,7 +124,7 @@ class CallOpenAI(LLMModel):
                     content = ""
             else:
                 content = completion.choices[0].message.content
-                logger.debug(f"Response received: \n{indent(content, '  ')}")
+                logger.trace(f"Response received: \n{indent(content, '  ')}")
 
             contents.append(content)
 
