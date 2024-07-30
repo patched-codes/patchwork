@@ -222,6 +222,13 @@ class CallLLM(Step):
         )
 
     def run(self) -> dict:
+        prompt_length = len(self.prompts)
+        if prompt_length > self.call_limit:
+            logger.debug(
+                f"Number of prompts ({prompt_length}) exceeds the call limit ({self.call_limit}). "
+                f"Only the first {self.call_limit} prompts will be processed."
+            )
+
         contents = self.llm.call(list(islice(self.prompts, self.call_limit)))
 
         if self.save_responses_to_file:
@@ -229,7 +236,7 @@ class CallLLM(Step):
             file_path = os.path.abspath(self.save_responses_to_file)
 
             mode = "a" if os.path.exists(file_path) else "w"
-
+            logger.debug(f"Writing responses to file with mode '{mode}': {file_path}")
             with open(file_path, mode) as f:
                 for prompt, response in zip(self.prompts, contents):
                     data = {
