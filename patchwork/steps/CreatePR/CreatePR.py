@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import git
-
+from git.exc import GitCommandError
 from patchwork.common.client.scm import (
     GithubClient,
     GitlabClient,
@@ -59,8 +59,7 @@ class CreatePR(Step):
         if self.force:
             push_args.insert(0, "--force")
 
-        with logger.freeze():
-            repo.git.push(*push_args)
+        push(repo, push_args)
         logger.debug(f"Pushed to {original_remote_name}/{self.target_branch}")
 
         logger.info(f"Creating PR from {self.base_branch} to {self.target_branch}")
@@ -79,6 +78,16 @@ class CreatePR(Step):
         logger.info(f"[green]PR created at [link={url}]{url}[/link][/]", extra={"markup": True})
         logger.info(f"Run completed {self.__class__.__name__}")
         return {"pr_url": url}
+
+
+def push(repo: git.Repo, args):
+    repo_git = repo.git
+    try:
+        with repo_git.custom_environment(GIT_TERMINAL_PROMPT="0"):
+            repo_git.push(*args)
+    except GitCommandError:
+        with logger.freeze():
+            repo_git.push(*args)
 
 
 def create_pr(
