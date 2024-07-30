@@ -3,7 +3,7 @@
     <img alt="Patchwork logo" src="https://repository-images.githubusercontent.com/782544882/a9743f35-5e1c-43ed-a0e0-536322056d38" width="36%">
   </picture>
  <br>
-  <img alt="Patchwork GIF" src="patchwork-banner.gif">
+  <img alt="Patchwork GIF" src="https://raw.githubusercontent.com/patched-codes/patchwork/main/patchwork-banner.gif">
 </div>
 <br>
 
@@ -13,7 +13,6 @@
 [![Discord](https://dcbadge.limes.pink/api/server/XDxA3mJyhE?style=flat&theme=clean-inverted)](https://discord.gg/XDxA3mJyhE)
 [![Downloads](https://img.shields.io/pypi/v/patchwork-cli)](https://pypi.org/project/patchwork-cli/)
 [![Downloads](https://static.pepy.tech/badge/patchwork-cli)](https://pepy.tech/project/patchwork-cli)
-[![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL_3.0-blue.svg)](https://github.com/patched-codes/patchwork/blob/main/LICENSE)
 
 [Demo](https://youtu.be/MLyn6B3bFMU) |
 [Docs](https://docs.patched.codes/)
