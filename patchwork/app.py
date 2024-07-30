@@ -203,6 +203,8 @@ def cli(
             file.write(serialize(inputs))
 
 
+import importlib.util
+
 def find_patchflow(possible_module_paths: Iterable[str], patchflow: str) -> Any | None:
     for module_path in possible_module_paths:
         try:
@@ -217,7 +219,8 @@ def find_patchflow(possible_module_paths: Iterable[str], patchflow: str) -> Any 
             logger.debug(f"Patchflow {patchflow} not found as a file/directory in {module_path}")
 
         try:
-            module = importlib.import_module(module_path)
+            predefined_module = 'predefined_module_name'
+            module = importlib.import_module(predefined_module)
             logger.info(f"Patchflow {patchflow} loaded from {module_path}")
             return getattr(module, patchflow)
         except ModuleNotFoundError:
