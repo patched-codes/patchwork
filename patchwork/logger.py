@@ -42,12 +42,17 @@ class TerminalHandler(RichHandler):
     @contextlib.contextmanager
     def freeze(self):
         if self.__live is not None:
+            current_render = self.__live.renderable
+            self.__live.update("")
             self.__live.stop()
-        try:
+            try:
+                yield
+            finally:
+                if self.__live is not None:
+                    self.__live.update(current_render)
+                    self.__live.start()
+        else:
             yield
-        finally:
-            if self.__live is not None:
-                self.__live.start()
 
     def __reset_live(self):
         if self.__live is not None:
