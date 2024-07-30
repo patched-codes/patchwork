@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+from itertools import islice
 from pathlib import Path
 from pprint import pformat
 from textwrap import indent
@@ -18,8 +19,8 @@ _DEFAULT_PATCH_URL = "https://patchwork.patched.codes/v1"
 
 
 class LLMModel(Protocol):
-    def call(self, prompts) -> list[str]:
-        pass
+    def call(self, prompts: list[dict]) -> list[str]:
+        ...
 
 
 class CallGemini(LLMModel):
@@ -41,7 +42,7 @@ class CallGemini(LLMModel):
         self.api_key = key
         self.allow_truncated = allow_truncated
 
-    def call(self, prompts):
+    def call(self, prompts: list[dict]):
         contents = []
         for prompt in prompts:
             texts = [dict(text=subprompt.get("content", "")) for subprompt in prompt]
@@ -94,7 +95,7 @@ class CallOpenAI(LLMModel):
         self.allow_truncated = allow_truncated
         self.client = OpenAI(api_key=key, **client_args)
 
-    def call(self, prompts) -> list[str]:
+    def call(self, prompts: list[dict]) -> list[str]:
         contents = []
 
         # Parse model arguments
@@ -176,6 +177,7 @@ class CallLLM(Step):
         else:
             raise ValueError('Missing required data: "prompt_file" or "prompts"')
 
+        self.call_limit = int(inputs.get("max_llm_calls", 50))
         self.model_args = {key[len("model_") :]: value for key, value in inputs.items() if key.startswith("model_")}
         self.client_args = {key[len("client_") :]: value for key, value in inputs.items() if key.startswith("client_")}
         self.save_responses_to_file = inputs.get("save_responses_to_file", None)
@@ -219,7 +221,7 @@ class CallLLM(Step):
         )
 
     def run(self) -> dict:
-        contents = self.llm.call(self.prompts)
+        contents = self.llm.call(list(islice(self.prompts, self.call_limit)))
 
         if self.save_responses_to_file:
             # Convert relative path to absolute path

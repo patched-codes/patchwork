@@ -14,6 +14,7 @@ class __SimplifiedLLMInputsRequired(TypedDict):
 class SimplifiedLLMInputs(__SimplifiedLLMInputsRequired, total=False):
     prompt_system: Annotated[str, IS_CONFIG]
     # CallLLMInputs
+    max_llm_calls: Annotated[int, IS_CONFIG]
     model: Annotated[str, IS_CONFIG]
     openai_api_key: Annotated[str, IS_CONFIG]
     patched_api_key: Annotated[str, IS_CONFIG]
