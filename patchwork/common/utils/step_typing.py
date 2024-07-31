@@ -46,7 +46,7 @@ def validate_steps_with_inputs(keys: Iterable[str], *steps: Type[Step]) -> None:
     if not has_error:
         return
 
-    error_message = "Invalid inputs for steps:"
+    error_message = "Invalid inputs for steps:\n"
     for step_name, step_report in report.items():
         if len(step_report) > 0:
             error_message += f"Step: {step_name}\n"
@@ -65,7 +65,7 @@ def validate_step_type_config_with_inputs(
 
     and_keys = set(step_type_config.and_op)
     if len(and_keys) > 0:
-        missing_and_keys = and_keys.difference(input_keys)
+        missing_and_keys = sorted(and_keys.difference(input_keys))
         if is_key_set and len(missing_and_keys) > 0:
             return False, f"Missing required input data because {key_name} is set: {', '.join(missing_and_keys)}"
 
@@ -73,7 +73,7 @@ def validate_step_type_config_with_inputs(
     if len(or_keys) > 0:
         missing_or_keys = or_keys.difference(input_keys)
         if not is_key_set and len(missing_or_keys) == len(or_keys):
-            return False, f"Missing required input data: Any of {', '.join([key_name, *or_keys])}"
+            return False, f"Missing required input data: Any of {', '.join(sorted([key_name, *or_keys]))}"
 
     xor_keys = set(step_type_config.xor_op)
     if len(xor_keys) > 0:
@@ -81,11 +81,13 @@ def validate_step_type_config_with_inputs(
         if not is_key_set and len(missing_xor_keys) == len(xor_keys):
             return False, f"Missing required input data: Exactly one of {', '.join(xor_keys)}"
         elif not is_key_set and len(missing_xor_keys) < len(xor_keys) - 1:
-            return False, f"Excess input data: {', '.join([*missing_xor_keys])} cannot be set at the same time"
+            conflicting_keys = xor_keys.intersection(missing_xor_keys)
+            return False, f"Excess input data: {', '.join(sorted(conflicting_keys))} cannot be set at the same time"
         elif is_key_set and len(missing_xor_keys) < len(xor_keys):
+            conflicting_keys = xor_keys.intersection(missing_xor_keys)
             return (
                 False,
-                f"Excess input data: {', '.join([key_name, *missing_xor_keys])} cannot be set at the same time",
+                f"Excess input data: {', '.join(sorted([key_name, *conflicting_keys]))} cannot be set at the same time",
             )
 
     return True, ""
