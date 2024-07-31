@@ -3,6 +3,8 @@ from pathlib import Path
 import yaml
 
 from patchwork.common.utils.progress_bar import PatchflowProgressBar
+from patchwork.common.utils.step_typing import validate_steps_with_inputs
+from patchwork.logger import logger
 from patchwork.step import Step
 from patchwork.steps import (
     LLM,
@@ -50,6 +52,19 @@ class ResolveIssue(Step):
 
         final_inputs["pr_title"] = f"PatchWork {self.__class__.__name__}"
         final_inputs["branch_prefix"] = f"{self.__class__.__name__.lower()}-"
+
+        added_inputs = final_inputs.copy()
+        added_inputs.update(dict(
+            texts=[],
+            issue_text=[],
+        ))
+        error_report = validate_steps_with_inputs(
+            added_inputs, GenerateCodeRepositoryEmbeddings, ReadIssues, QueryEmbeddings, CreateIssueComment
+        )
+        if error_report:
+            logger.error(error_report)
+            raise ValueError("Invalid inputs for AutoFix. Please check the logs for more details.")
+
 
         self.fix_issue = bool(final_inputs.get("fix_issue", False))
         self.inputs = final_inputs

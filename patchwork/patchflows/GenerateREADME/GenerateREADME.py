@@ -3,6 +3,8 @@ from pathlib import Path
 import yaml
 
 from patchwork.common.utils.progress_bar import PatchflowProgressBar
+from patchwork.common.utils.step_typing import validate_steps_with_inputs
+from patchwork.logger import logger
 from patchwork.step import Step
 from patchwork.steps import (
     LLM,
@@ -51,6 +53,15 @@ class GenerateREADME(Step):
             final_inputs["folder_path"] = Path(final_inputs["folder_path"])
 
         final_inputs["pr_title"] = f"PatchWork {self.__class__.__name__}"
+
+        added_inputs = final_inputs.copy()
+        added_inputs.update(dict(prompt_values=[]))
+        error_report = validate_steps_with_inputs(
+            added_inputs, CallCode2Prompt, LLM, ModifyCode, PR
+        )
+        if error_report:
+            logger.error(error_report)
+            raise ValueError("Invalid inputs for AutoFix. Please check the logs for more details.")
 
         self.inputs = final_inputs
 
