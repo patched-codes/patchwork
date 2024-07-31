@@ -1,4 +1,5 @@
 import importlib
+import textwrap
 
 from typing_extensions import (
     Annotated,
@@ -26,12 +27,14 @@ class StepTypeConfig(object):
         and_op: List[str] = None,
         or_op: List[str] = None,
         xor_op: List[str] = None,
+        msg: str = "",
     ):
         self.is_config = is_config
         self.is_path: bool = is_path
         self.and_op: List[str] = and_op or []
         self.or_op: List[str] = or_op or []
         self.xor_op: List[str] = xor_op or []
+        self.msg: str = msg
 
 
 def validate_steps_with_inputs(keys: Iterable[str], *steps: Type[Step]) -> None:
@@ -47,11 +50,11 @@ def validate_steps_with_inputs(keys: Iterable[str], *steps: Type[Step]) -> None:
         return
 
     error_message = "Invalid inputs for steps:\n"
-    for step_name, step_report in report.items():
+    for step_name, step_report in sorted(report.items(), key=lambda x: x[0]):
         if len(step_report) > 0:
             error_message += f"Step: {step_name}\n"
             for key, msg in step_report.items():
-                error_message += f"  - {key}: {msg}\n"
+                error_message += f"  - {key}: \n{textwrap.indent(msg, '      ')}\n"
     raise ValueError(error_message)
 
 
@@ -63,34 +66,52 @@ def validate_step_type_config_with_inputs(
 ) -> Tuple[bool, str]:
     is_key_set = key_name in input_keys
 
+
     and_keys = set(step_type_config.and_op)
     if len(and_keys) > 0:
         missing_and_keys = sorted(and_keys.difference(input_keys))
         if is_key_set and len(missing_and_keys) > 0:
-            return False, f"Missing required input data because {key_name} is set: {', '.join(missing_and_keys)}"
+            return (
+                False,
+                step_type_config.msg or
+                f"Missing required input data because {key_name} is set: {', '.join(missing_and_keys)}"
+            )
 
     or_keys = set(step_type_config.or_op)
     if len(or_keys) > 0:
         missing_or_keys = or_keys.difference(input_keys)
         if not is_key_set and len(missing_or_keys) == len(or_keys):
-            return False, f"Missing required input data: Any of {', '.join(sorted([key_name, *or_keys]))}"
+            return (
+                False,
+                step_type_config.msg or
+                f"Missing required input: At least one of {', '.join(sorted([key_name, *or_keys]))} has to be set"
+            )
 
     xor_keys = set(step_type_config.xor_op)
     if len(xor_keys) > 0:
         missing_xor_keys = xor_keys.difference(input_keys)
         if not is_key_set and len(missing_xor_keys) == len(xor_keys):
-            return False, f"Missing required input data: Exactly one of {', '.join(xor_keys)}"
+            return (
+                False,
+                step_type_config.msg or
+                f"Missing required input: Exactly one of {', '.join(xor_keys)} has to be set"
+            )
         elif not is_key_set and len(missing_xor_keys) < len(xor_keys) - 1:
             conflicting_keys = xor_keys.intersection(missing_xor_keys)
-            return False, f"Excess input data: {', '.join(sorted(conflicting_keys))} cannot be set at the same time"
+            return (
+                False,
+                step_type_config.msg or
+                f"Excess input data: {', '.join(sorted(conflicting_keys))} cannot be set at the same time"
+            )
         elif is_key_set and len(missing_xor_keys) < len(xor_keys):
             conflicting_keys = xor_keys.intersection(missing_xor_keys)
             return (
                 False,
+                step_type_config.msg or
                 f"Excess input data: {', '.join(sorted([key_name, *conflicting_keys]))} cannot be set at the same time",
             )
 
-    return True, ""
+    return True, step_type_config.msg
 
 
 def validate_step_with_inputs(input_keys: Set[str], step: Type[Step]) -> Tuple[Set[str], Dict[str, str]]:
@@ -107,16 +128,17 @@ def validate_step_with_inputs(input_keys: Set[str], step: Type[Step]) -> Tuple[S
     step_report = {}
     for key in step_input_model.__required_keys__:
         if key not in input_keys:
-            step_report[key] = f"Missing required input data: {key}"
+            step_report[key] = f"Missing required input data"
             continue
 
     step_type_hints = get_type_hints(step_input_model, include_extras=True)
     for key, field_info in step_type_hints.items():
-        if key in step_report.keys():
-            continue
-
         step_type_config = find_step_type_config(field_info)
         if step_type_config is None:
+            continue
+
+        if key in step_report.keys():
+            step_report[key] = step_type_config.msg or f"Missing required input data"
             continue
 
         is_ok, msg = validate_step_type_config_with_inputs(key, input_keys, step_type_config)
