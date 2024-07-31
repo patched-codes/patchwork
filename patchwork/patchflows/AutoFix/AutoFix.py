@@ -5,6 +5,7 @@ from pathlib import Path
 import yaml
 
 from patchwork.common.utils.progress_bar import PatchflowProgressBar
+from patchwork.common.utils.step_typing import validate_steps_with_inputs
 from patchwork.logger import logger
 from patchwork.step import Step
 from patchwork.steps import (
@@ -73,6 +74,10 @@ class AutoFix(Step):
         }
         final_inputs["pr_title"] = f"PatchWork {self.__class__.__name__}"
         final_inputs["branch_prefix"] = f"{self.__class__.__name__.lower()}-"
+
+        validate_steps_with_inputs(
+            set(final_inputs.keys()).union({"prompt_values"}), ScanSemgrep, ExtractCode, LLM, ModifyCode, PR
+        )
 
         self.inputs = final_inputs
 

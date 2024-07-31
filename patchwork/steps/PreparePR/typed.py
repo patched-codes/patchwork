@@ -1,16 +1,14 @@
-from __future__ import annotations
+from typing_extensions import Annotated, List, TypedDict
 
-from typing_extensions import Annotated, TypedDict
-
-from patchwork.common.utils.typing import IS_CONFIG
+from patchwork.common.utils.step_typing import StepTypeConfig
 
 
 class __PreparePRRequiredInputs(TypedDict):
-    modified_code_files: list["ModifiedCodeFile"]
+    modified_code_files: List["ModifiedCodeFile"]
 
 
 class PreparePRInputs(__PreparePRRequiredInputs, total=False):
-    pr_header: Annotated[str, IS_CONFIG]
+    pr_header: Annotated[str, StepTypeConfig(is_config=True)]
 
 
 class PreparePROutputs(TypedDict):

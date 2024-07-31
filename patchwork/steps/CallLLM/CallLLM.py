@@ -14,7 +14,7 @@ from typing_extensions import Any, Protocol
 from patchwork.logger import logger
 from patchwork.step import Step
 
-_TOKEN_URL = "https://app.patched.codes/signin"
+TOKEN_URL = "https://app.patched.codes/signin"
 _DEFAULT_PATCH_URL = "https://patchwork.patched.codes/v1"
 
 
@@ -213,7 +213,7 @@ class CallLLM(Step):
 
         raise ValueError(
             f"Model API key not found.\n"
-            f'Please login at: "{_TOKEN_URL}",\n'
+            f'Please login at: "{TOKEN_URL}",\n'
             "Please go to the Integration's tab and generate an API key.\n"
             "Please copy the access token that is generated, "
             "and add `--patched_api_key=<token>` to the command line.\n"

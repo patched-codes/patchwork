@@ -87,7 +87,7 @@ all = [
 
 [tool.poetry.group.dev.dependencies]
 setuptools = "*"
-poethepoet = { version = "^0.24.2", extras = ["poetry-plugin"] }
+poethepoet = { version = "^0.27.0", extras = ["poetry-plugin"] }
 mypy = "^1.7.1"
 types-requests = "~2.31.0"
 black = "^23.12.0"

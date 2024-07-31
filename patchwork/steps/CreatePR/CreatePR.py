@@ -2,6 +2,7 @@ from pathlib import Path
 
 import git
 from git.exc import GitCommandError
+
 from patchwork.common.client.scm import (
     GithubClient,
     GitlabClient,
@@ -21,20 +22,30 @@ class CreatePR(Step):
         if not all(key in inputs.keys() for key in self.required_keys):
             raise ValueError(f'Missing required data: "{self.required_keys}"')
 
-        if "github_api_key" in inputs.keys():
-            self.scm_client = GithubClient(inputs["github_api_key"])
-        elif "gitlab_api_key" in inputs.keys():
-            self.scm_client = GitlabClient(inputs["gitlab_api_key"])
-        else:
-            raise ValueError(f'Missing required input data: "github_api_key" or "gitlab_api_key"')
+        self.enabled = not bool(inputs.get("disable_pr", False))
+        if self.enabled:
+            self.scm_client = None
+            if "github_api_key" in inputs.keys():
+                self.scm_client = GithubClient(inputs["github_api_key"])
+            elif "gitlab_api_key" in inputs.keys():
+                self.scm_client = GitlabClient(inputs["gitlab_api_key"])
+            else:
+                logger.warning(
+                    f'Missing required input data: "github_api_key" or "gitlab_api_key",'
+                    f" PR creation will be disabled."
+                )
+                self.enabled = False
 
-        if "scm_url" in inputs.keys():
-            self.scm_client.set_url(inputs["scm_url"])
+        if self.enabled:
+            if "scm_url" in inputs.keys():
+                self.scm_client.set_url(inputs["scm_url"])
 
-        if not self.scm_client.test():
-            raise ValueError(f"{self.scm_client.__class__.__name__} token test failed.")
+            if not self.scm_client.test():
+                logger.warning(
+                    f"{self.scm_client.__class__.__name__} token test failed. " f"PR creation will be disabled."
+                )
+                self.enabled = False
 
-        self.enabled = not bool(inputs.get("disable_pr"))
         self.pr_body = inputs.get("pr_body", "")
         self.title = inputs.get("pr_title", "Patchwork PR")
         self.force = bool(inputs.get("force_pr_creation", False))
@@ -48,11 +59,11 @@ class CreatePR(Step):
             self.enabled = False
 
     def run(self) -> dict:
-        repo = git.Repo(Path.cwd(), search_parent_directories=True)
-
         if not self.enabled:
             logger.warning(f"PR creation is disabled. Skipping PR creation.")
             return dict()
+
+        repo = git.Repo(Path.cwd(), search_parent_directories=True)
 
         original_remote_name = "origin"
         push_args = ["--set-upstream", original_remote_name, self.target_branch]
