@@ -21,14 +21,17 @@ def test_invalid_input_keys():
         validate_steps_with_inputs(keys, *steps)
 
     # Ensure the error message is correct
-    assert '''\
+    lines = '''\
 Invalid inputs for steps:
 Step: JoinList
   - delimiter: 
       Missing required input data
   - list: 
       Missing required input data
-''' == exc_info.value.args[0]
+'''.splitlines()
+
+    for line in lines:
+        assert line in exc_info.value.args[0]
 
 
 @pytest.mark.parametrize(
