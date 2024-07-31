@@ -1,9 +1,11 @@
-from typing_extensions import Annotated, List, Optional, TypedDict
+from typing_extensions import Annotated, List, TypedDict
 
 from patchwork.common.utils.step_typing import StepTypeConfig
 
+
 class __ReadIssuesRequiredInputs(TypedDict):
     issue_url: str
+
 
 class ReadIssuesInputs(__ReadIssuesRequiredInputs, total=False):
     scm_url: Annotated[str, StepTypeConfig(is_config=True)]

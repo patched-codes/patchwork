@@ -75,12 +75,9 @@ class AutoFix(Step):
         final_inputs["pr_title"] = f"PatchWork {self.__class__.__name__}"
         final_inputs["branch_prefix"] = f"{self.__class__.__name__.lower()}-"
 
-        added_inputs = final_inputs.copy()
-        added_inputs.update(dict(prompt_values=[]))
-        error_report = validate_steps_with_inputs(added_inputs, ScanSemgrep, ExtractCode, LLM, ModifyCode, PR)
-        if error_report:
-            logger.error(error_report)
-            raise ValueError("Invalid inputs for AutoFix. Please check the logs for more details.")
+        validate_steps_with_inputs(
+            set(final_inputs.keys()).union({"prompt_values"}), ScanSemgrep, ExtractCode, LLM, ModifyCode, PR
+        )
 
         self.inputs = final_inputs
 

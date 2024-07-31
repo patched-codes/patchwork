@@ -2,16 +2,17 @@ import importlib
 
 from typing_extensions import (
     Annotated,
-    Any,
     Dict,
+    Iterable,
     List,
     Optional,
     Set,
     Tuple,
     Type,
+    TypedDict,
     get_args,
     get_origin,
-    get_type_hints, TypedDict,
+    get_type_hints,
 )
 
 from patchwork.step import Step
@@ -33,14 +34,25 @@ class StepTypeConfig(object):
         self.xor_op: List[str] = xor_op or []
 
 
-def validate_steps_with_inputs(inputs: Dict[str, Any], *steps: Type[Step]) -> Dict[str, Dict[str, str]]:
-    current_input_keys = set(inputs.keys())
+def validate_steps_with_inputs(keys: Iterable[str], *steps: Type[Step]) -> None:
+    current_keys = set(keys)
     report = {}
     for step in steps:
-        output_keys, step_report = validate_step_with_inputs(current_input_keys, step)
-        current_input_keys = current_input_keys.union(output_keys)
+        output_keys, step_report = validate_step_with_inputs(current_keys, step)
+        current_keys = current_keys.union(output_keys)
         report[step.__name__] = step_report
-    return report
+
+    has_error = any(len(value) > 0 for value in report.values())
+    if not has_error:
+        return
+
+    error_message = "Invalid inputs for steps:"
+    for step_name, step_report in report.items():
+        if len(step_report) > 0:
+            error_message += f"Step: {step_name}\n"
+            for key, msg in step_report.items():
+                error_message += f"  - {key}: {msg}\n"
+    raise ValueError(error_message)
 
 
 __NOT_GIVEN = TypedDict

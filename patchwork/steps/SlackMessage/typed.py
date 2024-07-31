@@ -1,6 +1,7 @@
-from typing_extensions import Annotated, Dict, Optional, TypedDict
+from typing_extensions import Annotated, Dict, TypedDict
 
 from patchwork.common.utils.step_typing import StepTypeConfig
+
 
 class __SlackMessageRequiredInputs(TypedDict):
     slack_channel: Annotated[str, StepTypeConfig(is_config=True)]

@@ -1,11 +1,14 @@
-from typing_extensions import Annotated, List, Optional, TypedDict
+from typing_extensions import Annotated, List, TypedDict
 
 from patchwork.common.utils.step_typing import StepTypeConfig
 from patchwork.steps.PreparePR.typed import ModifiedCodeFile
 
+
 class __PRInputsRequired(TypedDict):
     # CommitChangesInputs & PreparePRInputs
     modified_code_files: List["ModifiedCodeFile"]
+
+
 class PRInputs(__PRInputsRequired, total=False):
     # CommitChangesInputs
     disable_branch: Annotated[bool, StepTypeConfig(is_config=True)]

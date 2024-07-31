@@ -5,7 +5,6 @@ import yaml
 
 from patchwork.common.utils.progress_bar import PatchflowProgressBar
 from patchwork.common.utils.step_typing import validate_steps_with_inputs
-from patchwork.logger import logger
 from patchwork.step import Step
 from patchwork.steps import (
     LLM,
@@ -54,19 +53,20 @@ class PRReview(Step):
 
         self.is_suggestion_required = bool(final_inputs.get("diff_suggestion"))
 
-        added_inputs = final_inputs.copy()
-        added_inputs.update(dict(
-            prompt_id="",
-            prompt_values=[],
-            modified_code_files=[],
-            pr_comment="",
-        ))
-        error_report = validate_steps_with_inputs(
-            added_inputs, ReadPRDiffs, LLM, PreparePR, CreatePRComment
+        validate_steps_with_inputs(
+            set(final_inputs.keys()).union(
+                {
+                    "prompt_id",
+                    "prompt_values",
+                    "modified_code_files",
+                    "pr_comment",
+                }
+            ),
+            ReadPRDiffs,
+            LLM,
+            PreparePR,
+            CreatePRComment,
         )
-        if error_report:
-            logger.error(error_report)
-            raise ValueError("Invalid inputs for AutoFix. Please check the logs for more details.")
 
         self.inputs = final_inputs
 

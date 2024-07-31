@@ -5,7 +5,6 @@ import yaml
 
 from patchwork.common.utils.progress_bar import PatchflowProgressBar
 from patchwork.common.utils.step_typing import validate_steps_with_inputs
-from patchwork.logger import logger
 from patchwork.step import Step
 from patchwork.steps import (
     LLM,
@@ -52,14 +51,14 @@ class DependencyUpgrade(Step):
         if "prompt_template_file" not in final_inputs.keys():
             final_inputs["prompt_template_file"] = _DEFAULT_PROMPT_JSON
 
-        added_inputs = final_inputs.copy()
-        added_inputs.update(dict(prompt_values=[]))
-        error_report = validate_steps_with_inputs(
-            added_inputs, ScanDepscan, ExtractPackageManagerFile, LLM, ModifyCode, PR
+        validate_steps_with_inputs(
+            set(final_inputs.keys()).union({"prompt_values"}),
+            ScanDepscan,
+            ExtractPackageManagerFile,
+            LLM,
+            ModifyCode,
+            PR,
         )
-        if error_report:
-            logger.error(error_report)
-            raise ValueError("Invalid inputs for AutoFix. Please check the logs for more details.")
 
         final_inputs["pr_title"] = f"PatchWork {self.__class__.__name__}"
 

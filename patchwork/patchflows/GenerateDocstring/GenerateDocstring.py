@@ -7,7 +7,6 @@ import yaml
 
 from patchwork.common.utils.progress_bar import PatchflowProgressBar
 from patchwork.common.utils.step_typing import validate_steps_with_inputs
-from patchwork.logger import logger
 from patchwork.step import Step
 from patchwork.steps import (
     LLM,
@@ -54,14 +53,9 @@ class GenerateDocstring(Step):
         final_inputs["allow_overlap_contexts"] = False
         final_inputs["force_code_contexts"] = final_inputs.get("rewrite_existing", False)
 
-        added_inputs = final_inputs.copy()
-        added_inputs["prompt_values"] = []
-        error_report = validate_steps_with_inputs(
-            added_inputs, ExtractCodeMethodForCommentContexts, LLM, ModifyCode, PR
+        validate_steps_with_inputs(
+            set(final_inputs.keys()).union({"prompt_values"}), ExtractCodeMethodForCommentContexts, LLM, ModifyCode, PR
         )
-        if error_report:
-            logger.error(error_report)
-            raise ValueError("Invalid inputs for AutoFix. Please check the logs for more details.")
 
         self.inputs: dict[str, Any] = final_inputs
 

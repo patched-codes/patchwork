@@ -1,4 +1,4 @@
-from typing_extensions import Annotated, Iterable, Optional, TypedDict
+from typing_extensions import Annotated, Iterable, TypedDict
 
 from patchwork.common.utils.step_typing import StepTypeConfig
 

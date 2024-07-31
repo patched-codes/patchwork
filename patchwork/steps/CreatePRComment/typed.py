@@ -1,10 +1,12 @@
-from typing_extensions import Annotated, Optional, TypedDict
+from typing_extensions import Annotated, TypedDict
 
 from patchwork.common.utils.step_typing import StepTypeConfig
+
 
 class __CreatePRCommentRequiredInputs(TypedDict):
     pr_url: str
     pr_comment: str
+
 
 class CreatePRCommentInputs(__CreatePRCommentRequiredInputs, total=False):
     noisy_comments: Annotated[bool, StepTypeConfig(is_config=True)]

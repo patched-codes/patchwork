@@ -1,10 +1,11 @@
-from typing_extensions import Annotated, Optional, TypedDict
+from typing_extensions import Annotated, TypedDict
 
 from patchwork.common.utils.step_typing import StepTypeConfig
 
 
 class __CreatePRRequiredInputs(TypedDict):
     target_branch: str
+
 
 class CreatePRInputs(__CreatePRRequiredInputs, total=False):
     base_branch: str

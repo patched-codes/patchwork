@@ -1,9 +1,11 @@
-from typing_extensions import Annotated, List, Optional, TypedDict
+from typing_extensions import Annotated, List, TypedDict
 
 from patchwork.common.utils.step_typing import StepTypeConfig
 
+
 class __PreparePRRequiredInputs(TypedDict):
     modified_code_files: List["ModifiedCodeFile"]
+
 
 class PreparePRInputs(__PreparePRRequiredInputs, total=False):
     pr_header: Annotated[str, StepTypeConfig(is_config=True)]

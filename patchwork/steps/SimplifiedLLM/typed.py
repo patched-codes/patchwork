@@ -1,11 +1,13 @@
-from typing_extensions import Annotated, Any, Dict, List, Optional, TypedDict
+from typing_extensions import Annotated, Any, Dict, List, TypedDict
 
 from patchwork.common.utils.step_typing import StepTypeConfig
+
 
 class __SimplifiedLLMInputsRequired(TypedDict):
     # PreparePromptInputs
     prompt_user: Annotated[str, StepTypeConfig(is_config=True)]
     prompt_values: List[Dict[str, Any]]
+
 
 class SimplifiedLLMInputs(__SimplifiedLLMInputsRequired, total=False):
     prompt_system: Annotated[str, StepTypeConfig(is_config=True)]
