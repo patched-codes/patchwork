@@ -2,6 +2,9 @@
 base_path: .
 rewrite_existing: false
 
+
+# PreparePrompts Inputs
+prompt_id: generate_docstring
 # CallLLM Inputs
 # For OpenAI API use the following the select the model
 # openai_embedding_model: text-embedding-3-small

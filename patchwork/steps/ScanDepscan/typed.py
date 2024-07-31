@@ -1,10 +1,10 @@
 from typing_extensions import Annotated, TypedDict
 
-from patchwork.common.utils.typing import IS_CONFIG
+from patchwork.common.utils.step_typing import StepTypeConfig
 
 
 class ScanDepscanInputs(TypedDict, total=False):
-    language: Annotated[str, IS_CONFIG]
+    language: Annotated[str, StepTypeConfig(is_config=True)]
 
 
 class ScanDepscanOutputs(TypedDict):

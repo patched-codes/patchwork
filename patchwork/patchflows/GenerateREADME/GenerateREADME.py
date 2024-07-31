@@ -3,6 +3,7 @@ from pathlib import Path
 import yaml
 
 from patchwork.common.utils.progress_bar import PatchflowProgressBar
+from patchwork.common.utils.step_typing import validate_steps_with_inputs
 from patchwork.step import Step
 from patchwork.steps import (
     LLM,
@@ -51,6 +52,10 @@ class GenerateREADME(Step):
             final_inputs["folder_path"] = Path(final_inputs["folder_path"])
 
         final_inputs["pr_title"] = f"PatchWork {self.__class__.__name__}"
+
+        validate_steps_with_inputs(
+            set(final_inputs.keys()).union({"prompt_values"}), CallCode2Prompt, LLM, ModifyCode, PR
+        )
 
         self.inputs = final_inputs
 

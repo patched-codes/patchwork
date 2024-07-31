@@ -1,21 +1,19 @@
-from __future__ import annotations
+from typing_extensions import Annotated, Any, Dict, Literal, TypedDict
 
-from typing_extensions import Annotated, Any, Literal, TypedDict
-
-from patchwork.common.utils.typing import IS_CONFIG
+from patchwork.common.utils.step_typing import StepTypeConfig
 
 
 class __CallAPIRequiredInputs(TypedDict):
     url: str
-    method: Annotated[Literal["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"], IS_CONFIG]
+    method: Annotated[Literal["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"], StepTypeConfig(is_config=True)]
 
 
 class CallAPIInputs(__CallAPIRequiredInputs, total=False):
-    headers: Annotated[dict[str, str], IS_CONFIG]
-    body: dict[str, Any]
+    headers: Annotated[Dict[str, str], StepTypeConfig(is_config=True)]
+    body: Dict[str, Any]
 
 
 class CallAPIOutputs(TypedDict):
     status_code: int
-    headers: dict[str, str]
+    headers: Dict[str, str]
     body: str

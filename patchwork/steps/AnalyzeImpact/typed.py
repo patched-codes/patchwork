@@ -1,10 +1,8 @@
-from __future__ import annotations
-
-from typing_extensions import TypedDict
+from typing_extensions import List, TypedDict
 
 
 class AnalyzeImpactInputs(TypedDict):
-    extracted_responses: list["AnalyzeImpactExtractedResponse"]
+    extracted_responses: List["AnalyzeImpactExtractedResponse"]
     library_name: str
     platform_type: str
 
@@ -14,7 +12,7 @@ class AnalyzeImpactExtractedResponse(TypedDict):
 
 
 class AnalyzeImpactOutputs(TypedDict):
-    files_to_patch: list["AnalyzeImpactImpact"]
+    files_to_patch: List["AnalyzeImpactImpact"]
 
 
 class AnalyzeImpactImpact(TypedDict):

@@ -1,22 +1,20 @@
-from __future__ import annotations
+from typing_extensions import Annotated, Dict, List, TypedDict
 
-from typing_extensions import Annotated, TypedDict
-
-from patchwork.common.utils.typing import IS_CONFIG
+from patchwork.common.utils.step_typing import StepTypeConfig
 
 
 class __ExtractDiffRequiredInputs(TypedDict):
     update_info: "UpdateInfo"
-    libraries_api_key: Annotated[str, IS_CONFIG]
-    github_api_key: Annotated[str, IS_CONFIG]
+    libraries_api_key: Annotated[str, StepTypeConfig(is_config=True)]
+    github_api_key: Annotated[str, StepTypeConfig(is_config=True)]
 
 
 class ExtractDiffInputs(__ExtractDiffRequiredInputs, total=False):
-    severity: Annotated[str, IS_CONFIG]
+    severity: Annotated[str, StepTypeConfig(is_config=True)]
 
 
 class ExtractDiffOutputs(TypedDict):
-    prompt_values: list[dict]
+    prompt_values: List[Dict]
     library_name: str
     platform_type: str
 

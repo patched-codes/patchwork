@@ -6,6 +6,7 @@ from typing import Any
 import yaml
 
 from patchwork.common.utils.progress_bar import PatchflowProgressBar
+from patchwork.common.utils.step_typing import validate_steps_with_inputs
 from patchwork.step import Step
 from patchwork.steps import (
     LLM,
@@ -52,6 +53,10 @@ class GenerateDocstring(Step):
         final_inputs["allow_overlap_contexts"] = False
         final_inputs["force_code_contexts"] = final_inputs.get("rewrite_existing", False)
 
+        validate_steps_with_inputs(
+            set(final_inputs.keys()).union({"prompt_values"}), ExtractCodeMethodForCommentContexts, LLM, ModifyCode, PR
+        )
+
         self.inputs: dict[str, Any] = final_inputs
 
     def run(self) -> dict:
@@ -59,7 +64,6 @@ class GenerateDocstring(Step):
         self.inputs.update(outputs)
 
         self.inputs["prompt_values"] = self.inputs.get("files_to_patch", [])
-        self.inputs["prompt_id"] = "generate_docstring"
         self.inputs["response_partitions"] = {
             "patch": ["Documentation:", "```", "\n", "```"],
         }

@@ -4,6 +4,7 @@ from pathlib import Path
 import yaml
 
 from patchwork.common.utils.progress_bar import PatchflowProgressBar
+from patchwork.common.utils.step_typing import validate_steps_with_inputs
 from patchwork.step import Step
 from patchwork.steps import (
     LLM,
@@ -51,6 +52,21 @@ class PRReview(Step):
         self.verbosity = _SUMMARY_LEVEL[diff_summary.lower()]
 
         self.is_suggestion_required = bool(final_inputs.get("diff_suggestion"))
+
+        validate_steps_with_inputs(
+            set(final_inputs.keys()).union(
+                {
+                    "prompt_id",
+                    "prompt_values",
+                    "modified_code_files",
+                    "pr_comment",
+                }
+            ),
+            ReadPRDiffs,
+            LLM,
+            PreparePR,
+            CreatePRComment,
+        )
 
         self.inputs = final_inputs
 

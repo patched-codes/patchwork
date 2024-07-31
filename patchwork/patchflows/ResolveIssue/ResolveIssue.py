@@ -3,6 +3,7 @@ from pathlib import Path
 import yaml
 
 from patchwork.common.utils.progress_bar import PatchflowProgressBar
+from patchwork.common.utils.step_typing import validate_steps_with_inputs
 from patchwork.step import Step
 from patchwork.steps import (
     LLM,
@@ -50,6 +51,14 @@ class ResolveIssue(Step):
 
         final_inputs["pr_title"] = f"PatchWork {self.__class__.__name__}"
         final_inputs["branch_prefix"] = f"{self.__class__.__name__.lower()}-"
+
+        validate_steps_with_inputs(
+            set(final_inputs.keys()).union({"texts", "issue_text"}),
+            GenerateCodeRepositoryEmbeddings,
+            ReadIssues,
+            QueryEmbeddings,
+            CreateIssueComment,
+        )
 
         self.fix_issue = bool(final_inputs.get("fix_issue", False))
         self.inputs = final_inputs

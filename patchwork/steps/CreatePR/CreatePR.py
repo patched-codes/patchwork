@@ -2,6 +2,7 @@ from pathlib import Path
 
 import git
 from git.exc import GitCommandError
+
 from patchwork.common.client.scm import (
     GithubClient,
     GitlabClient,
@@ -29,8 +30,10 @@ class CreatePR(Step):
             elif "gitlab_api_key" in inputs.keys():
                 self.scm_client = GitlabClient(inputs["gitlab_api_key"])
             else:
-                logger.warning(f'Missing required input data: "github_api_key" or "gitlab_api_key",'
-                               f' PR creation will be disabled.')
+                logger.warning(
+                    f'Missing required input data: "github_api_key" or "gitlab_api_key",'
+                    f" PR creation will be disabled."
+                )
                 self.enabled = False
 
         if self.enabled:
@@ -38,8 +41,9 @@ class CreatePR(Step):
                 self.scm_client.set_url(inputs["scm_url"])
 
             if not self.scm_client.test():
-                logger.warning(f"{self.scm_client.__class__.__name__} token test failed. "
-                               f"PR creation will be disabled.")
+                logger.warning(
+                    f"{self.scm_client.__class__.__name__} token test failed. " f"PR creation will be disabled."
+                )
                 self.enabled = False
 
         self.pr_body = inputs.get("pr_body", "")

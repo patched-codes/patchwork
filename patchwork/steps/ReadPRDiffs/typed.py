@@ -1,8 +1,6 @@
-from __future__ import annotations
+from typing_extensions import Annotated, List, TypedDict
 
-from typing_extensions import Annotated, TypedDict
-
-from patchwork.common.utils.typing import IS_CONFIG
+from patchwork.common.utils.step_typing import StepTypeConfig
 
 
 class __ReadPRDiffsRequiredInputs(TypedDict):
@@ -10,13 +8,13 @@ class __ReadPRDiffsRequiredInputs(TypedDict):
 
 
 class ReadPRDiffsInputs(__ReadPRDiffsRequiredInputs, total=False):
-    scm_url: Annotated[str, IS_CONFIG]
-    gitlab_api_key: Annotated[str, IS_CONFIG]
-    github_api_key: Annotated[str, IS_CONFIG]
+    scm_url: Annotated[str, StepTypeConfig(is_config=True)]
+    gitlab_api_key: Annotated[str, StepTypeConfig(is_config=True, or_op=["github_api_key"])]
+    github_api_key: Annotated[str, StepTypeConfig(is_config=True, or_op=["gitlab_api_key"])]
 
 
 class ReadPRDiffsOutputs(TypedDict):
-    prompt_values: list["Diff"]
+    prompt_values: List["Diff"]
 
 
 class Diff(TypedDict):
