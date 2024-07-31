@@ -66,7 +66,6 @@ def validate_step_type_config_with_inputs(
 ) -> Tuple[bool, str]:
     is_key_set = key_name in input_keys
 
-
     and_keys = set(step_type_config.and_op)
     if len(and_keys) > 0:
         missing_and_keys = sorted(and_keys.difference(input_keys))
@@ -96,19 +95,12 @@ def validate_step_type_config_with_inputs(
                 step_type_config.msg or
                 f"Missing required input: Exactly one of {', '.join(xor_keys)} has to be set"
             )
-        elif not is_key_set and len(missing_xor_keys) < len(xor_keys) - 1:
-            conflicting_keys = xor_keys.intersection(missing_xor_keys)
+        elif is_key_set and len(missing_xor_keys) < len(xor_keys) - 1:
+            conflicting_keys = xor_keys.intersection(input_keys)
             return (
                 False,
                 step_type_config.msg or
                 f"Excess input data: {', '.join(sorted(conflicting_keys))} cannot be set at the same time"
-            )
-        elif is_key_set and len(missing_xor_keys) < len(xor_keys):
-            conflicting_keys = xor_keys.intersection(missing_xor_keys)
-            return (
-                False,
-                step_type_config.msg or
-                f"Excess input data: {', '.join(sorted([key_name, *conflicting_keys]))} cannot be set at the same time",
             )
 
     return True, step_type_config.msg
