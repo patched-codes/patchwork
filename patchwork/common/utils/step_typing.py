@@ -64,7 +64,7 @@ def validate_step_type_config_with_inputs(
             return False, f"Missing required input data: Any of {', '.join([key_name, *or_keys])}"
 
     xor_keys = set(step_type_config.xor_op)
-    if len(or_keys) > 0:
+    if len(xor_keys) > 0:
         missing_xor_keys = xor_keys.difference(input_keys)
         if not is_key_set and len(missing_xor_keys) == len(xor_keys):
             return False, f"Missing required input data: Exactly one of {', '.join(xor_keys)}"

@@ -56,6 +56,7 @@ class PRReview(Step):
 
         added_inputs = final_inputs.copy()
         added_inputs.update(dict(
+            prompt_id="",
             prompt_values=[],
             modified_code_files=[],
             pr_comment="",
