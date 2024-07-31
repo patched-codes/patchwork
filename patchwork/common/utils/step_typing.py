@@ -109,7 +109,7 @@ def validate_step_with_inputs(input_keys: Set[str], step: Type[Step]) -> Tuple[S
         if not is_ok:
             step_report[key] = msg
 
-    return set(step_output_model.model_fields.keys()), step_report
+    return set(step_output_model.__required_keys__), step_report
 
 
 def find_step_type_config(python_type: type) -> Optional[StepTypeConfig]:
