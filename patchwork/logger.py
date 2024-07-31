@@ -3,6 +3,7 @@ from __future__ import annotations
 import contextlib
 import logging
 import os
+from functools import partial
 
 import click
 from rich.console import Console, Group
@@ -15,9 +16,16 @@ from typing_extensions import Callable
 
 from patchwork.managed_files import HOME_FOLDER, LOG_FILE
 
+# Create a global console object
 console = Console()
-# default noop logger
+
+# Add TRACE level to logging
+logging_TRACE = logging.DEBUG - 1
+logging.addLevelName(logging_TRACE, "TRACE")
 logger = logging.getLogger("patched")
+setattr(logger, "trace", partial(logger.log, logging_TRACE))
+
+# default noop logger
 __noop = logging.NullHandler()
 logger.addHandler(__noop)
 

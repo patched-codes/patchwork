@@ -91,6 +91,7 @@ def list_option_callback(ctx: click.Context, param: click.Parameter, value: str 
             "WARN",
             "INFO",
             "DEBUG",
+            "TRACE",
         ],
         case_sensitive=False,
     ),
