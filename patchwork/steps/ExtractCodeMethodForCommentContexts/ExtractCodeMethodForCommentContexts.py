@@ -22,7 +22,7 @@ class ExtractCodeMethodForCommentContexts(Step):
         # rethink this, should be one level up and true by default
         self.force_code_contexts = inputs.get("force_code_contexts", False)
         self.allow_overlap_contexts = inputs.get("allow_overlap_contexts", True)
-        self.max_depth = float(inputs.get("max_depth", float("inf")))
+        self.max_depth = int(inputs.get("max_depth", -1))
 
     def run(self) -> dict:
         positions_gen = ExtractCodeContexts(

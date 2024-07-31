@@ -96,7 +96,7 @@ class ExtractCodeContexts(Step):
             files_to_patch=extracted_code_contexts,
         )
 
-    def get_positions(self, max_depth):
+    def get_positions(self, max_depth: int):
         files_to_consider = []
         if self.base_path.is_file():
             files_to_consider.append(self.base_path)

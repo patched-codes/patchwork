@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import git
-
+from git.exc import GitCommandError
 from patchwork.common.client.scm import (
     GithubClient,
     GitlabClient,
@@ -21,20 +21,27 @@ class CreatePR(Step):
         if not all(key in inputs.keys() for key in self.required_keys):
             raise ValueError(f'Missing required data: "{self.required_keys}"')
 
-        if "github_api_key" in inputs.keys():
-            self.scm_client = GithubClient(inputs["github_api_key"])
-        elif "gitlab_api_key" in inputs.keys():
-            self.scm_client = GitlabClient(inputs["gitlab_api_key"])
-        else:
-            raise ValueError(f'Missing required input data: "github_api_key" or "gitlab_api_key"')
+        self.enabled = not bool(inputs.get("disable_pr", False))
+        if self.enabled:
+            self.scm_client = None
+            if "github_api_key" in inputs.keys():
+                self.scm_client = GithubClient(inputs["github_api_key"])
+            elif "gitlab_api_key" in inputs.keys():
+                self.scm_client = GitlabClient(inputs["gitlab_api_key"])
+            else:
+                logger.warning(f'Missing required input data: "github_api_key" or "gitlab_api_key",'
+                               f' PR creation will be disabled.')
+                self.enabled = False
 
-        if "scm_url" in inputs.keys():
-            self.scm_client.set_url(inputs["scm_url"])
+        if self.enabled:
+            if "scm_url" in inputs.keys():
+                self.scm_client.set_url(inputs["scm_url"])
 
-        if not self.scm_client.test():
-            raise ValueError(f"{self.scm_client.__class__.__name__} token test failed.")
+            if not self.scm_client.test():
+                logger.warning(f"{self.scm_client.__class__.__name__} token test failed. "
+                               f"PR creation will be disabled.")
+                self.enabled = False
 
-        self.enabled = not bool(inputs.get("disable_pr"))
         self.pr_body = inputs.get("pr_body", "")
         self.title = inputs.get("pr_title", "Patchwork PR")
         self.force = bool(inputs.get("force_pr_creation", False))
@@ -48,17 +55,22 @@ class CreatePR(Step):
             self.enabled = False
 
     def run(self) -> dict:
-        repo = git.Repo(Path.cwd(), search_parent_directories=True)
-
         if not self.enabled:
+            logger.warning(f"PR creation is disabled. Skipping PR creation.")
             return dict()
 
+        repo = git.Repo(Path.cwd(), search_parent_directories=True)
+
         original_remote_name = "origin"
-        original_remote_url = repo.remotes[original_remote_name].url
         push_args = ["--set-upstream", original_remote_name, self.target_branch]
         if self.force:
             push_args.insert(0, "--force")
-        repo.git.push(*push_args)
+
+        push(repo, push_args)
+        logger.debug(f"Pushed to {original_remote_name}/{self.target_branch}")
+
+        logger.info(f"Creating PR from {self.base_branch} to {self.target_branch}")
+        original_remote_url = repo.remotes[original_remote_name].url
         repo_slug = get_slug_from_remote_url(original_remote_url)
         url = create_pr(
             repo_slug=repo_slug,
@@ -70,9 +82,19 @@ class CreatePR(Step):
             force=self.force,
         )
 
-        logger.info(f"PR created at {url}")
+        logger.info(f"[green]PR created at [link={url}]{url}[/link][/]", extra={"markup": True})
         logger.info(f"Run completed {self.__class__.__name__}")
         return {"pr_url": url}
+
+
+def push(repo: git.Repo, args):
+    repo_git = repo.git
+    try:
+        with repo_git.custom_environment(GIT_TERMINAL_PROMPT="0"):
+            repo_git.push(*args)
+    except GitCommandError:
+        with logger.freeze():
+            repo_git.push(*args)
 
 
 def create_pr(
