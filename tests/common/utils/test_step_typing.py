@@ -24,8 +24,10 @@ def test_invalid_input_keys():
     assert '''\
 Invalid inputs for steps:
 Step: JoinList
-  - delimiter: Missing required input data: delimiter
-  - list: Missing required input data: list
+  - delimiter: 
+      Missing required input data
+  - list: 
+      Missing required input data
 ''' == exc_info.value.args[0]
 
 
