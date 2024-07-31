@@ -11,7 +11,7 @@ class LLMInputs(__LLMInputsRequired, total=False):
     prompt_value_file: str
     prompt_values: List[Dict[str, Any]]
     # CallLLMInputs
-    max_llm_calls: Annotated[int, IS_CONFIG]
+    max_llm_calls: Annotated[int, StepTypeConfig(is_config=True)]
     prompt_file: Annotated[str, StepTypeConfig(is_config=True)]
     model: Annotated[str, StepTypeConfig(is_config=True)]
     allow_truncated: Annotated[bool, StepTypeConfig(is_config=True)]

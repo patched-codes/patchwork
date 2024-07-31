@@ -10,7 +10,7 @@ class __SimplifiedLLMInputsRequired(TypedDict):
 class SimplifiedLLMInputs(__SimplifiedLLMInputsRequired, total=False):
     prompt_system: Annotated[str, StepTypeConfig(is_config=True)]
     # CallLLMInputs
-    max_llm_calls: Annotated[int, IS_CONFIG]
+    max_llm_calls: Annotated[int, StepTypeConfig(is_config=True)]
     model: Annotated[str, StepTypeConfig(is_config=True)]
     openai_api_key: Annotated[str, StepTypeConfig(is_config=True)]
     patched_api_key: Annotated[str, StepTypeConfig(is_config=True)]
