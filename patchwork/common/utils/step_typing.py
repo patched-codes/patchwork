@@ -91,7 +91,7 @@ def validate_step_with_inputs(input_keys: Set[str], step: Type[Step]) -> Tuple[S
         raise ValueError(f"Missing output model for step {step_name}")
 
     step_report = {}
-    for key in step_input_model.__required__:
+    for key in step_input_model.__required_keys__:
         if key not in input_keys:
             step_report[key] = f"Missing required input data: {key}"
             continue
