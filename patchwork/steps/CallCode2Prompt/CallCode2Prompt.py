@@ -20,7 +20,8 @@ class CallCode2Prompt(Step):
         self.folder_path = inputs[FOLDER_PATH]
         self.filter = inputs.get("filter", None)
         self.suppress_comments = inputs.get("suppress_comments", False)
-        self.code_file_path = str(Path(self.folder_path) / "README.md")
+        self.markdown_file_name = inputs.get("markdown_file_name", "README.md")
+        self.code_file_path = str(Path(self.folder_path) / self.markdown_file_name)
         # Check if the file exists
         if not os.path.exists(self.code_file_path):
             # The file does not exist, create it by opening it in append mode and then closing it
@@ -48,22 +49,21 @@ class CallCode2Prompt(Step):
 
         prompt_content_md = p.stdout
 
-        data = {"fullContent": prompt_content_md}
-
         # Attempt to read the README.md's current content
         try:
             with open(self.code_file_path, "r") as file:
                 file_content = file.read()
         except FileNotFoundError:
-            logger.info(f"README.md file not found in : {self.code_file_path}")
+            logger.info(f"Unable to find file: {self.code_file_path}")
 
         lines = file_content.splitlines(keepends=True)
 
-        data["uri"] = self.code_file_path
-        data["startLine"] = 0
-        data["endLine"] = len(lines)
-
-        self.extracted_data.append(data)
+        self.extracted_data.append(dict(
+            uri=self.code_file_path,
+            startLine=0,
+            endLine=len(lines),
+            fullContent=prompt_content_md
+        ))
 
         logger.info(f"Run completed {self.__class__.__name__}")
         return dict(files_to_patch=self.extracted_data)
