@@ -49,7 +49,7 @@ class CallCode2Prompt(Step):
 
         prompt_content_md = p.stdout
 
-        # Attempt to read the README.md's current content
+        # Attempt to read the documentation's current content
         try:
             with open(self.code_file_path, "r") as file:
                 file_content = file.read()
@@ -58,12 +58,9 @@ class CallCode2Prompt(Step):
 
         lines = file_content.splitlines(keepends=True)
 
-        self.extracted_data.append(dict(
-            uri=self.code_file_path,
-            startLine=0,
-            endLine=len(lines),
-            fullContent=prompt_content_md
-        ))
+        self.extracted_data.append(
+            dict(uri=self.code_file_path, startLine=0, endLine=len(lines), fullContent=prompt_content_md)
+        )
 
         logger.info(f"Run completed {self.__class__.__name__}")
         return dict(files_to_patch=self.extracted_data)
