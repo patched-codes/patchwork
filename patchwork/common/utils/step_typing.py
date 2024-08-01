@@ -72,8 +72,8 @@ def validate_step_type_config_with_inputs(
         if is_key_set and len(missing_and_keys) > 0:
             return (
                 False,
-                step_type_config.msg or
-                f"Missing required input data because {key_name} is set: {', '.join(missing_and_keys)}"
+                step_type_config.msg
+                or f"Missing required input data because {key_name} is set: {', '.join(missing_and_keys)}",
             )
 
     or_keys = set(step_type_config.or_op)
@@ -82,8 +82,8 @@ def validate_step_type_config_with_inputs(
         if not is_key_set and len(missing_or_keys) == len(or_keys):
             return (
                 False,
-                step_type_config.msg or
-                f"Missing required input: At least one of {', '.join(sorted([key_name, *or_keys]))} has to be set"
+                step_type_config.msg
+                or f"Missing required input: At least one of {', '.join(sorted([key_name, *or_keys]))} has to be set",
             )
 
     xor_keys = set(step_type_config.xor_op)
@@ -92,15 +92,14 @@ def validate_step_type_config_with_inputs(
         if not is_key_set and len(missing_xor_keys) == len(xor_keys):
             return (
                 False,
-                step_type_config.msg or
-                f"Missing required input: Exactly one of {', '.join(xor_keys)} has to be set"
+                step_type_config.msg or f"Missing required input: Exactly one of {', '.join(xor_keys)} has to be set",
             )
         elif is_key_set and len(missing_xor_keys) < len(xor_keys) - 1:
             conflicting_keys = xor_keys.intersection(input_keys)
             return (
                 False,
-                step_type_config.msg or
-                f"Excess input data: {', '.join(sorted(conflicting_keys))} cannot be set at the same time"
+                step_type_config.msg
+                or f"Excess input data: {', '.join(sorted(conflicting_keys))} cannot be set at the same time",
             )
 
     return True, step_type_config.msg

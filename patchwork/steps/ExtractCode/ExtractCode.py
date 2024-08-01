@@ -4,7 +4,6 @@ import os
 import sys
 from collections import defaultdict
 from enum import IntEnum
-from itertools import count
 from pathlib import Path
 from urllib.parse import urlparse
 
