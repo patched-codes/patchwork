@@ -42,16 +42,17 @@ class PreparePR(Step):
                     continue
 
                 placeholder_inner_text = path
-                if start_line is not None and end_line is not None:
-                    placeholder_inner_text = f"{path}:{start_line+1}:{end_line}"
-                chunk_link = "{{" + placeholder_inner_text + "}}"
+                # TODO: consider dealing with line numbers exceeding diff chunk
+                # if start_line is not None and end_line is not None:
+                    # placeholder_inner_text = f"{path}:{start_line+1}:{end_line}"
+                # chunk_link = "{{" + placeholder_inner_text + "}}"
 
                 if title != "" and patch_msg == "":
                     expandable = f"\n  {title.strip()}"
                 elif title == "" and patch_msg != "":
                     expandable = (
                         f"<details>"
-                        f"<summary>[{placeholder_inner_text}]({chunk_link})</summary>"
+                        f"<summary>{placeholder_inner_text}</summary>"
                         f"{indent(patch_msg.strip(), '  ')}"
                         f"</details>"
                     )
@@ -59,7 +60,7 @@ class PreparePR(Step):
                     # when both title and patch_msg are present
                     expandable = (
                         f"<details>"
-                        f"<summary>[{title.strip()}]({chunk_link})</summary>"
+                        f"<summary>{title.strip()}</summary>"
                         f"{indent(patch_msg.strip(), '  ')}"
                         f"</details>"
                     )

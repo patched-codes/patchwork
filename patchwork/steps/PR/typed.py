@@ -22,8 +22,8 @@ class PRInputs(__PRInputsRequired, total=False):
     force_pr_creation: Annotated[bool, StepTypeConfig(is_config=True)]
     disable_pr: Annotated[bool, StepTypeConfig(is_config=True)]
     scm_url: Annotated[str, StepTypeConfig(is_config=True)]
-    gitlab_api_key: Annotated[str, StepTypeConfig(is_config=True, or_op=["github_api_key"])]
-    github_api_key: Annotated[str, StepTypeConfig(is_config=True, or_op=["gitlab_api_key"])]
+    gitlab_api_key: Annotated[str, StepTypeConfig(is_config=True)]
+    github_api_key: Annotated[str, StepTypeConfig(is_config=True)]
 
 
 class PROutputs(TypedDict):
