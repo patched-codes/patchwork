@@ -14,7 +14,7 @@ from typing_extensions import Any, Protocol
 from patchwork.logger import logger
 from patchwork.step import Step
 
-_TOKEN_URL = "https://app.patched.codes/signin"
+TOKEN_URL = "https://app.patched.codes/signin"
 _DEFAULT_PATCH_URL = "https://patchwork.patched.codes/v1"
 
 
@@ -46,6 +46,7 @@ class CallGemini(LLMModel):
         contents = []
         for prompt in prompts:
             texts = [dict(text=subprompt.get("content", "")) for subprompt in prompt]
+            logger.trace(f"Message sent: \n{indent(pformat(texts), '  ')}")
 
             try:
                 response = requests.post(
@@ -79,7 +80,7 @@ class CallGemini(LLMModel):
                     content = ""
             else:
                 content = text_response
-                logger.debug(f"Response received: \n{indent(content, '  ')}")
+                logger.trace(f"Response received: \n{indent(content, '  ')}")
 
             contents.append(content)
 
@@ -102,7 +103,7 @@ class CallOpenAI(LLMModel):
         parsed_model_args = self.parse_model_args(self.model_args)
 
         for prompt in prompts:
-            logger.debug(f"Message sent: \n{indent(pformat(prompt), '  ')}")
+            logger.trace(f"Message sent: \n{indent(pformat(prompt), '  ')}")
             try:
                 completion = self.client.chat.completions.create(model=self.model, messages=prompt, **parsed_model_args)
             except Exception as e:
@@ -123,7 +124,7 @@ class CallOpenAI(LLMModel):
                     content = ""
             else:
                 content = completion.choices[0].message.content
-                logger.debug(f"Response received: \n{indent(content, '  ')}")
+                logger.trace(f"Response received: \n{indent(content, '  ')}")
 
             contents.append(content)
 
@@ -212,7 +213,7 @@ class CallLLM(Step):
 
         raise ValueError(
             f"Model API key not found.\n"
-            f'Please login at: "{_TOKEN_URL}",\n'
+            f'Please login at: "{TOKEN_URL}",\n'
             "Please go to the Integration's tab and generate an API key.\n"
             "Please copy the access token that is generated, "
             "and add `--patched_api_key=<token>` to the command line.\n"
@@ -221,6 +222,13 @@ class CallLLM(Step):
         )
 
     def run(self) -> dict:
+        prompt_length = len(self.prompts)
+        if prompt_length > self.call_limit:
+            logger.debug(
+                f"Number of prompts ({prompt_length}) exceeds the call limit ({self.call_limit}). "
+                f"Only the first {self.call_limit} prompts will be processed."
+            )
+
         contents = self.llm.call(list(islice(self.prompts, self.call_limit)))
 
         if self.save_responses_to_file:
@@ -228,7 +236,7 @@ class CallLLM(Step):
             file_path = os.path.abspath(self.save_responses_to_file)
 
             mode = "a" if os.path.exists(file_path) else "w"
-
+            logger.debug(f"Writing responses to file with mode '{mode}': {file_path}")
             with open(file_path, mode) as f:
                 for prompt, response in zip(self.prompts, contents):
                     data = {

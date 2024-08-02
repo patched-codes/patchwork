@@ -1,33 +1,45 @@
-from __future__ import annotations
+from typing_extensions import Annotated, Any, Dict, List, TypedDict
 
-from typing_extensions import Annotated, Any, TypedDict
-
-from patchwork.common.utils.typing import IS_CONFIG
+from patchwork.common.utils.step_typing import StepTypeConfig
+from patchwork.steps.CallLLM.CallLLM import TOKEN_URL
 
 
 class __SimplifiedLLMInputsRequired(TypedDict):
     # PreparePromptInputs
-    prompt_user: Annotated[str, IS_CONFIG]
-    prompt_values: list[dict[str, Any]]
+    prompt_user: Annotated[str, StepTypeConfig(is_config=True)]
+    prompt_values: List[Dict[str, Any]]
 
 
 class SimplifiedLLMInputs(__SimplifiedLLMInputsRequired, total=False):
-    prompt_system: Annotated[str, IS_CONFIG]
+    prompt_system: Annotated[str, StepTypeConfig(is_config=True)]
     # CallLLMInputs
-    max_llm_calls: Annotated[int, IS_CONFIG]
-    model: Annotated[str, IS_CONFIG]
-    openai_api_key: Annotated[str, IS_CONFIG]
-    patched_api_key: Annotated[str, IS_CONFIG]
-    google_api_key: Annotated[str, IS_CONFIG]
-    json: Annotated[bool, IS_CONFIG]
+    max_llm_calls: Annotated[int, StepTypeConfig(is_config=True)]
+    model: Annotated[str, StepTypeConfig(is_config=True)]
+    openai_api_key: Annotated[str, StepTypeConfig(is_config=True, or_op=["patched_api_key", "google_api_key"])]
+    patched_api_key: Annotated[
+        str,
+        StepTypeConfig(
+            is_config=True,
+            or_op=["openai_api_key", "google_api_key"],
+            msg=f"""\
+Model API key not found.
+Please login at: "{TOKEN_URL}"
+Please go to the Integration's tab and generate an API key.
+Please copy the access token that is generated, and add `--patched_api_key=<token>` to the command line.
+
+If you are using a OpenAI API Key, please set `--openai_api_key=<token>`.""",
+        ),
+    ]
+    google_api_key: Annotated[str, StepTypeConfig(is_config=True, or_op=["patched_api_key", "openai_api_key"])]
+    json: Annotated[bool, StepTypeConfig(is_config=True)]
     # ExtractModelResponseInputs
-    response_partitions: Annotated[dict[str, list[str]], IS_CONFIG]
+    response_partitions: Annotated[Dict[str, List[str]], StepTypeConfig(is_config=True)]
 
 
 class SimplifiedLLMOutputs(TypedDict):
     # PreparePromptOutputs
-    prompts: list[dict]
+    prompts: List[Dict]
     # CallLLMOutputs
-    openai_responses: list[str]
+    openai_responses: List[str]
     # ExtractModelResponseOutputs
-    extracted_responses: list[dict[str, str]]
+    extracted_responses: List[Dict[str, str]]

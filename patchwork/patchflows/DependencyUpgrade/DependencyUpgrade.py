@@ -4,6 +4,7 @@ from pathlib import Path
 import yaml
 
 from patchwork.common.utils.progress_bar import PatchflowProgressBar
+from patchwork.common.utils.step_typing import validate_steps_with_inputs
 from patchwork.step import Step
 from patchwork.steps import (
     LLM,
@@ -49,6 +50,15 @@ class DependencyUpgrade(Step):
 
         if "prompt_template_file" not in final_inputs.keys():
             final_inputs["prompt_template_file"] = _DEFAULT_PROMPT_JSON
+
+        validate_steps_with_inputs(
+            set(final_inputs.keys()).union({"prompt_values"}),
+            ScanDepscan,
+            ExtractPackageManagerFile,
+            LLM,
+            ModifyCode,
+            PR,
+        )
 
         final_inputs["pr_title"] = f"PatchWork {self.__class__.__name__}"
 
@@ -101,7 +111,6 @@ class DependencyUpgrade(Step):
                     outputs = ModifyCode(analyze_inputs).run()
                     modified_files = modified_files + outputs["modified_code_files"]
 
-            self.inputs["prompt_id"] = "depupgrade"
             outputs = LLM(self.inputs).run()
             self.inputs.update(outputs)
             outputs = ModifyCode(self.inputs).run()

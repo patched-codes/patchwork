@@ -173,6 +173,9 @@ def get_severity(result, reporting_descriptors):
 def transform_sarif_results(
     sarif_data: dict, base_path: Path, context_length: int, vulnerability_limit: int, severity_threshold: Severity
 ) -> dict[tuple[str, int, int, int], list[str]]:
+    total_results = len([1 for run in sarif_data.get("runs", []) for result in run.get("results", [])])
+    logger.info(f"Found {total_results} results from SARIF data")
+
     # Process each result in SARIF data
     grouped_messages = defaultdict(list)
     vulnerability_count = 0
@@ -273,6 +276,9 @@ class ExtractCode(Step):
         grouped_messages = transform_sarif_results(
             self.sarif_data, base_path, self.context_length, self.vulnerability_limit, self.severity_threshold
         )
+
+        if len(grouped_messages) == self.vulnerability_limit:
+            logger.debug(f"Taking {self.vulnerability_limit} vulnerability because vulnerability limit reached")
 
         self.extracted_code_contexts = [
             {

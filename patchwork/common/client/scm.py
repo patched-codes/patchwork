@@ -497,6 +497,7 @@ class GitlabClient(ScmPlatformClientProtocol):
                 "target_branch": original_branch,
                 "title": title,
                 "description": body,
+                "labels": "patchwork",
             }
         )
         mr = GitlabMergeRequest(gl_mr)  # type: ignore

@@ -1,31 +1,29 @@
-from __future__ import annotations
+from typing_extensions import Annotated, List, TypedDict
 
-from typing_extensions import Annotated, TypedDict
-
-from patchwork.common.utils.typing import IS_CONFIG
+from patchwork.common.utils.step_typing import StepTypeConfig
 from patchwork.steps.PreparePR.typed import ModifiedCodeFile
 
 
 class __PRInputsRequired(TypedDict):
     # CommitChangesInputs & PreparePRInputs
-    modified_code_files: list["ModifiedCodeFile"]
+    modified_code_files: List["ModifiedCodeFile"]
 
 
 class PRInputs(__PRInputsRequired, total=False):
     # CommitChangesInputs
-    disable_branch: Annotated[bool, IS_CONFIG]
-    force_branch_creation: Annotated[bool, IS_CONFIG]
-    branch_prefix: Annotated[str, IS_CONFIG]
-    branch_suffix: Annotated[str, IS_CONFIG]
+    disable_branch: Annotated[bool, StepTypeConfig(is_config=True)]
+    force_branch_creation: Annotated[bool, StepTypeConfig(is_config=True)]
+    branch_prefix: Annotated[str, StepTypeConfig(is_config=True)]
+    branch_suffix: Annotated[str, StepTypeConfig(is_config=True)]
     # PreparePRInputs
-    pr_header: Annotated[str, IS_CONFIG]
+    pr_header: Annotated[str, StepTypeConfig(is_config=True)]
     # CreatePRInputs
-    pr_title: Annotated[str, IS_CONFIG]
-    force_pr_creation: Annotated[bool, IS_CONFIG]
-    disable_pr: Annotated[bool, IS_CONFIG]
-    scm_url: Annotated[str, IS_CONFIG]
-    gitlab_api_key: Annotated[str, IS_CONFIG]
-    github_api_key: Annotated[str, IS_CONFIG]
+    pr_title: Annotated[str, StepTypeConfig(is_config=True)]
+    force_pr_creation: Annotated[bool, StepTypeConfig(is_config=True)]
+    disable_pr: Annotated[bool, StepTypeConfig(is_config=True)]
+    scm_url: Annotated[str, StepTypeConfig(is_config=True)]
+    gitlab_api_key: Annotated[str, StepTypeConfig(is_config=True, or_op=["github_api_key"])]
+    github_api_key: Annotated[str, StepTypeConfig(is_config=True, or_op=["gitlab_api_key"])]
 
 
 class PROutputs(TypedDict):
