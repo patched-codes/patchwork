@@ -80,7 +80,7 @@ class NoopStrategy(ContextStrategyProtocol):
         Returns:
             Position: The context position with start and end indexes and start_col and end_col values.
         """
-        return Position(start=start, end=end, start_col=0, end_col=len(src[end]), language=self.language)
+        return Position(start=start, end=end, start_col=0, end_col=len(src[end - 1]), language=self.language)
 
     def is_file_supported(self, filename: str, src: list[str]) -> bool:
         """
