@@ -165,10 +165,9 @@ Contributions for new patchflows and steps, or to the core framework are welcome
 - To create a new patchflow, follow [these instructions](patchwork/patchflows/README.md).
 - To create a new step, follow [these instructions](patchwork/steps/README.md).
 
-We also provide chat assistants to help you create new steps and patchflows easily. Fair warning: they suffer from the same limitations as their underlying model.
+We also provide a chat assistant to help you create new steps and patchflows easily. 
 
-- [Patchwork Assistant GPT](https://chatgpt.com/g/g-0G4sCAd2y-patchwork-assistant) (based on GPT-4)
-- [Patchwork Assistant on HuggingChat ](https://hf.co/chat/assistant/66322701fd4787e0c1f7696b) (based on Llama-3)
+- [Patchwork Assistant on HuggingChat](https://hf.co/chat/assistant/66322701fd4787e0c1f7696b) (based on Llama-3)
 
 ## Roadmap
 
