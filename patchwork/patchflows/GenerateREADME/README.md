@@ -67,6 +67,12 @@ If you do not want the comments in the file to be included set the `suppress_com
 suppress_comments: false
 ```
 
+### README file name
+You can change the default README file name from README.md to something you want by using the `markdown_file_name` option.
+```yaml
+markdown_file_name: Diagram.md
+```
+
 ### Manage PRs
 In addition, there are options to let you manage the PRs as you like, by setting a `branch_prefix`,  or disabling the creation of new branches with `disable_branch` (commits will be made on the current branch). You can also disable PR creation with `disable_pr` or force push commits to existing PR with `force_pr_creation`.
 
