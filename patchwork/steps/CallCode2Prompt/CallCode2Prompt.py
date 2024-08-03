@@ -39,8 +39,7 @@ class CallCode2Prompt(Step):
         ]
 
         if self.filter is not None:
-            cmd.append("--filter")
-            cmd.append(self.filter)
+            cmd.extend(["--filter", self.filter])
 
         if self.suppress_comments:
             cmd.append("--suppress-comments")
