@@ -9,6 +9,7 @@ from patchwork.steps.SlackMessage.typed import SlackMessageInputs
 
 class SlackMessage(Step):
     def __init__(self, inputs):
+        super().__init__(inputs)
         key_diff = SlackMessageInputs.__required_keys__.difference(inputs.keys())
         if key_diff:
             raise ValueError(f'Missing required data: "{key_diff}"')

@@ -1,7 +1,7 @@
 from collections import defaultdict
 
 from patchwork.logger import logger
-from patchwork.step import Step
+from patchwork.step import Step, StepStatus
 
 
 class _GetOverriddenDefaultDict(defaultdict):
@@ -16,8 +16,7 @@ class ExtractModelResponse(Step):
     required_keys = {"openai_responses"}
 
     def __init__(self, inputs: dict):
-        logger.info(f"Run started {self.__class__.__name__}")
-
+        super().__init__(inputs)
         if not all(key in inputs.keys() for key in self.required_keys):
             raise ValueError(f'Missing required data: "{self.required_keys}"')
 
@@ -25,34 +24,43 @@ class ExtractModelResponse(Step):
         self.partitions = inputs.get("response_partitions", defaultdict(list))
 
     def run(self) -> dict:
-        if len(self.partitions) <= 0:
-            outputs = []
-            for openai_response in self.openai_responses:
-                output = _GetOverriddenDefaultDict(lambda bound_value=openai_response: bound_value)
-                outputs.append(output)
-            logger.error("No partitions specified for model response, will default to using the entire response.")
-            return dict(extracted_responses=outputs)
+        if len(self.openai_responses) == 0:
+            self.set_status(StepStatus.SKIPPED, "No OpenAI responses to extract from.")
+            return dict(extracted_responses=[])
+
+        extracted_response_func = self.response_partitioned_dict
+        if len(self.partitions) == 0:
+            logger.warn("No partitions specified for model response, will default to using the entire response.")
+            extracted_response_func = self.auto_pass_dict
 
         outputs = []
         for openai_response in self.openai_responses:
-            output = {}
-            for key, partitions in self.partitions.items():
-                if len(partitions) < 1:
-                    output[key] = openai_response
-                    continue
-
-                extracted_response = openai_response
-                for partition in partitions[:-1]:
-                    _, _, extracted_response = extracted_response.partition(partition)
-
-                if partitions[-1] != "":
-                    extracted_response, _, _ = extracted_response.partition(partitions[-1])
-
-                if extracted_response == "":
-                    continue
-
-                output[key] = extracted_response
+            output = extracted_response_func(openai_response)
             outputs.append(output)
 
-        logger.info(f"Run completed {self.__class__.__name__}")
         return dict(extracted_responses=outputs)
+
+    def auto_pass_dict(self, openai_response: str) -> dict:
+        def default_factory(_):
+            return openai_response
+        return _GetOverriddenDefaultDict(default_factory)
+
+    def response_partitioned_dict(self, openai_response: str) -> dict:
+        output = {}
+        for key, partition in self.partitions.items():
+            if len(partition) < 1:
+                output[key] = openai_response
+                continue
+
+            extracted_response = openai_response
+            for part in partition[:-1]:
+                _, _, extracted_response = extracted_response.partition(part)
+
+            if partition[-1] != "":
+                extracted_response, _, _ = extracted_response.partition(partition[-1])
+
+            if extracted_response == "":
+                continue
+
+            output[key] = extracted_response
+        return output

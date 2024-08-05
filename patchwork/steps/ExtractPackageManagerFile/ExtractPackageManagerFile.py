@@ -106,8 +106,7 @@ class ExtractPackageManagerFile(Step):
         After successful initialization, the instance is ready to perform data extraction operations
         with its `extracted_data` attribute prepared for storing the results.
         """
-        logger.info(f"Run started {self.__class__.__name__}")
-
+        super().__init__(inputs)
         if not all(key in inputs.keys() for key in self.required_keys):
             raise ValueError(f'Missing required data: "{self.required_keys}"')
 
@@ -278,5 +277,4 @@ class ExtractPackageManagerFile(Step):
             data["endLine"] = len(lines)
             self.extracted_data.append(data)
 
-        logger.info(f"Run completed {self.__class__.__name__}")
         return dict(files_to_patch=self.extracted_data)

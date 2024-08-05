@@ -67,8 +67,7 @@ class ExtractCodeContexts(Step):
     required_keys = {}
 
     def __init__(self, inputs: dict):
-        logger.info(f"Run started {self.__class__.__name__}")
-
+        super().__init__(inputs)
         if not all(key in inputs.keys() for key in self.required_keys):
             raise ValueError(f'Missing required data: "{self.required_keys}"')
 
@@ -89,8 +88,6 @@ class ExtractCodeContexts(Step):
                 affectedCode="".join(src[position.start : position.end]),
             )
             extracted_code_contexts.append(extracted_code_context)
-
-        logger.info(f"Run completed {self.__class__.__name__}")
 
         return dict(
             files_to_patch=extracted_code_contexts,

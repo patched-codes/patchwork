@@ -12,7 +12,7 @@ from openai import OpenAI
 from typing_extensions import Any, Protocol
 
 from patchwork.logger import logger
-from patchwork.step import Step
+from patchwork.step import Step, StepStatus
 
 TOKEN_URL = "https://app.patched.codes/signin"
 _DEFAULT_PATCH_URL = "https://patchwork.patched.codes/v1"
@@ -158,8 +158,7 @@ class CallOpenAI(LLMModel):
 
 class CallLLM(Step):
     def __init__(self, inputs: dict):
-        logger.info(f"Run started {self.__class__.__name__}")
-
+        super().__init__(inputs)
         # Set 'openai_key' from inputs or environment if not already set
         inputs.setdefault("openai_api_key", os.environ.get("OPENAI_API_KEY"))
 
@@ -223,6 +222,10 @@ class CallLLM(Step):
 
     def run(self) -> dict:
         prompt_length = len(self.prompts)
+        if prompt_length == 0:
+            self.set_status(StepStatus.SKIPPED, "No prompts to process")
+            return dict(openai_responses=[])
+
         if prompt_length > self.call_limit:
             logger.debug(
                 f"Number of prompts ({prompt_length}) exceeds the call limit ({self.call_limit}). "
@@ -247,5 +250,4 @@ class CallLLM(Step):
                     }
                     f.write(json.dumps(data) + "\n")
 
-        logger.info(f"Run completed {self.__class__.__name__}")
         return dict(openai_responses=contents)

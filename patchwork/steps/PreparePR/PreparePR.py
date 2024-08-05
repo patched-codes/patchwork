@@ -2,15 +2,14 @@ from collections import defaultdict
 from textwrap import indent
 
 from patchwork.logger import logger
-from patchwork.step import Step
+from patchwork.step import Step, StepStatus
 
 
 class PreparePR(Step):
     required_keys = {"modified_code_files"}
 
     def __init__(self, inputs: dict):
-        logger.info(f"Run started {self.__class__.__name__}")
-
+        super().__init__(inputs)
         if not all(key in inputs.keys() for key in self.required_keys):
             raise ValueError(f'Missing required data: "{self.required_keys}"')
 
@@ -23,6 +22,10 @@ class PreparePR(Step):
             self.header = inputs["pr_header"]
 
     def run(self) -> dict:
+        if len(self.modified_code_files) == 0:
+            self.set_status(StepStatus.SKIPPED, "No modified files to prepare a PR for.")
+            return dict(pr_body="")
+
         modified_code_files_grouped_by_path = defaultdict(list)
         for modified_code_file in self.modified_code_files:
             modified_code_files_grouped_by_path[modified_code_file["path"]].append(modified_code_file)
@@ -73,7 +76,6 @@ class PreparePR(Step):
 </div>"""
             file_comment_parts.append(msg)
 
-        logger.info(f"Run completed {self.__class__.__name__}")
         return dict(
             pr_body="\n\n".join([self.header, "------", *file_comment_parts]),
         )

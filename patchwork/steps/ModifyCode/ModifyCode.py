@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from patchwork.logger import logger
-from patchwork.step import Step
+from patchwork.step import Step, StepStatus
 
 
 def save_file_contents(file_path, content):
@@ -51,8 +51,7 @@ class ModifyCode(Step):
     required_keys = {FILES_TO_PATCH, UPDATED_SNIPPETS_KEY}
 
     def __init__(self, inputs: dict):
-        logger.info(f"Run started {self.__class__.__name__}")
-
+        super().__init__(inputs)
         if not all(key in inputs.keys() for key in self.required_keys):
             raise ValueError(f'Missing required data: "{self.required_keys}"')
 
@@ -64,6 +63,10 @@ class ModifyCode(Step):
         sorted_list = sorted(
             zip(self.files_to_patch, self.extracted_responses), key=lambda x: x[0]["startLine"], reverse=True
         )
+        if len(sorted_list) == 0:
+            self.set_status(StepStatus.SKIPPED, "No code snippets to modify.")
+            return dict(modified_code_files=[])
+
         for code_snippet, extracted_response in sorted_list:
             uri = code_snippet["uri"]
             start_line = code_snippet["startLine"]
@@ -76,5 +79,4 @@ class ModifyCode(Step):
             modified_code_file = dict(path=uri, start_line=start_line, end_line=end_line, **extracted_response)
             modified_code_files.append(modified_code_file)
 
-        logger.info(f"Run completed {self.__class__.__name__}")
         return dict(modified_code_files=modified_code_files)

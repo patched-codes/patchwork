@@ -12,7 +12,7 @@ from typing_extensions import Any
 from patchwork.common.context_strategy.context_strategies import ContextStrategies
 from patchwork.common.utils.utils import count_openai_tokens, open_with_chardet
 from patchwork.logger import logger
-from patchwork.step import Step
+from patchwork.step import Step, StepStatus
 
 
 def get_source_code_context(
@@ -256,8 +256,7 @@ class ExtractCode(Step):
     required_keys = {"sarif_values"}
 
     def __init__(self, inputs: dict):
-        logger.info(f"Run started {self.__class__.__name__}")
-
+        super().__init__(inputs)
         if not all(key in inputs.keys() for key in self.required_keys):
             raise ValueError(f'Missing required data: "{self.required_keys}"')
 
@@ -267,9 +266,6 @@ class ExtractCode(Step):
         self.vulnerability_limit = inputs.get("vulnerability_limit", 10)
         self.severity_threshold = Severity.from_str(inputs.get("severity", "UNKNOWN"))
 
-        # Prepare for data extraction
-        self.extracted_code_contexts = []
-
     def run(self) -> dict:
         base_path = Path.cwd()
 
@@ -277,10 +273,14 @@ class ExtractCode(Step):
             self.sarif_data, base_path, self.context_length, self.vulnerability_limit, self.severity_threshold
         )
 
+        if len(grouped_messages) == 0:
+            self.set_status(StepStatus.SKIPPED, "No vulnerabilities found")
+            return dict(files_to_patch=[])
+
         if len(grouped_messages) == self.vulnerability_limit:
             logger.debug(f"Taking {self.vulnerability_limit} vulnerability because vulnerability limit reached")
 
-        self.extracted_code_contexts = [
+        extracted_code_contexts = [
             {
                 "uri": str(file_path),
                 "startLine": start,
@@ -291,8 +291,4 @@ class ExtractCode(Step):
             for (file_path, start, end, context), msgs in grouped_messages.items()
         ]
 
-        logger.info(f"Run completed {self.__class__.__name__}")
-
-        return dict(
-            files_to_patch=self.extracted_code_contexts,
-        )
+        return dict(files_to_patch=extracted_code_contexts)
