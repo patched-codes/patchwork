@@ -56,6 +56,10 @@ class Step(abc.ABC):
         self.__status = status
         self.__status_msg = msg
 
+    @property
+    def status(self) -> StepStatus:
+        return self.__status
+
     @abc.abstractmethod
     def run(self) -> dict:
         """
