@@ -177,7 +177,7 @@ class CallLLM(Step):
         else:
             raise ValueError('Missing required data: "prompt_file" or "prompts"')
 
-        self.call_limit = int(inputs.get("max_llm_calls", 50))
+        self.call_limit = int(inputs.get("max_llm_calls", -1))
         self.model_args = {key[len("model_") :]: value for key, value in inputs.items() if key.startswith("model_")}
         self.client_args = {key[len("client_") :]: value for key, value in inputs.items() if key.startswith("client_")}
         self.save_responses_to_file = inputs.get("save_responses_to_file", None)
@@ -232,7 +232,12 @@ class CallLLM(Step):
                 f"Only the first {self.call_limit} prompts will be processed."
             )
 
-        contents = self.llm.call(list(islice(self.prompts, self.call_limit)))
+        if self.call_limit > 0:
+            prompts = list(islice(self.prompts, self.call_limit))
+        else:
+            prompts = self.prompts
+
+        contents = self.llm.call(prompts)
 
         if self.save_responses_to_file:
             # Convert relative path to absolute path
