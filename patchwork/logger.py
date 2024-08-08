@@ -20,10 +20,10 @@ from patchwork.managed_files import HOME_FOLDER, LOG_FILE
 console = Console()
 
 # Add TRACE level to logging
-logging_TRACE = logging.DEBUG - 1
-logging.addLevelName(logging_TRACE, "TRACE")
+logging.TRACE = logging.DEBUG - 1
+logging.addLevelName(logging.TRACE, "TRACE")
 logger = logging.getLogger("patched")
-setattr(logger, "trace", partial(logger.log, logging_TRACE))
+logger.trace = partial(logger.log, logging.TRACE)
 
 # default noop logger
 __noop = logging.NullHandler()
@@ -127,7 +127,7 @@ class TerminalHandler(RichHandler):
         self.__live.refresh()
 
     def __get_filter(self, log_level: str) -> Callable[[logging.LogRecord], bool]:
-        log_level = logging.getLevelName(log_level)
+        log_level = logging.TRACE if log_level == "TRACE" else logging.getLevelName(log_level)
 
         def inner(record: logging.LogRecord) -> bool:
             return record.levelno >= log_level
@@ -156,5 +156,5 @@ def init_cli_logger(log_level: str) -> logging.Logger:
     setattr(logger, "register_progress_bar", th.register_progress_bar)
     setattr(logger, "deregister_progress_bar", th.deregister_progress_bar)
     setattr(logger, "freeze", th.freeze)
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.TRACE)
     return logger
