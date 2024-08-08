@@ -3,6 +3,7 @@ from __future__ import annotations
 import contextlib
 import logging
 import os
+import warnings
 from functools import partial
 
 import click
@@ -20,10 +21,10 @@ from patchwork.managed_files import HOME_FOLDER, LOG_FILE
 console = Console()
 
 # Add TRACE level to logging
-logging.TRACE = logging.DEBUG - 1
-logging.addLevelName(logging.TRACE, "TRACE")
+logging_TRACE = logging.DEBUG - 1
+logging.addLevelName(logging_TRACE, "TRACE")
 logger = logging.getLogger("patched")
-logger.trace = partial(logger.log, logging.TRACE)
+setattr(logger, "trace", partial(logger.log, logging_TRACE))
 
 # default noop logger
 __noop = logging.NullHandler()
@@ -127,7 +128,7 @@ class TerminalHandler(RichHandler):
         self.__live.refresh()
 
     def __get_filter(self, log_level: str) -> Callable[[logging.LogRecord], bool]:
-        log_level = logging.TRACE if log_level == "TRACE" else logging.getLevelName(log_level)
+        log_level = logging.getLevelName(log_level)
 
         def inner(record: logging.LogRecord) -> bool:
             return record.levelno >= log_level
@@ -138,6 +139,7 @@ class TerminalHandler(RichHandler):
 def init_cli_logger(log_level: str) -> logging.Logger:
     global logger, __noop
 
+    warnings.simplefilter("ignore")
     logger.removeHandler(__noop)
 
     if not os.path.exists(HOME_FOLDER):  # Check if HOME_FOLDER exists at this point
@@ -156,5 +158,5 @@ def init_cli_logger(log_level: str) -> logging.Logger:
     setattr(logger, "register_progress_bar", th.register_progress_bar)
     setattr(logger, "deregister_progress_bar", th.deregister_progress_bar)
     setattr(logger, "freeze", th.freeze)
-    logger.setLevel(logging.TRACE)
+    logger.setLevel(logging.DEBUG)
     return logger

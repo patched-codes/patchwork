@@ -47,7 +47,7 @@ class PreparePR(Step):
                 placeholder_inner_text = path
                 # TODO: consider dealing with line numbers exceeding diff chunk
                 # if start_line is not None and end_line is not None:
-                    # placeholder_inner_text = f"{path}:{start_line+1}:{end_line}"
+                # placeholder_inner_text = f"{path}:{start_line+1}:{end_line}"
                 # chunk_link = "{{" + placeholder_inner_text + "}}"
 
                 if title != "" and patch_msg == "":
