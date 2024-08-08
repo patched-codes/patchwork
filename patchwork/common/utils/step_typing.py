@@ -109,12 +109,13 @@ def validate_step_with_inputs(input_keys: Set[str], step: Type[Step]) -> Tuple[S
     module_path, _, _ = step.__module__.rpartition(".")
     step_name = step.__name__
     type_module = importlib.import_module(f"{module_path}.typed")
-    step_input_model = getattr(type_module, f"{step_name}Inputs", __NOT_GIVEN)
-    step_output_model = getattr(type_module, f"{step_name}Outputs", __NOT_GIVEN)
-    if step_input_model is __NOT_GIVEN:
+    if not hasattr(type_module, f"{step_name}Inputs"):
         raise ValueError(f"Missing input model for step {step_name}")
-    if step_output_model is __NOT_GIVEN:
+    if not hasattr(type_module, f"{step_name}Outputs"):
         raise ValueError(f"Missing output model for step {step_name}")
+
+    step_input_model = getattr(type_module, f"{step_name}Inputs")
+    step_output_model = getattr(type_module, f"{step_name}Outputs")
 
     step_report = {}
     for key in step_input_model.__required_keys__:
