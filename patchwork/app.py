@@ -4,6 +4,7 @@ import importlib
 import importlib.util
 import json
 import traceback
+import warnings
 from collections import deque
 from pathlib import Path
 from typing import Any
@@ -16,6 +17,8 @@ from typing_extensions import Iterable
 from patchwork.common.client.patched import PatchedClient
 from patchwork.logger import init_cli_logger, logger
 from patchwork.steps.PreparePrompt import PreparePrompt
+
+warnings.simplefilter("ignore")
 
 _DATA_FORMAT_MAPPING = {
     "yaml": yaml.dump,

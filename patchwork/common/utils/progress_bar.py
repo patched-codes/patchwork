@@ -18,7 +18,6 @@ class PatchflowProgressBar:
     def __init__(self, patchflow: Step):
         self.__step_counter = Counter()
         self.__current_progress = 0.00
-        self.__callbacks = []
         self.__patchflow_name = patchflow.__class__.__name__
 
         patchflow_run_func = patchflow.run
@@ -33,9 +32,6 @@ class PatchflowProgressBar:
                 self.__do_callbacks()
 
         patchflow.run = inner_run
-
-    def register_callbacks(self, *callbacks):
-        self.__callbacks.extend(callbacks)
 
     def register_steps(self, *steps: Type[Step]):
         for step in steps:
@@ -69,7 +65,6 @@ class PatchflowProgressBar:
 
     @functools.cached_property
     def __progress_bar_update(self):
-        self.__suppress_warnings()
         progress = self.__progress_bar
         logger.register_progress_bar(progress)
         task_id = progress.add_task(
@@ -87,11 +82,3 @@ class PatchflowProgressBar:
         self.__step_counter[step] += 1
         yield
         return
-
-    def __suppress_warnings(self):
-        warnings.simplefilter("ignore")
-        self.__callbacks.append(warnings.resetwarnings)
-
-    def __do_callbacks(self):
-        for callbacks in self.__callbacks:
-            callbacks()
