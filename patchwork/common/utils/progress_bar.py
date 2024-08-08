@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import contextlib
 import functools
-import warnings
 from collections import Counter
 
 from rich.progress import Progress, SpinnerColumn, TimeElapsedColumn
@@ -29,7 +28,6 @@ class PatchflowProgressBar:
                 self.__progress_bar_update(
                     description=f"[bold green]Finished {self.__patchflow_name}", completed=self.__MAX_PROGRESS
                 )
-                self.__do_callbacks()
 
         patchflow.run = inner_run
 
