@@ -128,7 +128,7 @@ class TerminalHandler(RichHandler):
         self.__live.refresh()
 
     def __get_filter(self, log_level: str) -> Callable[[logging.LogRecord], bool]:
-        log_level = logging.getLevelName(log_level)
+        log_level = logging.TRACE if log_level == "TRACE" else logging.getLevelName(log_level)
 
         def inner(record: logging.LogRecord) -> bool:
             return record.levelno >= log_level
