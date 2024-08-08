@@ -43,6 +43,7 @@ class ExtractModelResponse(Step):
     def auto_pass_dict(self, openai_response: str) -> dict:
         def default_factory(_=None):
             return openai_response
+
         return _GetOverriddenDefaultDict(default_factory)
 
     def response_partitioned_dict(self, openai_response: str) -> dict:

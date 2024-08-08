@@ -1,7 +1,6 @@
 import json
 from pathlib import Path
 
-from patchwork.logger import logger
 from patchwork.step import Step, StepStatus
 
 PROMPT_TEMPLATE_FILE_KEY = "prompt_template_file"

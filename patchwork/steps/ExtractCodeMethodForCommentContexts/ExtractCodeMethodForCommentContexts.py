@@ -4,7 +4,6 @@ import os
 from pathlib import Path
 
 from patchwork.common.context_strategy.langugues import PythonLanguage
-from patchwork.logger import logger
 from patchwork.step import Step
 from patchwork.steps.ExtractCodeContexts.ExtractCodeContexts import ExtractCodeContexts
 

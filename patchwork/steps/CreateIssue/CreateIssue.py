@@ -8,7 +8,6 @@ from patchwork.common.client.scm import (
     ScmPlatformClientProtocol,
     get_slug_from_remote_url,
 )
-from patchwork.logger import logger
 from patchwork.step import Step
 
 

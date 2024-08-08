@@ -2,7 +2,6 @@ import os
 import subprocess
 from pathlib import Path
 
-from patchwork.logger import logger
 from patchwork.step import Step, StepStatus
 
 FOLDER_PATH = "folder_path"
@@ -55,6 +54,8 @@ class CallCode2Prompt(Step):
 
         lines = file_content.splitlines(keepends=True)
 
-        return dict(files_to_patch=[
-            dict(uri=self.code_file_path, startLine=0, endLine=len(lines), fullContent=prompt_content_md)
-        ])
+        return dict(
+            files_to_patch=[
+                dict(uri=self.code_file_path, startLine=0, endLine=len(lines), fullContent=prompt_content_md)
+            ]
+        )

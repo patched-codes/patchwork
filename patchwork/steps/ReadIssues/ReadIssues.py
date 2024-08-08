@@ -3,7 +3,6 @@ from patchwork.common.client.scm import (
     GitlabClient,
     ScmPlatformClientProtocol,
 )
-from patchwork.logger import logger
 from patchwork.step import Step
 
 

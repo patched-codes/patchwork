@@ -6,7 +6,6 @@ from typing_extensions import Any
 
 from patchwork.common.utils.dependency import chromadb
 from patchwork.common.utils.utils import get_embedding_function, get_vector_db_path
-from patchwork.logger import logger
 from patchwork.step import Step
 
 

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from patchwork.logger import logger
 from patchwork.step import Step, StepStatus
 
 
