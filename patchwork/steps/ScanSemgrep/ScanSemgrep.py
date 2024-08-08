@@ -4,12 +4,12 @@ from pathlib import Path
 
 from patchwork.common.utils.dependency import import_with_dependency_group
 from patchwork.logger import logger
-from patchwork.step import Step
+from patchwork.step import Step, StepStatus
 
 
 class ScanSemgrep(Step):
     def __init__(self, inputs: dict):
-        logger.info(f"Run started {self.__class__.__name__}")
+        super().__init__(inputs)
 
         self.extra_args = inputs.get("semgrep_extra_args", "")
         sarif_file_path = inputs.get("sarif_file_path")
@@ -26,6 +26,7 @@ class ScanSemgrep(Step):
 
     def run(self) -> dict:
         if self.sarif_values is not None:
+            self.set_status(StepStatus.SKIPPED, "Using provided SARIF")
             return dict(sarif_values=self.sarif_values)
 
         import_with_dependency_group("semgrep")
@@ -41,9 +42,7 @@ class ScanSemgrep(Step):
         p = subprocess.run(cmd, capture_output=True, text=True)
         try:
             sarif_values = json.loads(p.stdout)
+            return dict(sarif_values=sarif_values)
         except json.JSONDecodeError as e:
             logger.debug(f"Error parsing semgrep output: {p.stdout}", e)
-            raise ValueError("Error parsing semgrep output")
-
-        logger.info(f"Run completed {self.__class__.__name__}")
-        return dict(sarif_values=sarif_values)
+            self.set_status(StepStatus.FAILED, f"Error parsing semgrep output")

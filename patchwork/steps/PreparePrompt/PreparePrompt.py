@@ -1,8 +1,7 @@
 import json
 from pathlib import Path
 
-from patchwork.logger import logger
-from patchwork.step import Step
+from patchwork.step import Step, StepStatus
 
 PROMPT_TEMPLATE_FILE_KEY = "prompt_template_file"
 
@@ -11,8 +10,7 @@ class PreparePrompt(Step):
     required_keys = {PROMPT_TEMPLATE_FILE_KEY, "prompt_id"}
 
     def __init__(self, inputs: dict):
-        logger.info(f"Run started {self.__class__.__name__}")
-
+        super().__init__(inputs)
         if not all(key in inputs.keys() for key in self.required_keys):
             raise ValueError(f'Missing required data: "{self.required_keys}"')
 
@@ -53,6 +51,10 @@ class PreparePrompt(Step):
         self.prompt_values = prompt_values
 
     def run(self) -> dict:
+        if len(self.prompt_values) == 0:
+            self.set_status(StepStatus.SKIPPED, "No prompt values provided")
+            return dict(prompts=[])
+
         prompts = []
         for prompt_value in self.prompt_values:
             dict_value = prompt_value
@@ -70,5 +72,4 @@ class PreparePrompt(Step):
                 prompt.append(prompt_instance)
             prompts.append(prompt)
 
-        logger.info(f"Run completed {self.__class__.__name__}")
         return dict(prompts=prompts)

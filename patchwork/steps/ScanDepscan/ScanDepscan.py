@@ -70,7 +70,7 @@ class ScanDepscan(Step):
         - This method assumes that npm (Node Package Manager) is installed and accessible in the system's PATH.
         - Depending on system configuration, administrative privileges may be required to install global npm packages.
         """
-        logger.info(f"Run started {self.__class__.__name__}")
+        super().__init__(inputs)
         import_with_dependency_group("depscan")
         install_cdxgen()
 
@@ -133,5 +133,4 @@ class ScanDepscan(Step):
                 logger.debug(e)
                 raise ValueError(f"SBOM VDR file not found from Depscan")
 
-        logger.info(f"Run completed {self.__class__.__name__}")
         return {"sbom_vdr_values": sbom_values}

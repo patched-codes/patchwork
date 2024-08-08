@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "patchwork-cli"
-version = "0.0.39"
+version = "0.0.40"
 description = ""
 authors = ["patched.codes"]
 license = "AGPL"
@@ -40,7 +40,6 @@ packageurl-python = "~0.15.0"
 semver = "~3.0.2"
 requests = "~2.31.0"
 chardet = "~5.2.0"
-tqdm = "~4.66.4"
 attrs = "~23.2.0"
 google-ai-generativelanguage = "~0.6.7"
 anthropic = "~0.31.2"

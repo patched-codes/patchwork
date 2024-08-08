@@ -7,6 +7,7 @@ from patchwork.step import Step
 
 class CallAPI(Step):
     def __init__(self, inputs):
+        super().__init__(inputs)
         self.url = inputs["url"]
         self.method = inputs["method"]
         possible_headers = inputs.get("headers", {})

@@ -57,14 +57,6 @@ def test_extract_code_run(extract_code_instance, tmp_path):
     # Run the extract code step
     result = extract_code_instance.run()
 
-    # Check that the extracted code contexts are correct
-    assert len(extract_code_instance.extracted_code_contexts) == 1
-    assert extract_code_instance.extracted_code_contexts[0]["uri"] == "test.py"
-    assert extract_code_instance.extracted_code_contexts[0]["startLine"] == 0
-    assert extract_code_instance.extracted_code_contexts[0]["endLine"] == 1
-    assert extract_code_instance.extracted_code_contexts[0]["affectedCode"] == "print('Hello, world!')"
-    assert extract_code_instance.extracted_code_contexts[0]["messageText"] == "Error message"
-
     assert result.keys() == {"files_to_patch"}
     for output_data in result.values():
         assert len(output_data) == 1

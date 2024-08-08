@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 from patchwork.logger import logger
-from patchwork.step import Step
+from patchwork.step import Step, StepStatus
 
 _PURL_TO_LANGUAGE_ = {
     "pypi": "python",
@@ -76,8 +76,7 @@ def find_dependency_usage(directory, dependency, language, methods):
 
 class AnalyzeImpact(Step):
     def __init__(self, inputs: dict):
-        logger.info(f"Run started {self.__class__.__name__}")
-
+        super().__init__(inputs)
         required_keys = {"extracted_responses", "library_name", "platform_type"}
         if not all(key in inputs.keys() for key in required_keys):
             raise ValueError(f'Missing required data: "{required_keys}"')
@@ -86,6 +85,10 @@ class AnalyzeImpact(Step):
 
     def run(self) -> dict:
         extracted_responses = self.inputs["extracted_responses"]
+        if len(extracted_responses) == 0:
+            self.set_status(StepStatus.SKIPPED, "No extracted responses found")
+            return dict(files_to_patch=[])
+
         name = self.inputs["library_name"]
         platform_type = self.inputs["platform_type"]
 
@@ -142,5 +145,4 @@ class AnalyzeImpact(Step):
             )
             extracted_data.append(data)
 
-        logger.info(f"Run completed {self.__class__.__name__}")
         return dict(files_to_patch=extracted_data)

@@ -17,8 +17,7 @@ class CreatePR(Step):
     required_keys = {"target_branch"}
 
     def __init__(self, inputs: dict):
-        logger.info(f"Run started {self.__class__.__name__}")
-
+        super().__init__(inputs)
         if not all(key in inputs.keys() for key in self.required_keys):
             raise ValueError(f'Missing required data: "{self.required_keys}"')
 
@@ -87,7 +86,6 @@ class CreatePR(Step):
         )
 
         logger.info(f"[green]PR created at [link={url}]{url}[/link][/]", extra={"markup": True})
-        logger.info(f"Run completed {self.__class__.__name__}")
         return {"pr_url": url}
 
 

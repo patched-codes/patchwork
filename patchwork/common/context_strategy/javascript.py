@@ -26,7 +26,7 @@ _block_query = """
         (statement_block) @node
     """.strip()
 
-_javascript_exts = [".js", ".ts"]
+_javascript_exts = [".js", ".ts", ".svelte"]
 _jsx_exts = [".jsx", ".tsx"]
 
 

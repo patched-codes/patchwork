@@ -37,8 +37,8 @@ def test_run_no_modified_files():
     inputs = {"modified_code_files": []}
     prepare_pr_instance = PreparePR(inputs)
     result = prepare_pr_instance.run()
-    assert result["pr_body"].startswith(prepare_pr_instance.header)
-    assert result["pr_body"].replace(prepare_pr_instance.header, "").strip().strip("-") == ""
+    assert result["pr_body"] == ""
+    assert prepare_pr_instance.status.name == "SKIPPED"
 
 
 def test_init_missing_required_keys():
