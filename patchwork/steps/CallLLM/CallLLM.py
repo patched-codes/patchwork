@@ -226,13 +226,11 @@ class CallLLM(Step):
             self.set_status(StepStatus.SKIPPED, "No prompts to process")
             return dict(openai_responses=[])
 
-        if prompt_length > self.call_limit:
+        if -1 < self.call_limit < prompt_length:
             logger.debug(
                 f"Number of prompts ({prompt_length}) exceeds the call limit ({self.call_limit}). "
                 f"Only the first {self.call_limit} prompts will be processed."
             )
-
-        if self.call_limit > 0:
             prompts = list(islice(self.prompts, self.call_limit))
         else:
             prompts = self.prompts

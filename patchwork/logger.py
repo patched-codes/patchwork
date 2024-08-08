@@ -3,6 +3,7 @@ from __future__ import annotations
 import contextlib
 import logging
 import os
+import warnings
 from functools import partial
 
 import click
@@ -138,6 +139,7 @@ class TerminalHandler(RichHandler):
 def init_cli_logger(log_level: str) -> logging.Logger:
     global logger, __noop
 
+    warnings.simplefilter("ignore")
     logger.removeHandler(__noop)
 
     if not os.path.exists(HOME_FOLDER):  # Check if HOME_FOLDER exists at this point
