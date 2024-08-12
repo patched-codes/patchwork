@@ -342,10 +342,13 @@ class GithubClient(ScmPlatformClientProtocol):
         repo = self.github.get_repo(slug)
         try:
             issue = repo.get_issue(issue_id)
+            title = issue.title or "[No Title]"
+            body = issue.body or "[No Body]"
+            comments = [issue_comment.body or "[No Comment]" for issue_comment in issue.get_comments()]
             return dict(
-                title=issue.title,
-                body=issue.body,
-                comments=[issue_comment.body for issue_comment in issue.get_comments()],
+                title=title,
+                body=body,
+                comments=comments,
             )
         except GithubException as e:
             logger.warn(f"Failed to get issue: {e}")
