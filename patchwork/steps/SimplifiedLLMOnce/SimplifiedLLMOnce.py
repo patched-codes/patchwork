@@ -18,7 +18,7 @@ def json_loads(s: str) -> dict:
         return dict()
 
 
-class SimplifiedLLM(Step):
+class SimplifiedLLMOnce(Step):
     def __init__(self, inputs):
         super().__init__(inputs)
         missing_keys = SimplifiedLLMInputs.__required_keys__.difference(set(inputs.keys()))
@@ -27,7 +27,7 @@ class SimplifiedLLM(Step):
 
         self.user = inputs["prompt_user"]
         self.system = inputs.get("prompt_system")
-        self.prompt_values = inputs["prompt_values"]
+        self.prompt_value = inputs["prompt_value"]
         self.is_json_mode = inputs.get("json", False)
         self.inputs = inputs
 
@@ -37,7 +37,7 @@ class SimplifiedLLM(Step):
             prompts.insert(0, dict(role="system", content=self.system))
         prepare_prompt_inputs = dict(
             prompt_template=prompts,
-            prompt_values=self.prompt_values,
+            prompt_values=[self.prompt_value],
         )
         prepare_prompt_outputs = PreparePrompt(prepare_prompt_inputs).run()
 
@@ -65,8 +65,8 @@ class SimplifiedLLM(Step):
 
         return exclude_none_dict(
             dict(
-                prompts=prepare_prompt_outputs.get("prompts"),
-                openai_responses=call_llm_outputs.get("openai_responses"),
-                extracted_responses=extract_model_response_outputs.get("extracted_responses"),
+                prompts=prepare_prompt_outputs.get("prompts")[0],
+                openai_responses=call_llm_outputs.get("openai_responses")[0],
+                extracted_responses=extract_model_response_outputs.get("extracted_responses")[0],
             )
         )

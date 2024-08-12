@@ -22,144 +22,6 @@ TOKEN_URL = "https://app.patched.codes/signin"
 _DEFAULT_PATCH_URL = "https://patchwork.patched.codes/v1"
 
 
-class LLMModel(Protocol):
-    def call(self, prompts: list[dict]) -> list[str]:
-        ...
-
-
-class CallGemini(LLMModel):
-    _SAFETY_SETTINGS = [
-        dict(category="HARM_CATEGORY_HATE_SPEECH", threshold="BLOCK_NONE"),
-        dict(category="HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold="BLOCK_NONE"),
-        dict(category="HARM_CATEGORY_DANGEROUS_CONTENT", threshold="BLOCK_NONE"),
-        dict(category="HARM_CATEGORY_HARASSMENT", threshold="BLOCK_NONE"),
-    ]
-
-    def __init__(
-        self, model: str, model_args: dict[str, Any], client_args: dict[str, Any], key: str, allow_truncated: bool
-    ):
-        client_values = client_args.copy()
-
-        self.model = model
-        self.base_url = client_values.pop("base_url", "https://generativelanguage.googleapis.com/v1")
-        self.model_args = model_args
-        self.api_key = key
-        self.allow_truncated = allow_truncated
-
-    def call(self, prompts: list[dict]):
-        contents = []
-        for prompt in prompts:
-            texts = [dict(text=subprompt.get("content", "")) for subprompt in prompt]
-            logger.trace(f"Message sent: \n{indent(pformat(texts), '  ')}")
-
-            try:
-                response = requests.post(
-                    f"{self.base_url}/models/{self.model}:generateContent",
-                    params=dict(key=self.api_key),
-                    json=dict(
-                        generationConfig=self.model_args,
-                        contents=[dict(parts=texts)],
-                        safetySettings=self._SAFETY_SETTINGS,
-                    ),
-                )
-                response.raise_for_status()
-                response_dict = response.json()
-            except Exception as e:
-                logger.error(e)
-                response_dict = {}
-
-            candidate = response_dict.get("candidates", [{}])[0]
-            text_response = candidate.get("content", {}).get("parts", [{}])[0].get("text", "")
-            if text_response == "":
-                logger.error(f"No response choice given")
-                content = ""
-            elif candidate.get("finishReason", "").upper() == "MAX_TOKENS":
-                if self.allow_truncated:
-                    content = text_response
-                else:
-                    logger.error(
-                        f"Response truncated because of finish reason = length."
-                        f" Use --allow_truncated option to process truncated responses."
-                    )
-                    content = ""
-            else:
-                content = text_response
-                logger.trace(f"Response received: \n{indent(content, '  ')}")
-
-            contents.append(content)
-
-        return contents
-
-
-class CallOpenAI(LLMModel):
-    def __init__(
-        self, model: str, model_args: dict[str, Any], client_args: dict[str, Any], key: str, allow_truncated: bool
-    ):
-        self.model = model
-        self.model_args = model_args
-        self.allow_truncated = allow_truncated
-        self.client = OpenAI(api_key=key, **client_args)
-
-    def call(self, prompts: list[dict]) -> list[str]:
-        contents = []
-
-        # Parse model arguments
-        parsed_model_args = self.parse_model_args(self.model_args)
-
-        for prompt in prompts:
-            logger.trace(f"Message sent: \n{indent(pformat(prompt), '  ')}")
-            try:
-                completion = self.client.chat.completions.create(model=self.model, messages=prompt, **parsed_model_args)
-            except Exception as e:
-                logger.error(e)
-                completion = None
-
-            if completion is None or len(completion.choices) < 1:
-                logger.error(f"No response choice given")
-                content = ""
-            elif completion.choices[0].finish_reason == "length":
-                if self.allow_truncated:
-                    content = completion.choices[0].message.content
-                else:
-                    logger.error(
-                        f"Response truncated because of finish reason = length."
-                        f" Use --allow_truncated option to process truncated responses."
-                    )
-                    content = ""
-            else:
-                content = completion.choices[0].message.content
-                logger.trace(f"Response received: \n{indent(content, '  ')}")
-
-            contents.append(content)
-
-        return contents
-
-    def parse_model_args(self, model_args: dict) -> dict:
-        # List of arguments in their respective types
-        int_args = {"max_tokens", "n", "top_logprobs"}
-        float_args = {"temperature", "top_p", "presence_penalty", "frequency_penalty"}
-        bool_args = {"logprobs"}
-
-        new_model_args = dict()
-        for key, arg in model_args.items():
-            if key in int_args and isinstance(arg, str):
-                try:
-                    new_model_args[key] = int(arg)
-                except ValueError:
-                    logger.warning(f"Failed to parse {key} as integer. Removing from arguments.")
-            elif key in float_args and isinstance(arg, str):
-                try:
-                    new_model_args[key] = float(arg)
-                except ValueError:
-                    logger.warning(f"Failed to parse {key} as float. Removing from arguments.")
-            elif key in bool_args and isinstance(arg, str):
-                new_model_args[key] = arg.lower() == "true"
-            else:
-                new_model_args[key] = arg
-
-        return new_model_args
-
-
 class CallLLM(Step):
     def __init__(self, inputs: dict):
         super().__init__(inputs)
@@ -232,8 +94,8 @@ class CallLLM(Step):
         with open(file_path, mode) as f:
             for prompt, response in zip(self.prompts, contents):
                 data = {
-                    "model": self.llm.model,
-                    "model_args": self.llm.model_args,
+                    "model": self.model,
+                    "model_args": self.model_args,
                     "request": prompt,
                     "response": response,
                 }
@@ -265,7 +127,7 @@ class CallLLM(Step):
         contents = []
 
         # Parse model arguments
-        parsed_model_args = self.parse_model_args(self.model_args)
+        parsed_model_args = self.__parse_model_args()
 
         for prompt in prompts:
             logger.trace(f"Message sent: \n{indent(pformat(prompt), '  ')}")
@@ -298,3 +160,29 @@ class CallLLM(Step):
             contents.append(content)
 
         return contents
+
+    def __parse_model_args(self) -> dict:
+        model_args = self.model_args
+        # List of arguments in their respective types
+        int_args = {"max_tokens", "n", "top_logprobs"}
+        float_args = {"temperature", "top_p", "presence_penalty", "frequency_penalty"}
+        bool_args = {"logprobs"}
+
+        new_model_args = dict()
+        for key, arg in model_args.items():
+            if key in int_args and isinstance(arg, str):
+                try:
+                    new_model_args[key] = int(arg)
+                except ValueError:
+                    logger.warning(f"Failed to parse {key} as integer. Removing from arguments.")
+            elif key in float_args and isinstance(arg, str):
+                try:
+                    new_model_args[key] = float(arg)
+                except ValueError:
+                    logger.warning(f"Failed to parse {key} as float. Removing from arguments.")
+            elif key in bool_args and isinstance(arg, str):
+                new_model_args[key] = arg.lower() == "true"
+            else:
+                new_model_args[key] = arg
+
+        return new_model_args

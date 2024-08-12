@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import functools
 import time
 from functools import lru_cache
 
@@ -23,6 +24,26 @@ from typing_extensions import Dict, Iterable, List, Optional, Union
 from patchwork.common.client.llm.protocol import NOT_GIVEN, LlmClient, NotGiven
 
 
+@functools.lru_cache
+def _cached_list_model_from_google(api_key):
+    model_client = model_service.ModelServiceClient(
+        client_options=dict(
+            api_key=api_key,
+            # quota_project_id="",
+        )
+    )
+
+    request = ListModelsRequest()
+    response = model_client.list_models(request)
+
+    models = set()
+    for page in response.pages:
+        models.update(map(lambda x: x.name, page.models))
+
+    return models
+
+
+
 class GoogleLlmClient(LlmClient):
     __SAFETY_SETTINGS = [
         dict(category="HARM_CATEGORY_HATE_SPEECH", threshold="BLOCK_NONE"),
@@ -32,12 +53,7 @@ class GoogleLlmClient(LlmClient):
     ]
 
     def __init__(self, api_key: str):
-        self.model_client = model_service.ModelServiceClient(
-            client_options=dict(
-                api_key=api_key,
-                # quota_project_id="",
-            )
-        )
+        self.__api_key = api_key
         self.generative_client = generative_service.GenerativeServiceClient(
             client_options=dict(
                 api_key=api_key,
@@ -45,23 +61,14 @@ class GoogleLlmClient(LlmClient):
             )
         )
 
-    @lru_cache(maxsize=None)
     def __get_true_model_names(self) -> set[str]:
-        request = ListModelsRequest()
-        response = self.model_client.list_models(request)
-
-        models = set()
-        for page in response.pages:
-            models.update(map(lambda x: x.name, page.models))
-
-        return models
+        return _cached_list_model_from_google(self.__api_key)
 
     @staticmethod
     def __handle_model_name(model_name) -> str:
         _, _, model = model_name.rpartition("/")
         return model
 
-    @lru_cache(maxsize=None)
     def get_models(self) -> set[str]:
         models = self.__get_true_model_names()
         return set(map(self.__handle_model_name, models))
