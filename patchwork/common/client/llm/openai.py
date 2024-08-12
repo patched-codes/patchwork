@@ -14,9 +14,9 @@ from patchwork.common.client.llm.protocol import NOT_GIVEN, LlmClient, NotGiven
 
 
 class OpenAiLlmClient(LlmClient):
-    def __init__(self, api_key: str):
+    def __init__(self, api_key: str, base_url=None):
         self.api_key = api_key
-        self.client = OpenAI(api_key=api_key)
+        self.client = OpenAI(api_key=api_key, base_url=base_url)
 
     @lru_cache(maxsize=None)
     def get_models(self) -> set[str]:

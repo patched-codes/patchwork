@@ -11,6 +11,10 @@ import requests
 from openai import OpenAI
 from typing_extensions import Any, Protocol
 
+from patchwork.common.client.llm.aio import AioLlmClient
+from patchwork.common.client.llm.anthropic import AnthropicLlmClient
+from patchwork.common.client.llm.google import GoogleLlmClient
+from patchwork.common.client.llm.openai import OpenAiLlmClient
 from patchwork.logger import logger
 from patchwork.step import Step, StepStatus
 
@@ -181,44 +185,59 @@ class CallLLM(Step):
         self.model_args = {key[len("model_") :]: value for key, value in inputs.items() if key.startswith("model_")}
         self.client_args = {key[len("client_") :]: value for key, value in inputs.items() if key.startswith("client_")}
         self.save_responses_to_file = inputs.get("save_responses_to_file", None)
+        self.model=inputs.get("model", "gpt-3.5-turbo")
+        self.allow_truncated=inputs.get("allow_truncated", False)
 
-        llm_key = inputs.get("openai_api_key") or os.environ.get("OPENAI_API_KEY")
+        clients = []
+
+        openai_key = inputs.get("openai_api_key") or os.environ.get("OPENAI_API_KEY")
+        if openai_key is not None:
+            client = OpenAiLlmClient(openai_key)
+            clients.append(client)
 
         patched_key = inputs.get("patched_api_key")
         if patched_key is not None:
-            llm_key = patched_key
-            self.client_args["base_url"] = _DEFAULT_PATCH_URL
+            client = OpenAiLlmClient(openai_key, _DEFAULT_PATCH_URL)
+            clients.append(client)
 
-        if llm_key is not None:
-            self.llm = CallOpenAI(
-                model=inputs.get("model", "gpt-3.5-turbo"),
-                model_args=self.model_args,
-                client_args=self.client_args,
-                key=llm_key,
-                allow_truncated=inputs.get("allow_truncated", False),
+        google_key = inputs.get("google_api_key")
+        if google_key is not None:
+            client = GoogleLlmClient(google_key)
+            clients.append(client)
+
+        anthropic_key = inputs.get("anthropic_api_key")
+        if anthropic_key is not None:
+            client = AnthropicLlmClient(anthropic_key)
+            clients.append(client)
+
+        if len(clients) == 0:
+            raise ValueError(
+                f"Model API key not found.\n"
+                f'Please login at: "{TOKEN_URL}",\n'
+                "Please go to the Integration's tab and generate an API key.\n"
+                "Please copy the access token that is generated, "
+                "and add `--patched_api_key=<token>` to the command line.\n"
+                "\n"
+                "If you are using a OpenAI API Key, please set `--openai_api_key=<token>`.\n"
             )
-            return
 
-        llm_key = inputs.get("google_api_key")
-        if llm_key is not None:
-            self.llm = CallGemini(
-                model=inputs.get("model", "gemini-1.0-pro"),
-                model_args=self.model_args,
-                client_args=self.client_args,
-                key=llm_key,
-                allow_truncated=inputs.get("allow_truncated", False),
-            )
-            return
+        self.client = AioLlmClient(*clients)
 
-        raise ValueError(
-            f"Model API key not found.\n"
-            f'Please login at: "{TOKEN_URL}",\n'
-            "Please go to the Integration's tab and generate an API key.\n"
-            "Please copy the access token that is generated, "
-            "and add `--patched_api_key=<token>` to the command line.\n"
-            "\n"
-            "If you are using a OpenAI API Key, please set `--openai_api_key=<token>`.\n"
-        )
+    def __persist_to_file(self, contents):
+        # Convert relative path to absolute path
+        file_path = os.path.abspath(self.save_responses_to_file)
+
+        mode = "a" if os.path.exists(file_path) else "w"
+        logger.debug(f"Writing responses to file with mode '{mode}': {file_path}")
+        with open(file_path, mode) as f:
+            for prompt, response in zip(self.prompts, contents):
+                data = {
+                    "model": self.llm.model,
+                    "model_args": self.llm.model_args,
+                    "request": prompt,
+                    "response": response,
+                }
+                f.write(json.dumps(data) + "\n")
 
     def run(self) -> dict:
         prompt_length = len(self.prompts)
@@ -235,22 +254,47 @@ class CallLLM(Step):
         else:
             prompts = self.prompts
 
-        contents = self.llm.call(prompts)
+        contents = self.__call(prompts)
 
         if self.save_responses_to_file:
-            # Convert relative path to absolute path
-            file_path = os.path.abspath(self.save_responses_to_file)
-
-            mode = "a" if os.path.exists(file_path) else "w"
-            logger.debug(f"Writing responses to file with mode '{mode}': {file_path}")
-            with open(file_path, mode) as f:
-                for prompt, response in zip(self.prompts, contents):
-                    data = {
-                        "model": self.llm.model,
-                        "model_args": self.llm.model_args,
-                        "request": prompt,
-                        "response": response,
-                    }
-                    f.write(json.dumps(data) + "\n")
+            self.__persist_to_file(contents)
 
         return dict(openai_responses=contents)
+
+    def __call(self, prompts: list[dict]) -> list[str]:
+        contents = []
+
+        # Parse model arguments
+        parsed_model_args = self.parse_model_args(self.model_args)
+
+        for prompt in prompts:
+            logger.trace(f"Message sent: \n{indent(pformat(prompt), '  ')}")
+            try:
+                completion = self.client.chat_completion(
+                    model=self.model,
+                    messages=prompt,
+                    **parsed_model_args
+                )
+            except Exception as e:
+                logger.error(e)
+                completion = None
+
+            if completion is None or len(completion.choices) < 1:
+                logger.error(f"No response choice given")
+                content = ""
+            elif completion.choices[0].finish_reason == "length":
+                if self.allow_truncated:
+                    content = completion.choices[0].message.content
+                else:
+                    logger.error(
+                        f"Response truncated because of finish reason = length."
+                        f" Use --allow_truncated option to process truncated responses."
+                    )
+                    content = ""
+            else:
+                content = completion.choices[0].message.content
+                logger.trace(f"Response received: \n{indent(content, '  ')}")
+
+            contents.append(content)
+
+        return contents
