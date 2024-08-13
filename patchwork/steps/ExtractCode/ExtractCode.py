@@ -211,7 +211,10 @@ def transform_sarif_results(
                 start_line = start_line - 1
 
                 # Generate file path assuming code is in the current working directory
-                file_path = str(uri.relative_to(base_path))
+                if uri.is_absolute():
+                    file_path = str(uri.relative_to(base_path))
+                else:
+                    file_path = str(uri)
 
                 # Extract lines from the code file
                 logger.debug(f"Extracting context for {file_path} at {start_line}:{end_line}")
@@ -233,6 +236,11 @@ def transform_sarif_results(
                     context_end = None
                     source_code_context = None
                     logger.debug(f"File not found in the current working directory: {file_path}")
+                except Exception as e:
+                    context_start = None
+                    context_end = None
+                    source_code_context = None
+                    logger.error(f"Error reading file: {file_path}", e)
 
                 if source_code_context is None:
                     logger.debug(f"No context found for {file_path} at {start_line}:{end_line}")
