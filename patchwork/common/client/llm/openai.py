@@ -26,10 +26,10 @@ def _cached_list_models_from_openai(api_key):
 
 
 class OpenAiLlmClient(LlmClient):
-    def __init__(self, api_key: str, base_url=None):
+    def __init__(self, api_key: str, base_url=None, **kwargs):
         self.api_key = api_key
         self.base_url = base_url
-        self.client = OpenAI(api_key=api_key, base_url=base_url)
+        self.client = OpenAI(api_key=api_key, base_url=base_url, **kwargs)
 
     def __is_not_openai_url(self):
         # Some providers/apis only implement the chat completion endpoint.
