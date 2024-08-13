@@ -8,6 +8,7 @@ from openai.types.chat import (
 from typing_extensions import Dict, Iterable, List, Optional, Union
 
 from patchwork.common.client.llm.protocol import NOT_GIVEN, LlmClient, NotGiven
+from patchwork.logger import logger
 
 
 class AioLlmClient(LlmClient):
@@ -46,6 +47,7 @@ class AioLlmClient(LlmClient):
     ) -> ChatCompletion:
         for client in self.__clients:
             if client.is_model_supported(model):
+                logger.debug(f"Using {client.__class__.__name__} for model {model}")
                 return client.chat_completion(
                     messages,
                     model,
