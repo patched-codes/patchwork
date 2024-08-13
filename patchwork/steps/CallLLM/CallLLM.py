@@ -68,7 +68,6 @@ class CallLLM(Step):
             client = AnthropicLlmClient(anthropic_key)
             clients.append(client)
 
-
         if len(clients) == 0:
             raise ValueError(
                 f"Model API key not found.\n"

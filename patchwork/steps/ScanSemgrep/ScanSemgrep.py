@@ -35,11 +35,10 @@ class ScanSemgrep(Step):
         cmd = [
             "semgrep",
             *self.extra_args.split(),
-            str(cwd),
             "--sarif",
         ]
 
-        p = subprocess.run(cmd, capture_output=True, text=True)
+        p = subprocess.run(cmd, capture_output=True, text=True, cwd=cwd)
         try:
             sarif_values = json.loads(p.stdout)
             return dict(sarif_values=sarif_values)
