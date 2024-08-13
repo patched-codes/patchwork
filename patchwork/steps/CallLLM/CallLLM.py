@@ -7,10 +7,6 @@ from pathlib import Path
 from pprint import pformat
 from textwrap import indent
 
-import requests
-from openai import OpenAI
-from typing_extensions import Any, Protocol
-
 from patchwork.common.client.llm.aio import AioLlmClient
 from patchwork.common.client.llm.anthropic import AnthropicLlmClient
 from patchwork.common.client.llm.google import GoogleLlmClient
@@ -47,19 +43,19 @@ class CallLLM(Step):
         self.model_args = {key[len("model_") :]: value for key, value in inputs.items() if key.startswith("model_")}
         self.client_args = {key[len("client_") :]: value for key, value in inputs.items() if key.startswith("client_")}
         self.save_responses_to_file = inputs.get("save_responses_to_file", None)
-        self.model=inputs.get("model", "gpt-3.5-turbo")
-        self.allow_truncated=inputs.get("allow_truncated", False)
+        self.model = inputs.get("model", "gpt-3.5-turbo")
+        self.allow_truncated = inputs.get("allow_truncated", False)
 
         clients = []
+
+        patched_key = inputs.get("patched_api_key")
+        if patched_key is not None:
+            client = OpenAiLlmClient(patched_key, _DEFAULT_PATCH_URL)
+            clients.append(client)
 
         openai_key = inputs.get("openai_api_key") or os.environ.get("OPENAI_API_KEY")
         if openai_key is not None:
             client = OpenAiLlmClient(openai_key)
-            clients.append(client)
-
-        patched_key = inputs.get("patched_api_key")
-        if patched_key is not None:
-            client = OpenAiLlmClient(openai_key, _DEFAULT_PATCH_URL)
             clients.append(client)
 
         google_key = inputs.get("google_api_key")
@@ -132,11 +128,7 @@ class CallLLM(Step):
         for prompt in prompts:
             logger.trace(f"Message sent: \n{indent(pformat(prompt), '  ')}")
             try:
-                completion = self.client.chat_completion(
-                    model=self.model,
-                    messages=prompt,
-                    **parsed_model_args
-                )
+                completion = self.client.chat_completion(model=self.model, messages=prompt, **parsed_model_args)
             except Exception as e:
                 logger.error(e)
                 completion = None

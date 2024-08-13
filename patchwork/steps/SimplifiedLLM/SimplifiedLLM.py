@@ -1,5 +1,4 @@
 import json
-import tempfile
 
 from patchwork.common.utils.utils import exclude_none_dict
 from patchwork.step import Step
@@ -46,7 +45,7 @@ class SimplifiedLLM(Step):
             prompts=prepare_prompt_outputs.get("prompts"),
             **{
                 key: self.inputs[key]
-                for key in ["model", "openai_api_key", "patched_api_key", "google_api_key", "max_llm_calls"]
+                for key in ["model", "openai_api_key", "patched_api_key", "google_api_key", "anthropic_api_key", "max_llm_calls"]
                 if self.inputs.get(key) is not None
             },
         )

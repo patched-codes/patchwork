@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import json
 from pathlib import Path
 
@@ -8,9 +9,7 @@ from patchwork.step import Step, StepStatus
 PROMPT_TEMPLATE_FILE_KEY = "prompt_template_file"
 
 
-def _find_by_prompt_template_file(
-        prompt_template_file: str | None, prompt_id: str | None
-) -> list[dict] | None:
+def _find_by_prompt_template_file(prompt_template_file: str | None, prompt_id: str | None) -> list[dict] | None:
     if prompt_template_file is None or prompt_id is None:
         return None
 
@@ -23,7 +22,7 @@ def _find_by_prompt_template_file(
         with open(prompt_template_file, "r") as fp:
             prompt_templates = json.load(fp)
     except json.JSONDecodeError as e:
-        logger.warning(f'Invalid Json at PromptTemplateFile[{prompt_template_file}]')
+        logger.warning(f"Invalid Json at PromptTemplateFile[{prompt_template_file}]")
         return None
 
     prompt_templates = next((prompt for prompt in prompt_templates if prompt.get("id") == prompt_id), None)
@@ -32,7 +31,9 @@ def _find_by_prompt_template_file(
 
     prompt_template = prompt_templates.get("prompts")
     if prompt_template is None:
-        logger.warning(f"No key `prompts` found for PromptId[{prompt_id}] in PromptTemplateFile[{prompt_template_file}]")
+        logger.warning(
+            f"No key `prompts` found for PromptId[{prompt_id}] in PromptTemplateFile[{prompt_template_file}]"
+        )
 
     return prompt_template
 
@@ -40,7 +41,9 @@ def _find_by_prompt_template_file(
 class PreparePrompt(Step):
     def __init__(self, inputs: dict):
         super().__init__(inputs)
-        self.prompt_template = _find_by_prompt_template_file(inputs.get(PROMPT_TEMPLATE_FILE_KEY), inputs.get("prompt_id"))
+        self.prompt_template = _find_by_prompt_template_file(
+            inputs.get(PROMPT_TEMPLATE_FILE_KEY), inputs.get("prompt_id")
+        )
         if self.prompt_template is None:
             self.prompt_template = inputs.get("prompt_template")
         if self.prompt_template is None:

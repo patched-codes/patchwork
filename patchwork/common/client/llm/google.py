@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import functools
 import time
-from functools import lru_cache
 
 from google.ai.generativelanguage_v1 import GenerateContentResponse
 from google.ai.generativelanguage_v1.services import generative_service, model_service
@@ -41,7 +40,6 @@ def _cached_list_model_from_google(api_key):
         models.update(map(lambda x: x.name, page.models))
 
     return models
-
 
 
 class GoogleLlmClient(LlmClient):

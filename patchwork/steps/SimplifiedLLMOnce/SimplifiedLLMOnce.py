@@ -1,5 +1,4 @@
 import json
-import tempfile
 
 from patchwork.common.utils.utils import exclude_none_dict
 from patchwork.step import Step

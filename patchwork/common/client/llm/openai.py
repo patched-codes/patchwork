@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import functools
-from functools import lru_cache
 
 from openai import OpenAI
 from openai.types.chat import (
