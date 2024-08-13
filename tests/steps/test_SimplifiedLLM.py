@@ -52,9 +52,9 @@ def test_non_json_run(mocker):
     assert mocked_extract_model_response.run.called
 
     prepare_prompt_inputs = mocked_prepare_prompt_class.call_args[0][1]
-    assert prepare_prompt_inputs["prompt_template_file"]
-    assert not Path(prepare_prompt_inputs["prompt_template_file"]).exists()
-    assert prepare_prompt_inputs["prompt_id"] == "prompt_id"
+    assert prepare_prompt_inputs.get("prompt_template_file") is None
+    assert prepare_prompt_inputs.get("prompt_id") is None
+    assert len(prepare_prompt_inputs["prompt_template"]) == 2
     assert prepare_prompt_inputs["prompt_values"] == inputs["prompt_values"]
 
     call_llm_inputs = mocked_call_llm_class.call_args[0][1]
@@ -94,9 +94,9 @@ def test_json_run(mocker):
     assert mocked_extract_model_response.run.not_called
 
     prepare_prompt_inputs = mocked_prepare_prompt_class.call_args[0][1]
-    assert prepare_prompt_inputs["prompt_template_file"]
-    assert not Path(prepare_prompt_inputs["prompt_template_file"]).exists()
-    assert prepare_prompt_inputs["prompt_id"] == "prompt_id"
+    assert prepare_prompt_inputs.get("prompt_template_file") is None
+    assert prepare_prompt_inputs.get("prompt_id") is None
+    assert len(prepare_prompt_inputs["prompt_template"]) == 2
     assert prepare_prompt_inputs["prompt_values"] == inputs["prompt_values"]
 
     call_llm_inputs = mocked_call_llm_class.call_args[0][1]

@@ -1,17 +1,19 @@
-from typing_extensions import Annotated, Dict, List, TypedDict
+from typing_extensions import Annotated, Any, Dict, List, TypedDict
 
 from patchwork.common.utils.step_typing import StepTypeConfig
 from patchwork.steps.CallLLM.CallLLM import TOKEN_URL
 
 
-class CallLLMInputs(TypedDict, total=False):
-    max_llm_calls: Annotated[int, StepTypeConfig(is_config=True)]
-    prompt_file: Annotated[str, StepTypeConfig(is_config=True, or_op=["prompts"])]
-    prompts: Annotated[List[Dict], StepTypeConfig(or_op=["prompt_file"])]
+class __SimplifiedLLMOnceInputsRequired(TypedDict):
+    # PreparePromptInputs
+    prompt_user: Annotated[str, StepTypeConfig(is_config=True)]
+    prompt_value: Dict[str, Any]
+
+
+class SimplifiedLLMOnceInputs(__SimplifiedLLMOnceInputsRequired, total=False):
+    prompt_system: Annotated[str, StepTypeConfig(is_config=True)]
+    # CallLLMInputs
     model: Annotated[str, StepTypeConfig(is_config=True)]
-    allow_truncated: Annotated[bool, StepTypeConfig(is_config=True)]
-    model_args: Annotated[str, StepTypeConfig(is_config=True)]
-    client_args: Annotated[str, StepTypeConfig(is_config=True)]
     openai_api_key: Annotated[
         str, StepTypeConfig(is_config=True, or_op=["patched_api_key", "google_api_key", "anthropic_api_key"])
     ]
@@ -35,7 +37,15 @@ If you are using a OpenAI API Key, please set `--openai_api_key=<token>`.""",
     google_api_key: Annotated[
         str, StepTypeConfig(is_config=True, or_op=["patched_api_key", "openai_api_key", "anthropic_api_key"])
     ]
+    json: Annotated[bool, StepTypeConfig(is_config=True)]
+    # ExtractModelResponseInputs
+    response_partitions: Annotated[Dict[str, List[str]], StepTypeConfig(is_config=True)]
 
 
-class CallLLMOutputs(TypedDict):
-    openai_responses: List[str]
+class SimplifiedLLMOnceOutputs(TypedDict):
+    # PreparePromptOutputs
+    prompt: Dict
+    # CallLLMOutputs
+    openai_response: str
+    # ExtractModelResponseOutputs
+    extracted_response: Dict[str, str]

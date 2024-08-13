@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from functools import lru_cache
+import functools
 
 from openai import OpenAI
 from openai.types.chat import (
@@ -13,22 +13,39 @@ from typing_extensions import Dict, Iterable, List, Optional, Union
 from patchwork.common.client.llm.protocol import NOT_GIVEN, LlmClient, NotGiven
 
 
+@functools.lru_cache
+def _cached_list_models_from_openai(api_key):
+    client = OpenAI(api_key=api_key)
+    sync_page = client.models.list()
+
+    models = set()
+    for pages in sync_page.iter_pages():
+        models.update(map(lambda x: x.id, pages.data))
+
+    return models
+
+
 class OpenAiLlmClient(LlmClient):
-    def __init__(self, api_key: str):
+    def __init__(self, api_key: str, base_url=None):
         self.api_key = api_key
-        self.client = OpenAI(api_key=api_key)
+        self.base_url = base_url
+        self.client = OpenAI(api_key=api_key, base_url=base_url)
 
-    @lru_cache(maxsize=None)
+    def __is_not_openai_url(self):
+        # Some providers/apis only implement the chat completion endpoint.
+        # We mainly use this to skip using the model endpoints.
+        return self.base_url is not None and self.base_url != "https://api.openai.com/v1"
+
     def get_models(self) -> set[str]:
-        sync_page = self.client.models.list()
+        if self.__is_not_openai_url():
+            return set()
 
-        models = set()
-        for pages in sync_page.iter_pages():
-            models.update(map(lambda x: x.id, pages.data))
-
-        return models
+        return _cached_list_models_from_openai(self.api_key)
 
     def is_model_supported(self, model: str) -> bool:
+        # might not implement model endpoint
+        if self.__is_not_openai_url():
+            return True
         return model in self.get_models()
 
     def chat_completion(

@@ -1,37 +1,54 @@
+from __future__ import annotations
+
 import json
 from pathlib import Path
 
+from patchwork.logger import logger
 from patchwork.step import Step, StepStatus
 
 PROMPT_TEMPLATE_FILE_KEY = "prompt_template_file"
 
 
-class PreparePrompt(Step):
-    required_keys = {PROMPT_TEMPLATE_FILE_KEY, "prompt_id"}
+def _find_by_prompt_template_file(prompt_template_file: str | None, prompt_id: str | None) -> list[dict] | None:
+    if prompt_template_file is None or prompt_id is None:
+        return None
 
+    prompt_template_file = Path(prompt_template_file)
+    if not prompt_template_file.is_file():
+        logger.warning(f"PromptTemplateFile[{prompt_template_file}] does not exist")
+        return None
+
+    try:
+        with open(prompt_template_file, "r") as fp:
+            prompt_templates = json.load(fp)
+    except json.JSONDecodeError as e:
+        logger.warning(f"Invalid Json at PromptTemplateFile[{prompt_template_file}]")
+        return None
+
+    prompt_templates = next((prompt for prompt in prompt_templates if prompt.get("id") == prompt_id), None)
+    if prompt_templates is None:
+        logger.warning(f"Unable to find PromptId[{prompt_id}] in PromptTemplateFile[{prompt_template_file}]")
+
+    prompt_template = prompt_templates.get("prompts")
+    if prompt_template is None:
+        logger.warning(
+            f"No key `prompts` found for PromptId[{prompt_id}] in PromptTemplateFile[{prompt_template_file}]"
+        )
+
+    return prompt_template
+
+
+class PreparePrompt(Step):
     def __init__(self, inputs: dict):
         super().__init__(inputs)
-        if not all(key in inputs.keys() for key in self.required_keys):
-            raise ValueError(f'Missing required data: "{self.required_keys}"')
-
-        prompt_template_file = Path(inputs[PROMPT_TEMPLATE_FILE_KEY])
-        if not prompt_template_file.is_file():
-            raise ValueError(f"Prompt Template File {PROMPT_TEMPLATE_FILE_KEY} does not exist")
-        try:
-            with open(prompt_template_file, "r") as fp:
-                prompt_templates = json.load(fp)
-        except json.JSONDecodeError as e:
-            raise ValueError(f'Invalid Json Prompt Template file "{PROMPT_TEMPLATE_FILE_KEY}": {e}')
-
-        prompt_template = next((prompt for prompt in prompt_templates if prompt["id"] == inputs["prompt_id"]), None)
-        if prompt_template is None:
-            raise ValueError(
-                f'Prompt ID "{inputs["prompt_id"]}" not found in Prompt Template file "{PROMPT_TEMPLATE_FILE_KEY}"'
-            )
-        self.prompt_template = prompt_template.get("prompts")
+        self.prompt_template = _find_by_prompt_template_file(
+            inputs.get(PROMPT_TEMPLATE_FILE_KEY), inputs.get("prompt_id")
+        )
+        if self.prompt_template is None:
+            self.prompt_template = inputs.get("prompt_template")
         if self.prompt_template is None:
             raise ValueError(
-                f'Prompt ID "{inputs["prompt_id"]}" does not have any prompts in Prompt Template file "{PROMPT_TEMPLATE_FILE_KEY}"'
+                f'Missing required data: "{PROMPT_TEMPLATE_FILE_KEY}" with "prompt_id" or "prompt_template"'
             )
 
         prompt_value_file = inputs.get("prompt_value_file")
