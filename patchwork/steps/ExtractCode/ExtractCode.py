@@ -211,9 +211,10 @@ def transform_sarif_results(
                 start_line = start_line - 1
 
                 # Generate file path assuming code is in the current working directory
-                file_path = uri
-                if file_path.is_absolute():
+                if uri.is_absolute():
                     file_path = str(uri.relative_to(base_path))
+                else:
+                    file_path = str(uri)
 
                 # Extract lines from the code file
                 logger.debug(f"Extracting context for {file_path} at {start_line}:{end_line}")
