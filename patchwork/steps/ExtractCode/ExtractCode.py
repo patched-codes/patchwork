@@ -236,6 +236,11 @@ def transform_sarif_results(
                     context_end = None
                     source_code_context = None
                     logger.debug(f"File not found in the current working directory: {file_path}")
+                except Exception as e:
+                    context_start = None
+                    context_end = None
+                    source_code_context = None
+                    logger.error(f"Error reading file: {file_path}", e)
 
                 if source_code_context is None:
                     logger.debug(f"No context found for {file_path} at {start_line}:{end_line}")
