@@ -64,8 +64,8 @@ class SimplifiedLLMOnce(Step):
 
         return exclude_none_dict(
             dict(
-                prompts=prepare_prompt_outputs.get("prompts")[0],
-                openai_responses=call_llm_outputs.get("openai_responses")[0],
-                extracted_responses=extract_model_response_outputs.get("extracted_responses")[0],
+                prompt=prepare_prompt_outputs.get("prompts")[0],
+                openai_response=call_llm_outputs.get("openai_responses")[0],
+                extracted_response=extract_model_response_outputs.get("extracted_responses")[0],
             )
         )

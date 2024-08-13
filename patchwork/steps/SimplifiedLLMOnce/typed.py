@@ -44,8 +44,8 @@ If you are using a OpenAI API Key, please set `--openai_api_key=<token>`.""",
 
 class SimplifiedLLMOnceOutputs(TypedDict):
     # PreparePromptOutputs
-    prompts: List[Dict]
+    prompt: Dict
     # CallLLMOutputs
-    openai_responses: List[str]
+    openai_response: str
     # ExtractModelResponseOutputs
-    extracted_responses: List[Dict[str, str]]
+    extracted_response: Dict[str, str]
