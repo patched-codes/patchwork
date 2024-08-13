@@ -41,7 +41,6 @@ class CallLLM(Step):
 
         self.call_limit = int(inputs.get("max_llm_calls", -1))
         self.model_args = {key[len("model_") :]: value for key, value in inputs.items() if key.startswith("model_")}
-        self.client_args = {key[len("client_") :]: value for key, value in inputs.items() if key.startswith("client_")}
         self.save_responses_to_file = inputs.get("save_responses_to_file", None)
         self.model = inputs.get("model", "gpt-3.5-turbo")
         self.allow_truncated = inputs.get("allow_truncated", False)
@@ -55,7 +54,8 @@ class CallLLM(Step):
 
         openai_key = inputs.get("openai_api_key") or os.environ.get("OPENAI_API_KEY")
         if openai_key is not None:
-            client = OpenAiLlmClient(openai_key)
+            client_args = {key[len("client_") :]: value for key, value in inputs.items() if key.startswith("client_")}
+            client = OpenAiLlmClient(openai_key, **client_args)
             clients.append(client)
 
         google_key = inputs.get("google_api_key")
@@ -67,6 +67,7 @@ class CallLLM(Step):
         if anthropic_key is not None:
             client = AnthropicLlmClient(anthropic_key)
             clients.append(client)
+
 
         if len(clients) == 0:
             raise ValueError(
