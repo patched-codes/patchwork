@@ -28,15 +28,15 @@ class Combine(Step):
                 elif item_2 is None:
                     final_output.append(item_1)
                 else:
-                    final_output.append(item_1.update(item_2))
+                    final_output.append({**item_1, **item_2})
             return dict(result_json=final_output)
 
         if is_json_1_list:
-            base_json = self.json_1
+            list_json = self.json_1
             additional_json = self.json_2
         else:
-            base_json = self.json_2
+            list_json = self.json_2
             additional_json = self.json_1
 
-        return dict(result_json=[item.update(additional_json) for item in base_json])
+        return dict(result_json=[{**item, **additional_json} for item in list_json])
 
