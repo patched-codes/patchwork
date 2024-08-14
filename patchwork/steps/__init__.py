@@ -36,12 +36,14 @@ from patchwork.steps.ScanDepscan.ScanDepscan import ScanDepscan
 from patchwork.steps.ScanSemgrep.ScanSemgrep import ScanSemgrep
 from patchwork.steps.SimplifiedLLM.SimplifiedLLM import SimplifiedLLM
 from patchwork.steps.SlackMessage.SlackMessage import SlackMessage
+from patchwork.steps.Combine.Combine import Combine
 
 __all__ = [
     "AnalyzeImpact",
     "CallAPI",
     "CallCode2Prompt",
     "CallLLM",
+    "Combine"
     "CommitChanges",
     "CreateIssue",
     "CreateIssueComment",
