@@ -43,7 +43,7 @@ __all__ = [
     "CallAPI",
     "CallCode2Prompt",
     "CallLLM",
-    "Combine"
+    "Combine",
     "CommitChanges",
     "CreateIssue",
     "CreateIssueComment",
@@ -63,6 +63,7 @@ __all__ = [
     "PreparePR",
     "PreparePrompt",
     "QueryEmbeddings",
+    "ReadFile",
     "ReadIssues",
     "ReadPRDiffs",
     "ScanDepscan",
