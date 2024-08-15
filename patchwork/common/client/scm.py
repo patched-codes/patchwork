@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import functools
 import hashlib
+import itertools
 import time
+from enum import Enum
 from itertools import chain
 
 import gitlab.const
@@ -47,10 +49,23 @@ class PullRequestTexts(IssueText):
     diffs: dict[str, str]
 
 
+class PullRequestState(Enum):
+    OPEN = (["open"], ["opened"])
+    CLOSED = (["closed"], ["closed", "merged"])
+
+    def __init__(self, github_state: list[str], gitlab_state: list[str]):
+        self.github_state: list[str] = github_state
+        self.gitlab_state: list[str] = gitlab_state
+
+
 _COMMENT_MARKER = "<!-- PatchWork comment marker -->"
 
 
 class PullRequestProtocol(Protocol):
+    @property
+    def id(self) -> int:
+        ...
+
     def url(self) -> str:
         ...
 
@@ -147,7 +162,13 @@ class ScmPlatformClientProtocol(Protocol):
     def find_pr_by_id(self, slug: str, pr_id: int) -> PullRequestProtocol | None:
         ...
 
-    def find_pr(self, slug: str, original_branch: str, feature_branch: str) -> PullRequestProtocol | None:
+    def find_prs(
+            self,
+            slug: str,
+            state: PullRequestState | None = None,
+            original_branch: str | None = None,
+            feature_branch: str | None = None,
+    ) -> list[PullRequestProtocol]:
         ...
 
     def create_pr(
@@ -169,6 +190,10 @@ class ScmPlatformClientProtocol(Protocol):
 class GitlabMergeRequest(PullRequestProtocol):
     def __init__(self, mr: ProjectMergeRequest):
         self._mr = mr
+
+    @property
+    def id(self) -> int:
+        return self._mr.iid
 
     def url(self) -> str:
         return self._mr.web_url
@@ -246,7 +271,7 @@ class GitlabMergeRequest(PullRequestProtocol):
     def texts(self) -> PullRequestTexts:
         title = self._mr.title
         body = self._mr.description
-        notes = [note.body for note in self._mr.notes.list() if note.system is False]
+        notes = [note.body for note in self._mr.notes.list(iterator=True) if note.system is False]
 
         diffs = self._mr.diffs.list()
         latest_diff = max(diffs, key=lambda diff: diff.created_at, default=None)
@@ -254,12 +279,21 @@ class GitlabMergeRequest(PullRequestProtocol):
             return dict(title=title, body=body, comments=notes, diffs={})
 
         files = self._mr.diffs.get(latest_diff.id).diffs
-        return dict(title=title, body=body, comments=notes, diffs={file["new_path"]: file["diff"] for file in files})
+        return dict(
+            title=title,
+            body=body,
+            comments=notes,
+            diffs={file["new_path"]: file["diff"] for file in files if not file["diff"].startswith("Binary files")}
+        )
 
 
 class GithubPullRequest(PullRequestProtocol):
     def __init__(self, pr: PullRequest):
-        self._pr = pr
+        self._pr: PullRequest = pr
+
+    @property
+    def id(self) -> int:
+        return self._pr.number
 
     def url(self) -> str:
         return self._pr.html_url
@@ -296,7 +330,8 @@ class GithubPullRequest(PullRequestProtocol):
             title=self._pr.title or "",
             body=self._pr.body or "",
             comments=[comment.body for comment in self._pr.get_comments()],
-            diffs={file.filename: file.patch for file in self._pr.get_files()},
+            # None checks for binary files
+            diffs={file.filename: file.patch for file in self._pr.get_files() if file.patch is not None},
         )
 
 
@@ -364,14 +399,31 @@ class GithubClient(ScmPlatformClientProtocol):
             logger.warn(f"Failed to get PR: {e}")
             return None
 
-    def find_pr(self, slug, original_branch: str, feature_branch: str) -> PullRequestProtocol | None:
+    def find_prs(
+            self,
+            slug: str,
+            state: PullRequestState | None = None,
+            original_branch: str | None = None,
+            feature_branch: str | None = None,
+    ) -> list[GithubPullRequest]:
         repo = self.github.get_repo(slug)
-        pages = repo.get_pulls(base=original_branch, head=feature_branch)
-        for pr in iter(pages):
-            if pr.base.ref == original_branch and pr.head.ref == feature_branch:
-                return GithubPullRequest(pr)
+        kwargs_list = dict(state=[None], target_branch=[None], source_branch=[None])
 
-        return None
+        if state is not None:
+            kwargs_list["state"] = state.github_state  # type: ignore
+        if original_branch is not None:
+            kwargs_list["target_branch"] = [original_branch]  # type: ignore
+        if feature_branch is not None:
+            kwargs_list["source_branch"] = [feature_branch]  # type: ignore
+
+        prs = []
+        keys = kwargs_list.keys()
+        for instance in itertools.product(*kwargs_list.values()):
+            kwargs = dict(((key, value) for key, value in zip(keys, instance) if value is not None))
+            pages = repo.get_pulls(**kwargs)
+            prs.extend(iter(pages))
+
+        return [GithubPullRequest(pr) for pr in prs]
 
     def create_pr(
         self,
@@ -464,22 +516,31 @@ class GitlabClient(ScmPlatformClientProtocol):
             logger.warn(f"Failed to get MR: {e}")
             return None
 
-    def find_pr(self, slug, original_branch: str, feature_branch: str) -> PullRequestProtocol | None:
+    def find_prs(
+            self,
+            slug: str,
+            state: PullRequestState | None = None,
+            original_branch: str | None = None,
+            feature_branch: str | None = None,
+    ) -> list[PullRequestProtocol]:
         project = self.gitlab.projects.get(slug)
-        mrs = project.mergerequests.list(
-            iterator=True,
-            state="opened",
-            source_branch=feature_branch,
-            target_branch=original_branch,
-        )
+        kwargs_list = dict(iterator=[True], state=[None], target_branch=[None], source_branch=[None])
 
-        mr: ProjectMergeRequest
-        try:
-            mr = mrs.next()  # type: ignore
-        except StopIteration:
-            return None
+        if state is not None:
+            kwargs_list["state"] = state.gitlab_state  # type: ignore
+        if original_branch is not None:
+            kwargs_list["target_branch"] = [original_branch]  # type: ignore
+        if feature_branch is not None:
+            kwargs_list["source_branch"] = [feature_branch]  # type: ignore
 
-        return GitlabMergeRequest(mr)
+        mrs = []
+        keys = kwargs_list.keys()
+        for instance in itertools.product(*kwargs_list.values()):
+            kwargs = dict(((key, value) for key, value in zip(keys, instance) if value is not None))
+            mrs_instance = project.mergerequests.list(**kwargs)
+            mrs.extend(mrs_instance)
+
+        return [GitlabMergeRequest(mr) for mr in mrs]
 
     def create_pr(
         self,

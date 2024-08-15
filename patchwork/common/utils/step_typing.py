@@ -13,7 +13,7 @@ from typing_extensions import (
     TypedDict,
     get_args,
     get_origin,
-    get_type_hints,
+    get_type_hints, Union,
 )
 
 from patchwork.step import Step

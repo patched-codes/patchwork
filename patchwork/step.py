@@ -1,7 +1,11 @@
 import abc
 from enum import Flag, auto
+from typing_extensions import Dict, Union, List
 
 from patchwork.logger import logger
+
+DataPoint = Dict[str, Union[str, int, float, bool, "OneOrMore"]]
+OneOrMoreDataPoint = Union[DataPoint, List[DataPoint]]
 
 
 class StepStatus(Flag):
@@ -14,7 +18,7 @@ class StepStatus(Flag):
 
 
 class Step(abc.ABC):
-    def __init__(self, inputs: dict):
+    def __init__(self, inputs: DataPoint):
         """
         Initializes the step.
         :param inputs: a dictionary of inputs
@@ -61,7 +65,7 @@ class Step(abc.ABC):
         return self.__status
 
     @abc.abstractmethod
-    def run(self) -> dict:
+    def run(self) -> OneOrMoreDataPoint:
         """
         Runs the step.
         :return: a dictionary of outputs
