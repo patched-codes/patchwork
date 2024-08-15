@@ -412,9 +412,9 @@ class GithubClient(ScmPlatformClientProtocol):
         if state is not None:
             kwargs_list["state"] = state.github_state  # type: ignore
         if original_branch is not None:
-            kwargs_list["target_branch"] = [original_branch]  # type: ignore
+            kwargs_list["base"] = [original_branch]  # type: ignore
         if feature_branch is not None:
-            kwargs_list["source_branch"] = [feature_branch]  # type: ignore
+            kwargs_list["head"] = [feature_branch]  # type: ignore
 
         prs = []
         keys = kwargs_list.keys()
