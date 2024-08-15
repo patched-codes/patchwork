@@ -422,8 +422,15 @@ class GithubClient(ScmPlatformClientProtocol):
             kwargs = dict(((key, value) for key, value in zip(keys, instance) if value is not None))
             pages = repo.get_pulls(**kwargs)
             prs.extend(iter(pages))
+        
+        branch_checker = lambda pr: True
+        if original_branch is not None:
+            branch_checker = lambda pr: branch_checker and pr.base.ref == original_branch
+        if feature_branch is not None:
+            branch_checker = lambda pr: branch_checker and pr.head.ref == feature_branch
 
-        return [GithubPullRequest(pr) for pr in prs]
+        # filter out PRs that are not the ones we are looking for
+        return [GithubPullRequest(pr) for pr in prs if branch_checker(pr)]
 
     def create_pr(
         self,
