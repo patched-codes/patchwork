@@ -10,6 +10,11 @@ __DEPENDENCY_GROUPS = {
 
 @lru_cache(maxsize=None)
 def import_with_dependency_group(name):
+    safe_modules = ["chromadb", "semgrep", "depscan", "slack_sdk"]
+
+    if name not in safe_modules:
+        raise ImportError(f"Invalid module: {name}")
+
     try:
         return importlib.import_module(name)
     except ImportError:
