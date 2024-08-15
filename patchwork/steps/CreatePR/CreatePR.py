@@ -58,10 +58,6 @@ class CreatePR(Step):
             self.enabled = False
 
     def run(self) -> dict:
-        if not self.enabled:
-            logger.warning(f"PR creation is disabled. Skipping PR creation.")
-            return dict()
-
         repo = git.Repo(Path.cwd(), search_parent_directories=True)
 
         original_remote_name = "origin"
@@ -71,6 +67,10 @@ class CreatePR(Step):
 
         push(repo, push_args)
         logger.debug(f"Pushed to {original_remote_name}/{self.target_branch}")
+
+        if not self.enabled:
+            logger.warning(f"PR creation is disabled. Skipping PR creation.")
+            return dict()
 
         logger.info(f"Creating PR from {self.base_branch} to {self.target_branch}")
         original_remote_url = repo.remotes[original_remote_name].url
@@ -108,7 +108,8 @@ def create_pr(
     scm_client: ScmPlatformClientProtocol,
     force: bool = False,
 ):
-    pr = scm_client.find_pr(repo_slug, base_branch_name, target_branch_name)
+    prs = scm_client.find_prs(repo_slug, original_branch=base_branch_name, feature_branch=target_branch_name)
+    pr = next(iter(prs), None)
     if pr is None:
         pr = scm_client.create_pr(
             repo_slug,

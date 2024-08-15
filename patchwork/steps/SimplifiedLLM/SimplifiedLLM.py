@@ -40,9 +40,9 @@ class SimplifiedLLM(Step):
         )
         prepare_prompt_outputs = PreparePrompt(prepare_prompt_inputs).run()
 
-        call_llm_inputs = dict(
-            model_response_format=dict(type="json_object" if self.is_json_mode else "text"),
-            prompts=prepare_prompt_outputs.get("prompts"),
+        model_keys = [key for key in self.inputs.keys() if key.startswith("model_")]
+        call_llm_inputs = {
+            "prompts": prepare_prompt_outputs.get("prompts"),
             **{
                 key: self.inputs[key]
                 for key in [
@@ -52,10 +52,12 @@ class SimplifiedLLM(Step):
                     "google_api_key",
                     "anthropic_api_key",
                     "max_llm_calls",
+                    *model_keys,
                 ]
                 if self.inputs.get(key) is not None
             },
-        )
+            "model_response_format": dict(type="json_object" if self.is_json_mode else "text"),
+        }
         call_llm_outputs = CallLLM(call_llm_inputs).run()
 
         if self.is_json_mode:
