@@ -138,7 +138,11 @@ class CommitChanges(Step):
             return dict(target_branch=from_branch_name)
 
         with transitioning_branches(
-            repo, branch_prefix=self.branch_prefix, branch_suffix=self.branch_suffix, force=self.force, enabled=self.enabled
+            repo,
+            branch_prefix=self.branch_prefix,
+            branch_suffix=self.branch_suffix,
+            force=self.force,
+            enabled=self.enabled,
         ) as (
             from_branch,
             to_branch,

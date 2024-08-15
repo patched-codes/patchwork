@@ -163,11 +163,11 @@ class ScmPlatformClientProtocol(Protocol):
         ...
 
     def find_prs(
-            self,
-            slug: str,
-            state: PullRequestState | None = None,
-            original_branch: str | None = None,
-            feature_branch: str | None = None,
+        self,
+        slug: str,
+        state: PullRequestState | None = None,
+        original_branch: str | None = None,
+        feature_branch: str | None = None,
     ) -> list[PullRequestProtocol]:
         ...
 
@@ -283,7 +283,7 @@ class GitlabMergeRequest(PullRequestProtocol):
             title=title,
             body=body,
             comments=notes,
-            diffs={file["new_path"]: file["diff"] for file in files if not file["diff"].startswith("Binary files")}
+            diffs={file["new_path"]: file["diff"] for file in files if not file["diff"].startswith("Binary files")},
         )
 
 
@@ -400,11 +400,11 @@ class GithubClient(ScmPlatformClientProtocol):
             return None
 
     def find_prs(
-            self,
-            slug: str,
-            state: PullRequestState | None = None,
-            original_branch: str | None = None,
-            feature_branch: str | None = None,
+        self,
+        slug: str,
+        state: PullRequestState | None = None,
+        original_branch: str | None = None,
+        feature_branch: str | None = None,
     ) -> list[GithubPullRequest]:
         repo = self.github.get_repo(slug)
         kwargs_list = dict(state=[None], target_branch=[None], source_branch=[None])
@@ -422,7 +422,7 @@ class GithubClient(ScmPlatformClientProtocol):
             kwargs = dict(((key, value) for key, value in zip(keys, instance) if value is not None))
             pages = repo.get_pulls(**kwargs)
             prs.extend(iter(pages))
-        
+
         branch_checker = lambda pr: True
         if original_branch is not None:
             branch_checker = lambda pr: branch_checker and pr.base.ref == original_branch
@@ -524,11 +524,11 @@ class GitlabClient(ScmPlatformClientProtocol):
             return None
 
     def find_prs(
-            self,
-            slug: str,
-            state: PullRequestState | None = None,
-            original_branch: str | None = None,
-            feature_branch: str | None = None,
+        self,
+        slug: str,
+        state: PullRequestState | None = None,
+        original_branch: str | None = None,
+        feature_branch: str | None = None,
     ) -> list[PullRequestProtocol]:
         project = self.gitlab.projects.get(slug)
         kwargs_list = dict(iterator=[True], state=[None], target_branch=[None], source_branch=[None])

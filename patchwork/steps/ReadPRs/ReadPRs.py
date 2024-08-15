@@ -4,7 +4,7 @@ from typing import List
 
 from patchwork.common.client.scm import GithubClient, GitlabClient, PullRequestState
 from patchwork.logger import logger
-from patchwork.step import Step, DataPoint
+from patchwork.step import DataPoint, Step
 from patchwork.steps.ReadPRs.typed import ReadPRsInputs
 
 _IGNORED_EXTENSIONS = [
@@ -102,4 +102,3 @@ class ReadPRs(Step):
             diffs=diffs,
             comments=comments,
         )
-

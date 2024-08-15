@@ -1,6 +1,6 @@
 import itertools
 
-from patchwork.step import Step, StepStatus
+from patchwork.step import Step
 from patchwork.steps.Combine.typed import CombineInputs
 
 
