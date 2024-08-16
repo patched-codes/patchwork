@@ -21,6 +21,8 @@ class CreatePR(Step):
         if not all(key in inputs.keys() for key in self.required_keys):
             raise ValueError(f'Missing required data: "{self.required_keys}"')
 
+        self.original_remote_name = "origin"
+
         self.enabled = not bool(inputs.get("disable_pr", False))
         if self.enabled:
             self.scm_client = None
@@ -57,34 +59,41 @@ class CreatePR(Step):
             logger.warn("Base branch and target branch are the same. Skipping PR creation.")
             self.enabled = False
 
+    def __push(self, repo):
+        push_args = ["--set-upstream", self.original_remote_name, self.target_branch]
+        if self.force:
+            push_args.insert(0, "--force")
+
+        is_push_success = push(repo, push_args)
+        logger.debug(f"Pushed to {self.original_remote_name}/{self.target_branch}")
+        return is_push_success
+
     def run(self) -> dict:
         repo = git.Repo(Path.cwd(), search_parent_directories=True)
-
-        original_remote_name = "origin"
-
-        is_push_success = True
-        is_target_branch_ahead = len(list(repo.iter_commits(f'{self.target_branch}@{{u}}..{self.target_branch}'))) > 0
-        if is_target_branch_ahead:
-            push_args = ["--set-upstream", original_remote_name, self.target_branch]
-            if self.force:
-                push_args.insert(0, "--force")
-
-            is_push_success = push(repo, push_args)
-            logger.debug(f"Pushed to {original_remote_name}/{self.target_branch}")
-
         if not self.enabled:
+            if (self.base_branch == self.target_branch and
+                    len(list(repo.iter_commits(f'{self.target_branch}@{{u}}..{self.target_branch}'))) > 0):
+                is_push_success = self.__push(repo)
+                if not is_push_success:
+                    self.set_status(
+                        StepStatus.FAILED,
+                        f"Failed to push to {self.original_remote_name}/{self.target_branch}. Skipping PR creation."
+                    )
+                    return dict()
+
             logger.warning(f"PR creation is disabled. Skipping PR creation.")
             return dict()
 
+        is_push_success = self.__push(repo)
         if not is_push_success:
             self.set_status(
                 StepStatus.FAILED,
-                f"Failed to push to {original_remote_name}/{self.target_branch}. Skipping PR creation."
+                f"Failed to push to {self.original_remote_name}/{self.target_branch}. Skipping PR creation."
             )
             return dict()
 
         logger.info(f"Creating PR from {self.base_branch} to {self.target_branch}")
-        original_remote_url = repo.remotes[original_remote_name].url
+        original_remote_url = repo.remotes[self.original_remote_name].url
         repo_slug = get_slug_from_remote_url(original_remote_url)
         url = create_pr(
             repo_slug=repo_slug,
