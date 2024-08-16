@@ -1,8 +1,9 @@
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+
 from patchwork.logger import logger
 from patchwork.step import Step, StepStatus
 from patchwork.steps.FilterBySimilarity.typed import FilterBySimilarityInputs
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
 
 
 class FilterBySimilarity(Step):
@@ -46,4 +47,4 @@ class FilterBySimilarity(Step):
             items_with_score.append((item, avg_similarity))
 
         items_with_score.sort(key=lambda x: x[1], reverse=True)
-        return dict(result_list=[item for item, _ in items_with_score[:self.top_k]])
+        return dict(result_list=[item for item, _ in items_with_score[: self.top_k]])

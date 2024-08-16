@@ -20,6 +20,7 @@ from patchwork.steps.ExtractModelResponse.ExtractModelResponse import (
 from patchwork.steps.ExtractPackageManagerFile.ExtractPackageManagerFile import (
     ExtractPackageManagerFile,
 )
+from patchwork.steps.FilterBySimilarity.FilterBySimilarity import FilterBySimilarity
 from patchwork.steps.GenerateCodeRepositoryEmbeddings.GenerateCodeRepositoryEmbeddings import (
     GenerateCodeRepositoryEmbeddings,
 )
@@ -38,7 +39,6 @@ from patchwork.steps.ScanDepscan.ScanDepscan import ScanDepscan
 from patchwork.steps.ScanSemgrep.ScanSemgrep import ScanSemgrep
 from patchwork.steps.SimplifiedLLM.SimplifiedLLM import SimplifiedLLM
 from patchwork.steps.SlackMessage.SlackMessage import SlackMessage
-from patchwork.steps.FilterBySimilarity.FilterBySimilarity import FilterBySimilarity
 
 __all__ = [
     "AnalyzeImpact",
