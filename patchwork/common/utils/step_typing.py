@@ -105,8 +105,13 @@ def validate_step_type_config_with_inputs(
     return True, step_type_config.msg
 
 
+ALLOWED_MODULES = ['module1', 'module2']  # Add allowed modules here
+
 def validate_step_with_inputs(input_keys: Set[str], step: Type[Step]) -> Tuple[Set[str], Dict[str, str]]:
     module_path, _, _ = step.__module__.rpartition(".")
+    if module_path not in ALLOWED_MODULES:
+        raise ValueError("Invalid module path")
+
     step_name = step.__name__
     type_module = importlib.import_module(f"{module_path}.typed")
     step_input_model = getattr(type_module, f"{step_name}Inputs", __NOT_GIVEN)
@@ -119,7 +124,7 @@ def validate_step_with_inputs(input_keys: Set[str], step: Type[Step]) -> Tuple[S
     step_report = {}
     for key in step_input_model.__required_keys__:
         if key not in input_keys:
-            step_report[key] = f"Missing required input data"
+            step_report[key] = "Missing required input data"
             continue
 
     step_type_hints = get_type_hints(step_input_model, include_extras=True)
@@ -129,7 +134,7 @@ def validate_step_with_inputs(input_keys: Set[str], step: Type[Step]) -> Tuple[S
             continue
 
         if key in step_report.keys():
-            step_report[key] = step_type_config.msg or f"Missing required input data"
+            step_report[key] = step_type_config.msg or "Missing required input data"
             continue
 
         is_ok, msg = validate_step_type_config_with_inputs(key, input_keys, step_type_config)
