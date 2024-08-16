@@ -6791,4 +6791,4 @@ security = ["owasp-depscan", "semgrep"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "e3d6c480b3cde1103078e6e2e16fe50bfb9890b572e5a5c8b965b177acbe3291"
+content-hash = "bb2e598b4bd17cbab5bab4b7c39a7bfefbab68a3399dcffc3b67fb15f61bb8fd"
