@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import json
+import string
 from pathlib import Path
+import random
 
 from patchwork.logger import logger
 from patchwork.step import Step, StepStatus
+from chevron import render
 
 PROMPT_TEMPLATE_FILE_KEY = "prompt_template_file"
 
@@ -82,9 +85,13 @@ class PreparePrompt(Step):
             for prompt_part in self.prompt_template:
                 prompt_instance = {}
                 for key, value in prompt_part.items():
-                    new_value = value
-                    for replacement_key, replacement_value in dict_value.items():
-                        new_value = new_value.replace("{{" + replacement_key + "}}", str(replacement_value))
+                    new_value = render(
+                        template=value,
+                        data=dict_value,
+                        partials_path=None,
+                        partials_ext=''.join(random.choices(string.ascii_uppercase + string.digits, k=32)),
+                        partials_dict=dict(),
+                    )
                     prompt_instance[key] = new_value
                 prompt.append(prompt_instance)
             prompts.append(prompt)
