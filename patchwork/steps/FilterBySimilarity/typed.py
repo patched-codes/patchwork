@@ -14,4 +14,4 @@ class FilterBySimilarityInputs(__FilterBySimilarityRequiredInputs, total=False):
 
 
 class FilterBySimilarityOutputs(TypedDict):
-    text: str
+    result_list: List[Dict]

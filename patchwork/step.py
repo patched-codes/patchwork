@@ -25,7 +25,7 @@ class Step(abc.ABC):
         :param inputs: a dictionary of inputs
         """
 
-        # check if the inputs are of the correct type
+        # check if the inputs have the required keys
         if self.__input_class is not None:
             missing_keys = self.__input_class.__required_keys__.difference(inputs.keys())
             if len(missing_keys) > 0:
