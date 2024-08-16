@@ -111,6 +111,7 @@ def create_pr(
     prs = scm_client.find_prs(repo_slug, original_branch=base_branch_name, feature_branch=target_branch_name)
     pr = next(iter(prs), None)
     if pr is None:
+
         pr = scm_client.create_pr(
             repo_slug,
             title,
