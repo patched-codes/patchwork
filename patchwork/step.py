@@ -1,7 +1,7 @@
 import abc
 from enum import Flag, auto
 
-from typing_extensions import Dict, List, Union, TypedDict, Any
+from typing_extensions import Dict, List, Union, TypedDict, Any, is_typeddict
 
 from patchwork.logger import logger
 
@@ -29,7 +29,7 @@ class Step(abc.ABC):
         if self.__input_class is not None:
             missing_keys = self.__input_class.__required_keys__.difference(inputs.keys())
             if len(missing_keys) > 0:
-                raise ValueError(f"Missing required data: {missing_keys}")
+                raise ValueError(f"Missing required data: {list(missing_keys)}")
 
         # record step name for later use
         self.__step_name = self.__class__.__name__
@@ -46,12 +46,12 @@ class Step(abc.ABC):
         input_class = kwargs.get("inputs", None) or getattr(cls, "inputs", None)
         output_class = kwargs.get("outputs", None) or getattr(cls, "outputs", None)
 
-        if input_class is not None and issubclass(input_class, TypedDict):
+        if input_class is not None and is_typeddict(input_class):
             cls.__input_class = input_class
         else:
             cls.__input_class = None
 
-        if output_class is not None and issubclass(output_class, TypedDict):
+        if output_class is not None and is_typeddict(input_class):
             cls.__output_class = output_class
         else:
             cls.__output_class = None
