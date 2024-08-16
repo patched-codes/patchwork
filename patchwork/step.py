@@ -51,7 +51,7 @@ class Step(abc.ABC):
         else:
             cls.__input_class = None
 
-        if output_class is not None and is_typeddict(input_class):
+        if output_class is not None and is_typeddict(output_class):
             cls.__output_class = output_class
         else:
             cls.__output_class = None
