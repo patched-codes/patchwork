@@ -61,18 +61,22 @@ class CreatePR(Step):
         repo = git.Repo(Path.cwd(), search_parent_directories=True)
 
         original_remote_name = "origin"
-        push_args = ["--set-upstream", original_remote_name, self.target_branch]
-        if self.force:
-            push_args.insert(0, "--force")
 
-        is_success = push(repo, push_args)
-        logger.debug(f"Pushed to {original_remote_name}/{self.target_branch}")
+        is_push_success = True
+        is_target_branch_ahead = len(list(repo.iter_commits(f'{self.target_branch}@{{u}}..{self.target_branch}'))) > 0
+        if is_target_branch_ahead:
+            push_args = ["--set-upstream", original_remote_name, self.target_branch]
+            if self.force:
+                push_args.insert(0, "--force")
+
+            is_push_success = push(repo, push_args)
+            logger.debug(f"Pushed to {original_remote_name}/{self.target_branch}")
 
         if not self.enabled:
             logger.warning(f"PR creation is disabled. Skipping PR creation.")
             return dict()
 
-        if not is_success:
+        if not is_push_success:
             self.set_status(
                 StepStatus.FAILED,
                 f"Failed to push to {original_remote_name}/{self.target_branch}. Skipping PR creation."
