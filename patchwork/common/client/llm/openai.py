@@ -23,12 +23,6 @@ def _cached_list_models_from_openai(api_key):
     for pages in sync_page.iter_pages():
         models.update(map(lambda x: x.id, pages.data))
 
-    if len(models) < 1:
-        logger.warning(
-            "No models found from OpenAI API for the given API key. "
-            "Please ensure that the API key is correct."
-
-        )
     return models
 
 
