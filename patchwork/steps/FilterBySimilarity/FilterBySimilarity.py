@@ -3,15 +3,12 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 from patchwork.logger import logger
 from patchwork.step import Step, StepStatus
-from patchwork.steps.FilterBySimilarity.typed import FilterBySimilarityInputs
+from patchwork.steps.FilterBySimilarity.typed import FilterBySimilarityInputs, FilterBySimilarityOutputs
 
 
-class FilterBySimilarity(Step):
+class FilterBySimilarity(Step, inputs=FilterBySimilarityInputs, outputs=FilterBySimilarityOutputs):
     def __init__(self, inputs):
         super().__init__(inputs)
-        missing_keys = FilterBySimilarityInputs.__required_keys__.difference(inputs.keys())
-        if len(missing_keys) > 0:
-            raise ValueError(f"Missing required data: {missing_keys}")
 
         self.list = inputs["list"]
         self.keywords = inputs["keywords"]

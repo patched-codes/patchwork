@@ -1,7 +1,7 @@
 import abc
 from enum import Flag, auto
 
-from typing_extensions import Dict, List, Union
+from typing_extensions import Dict, List, Union, TypedDict, Any
 
 from patchwork.logger import logger
 
@@ -24,14 +24,39 @@ class Step(abc.ABC):
         Initializes the step.
         :param inputs: a dictionary of inputs
         """
+
+        # check if the inputs are of the correct type
+        if self.__input_class is not None:
+            missing_keys = self.__input_class.__required_keys__.difference(inputs.keys())
+            if len(missing_keys) > 0:
+                raise ValueError(f"Missing required data: {missing_keys}")
+
+        # record step name for later use
+        self.__step_name = self.__class__.__name__
+
+        # initialize the status of the step
         self.__status = StepStatus.COMPLETED
         self.__status_msg = None
-        self.__step_name = self.__class__.__name__
+
         # abit of a hack to wrap the implemented run method
         self.original_run = self.run
         self.run = self.__managed_run
 
-    def __managed_run(self, *args, **kwargs):
+    def __init_subclass__(cls, **kwargs):
+        input_class = kwargs.get("inputs", None) or getattr(cls, "inputs", None)
+        output_class = kwargs.get("outputs", None) or getattr(cls, "outputs", None)
+
+        if input_class is not None and issubclass(input_class, TypedDict):
+            cls.__input_class = input_class
+        else:
+            cls.__input_class = None
+
+        if output_class is not None and issubclass(output_class, TypedDict):
+            cls.__output_class = output_class
+        else:
+            cls.__output_class = None
+
+    def __managed_run(self, *args, **kwargs) -> Any:
         logger.info(f"Run started {self.__step_name}")
 
         exc = None
