@@ -63,7 +63,8 @@ class AioLlmClient(LlmClient):
                     top_logprobs,
                     top_p,
                 )
+        client_names = [client.__class__.__name__ for client in self.__original_clients]
         raise ValueError(
-            f"Model {model} is not supported by "
-            f"{[client.__class__.__name__ for client in self.__original_clients]} clients"
+            f"Model {model} is not supported by {client_names} clients. "
+            f"Please ensure that the respective API keys are correct."
         )

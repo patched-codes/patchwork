@@ -3,7 +3,10 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 from patchwork.logger import logger
 from patchwork.step import Step, StepStatus
-from patchwork.steps.FilterBySimilarity.typed import FilterBySimilarityInputs, FilterBySimilarityOutputs
+from patchwork.steps.FilterBySimilarity.typed import (
+    FilterBySimilarityInputs,
+    FilterBySimilarityOutputs,
+)
 
 
 class FilterBySimilarity(Step, inputs=FilterBySimilarityInputs, outputs=FilterBySimilarityOutputs):
