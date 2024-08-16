@@ -20,6 +20,7 @@ from patchwork.steps.ExtractModelResponse.ExtractModelResponse import (
 from patchwork.steps.ExtractPackageManagerFile.ExtractPackageManagerFile import (
     ExtractPackageManagerFile,
 )
+from patchwork.steps.FilterBySimilarity.FilterBySimilarity import FilterBySimilarity
 from patchwork.steps.GenerateCodeRepositoryEmbeddings.GenerateCodeRepositoryEmbeddings import (
     GenerateCodeRepositoryEmbeddings,
 )
@@ -56,6 +57,7 @@ __all__ = [
     "ExtractDiff",
     "ExtractModelResponse",
     "ExtractPackageManagerFile",
+    "FilterBySimilarity",
     "GenerateCodeRepositoryEmbeddings",
     "GenerateEmbeddings",
     "LLM",
