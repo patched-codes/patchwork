@@ -10,7 +10,7 @@ from patchwork.common.client.scm import (
     get_slug_from_remote_url,
 )
 from patchwork.logger import logger
-from patchwork.step import Step
+from patchwork.step import Step, StepStatus
 
 
 class CreatePR(Step):
@@ -65,11 +65,18 @@ class CreatePR(Step):
         if self.force:
             push_args.insert(0, "--force")
 
-        push(repo, push_args)
+        is_success = push(repo, push_args)
         logger.debug(f"Pushed to {original_remote_name}/{self.target_branch}")
 
         if not self.enabled:
             logger.warning(f"PR creation is disabled. Skipping PR creation.")
+            return dict()
+
+        if not is_success:
+            self.set_status(
+                StepStatus.FAILED,
+                f"Failed to push to {original_remote_name}/{self.target_branch}. Skipping PR creation."
+            )
             return dict()
 
         logger.info(f"Creating PR from {self.base_branch} to {self.target_branch}")
@@ -89,14 +96,24 @@ class CreatePR(Step):
         return {"pr_url": url}
 
 
-def push(repo: git.Repo, args):
-    repo_git = repo.git
+def push(repo: git.Repo, args) -> bool:
     try:
-        with repo_git.custom_environment(GIT_TERMINAL_PROMPT="0"):
-            repo_git.push(*args)
+        with repo.git.custom_environment(GIT_TERMINAL_PROMPT="0"):
+            repo.git.push(*args)
+        return True
     except GitCommandError:
+        pass
+
+    freeze_func = getattr(logger, "freeze", None)
+    if freeze_func is None:
+        return False
+
+    try:
         with logger.freeze():
-            repo_git.push(*args)
+            repo.git.push(*args)
+        return True
+    except GitCommandError:
+        return False
 
 
 def create_pr(
