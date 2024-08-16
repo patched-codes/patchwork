@@ -91,7 +91,7 @@ jobs:
       - name: AutoFix Patchwork
         run: |
           poetry run patchwork AutoFix --log debug \
-          --openai_api_key=${{ secrets.OPENAI_KEY }} \
+          --openai_api_key=${{ secrets.LIBRARIES_KEY }} \
           --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
           --force_pr_creation \
           --disable_telemetry
@@ -100,7 +100,7 @@ jobs:
         run: |
           poetry run patchwork DependencyUpgrade --log debug \
           --libraries_api_key=${{ secrets.LIBRARIES_KEY }} \
-          --openai_api_key=${{ secrets.OPENAI_KEY }} \
+          --openai_api_key=${{ secrets.LIBRARIES_KEY }} \
           --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
           --language=python \
           --force_pr_creation \
