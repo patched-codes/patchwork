@@ -112,13 +112,22 @@ class ScanDepscan(Step):
             ]
 
             if self.language is not None:
-                cmd.append("-t")
-                cmd.append(self.language)
+                cmd.extend(["-t", self.language])
                 sbom_vdr_file_name = "sbom-" + self.language
             else:
                 sbom_vdr_file_name = "sbom-universal"
 
-            p = subprocess.run(cmd, capture_output=True, text=True, cwd=os.getcwd())
+            try:
+                p = subprocess.run(cmd, capture_output=True, text=True, cwd=os.getcwd())
+            except subprocess.CalledProcessError as e:
+                logger.debug("Command execution failed.")
+                logger.debug("stdout:\n" + e.stdout)
+                logger.debug("stderr:\n" + e.stderr)
+                raise RuntimeError("Subprocess command execution failed") from e
+            except Exception as e:
+                logger.debug("Unexpected error during command execution")
+                logger.debug(e)
+                raise RuntimeError("Unexpected error during Subprocess execution") from e
 
             sbom_vdr_file_path = Path(temp_file_path) / f"{sbom_vdr_file_name}.vdr.json"
             try:

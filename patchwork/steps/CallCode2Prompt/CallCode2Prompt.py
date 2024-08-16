@@ -34,15 +34,17 @@ class CallCode2Prompt(Step):
         ]
 
         if self.filter is not None:
-            cmd.append("--filter")
-            cmd.append(self.filter)
+            cmd.extend(["--filter", self.filter])
 
         if self.suppress_comments:
             cmd.append("--suppress-comments")
 
-        p = subprocess.run(cmd, capture_output=True, text=True)
-
-        prompt_content_md = p.stdout
+        try:
+            p = subprocess.run(cmd, capture_output=True, text=True, check=True)
+            prompt_content_md = p.stdout
+        except subprocess.CalledProcessError as e:
+            self.set_status(StepStatus.FAILED, f"Subprocess failed: {e}")
+            return dict(files_to_patch=[])
 
         # Attempt to read the documentation's current content
         try:
