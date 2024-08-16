@@ -113,7 +113,9 @@ def push(repo: git.Repo, args) -> bool:
             repo.git.push(*args)
         return True
     except GitCommandError:
-        return False
+        pass
+
+    return False
 
 
 def create_pr(
