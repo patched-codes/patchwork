@@ -71,13 +71,15 @@ class CreatePR(Step):
     def run(self) -> dict:
         repo = git.Repo(Path.cwd(), search_parent_directories=True)
         if not self.enabled:
-            if (self.base_branch == self.target_branch and
-                    len(list(repo.iter_commits(f'{self.target_branch}@{{u}}..{self.target_branch}'))) > 0):
+            if (
+                self.base_branch == self.target_branch
+                and len(list(repo.iter_commits(f"{self.target_branch}@{{u}}..{self.target_branch}"))) > 0
+            ):
                 is_push_success = self.__push(repo)
                 if not is_push_success:
                     self.set_status(
                         StepStatus.FAILED,
-                        f"Failed to push to {self.original_remote_name}/{self.target_branch}. Skipping PR creation."
+                        f"Failed to push to {self.original_remote_name}/{self.target_branch}. Skipping PR creation.",
                     )
                     return dict()
 
@@ -88,7 +90,7 @@ class CreatePR(Step):
         if not is_push_success:
             self.set_status(
                 StepStatus.FAILED,
-                f"Failed to push to {self.original_remote_name}/{self.target_branch}. Skipping PR creation."
+                f"Failed to push to {self.original_remote_name}/{self.target_branch}. Skipping PR creation.",
             )
             return dict()
 

@@ -11,7 +11,6 @@ from openai.types.chat import (
 from typing_extensions import Dict, Iterable, List, Optional, Union
 
 from patchwork.common.client.llm.protocol import NOT_GIVEN, LlmClient, NotGiven
-from patchwork.logger import logger
 
 
 @functools.lru_cache
