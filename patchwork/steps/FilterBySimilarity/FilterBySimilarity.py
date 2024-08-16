@@ -43,7 +43,7 @@ class FilterBySimilarity(Step):
                 similarity = cosine_similarity(text_vector, keyword_vectors)[0][0]
                 similarity_scores.append(similarity)
 
-            avg_similarity = sum(*similarity_scores) / len(similarity_scores)
+            avg_similarity = sum(similarity_scores) / len(similarity_scores)
             items_with_score.append((item, avg_similarity))
 
         items_with_score.sort(key=lambda x: x[1], reverse=True)
