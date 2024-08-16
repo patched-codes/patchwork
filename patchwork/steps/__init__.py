@@ -38,6 +38,7 @@ from patchwork.steps.ScanDepscan.ScanDepscan import ScanDepscan
 from patchwork.steps.ScanSemgrep.ScanSemgrep import ScanSemgrep
 from patchwork.steps.SimplifiedLLM.SimplifiedLLM import SimplifiedLLM
 from patchwork.steps.SlackMessage.SlackMessage import SlackMessage
+from patchwork.steps.FilterBySimilarity.FilterBySimilarity import FilterBySimilarity
 
 __all__ = [
     "AnalyzeImpact",
@@ -56,6 +57,7 @@ __all__ = [
     "ExtractDiff",
     "ExtractModelResponse",
     "ExtractPackageManagerFile",
+    "FilterBySimilarity",
     "GenerateCodeRepositoryEmbeddings",
     "GenerateEmbeddings",
     "LLM",
