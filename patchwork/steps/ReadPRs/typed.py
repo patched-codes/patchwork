@@ -2,6 +2,7 @@ from typing_extensions import Annotated, List, TypedDict
 
 from patchwork.common.client.scm import PullRequestComment
 from patchwork.common.utils.step_typing import StepTypeConfig
+from patchwork.steps.ReadPRDiffsPB.typed import ReadPRDiffsPBOutputs
 
 
 class __ReadPRsRequiredInputs(TypedDict):
@@ -16,12 +17,4 @@ class ReadPRsInputs(__ReadPRsRequiredInputs, total=False):
 
 
 class ReadPRsOutputs(TypedDict):
-    title: str
-    body: str
-    comments: List[PullRequestComment]
-    diffs: List["Diff"]
-
-
-class Diff(TypedDict):
-    path: str
-    diff: str
+    pr_texts: List[ReadPRDiffsPBOutputs]
