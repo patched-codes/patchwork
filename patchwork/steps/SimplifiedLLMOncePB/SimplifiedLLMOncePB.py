@@ -4,7 +4,10 @@ from patchwork.common.utils.utils import exclude_none_dict
 from patchwork.step import Step
 from patchwork.steps import SimplifiedLLM
 from patchwork.steps.SimplifiedLLM import SimplifiedLLM
-from patchwork.steps.SimplifiedLLMOncePB.typed import SimplifiedLLMOncePBInputs, SimplifiedLLMOncePBOutputs
+from patchwork.steps.SimplifiedLLMOncePB.typed import (
+    SimplifiedLLMOncePBInputs,
+    SimplifiedLLMOncePBOutputs,
+)
 
 
 class SimplifiedLLMOncePB(Step, input_class=SimplifiedLLMOncePBInputs, output_class=SimplifiedLLMOncePBOutputs):
@@ -35,12 +38,14 @@ Respond with the following json format:
                 prompt_user=self.__json_schema_as_suffix(self.user),
             )
 
-        llm = SimplifiedLLM({
-            **self.inputs,
-            **prompt_dict,
-            "prompt_values": [self.prompt_value],
-            "json": True,
-        })
+        llm = SimplifiedLLM(
+            {
+                **self.inputs,
+                **prompt_dict,
+                "prompt_values": [self.prompt_value],
+                "json": True,
+            }
+        )
         llm_output = llm.run()
 
         return exclude_none_dict(
