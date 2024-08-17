@@ -44,7 +44,7 @@ class Step(abc.ABC):
 
     def __init_subclass__(cls, **kwargs):
         input_class = kwargs.get("input_class", None) or getattr(cls, "input_class", None)
-        output_class = kwargs.get("input_class", None) or getattr(cls, "input_class", None)
+        output_class = kwargs.get("output_class", None) or getattr(cls, "output_class", None)
 
         if input_class is not None and is_typeddict(input_class):
             cls.__input_class = input_class

@@ -280,9 +280,9 @@ class GitlabMergeRequest(PullRequestProtocol):
         title = self._mr.title
         body = self._mr.description
         notes = [
-            dict(user=note.author["username"], body=note.body)
+            dict(user=note.author.get("username") or "", body=note.body)
             for note in self._mr.notes.list(iterator=True)
-            if note.system is False
+            if note.system is False and note.author is not None and note.body is not None
         ]
 
         diffs = self._mr.diffs.list()
