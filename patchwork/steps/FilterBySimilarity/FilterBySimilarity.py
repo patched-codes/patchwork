@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -9,14 +11,27 @@ from patchwork.steps.FilterBySimilarity.typed import (
 )
 
 
-class FilterBySimilarity(Step, inputs=FilterBySimilarityInputs, outputs=FilterBySimilarityOutputs):
+class FilterBySimilarity(Step, input_class=FilterBySimilarityInputs, output_class=FilterBySimilarityOutputs):
     def __init__(self, inputs):
         super().__init__(inputs)
 
         self.list = inputs["list"]
         self.keywords = inputs["keywords"]
-        self.keys = inputs.get("keys", None)
+        self.keys = self.__parse_keys(inputs.get("keys", None))
         self.top_k = inputs.get("top_k", 10)
+
+    @staticmethod
+    def __parse_keys(keys: list[str] | str | None) -> list[str] | None:
+        if keys is None:
+            return None
+
+        if isinstance(keys, str):
+            delimiter = None
+            if "," in keys:
+                delimiter = ","
+            return [key.strip() for key in keys.split(delimiter)]
+
+        return keys
 
     def run(self):
         if len(self.list) == 0:
@@ -26,7 +41,7 @@ class FilterBySimilarity(Step, inputs=FilterBySimilarityInputs, outputs=FilterBy
         items_with_score = []
         for item in self.list:
             if self.keys is not None:
-                texts = [str(item[key]) for key in self.keys if item[key] is not None]
+                texts = [str(item[key]) for key in self.keys if item.get(key) is not None]
             else:
                 texts = [value for value in item.values() if value is not None and isinstance(value, str)]
             if len(texts) == 0:

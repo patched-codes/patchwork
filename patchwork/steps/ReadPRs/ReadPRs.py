@@ -2,7 +2,12 @@ from __future__ import annotations
 
 from typing import List
 
-from patchwork.common.client.scm import GithubClient, GitlabClient, PullRequestState
+from patchwork.common.client.scm import (
+    GithubClient,
+    GitlabClient,
+    PullRequestProtocol,
+    PullRequestState,
+)
 from patchwork.logger import logger
 from patchwork.step import DataPoint, Step
 from patchwork.steps.ReadPRs.typed import ReadPRsInputs
@@ -48,14 +53,20 @@ class ReadPRs(Step):
         self.pr_state = self.__parse_pr_state_input(inputs.get("pr_state"))
 
     @staticmethod
-    def __parse_pr_ids_input(pr_ids_input: str | None) -> list:
+    def __parse_pr_ids_input(pr_ids_input: list[str] | str | None) -> list:
         if not pr_ids_input:
             return []
 
-        delimiter = None
-        if "," in pr_ids_input:
-            delimiter = ","
-        return pr_ids_input.split(delimiter)
+        if isinstance(pr_ids_input, str):
+            delimiter = None
+            if "," in pr_ids_input:
+                delimiter = ","
+            return [pr_id.strip() for pr_id in pr_ids_input.split(delimiter)]
+
+        if isinstance(pr_ids_input, list):
+            return pr_ids_input
+
+        return []
 
     @staticmethod
     def __parse_pr_state_input(state_input: str | None) -> PullRequestState:
@@ -85,7 +96,7 @@ class ReadPRs(Step):
         return data_points
 
     @staticmethod
-    def __pr_to_data_point(pr):
+    def __pr_to_data_point(pr: PullRequestProtocol):
         pr_texts = pr.texts()
         title = pr_texts.get("title", "")
         body = pr_texts.get("body", "")
