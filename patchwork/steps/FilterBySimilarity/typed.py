@@ -9,7 +9,7 @@ class __FilterBySimilarityRequiredInputs(TypedDict):
 
 
 class FilterBySimilarityInputs(__FilterBySimilarityRequiredInputs, total=False):
-    keys: Annotated[List[str], StepTypeConfig(is_config=True)]
+    keys: Annotated[str, StepTypeConfig(is_config=True)]
     top_k: Annotated[int, StepTypeConfig(is_config=True)]
 
 

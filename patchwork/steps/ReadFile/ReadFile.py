@@ -16,4 +16,4 @@ class ReadFile(Step):
         with open_with_chardet("r", self.file) as f:
             file_contents = f.read()
 
-        return dict(file_content=file_contents)
+        return dict(file_path=self.file, file_content=file_contents)

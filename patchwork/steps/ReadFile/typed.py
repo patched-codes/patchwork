@@ -8,4 +8,5 @@ class ReadFileInputs(TypedDict):
 
 
 class ReadFileOutputs(TypedDict):
+    file_path: str
     file_content: str

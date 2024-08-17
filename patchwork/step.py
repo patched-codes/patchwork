@@ -43,8 +43,8 @@ class Step(abc.ABC):
         self.run = self.__managed_run
 
     def __init_subclass__(cls, **kwargs):
-        input_class = kwargs.get("inputs", None) or getattr(cls, "inputs", None)
-        output_class = kwargs.get("outputs", None) or getattr(cls, "outputs", None)
+        input_class = kwargs.get("input_class", None) or getattr(cls, "input_class", None)
+        output_class = kwargs.get("input_class", None) or getattr(cls, "input_class", None)
 
         if input_class is not None and is_typeddict(input_class):
             cls.__input_class = input_class

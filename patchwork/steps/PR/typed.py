@@ -1,7 +1,10 @@
 from typing_extensions import Annotated, List, TypedDict
 
 from patchwork.common.utils.step_typing import StepTypeConfig
-from patchwork.steps.PreparePR.typed import ModifiedCodeFile
+
+
+class ModifiedCodeFile(TypedDict):
+    path: str
 
 
 class __PRInputsRequired(TypedDict):

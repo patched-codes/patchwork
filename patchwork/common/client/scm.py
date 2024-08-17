@@ -45,7 +45,15 @@ class IssueText(TypedDict):
     comments: list[str]
 
 
-class PullRequestTexts(IssueText):
+class PullRequestComment(TypedDict):
+    user: str
+    body: str
+
+
+class PullRequestTexts(TypedDict):
+    title: str
+    body: str
+    comments: list[PullRequestComment]
     diffs: dict[str, str]
 
 
@@ -271,7 +279,11 @@ class GitlabMergeRequest(PullRequestProtocol):
     def texts(self) -> PullRequestTexts:
         title = self._mr.title
         body = self._mr.description
-        notes = [note.body for note in self._mr.notes.list(iterator=True) if note.system is False]
+        notes = [
+            dict(user=note.author["username"], body=note.body)
+            for note in self._mr.notes.list(iterator=True)
+            if note.system is False
+        ]
 
         diffs = self._mr.diffs.list()
         latest_diff = max(diffs, key=lambda diff: diff.created_at, default=None)
@@ -329,7 +341,7 @@ class GithubPullRequest(PullRequestProtocol):
         return dict(
             title=self._pr.title or "",
             body=self._pr.body or "",
-            comments=[comment.body for comment in self._pr.get_comments()],
+            comments=[dict(user=comment.user.name, body=comment.body) for comment in self._pr.get_comments()],
             # None checks for binary files
             diffs={file.filename: file.patch for file in self._pr.get_files() if file.patch is not None},
         )
