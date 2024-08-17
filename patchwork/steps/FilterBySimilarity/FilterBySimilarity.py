@@ -41,7 +41,7 @@ class FilterBySimilarity(Step, input_class=FilterBySimilarityInputs, output_clas
         items_with_score = []
         for item in self.list:
             if self.keys is not None:
-                texts = [str(item[key]) for key in self.keys if item[key] is not None]
+                texts = [str(item[key]) for key in self.keys if item.get(key) is not None]
             else:
                 texts = [value for value in item.values() if value is not None and isinstance(value, str)]
             if len(texts) == 0:
