@@ -39,11 +39,3 @@ If you are using a OpenAI API Key, please set `--openai_api_key=<token>`.""",
         str, StepTypeConfig(is_config=True, or_op=["patched_api_key", "openai_api_key", "anthropic_api_key"])
     ]
 
-
-class SimplifiedLLMOncePBOutputs(TypedDict):
-    # PreparePromptOutputs
-    prompt: Dict
-    # CallLLMOutputs
-    openai_response: str
-    # ExtractModelResponseOutputs
-    extracted_response: Dict[str, str]

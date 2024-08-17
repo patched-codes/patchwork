@@ -6,11 +6,10 @@ from patchwork.steps import SimplifiedLLM
 from patchwork.steps.SimplifiedLLM import SimplifiedLLM
 from patchwork.steps.SimplifiedLLMOncePB.typed import (
     SimplifiedLLMOncePBInputs,
-    SimplifiedLLMOncePBOutputs,
 )
 
 
-class SimplifiedLLMOncePB(Step, input_class=SimplifiedLLMOncePBInputs, output_class=SimplifiedLLMOncePBOutputs):
+class SimplifiedLLMOncePB(Step, input_class=SimplifiedLLMOncePBInputs):
     def __init__(self, inputs):
         super().__init__(inputs)
 
@@ -48,10 +47,6 @@ Respond with the following json format:
         )
         llm_output = llm.run()
 
-        return exclude_none_dict(
-            dict(
-                prompt=llm_output.get("prompts")[0],
-                openai_response=llm_output.get("openai_responses")[0],
-                extracted_response=llm_output.get("extracted_responses")[0],
-            )
+        return dict(
+            **llm_output.get("extracted_responses")[0],
         )
