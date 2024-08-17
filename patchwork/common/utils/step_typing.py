@@ -109,17 +109,16 @@ def validate_step_with_inputs(input_keys: Set[str], step: Type[Step]) -> Tuple[S
     module_path, _, _ = step.__module__.rpartition(".")
     step_name = step.__name__
     type_module = importlib.import_module(f"{module_path}.typed")
-    step_input_model = getattr(type_module, f"{step_name}Inputs", __NOT_GIVEN)
-    step_output_model = getattr(type_module, f"{step_name}Outputs", __NOT_GIVEN)
-    if step_input_model is __NOT_GIVEN:
-        raise ValueError(f"Missing input model for step {step_name}")
-    if step_output_model is __NOT_GIVEN:
-        raise ValueError(f"Missing output model for step {step_name}")
+    if not hasattr(type_module, f"{step_name}Inputs") or not hasattr(type_module, f"{step_name}Outputs"):
+        raise ValueError(f"Missing input or output model for step {step_name}")
+
+    step_input_model = getattr(type_module, f"{step_name}Inputs")
+    step_output_model = getattr(type_module, f"{step_name}Outputs")
 
     step_report = {}
     for key in step_input_model.__required_keys__:
         if key not in input_keys:
-            step_report[key] = f"Missing required input data"
+            step_report[key] = "Missing required input data"
             continue
 
     step_type_hints = get_type_hints(step_input_model, include_extras=True)
@@ -129,7 +128,7 @@ def validate_step_with_inputs(input_keys: Set[str], step: Type[Step]) -> Tuple[S
             continue
 
         if key in step_report.keys():
-            step_report[key] = step_type_config.msg or f"Missing required input data"
+            step_report[key] = step_type_config.msg or "Missing required input data"
             continue
 
         is_ok, msg = validate_step_type_config_with_inputs(key, input_keys, step_type_config)
