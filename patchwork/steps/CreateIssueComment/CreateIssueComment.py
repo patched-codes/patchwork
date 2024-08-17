@@ -3,16 +3,14 @@ from patchwork.common.client.scm import (
     GitlabClient,
     ScmPlatformClientProtocol,
 )
-from patchwork.logger import logger
-from patchwork.step import Step
+from patchwork.step import Step, StepStatus
 
 
 class CreateIssueComment(Step):
     required_keys = {"issue_url", "issue_text"}
 
     def __init__(self, inputs: dict):
-        logger.info(f"Run started {self.__class__.__name__}")
-
+        super().__init__(inputs)
         if not all(key in inputs.keys() for key in self.required_keys):
             raise ValueError(f'Missing required data: "{self.required_keys}"')
 
@@ -31,7 +29,11 @@ class CreateIssueComment(Step):
         self.issue_url = inputs["issue_url"]
 
     def run(self) -> dict:
-        slug, issue_id = self.scm_client.get_slug_and_id_from_url(self.issue_url)
-        url = self.scm_client.create_issue_comment(slug, self.issue_text, issue_id=issue_id)
+        try:
+            slug, issue_id = self.scm_client.get_slug_and_id_from_url(self.issue_url)
+            url = self.scm_client.create_issue_comment(slug, self.issue_text, issue_id=issue_id)
+        except Exception as e:
+            self.set_status(StepStatus.FAILED, f"Failed to create issue comment")
+            raise e
 
         return dict(issue_comment_url=url)

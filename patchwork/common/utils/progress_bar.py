@@ -2,13 +2,12 @@ from __future__ import annotations
 
 import contextlib
 import functools
-import warnings
 from collections import Counter
 
-import click
-from tqdm import tqdm
+from rich.progress import Progress, SpinnerColumn, TimeElapsedColumn
 from typing_extensions import Type
 
+from patchwork.logger import console, logger
 from patchwork.step import Step
 
 
@@ -18,24 +17,19 @@ class PatchflowProgressBar:
     def __init__(self, patchflow: Step):
         self.__step_counter = Counter()
         self.__current_progress = 0.00
-        self.__callbacks = []
         self.__patchflow_name = patchflow.__class__.__name__
 
         patchflow_run_func = patchflow.run
 
         def inner_run():
             try:
-                self.__outer_tqdm.reset()
                 return patchflow_run_func()
             finally:
-                self.__outer_tqdm.set_description(f"Finished {self.__patchflow_name}")
-                self.__outer_tqdm.close()
-                self.__do_callbacks()
+                self.__progress_bar_update(
+                    description=f"[bold green]Finished {self.__patchflow_name}", completed=self.__MAX_PROGRESS
+                )
 
         patchflow.run = inner_run
-
-    def register_callbacks(self, *callbacks):
-        self.__callbacks.extend(callbacks)
 
     def register_steps(self, *steps: Type[Step]):
         for step in steps:
@@ -53,51 +47,36 @@ class PatchflowProgressBar:
 
     @property
     def __remaining_progress(self):
-        return self.__outer_tqdm.total - self.__current_progress
+        return self.__MAX_PROGRESS - self.__current_progress
 
     @property
     def __increment_progress(self):
         max_counter = max(self.__step_counter.most_common()[0][1], 1)
         max_section = len(self.__step_counter) * max_counter
-        return round(self.__remaining_progress / max_section, 2)
+        increment = round(self.__remaining_progress / max_section, 2)
+        self.__current_progress += increment
+        return increment
 
     @functools.cached_property
-    def __outer_tqdm(self):
-        self.__suppress_warnings()
-        self.__intercept_click_echo()
-        return tqdm(
+    def __progress_bar(self):
+        return Progress(SpinnerColumn(), *Progress.get_default_columns(), TimeElapsedColumn(), console=console)
+
+    @functools.cached_property
+    def __progress_bar_update(self):
+        progress = self.__progress_bar
+        logger.register_progress_bar(progress)
+        task_id = progress.add_task(
+            description=f"[bold green]Running {self.__patchflow_name}",
             total=self.__MAX_PROGRESS,
-            desc=f"Running {self.__patchflow_name}",
-            smoothing=0,
-            miniters=1,
-            unit_scale=True,
         )
+        return functools.partial(progress.update, task_id, refresh=True)
 
     @contextlib.contextmanager
     def __update(self, step: type):
-        self.__outer_tqdm.set_description(f"Running {step.__name__}")
-        self.__outer_tqdm.update(self.__increment_progress)
+        self.__progress_bar_update(
+            description=f"[bold green]Running {step.__name__}",
+            advance=self.__increment_progress,
+        )
         self.__step_counter[step] += 1
         yield
         return
-
-    def __suppress_warnings(self):
-        warnings.simplefilter("ignore")
-        self.__callbacks.append(warnings.resetwarnings)
-
-    def __intercept_click_echo(self):
-        true_click_echo = click.echo
-
-        def intercepted_click_echo(*args, **kwargs):
-            self.__callbacks.append(lambda: true_click_echo(*args, **kwargs))
-            return
-
-        def restore_click_echo():
-            click.echo = true_click_echo
-
-        self.__callbacks.append(restore_click_echo)
-        click.echo = intercepted_click_echo
-
-    def __do_callbacks(self):
-        for callbacks in self.__callbacks:
-            callbacks()

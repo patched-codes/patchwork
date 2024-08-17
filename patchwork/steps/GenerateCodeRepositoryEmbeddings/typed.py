@@ -1,8 +1,10 @@
-from typing_extensions import NotRequired, TypedDict
+from typing_extensions import Annotated, TypedDict
+
+from patchwork.common.utils.step_typing import StepTypeConfig
 
 
-class GenerateCodeRepositoryEmbeddingsInputs(TypedDict):
-    disable_cache: NotRequired[bool]
+class GenerateCodeRepositoryEmbeddingsInputs(TypedDict, total=False):
+    disable_cache: Annotated[bool, StepTypeConfig(is_config=True)]
 
 
 class GenerateCodeRepositoryEmbeddingsOutputs(TypedDict):

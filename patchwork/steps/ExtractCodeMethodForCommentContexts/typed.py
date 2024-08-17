@@ -1,13 +1,14 @@
-from typing_extensions import Iterable, NotRequired, TypedDict
+from typing_extensions import Annotated, List, TypedDict
+
+from patchwork.common.utils.step_typing import StepTypeConfig
 
 
-class ExtractCodeInputs(TypedDict):
-    base_path: NotRequired[str]
-    context_grouping: NotRequired[str]
+class ExtractCodeMethodForCommentContextsInputs(TypedDict):
+    base_path: Annotated[str, StepTypeConfig(is_path=True)]
 
 
-class ExtractCodeOutputs(TypedDict):
-    files_to_patch: Iterable["ExtractedCode"]
+class ExtractCodeMethodForCommentContextsOutputs(TypedDict):
+    files_to_patch: List["ExtractedCode"]
 
 
 class ExtractedCode(TypedDict):

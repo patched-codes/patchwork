@@ -3,8 +3,11 @@ from pathlib import Path
 import yaml
 
 from patchwork.common.utils.progress_bar import PatchflowProgressBar
+from patchwork.common.utils.step_typing import validate_steps_with_inputs
 from patchwork.step import Step
 from patchwork.steps import (
+    LLM,
+    PR,
     CallLLM,
     CommitChanges,
     CreateIssueComment,
@@ -49,6 +52,14 @@ class ResolveIssue(Step):
         final_inputs["pr_title"] = f"PatchWork {self.__class__.__name__}"
         final_inputs["branch_prefix"] = f"{self.__class__.__name__.lower()}-"
 
+        validate_steps_with_inputs(
+            set(final_inputs.keys()).union({"texts", "issue_text"}),
+            GenerateCodeRepositoryEmbeddings,
+            ReadIssues,
+            QueryEmbeddings,
+            CreateIssueComment,
+        )
+
         self.fix_issue = bool(final_inputs.get("fix_issue", False))
         self.inputs = final_inputs
 
@@ -59,7 +70,7 @@ class ResolveIssue(Step):
         outputs = ReadIssues(self.inputs).run()
         self.inputs.update(outputs)
 
-        self.inputs["texts"] = self.inputs["issue_text"]
+        self.inputs["texts"] = self.inputs.get("issue_body") or self.inputs.get("issue_title")
 
         outputs = QueryEmbeddings(self.inputs).run()
         self.inputs.update(outputs)
@@ -93,7 +104,7 @@ The following files in the repository may be relevant to the issue:
                     "startLine": 0,
                     "endLine": len(lines),
                     "affectedCode": file_content,
-                    "messageText": "\n".join(self.inputs["texts"]),
+                    "messageText": self.inputs["texts"],
                 }
             )
 
@@ -103,11 +114,7 @@ The following files in the repository may be relevant to the issue:
         self.inputs["response_partitions"] = {
             "patch": ["Fixed Code:", "```", "\n", "```"],
         }
-        outputs = PreparePrompt(self.inputs).run()
-        self.inputs.update(outputs)
-        outputs = CallLLM(self.inputs).run()
-        self.inputs.update(outputs)
-        outputs = ExtractModelResponse(self.inputs).run()
+        outputs = LLM(self.inputs).run()
         self.inputs.update(outputs)
 
         # Modify code files with the suggested changes
@@ -116,11 +123,7 @@ The following files in the repository may be relevant to the issue:
 
         # Commit changes and create PR
         self.inputs["pr_header"] = f'This pull request from patchwork fixes {self.inputs["issue_url"]}.'
-        outputs = CommitChanges(self.inputs).run()
-        self.inputs.update(outputs)
-        outputs = PreparePR(self.inputs).run()
-        self.inputs.update(outputs)
-        outputs = CreatePR(self.inputs).run()
+        outputs = PR(self.inputs).run()
         self.inputs.update(outputs)
 
         return self.inputs

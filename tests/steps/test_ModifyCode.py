@@ -5,27 +5,9 @@ import pytest
 from patchwork.steps.ModifyCode.ModifyCode import (
     ModifyCode,
     handle_indent,
-    load_json_file,
     replace_code_in_file,
     save_file_contents,
 )
-
-
-def test_load_json_file(tmp_path):
-    # Test that load_json_file raises an error if the file does not exist
-    with pytest.raises(ValueError):
-        load_json_file(tmp_path / "non_existent_file.json")
-
-    # Test that load_json_file returns the contents of a valid JSON file
-    json_file_path = tmp_path / "test.json"
-    json_file_path.write_text('{"key": "value"}')
-    assert load_json_file(str(json_file_path)) == {"key": "value"}
-
-    # Test that load_json_file raises an error if the file is not a valid JSON
-    invalid_json_file_path = tmp_path / "invalid_json.json"
-    invalid_json_file_path.write_text("this is not json")
-    with pytest.raises(ValueError):
-        load_json_file(str(invalid_json_file_path))
 
 
 def test_save_file_contents(tmp_path):
@@ -83,9 +65,27 @@ def test_modify_code_run(tmp_path):
 
     inputs = {
         "files_to_patch": [{"uri": str(file_path), "startLine": 1, "endLine": 2}],
-        "extracted_responses": [{"uri": file_path, "startLine": 1, "endLine": 2, "patch": "new_code"}],
+        "extracted_responses": [{"patch": "new_code"}],
     }
     modify_code = ModifyCode(inputs)
     result = modify_code.run()
     assert result.get("modified_code_files") is not None
     assert len(result["modified_code_files"]) == 1
+
+
+def test_modify_code_empty_edit(tmp_path):
+    file_path = tmp_path / "test.txt"
+    file_path.write_text("line 1\nline 2\nline 3")
+
+    code_snippets_path = tmp_path / "code.json"
+    with open(code_snippets_path, "w") as f:
+        json.dump([{"uri": str(file_path), "startLine": 1, "endLine": 2}], f)
+
+    inputs = {
+        "files_to_patch": [{"uri": str(file_path), "startLine": 1, "endLine": 2}],
+        "extracted_responses": [{"patch": ""}],
+    }
+    modify_code = ModifyCode(inputs)
+    result = modify_code.run()
+    assert result.get("modified_code_files") is not None
+    assert len(result["modified_code_files"]) == 0

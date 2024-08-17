@@ -3,8 +3,11 @@ from pathlib import Path
 import yaml
 
 from patchwork.common.utils.progress_bar import PatchflowProgressBar
+from patchwork.common.utils.step_typing import validate_steps_with_inputs
 from patchwork.step import Step
 from patchwork.steps import (
+    LLM,
+    PR,
     CallCode2Prompt,
     CallLLM,
     CommitChanges,
@@ -50,6 +53,10 @@ class GenerateREADME(Step):
 
         final_inputs["pr_title"] = f"PatchWork {self.__class__.__name__}"
 
+        validate_steps_with_inputs(
+            set(final_inputs.keys()).union({"prompt_values"}), CallCode2Prompt, LLM, ModifyCode, PR
+        )
+
         self.inputs = final_inputs
 
     def run(self) -> dict:
@@ -58,22 +65,14 @@ class GenerateREADME(Step):
 
         self.inputs["prompt_values"] = self.inputs.get("files_to_patch", [])
         self.inputs["response_partitions"] = {"patch": []}
-        outputs = PreparePrompt(self.inputs).run()
-        self.inputs.update(outputs)
-        outputs = CallLLM(self.inputs).run()
-        self.inputs.update(outputs)
-        outputs = ExtractModelResponse(self.inputs).run()
+        outputs = LLM(self.inputs).run()
         self.inputs.update(outputs)
         outputs = ModifyCode(self.inputs).run()
         self.inputs.update(outputs)
 
         number = len(self.inputs["modified_code_files"])
         self.inputs["pr_header"] = f"This pull request from patchwork adds {number} READMEs."
-        outputs = CommitChanges(self.inputs).run()
-        self.inputs.update(outputs)
-        outputs = PreparePR(self.inputs).run()
-        self.inputs.update(outputs)
-        outputs = CreatePR(self.inputs).run()
+        outputs = PR(self.inputs).run()
         self.inputs.update(outputs)
 
         return self.inputs

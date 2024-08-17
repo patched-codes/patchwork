@@ -1,14 +1,17 @@
-from __future__ import annotations
+from typing_extensions import Annotated, Any, Dict, List, TypedDict
 
-from typing_extensions import Any, NotRequired, TypedDict
+from patchwork.common.utils.step_typing import StepTypeConfig
 
 
-class QueryEmbeddingsInputs(TypedDict):
+class __QueryEmbeddingsRequiredInputs(TypedDict):
     embedding_name: str
-    texts: list[str]
-    top_k: NotRequired[int]
-    token_limit: NotRequired[int]
+    texts: List[str]
+
+
+class QueryEmbeddingsInputs(__QueryEmbeddingsRequiredInputs, total=False):
+    top_k: Annotated[int, StepTypeConfig(is_config=True)]
+    token_limit: Annotated[int, StepTypeConfig(is_config=True)]
 
 
 class QueryEmbeddingsOutputs(TypedDict):
-    embedding_results: list[dict[str, Any]]
+    embedding_results: List[Dict[str, Any]]

@@ -5,9 +5,12 @@ from pathlib import Path
 import yaml
 
 from patchwork.common.utils.progress_bar import PatchflowProgressBar
+from patchwork.common.utils.step_typing import validate_steps_with_inputs
 from patchwork.logger import logger
 from patchwork.step import Step
 from patchwork.steps import (
+    LLM,
+    PR,
     CallLLM,
     CommitChanges,
     CreatePR,
@@ -72,6 +75,10 @@ class AutoFix(Step):
         final_inputs["pr_title"] = f"PatchWork {self.__class__.__name__}"
         final_inputs["branch_prefix"] = f"{self.__class__.__name__.lower()}-"
 
+        validate_steps_with_inputs(
+            set(final_inputs.keys()).union({"prompt_values"}), ScanSemgrep, ExtractCode, LLM, ModifyCode, PR
+        )
+
         self.inputs = final_inputs
 
     def run(self) -> dict:
@@ -82,11 +89,7 @@ class AutoFix(Step):
 
         for i in range(self.n):
             self.inputs["prompt_values"] = outputs.get("files_to_patch", [])
-            outputs = PreparePrompt(self.inputs).run()
-            self.inputs.update(outputs)
-            outputs = CallLLM(self.inputs).run()
-            self.inputs.update(outputs)
-            outputs = ExtractModelResponse(self.inputs).run()
+            outputs = LLM(self.inputs).run()
             self.inputs.update(outputs)
 
             for extracted_response in self.inputs["extracted_responses"]:
@@ -114,11 +117,7 @@ class AutoFix(Step):
                 if len(vulns) < 1:
                     break
 
-        outputs = CommitChanges(self.inputs).run()
-        self.inputs.update(outputs)
-        outputs = PreparePR(self.inputs).run()
-        self.inputs.update(outputs)
-        outputs = CreatePR(self.inputs).run()
+        outputs = PR(self.inputs).run()
         self.inputs.update(outputs)
 
         return self.inputs

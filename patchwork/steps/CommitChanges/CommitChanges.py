@@ -9,13 +9,19 @@ from typing_extensions import Generator
 
 from patchwork.common.utils.utils import get_current_branch
 from patchwork.logger import logger
-from patchwork.step import Step
+from patchwork.step import Step, StepStatus
 
 
 @contextlib.contextmanager
 def transitioning_branches(
-    repo: Repo, branch_prefix: str, branch_suffix: str = "", force: bool = True
+    repo: Repo, branch_prefix: str, branch_suffix: str = "", force: bool = True, enabled: bool = True
 ) -> Generator[tuple[str, str], None, None]:
+    if not enabled:
+        from_branch = get_current_branch(repo)
+        from_branch_name = from_branch.name if not from_branch.is_remote() else from_branch.remote_head
+        yield from_branch_name, from_branch_name
+        return
+
     from_branch = get_current_branch(repo)
     from_branch_name = from_branch.name if not from_branch.is_remote() else from_branch.remote_head
     next_branch_name = f"{branch_prefix}{from_branch_name}{branch_suffix}"
@@ -100,8 +106,7 @@ class CommitChanges(Step):
     required_keys = {"modified_code_files"}
 
     def __init__(self, inputs: dict):
-        logger.info(f"Run started {self.__class__.__name__}")
-
+        super().__init__(inputs)
         if not all(key in inputs.keys() for key in self.required_keys):
             raise ValueError(f'Missing required data: "{self.required_keys}"')
 
@@ -126,14 +131,18 @@ class CommitChanges(Step):
         repo_untracked_files = {repo_dir_path / item for item in repo.untracked_files}
         modified_files = {Path(modified_code_file["path"]).resolve() for modified_code_file in self.modified_code_files}
         true_modified_files = modified_files.intersection(repo_changed_files.union(repo_untracked_files))
-        if not self.enabled or len(true_modified_files) < 1:
-            logger.debug("Branch creation is disabled.")
+        if len(true_modified_files) < 1:
+            self.set_status(StepStatus.SKIPPED, "Branch creation is disabled.")
             from_branch = get_current_branch(repo)
             from_branch_name = from_branch.name if not from_branch.is_remote() else from_branch.remote_head
             return dict(target_branch=from_branch_name)
 
         with transitioning_branches(
-            repo, branch_prefix=self.branch_prefix, branch_suffix=self.branch_suffix, force=self.force
+            repo,
+            branch_prefix=self.branch_prefix,
+            branch_suffix=self.branch_suffix,
+            force=self.force,
+            enabled=self.enabled,
         ) as (
             from_branch,
             to_branch,
@@ -142,7 +151,6 @@ class CommitChanges(Step):
                 repo.git.add(modified_file)
                 commit_with_msg(repo, f"Patched {modified_file}")
 
-            logger.info(f"Run completed {self.__class__.__name__}")
             return dict(
                 base_branch=from_branch,
                 target_branch=to_branch,

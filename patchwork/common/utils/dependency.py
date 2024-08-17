@@ -4,6 +4,7 @@ from functools import lru_cache
 __DEPENDENCY_GROUPS = {
     "rag": ["chromadb"],
     "security": ["semgrep", "depscan"],
+    "notification": ["slack_sdk"],
 }
 
 
@@ -23,3 +24,7 @@ def import_with_dependency_group(name):
 
 def chromadb():
     return import_with_dependency_group("chromadb")
+
+
+def slack_sdk():
+    return import_with_dependency_group("slack_sdk")

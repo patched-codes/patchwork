@@ -1,16 +1,21 @@
-from typing_extensions import NotRequired, TypedDict
+from typing_extensions import Annotated, TypedDict
+
+from patchwork.common.utils.step_typing import StepTypeConfig
 
 
-class CreatePRInputs(TypedDict):
+class __CreatePRRequiredInputs(TypedDict):
     target_branch: str
-    base_branch: NotRequired[str]
-    pr_title: NotRequired[str]
-    pr_body: NotRequired[str]
-    force_pr_creation: NotRequired[bool]
-    disable_pr: NotRequired[bool]
-    scm_url: NotRequired[str]
-    gitlab_api_key: NotRequired[str]
-    github_api_key: NotRequired[str]
+
+
+class CreatePRInputs(__CreatePRRequiredInputs, total=False):
+    base_branch: str
+    pr_title: str
+    pr_body: str
+    force_pr_creation: Annotated[bool, StepTypeConfig(is_config=True)]
+    disable_pr: Annotated[bool, StepTypeConfig(is_config=True)]
+    scm_url: Annotated[str, StepTypeConfig(is_config=True)]
+    gitlab_api_key: Annotated[str, StepTypeConfig(is_config=True)]
+    github_api_key: Annotated[str, StepTypeConfig(is_config=True)]
 
 
 class CreatePROutputs(TypedDict):

@@ -3,11 +3,9 @@ from __future__ import annotations
 import asyncio
 import atexit
 import contextlib
-import hashlib
 import platform
 import socket
 import sys
-import uuid
 from importlib import metadata
 from pathlib import Path
 from threading import Thread
@@ -20,6 +18,7 @@ from requests import Response, Session
 from requests.adapters import DEFAULT_POOLBLOCK, HTTPAdapter
 from urllib3 import HTTPConnectionPool, HTTPSConnectionPool, PoolManager
 
+from patchwork.common.utils.user_config import get_user_config
 from patchwork.common.utils.utils import get_current_branch, is_container
 from patchwork.logger import logger
 
@@ -142,11 +141,12 @@ class PatchedClient(click.ParamType):
         return inputs_copy
 
     async def _public_telemetry(self, patchflow: str, inputs: dict[str, Any]):
+        user_config = get_user_config()
         requests.post(
             url=self.url + "/v1/telemetry/",
             headers={"Authorization": f"Bearer {self.access_token}"},
             json=dict(
-                client_id=hashlib.sha256(str(uuid.getnode()).encode()).hexdigest(),
+                client_id=user_config.id,
                 patchflow=patchflow,
                 inputs=self.__handle_telemetry_inputs(inputs),
                 environment=dict(

@@ -6,8 +6,11 @@ from typing import Any
 import yaml
 
 from patchwork.common.utils.progress_bar import PatchflowProgressBar
+from patchwork.common.utils.step_typing import validate_steps_with_inputs
 from patchwork.step import Step
 from patchwork.steps import (
+    LLM,
+    PR,
     CallLLM,
     CommitChanges,
     CreatePR,
@@ -50,6 +53,10 @@ class GenerateDocstring(Step):
         final_inputs["allow_overlap_contexts"] = False
         final_inputs["force_code_contexts"] = final_inputs.get("rewrite_existing", False)
 
+        validate_steps_with_inputs(
+            set(final_inputs.keys()).union({"prompt_values"}), ExtractCodeMethodForCommentContexts, LLM, ModifyCode, PR
+        )
+
         self.inputs: dict[str, Any] = final_inputs
 
     def run(self) -> dict:
@@ -57,15 +64,10 @@ class GenerateDocstring(Step):
         self.inputs.update(outputs)
 
         self.inputs["prompt_values"] = self.inputs.get("files_to_patch", [])
-        self.inputs["prompt_id"] = "generate_docstring"
         self.inputs["response_partitions"] = {
             "patch": ["Documentation:", "```", "\n", "```"],
         }
-        outputs = PreparePrompt(self.inputs).run()
-        self.inputs.update(outputs)
-        outputs = CallLLM(self.inputs).run()
-        self.inputs.update(outputs)
-        outputs = ExtractModelResponse(self.inputs).run()
+        outputs = LLM(self.inputs).run()
         self.inputs.update(outputs)
 
         # Modify code files with the suggested changes
@@ -76,11 +78,7 @@ class GenerateDocstring(Step):
         self.inputs[
             "pr_header"
         ] = f'This pull request from patchwork fixes {len(self.inputs["prompt_values"])} docstrings.'
-        outputs = CommitChanges(self.inputs).run()
-        self.inputs.update(outputs)
-        outputs = PreparePR(self.inputs).run()
-        self.inputs.update(outputs)
-        outputs = CreatePR(self.inputs).run()
+        outputs = PR(self.inputs).run()
         self.inputs.update(outputs)
 
         return self.inputs

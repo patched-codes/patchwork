@@ -1,5 +1,4 @@
 from patchwork.common.client.scm import GithubClient, GitlabClient
-from patchwork.logger import logger
 from patchwork.step import Step
 
 _IGNORED_EXTENSIONS = [
@@ -27,8 +26,7 @@ class ReadPRDiffs(Step):
     required_keys = {"pr_url"}
 
     def __init__(self, inputs: dict):
-        logger.info(f"Run started {self.__class__.__name__}")
-
+        super().__init__(inputs)
         if not all(key in inputs.keys() for key in self.required_keys):
             raise ValueError(f'Missing required data: "{self.required_keys}"')
 
@@ -45,10 +43,13 @@ class ReadPRDiffs(Step):
         self.pr = self.scm_client.get_pr_by_url(inputs["pr_url"])
 
     def run(self) -> dict:
+        pr_texts = self.pr.texts()
+        title = pr_texts.get("title", "")
+        body = pr_texts.get("body", "")
         prompt_values = []
-        for path, diffs in self.pr.file_diffs().items():
+        for path, diffs in pr_texts.get("diffs", {}).items():
             if filter_by_extension(path, _IGNORED_EXTENSIONS):
                 continue
-            prompt_values.append(dict(path=path, diff=diffs))
+            prompt_values.append(dict(title=title, body=body, path=path, diff=diffs))
 
         return dict(prompt_values=prompt_values)

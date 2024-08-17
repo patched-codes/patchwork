@@ -1,20 +1,33 @@
-import atexit
 import json
-import shutil
+import os
 import subprocess
 import tempfile
 from pathlib import Path
 
+from semver.version import Version
+
 from patchwork.common.utils.dependency import import_with_dependency_group
 from patchwork.logger import logger
 from patchwork.step import Step
+
+__target_cdxgen_version = "10.7.1"
 
 
 def is_cdxgen_installed():
     """Check if cdxgen is installed."""
     try:
         # Attempt to run cdxgen --version to check if it's installed
-        subprocess.run(["cdxgen", "--version"], capture_output=True, check=True)
+        p = subprocess.run(["cdxgen", "--version"], capture_output=True, check=True)
+        logger.debug(f"cdxgen version: {p.stdout}")
+        cdxgen_version = Version.parse(p.stdout.strip())
+        if cdxgen_version.compare(__target_cdxgen_version) > 0:
+            logger.debug(
+                f"cdxgen version {cdxgen_version} is installed, but version {__target_cdxgen_version} is required."
+            )
+            raise ValueError(
+                f"cdxgen version {cdxgen_version} is installed, but version {__target_cdxgen_version} is required."
+            )
+
         return True
     except subprocess.CalledProcessError as e:
         err = e
@@ -30,7 +43,7 @@ def install_cdxgen():
     if not is_cdxgen_installed():
         logger.info(f"Installing now...")
         # Install cdxgen globally using npm
-        subprocess.run(["npm", "install", "-g", "@cyclonedx/cdxgen"], check=True)
+        subprocess.run(["npm", "install", "-g", f"@cyclonedx/cdxgen@{__target_cdxgen_version}"], check=True)
         logger.info(f"cdxgen installed successfully.")
     else:
         logger.debug(f"cdxgen is already installed.")
@@ -57,7 +70,7 @@ class ScanDepscan(Step):
         - This method assumes that npm (Node Package Manager) is installed and accessible in the system's PATH.
         - Depending on system configuration, administrative privileges may be required to install global npm packages.
         """
-        logger.info(f"Run started {self.__class__.__name__}")
+        super().__init__(inputs)
         import_with_dependency_group("depscan")
         install_cdxgen()
 
@@ -90,34 +103,43 @@ class ScanDepscan(Step):
         temporary directory exists and is writable.
         """
         # Generate a unique temporary file path
-        temp_file_path = Path(tempfile.mkdtemp())
-        atexit.register(shutil.rmtree, temp_file_path, ignore_errors=True, onerror=None)
+        with tempfile.TemporaryDirectory() as temp_file_path:
+            cmd = [
+                "depscan",
+                "--debug",
+                "--reports-dir",
+                temp_file_path,
+            ]
 
-        cmd = [
-            "depscan",
-            "--reports-dir",
-            str(temp_file_path),
-        ]
+            if self.language is not None:
+                cmd.extend(["-t", self.language])
+                sbom_vdr_file_name = "sbom-" + self.language
+            else:
+                sbom_vdr_file_name = "sbom-universal"
 
-        if self.language is not None:
-            cmd.append("-t")
-            cmd.append(self.language)
-            sbom_vdr_file_name = "sbom-" + self.language
-        else:
-            sbom_vdr_file_name = "sbom-universal"
+            try:
+                p = subprocess.run(cmd, capture_output=True, text=True, cwd=os.getcwd())
+            except subprocess.CalledProcessError as e:
+                logger.debug("Command execution failed.")
+                logger.debug("stdout:\n" + e.stdout)
+                logger.debug("stderr:\n" + e.stderr)
+                raise RuntimeError("Subprocess command execution failed") from e
+            except Exception as e:
+                logger.debug("Unexpected error during command execution")
+                logger.debug(e)
+                raise RuntimeError("Unexpected error during Subprocess execution") from e
 
-        p = subprocess.run(cmd, capture_output=True, text=True)
+            sbom_vdr_file_path = Path(temp_file_path) / f"{sbom_vdr_file_name}.vdr.json"
+            try:
+                with open(sbom_vdr_file_path, "r") as f:
+                    sbom_values = json.load(f)
+            except json.JSONDecodeError as e:
+                logger.debug(e)
+                raise ValueError(f"Error reading SBOM VDR file from Depscan")
+            except FileNotFoundError as e:
+                logger.debug("stdout:\n" + p.stdout)
+                logger.debug("stderr:\n" + p.stderr)
+                logger.debug(e)
+                raise ValueError(f"SBOM VDR file not found from Depscan")
 
-        sbom_vdr_file_path = temp_file_path / f"{sbom_vdr_file_name}.vdr.json"
-        try:
-            with open(sbom_vdr_file_path, "r") as f:
-                sbom_values = json.load(f)
-        except json.JSONDecodeError as e:
-            logger.debug(e)
-            raise ValueError(f"Error reading SBOM VDR file from Depscan")
-        except FileNotFoundError as e:
-            logger.debug(e)
-            raise ValueError(f"SBOM VDR file not found from Depscan")
-
-        logger.info(f"Run completed {self.__class__.__name__}")
         return {"sbom_vdr_values": sbom_values}

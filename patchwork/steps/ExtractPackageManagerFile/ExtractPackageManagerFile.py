@@ -62,7 +62,7 @@ def find_package_manager_files(directory, purl):
     package_manager_files = {
         "pypi": ["requirements.txt", "Pipfile", "pyproject.toml"],
         "maven": ["pom.xml", "build.gradle", "build.gradle.kts"],
-        "npm": ["package.json", "package-lock.json", "yarn.lock"],
+        "npm": ["package.json", "yarn.lock"],
         "golang": ["go.mod", "go.sum"],
     }
 
@@ -106,8 +106,7 @@ class ExtractPackageManagerFile(Step):
         After successful initialization, the instance is ready to perform data extraction operations
         with its `extracted_data` attribute prepared for storing the results.
         """
-        logger.info(f"Run started {self.__class__.__name__}")
-
+        super().__init__(inputs)
         if not all(key in inputs.keys() for key in self.required_keys):
             raise ValueError(f'Missing required data: "{self.required_keys}"')
 
@@ -119,7 +118,7 @@ class ExtractPackageManagerFile(Step):
                 raise ValueError(f'SBOM VDR file path does not exist or is not a file: "{sbom_vdr_file_path}"')
             with open(sbom_vdr_file_path, "r") as file:
                 self.sbom_vdr_values = json.load(file)
-        if "sbom_vdr_values" in inputs.keys():
+        elif "sbom_vdr_values" in inputs.keys():
             self.sbom_vdr_values = inputs["sbom_vdr_values"]
         else:
             raise ValueError('"sbom_vdr_file_path" or "sbom_vdr_values" not found in inputs')
@@ -278,5 +277,4 @@ class ExtractPackageManagerFile(Step):
             data["endLine"] = len(lines)
             self.extracted_data.append(data)
 
-        logger.info(f"Run completed {self.__class__.__name__}")
         return dict(files_to_patch=self.extracted_data)

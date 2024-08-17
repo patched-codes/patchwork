@@ -6,7 +6,6 @@ from patchwork.common.utils.utils import (
     get_embedding_function,
     get_vector_db_path,
 )
-from patchwork.logger import logger
 from patchwork.step import Step
 
 
@@ -14,8 +13,7 @@ class QueryEmbeddings(Step):
     required_keys = {"embedding_name", "texts"}
 
     def __init__(self, inputs: dict):
-        logger.info(f"Run started {self.__class__.__name__}")
-
+        super().__init__(inputs)
         if not all(key in inputs.keys() for key in self.required_keys):
             raise ValueError(f'Missing required data: "{self.required_keys}"')
 

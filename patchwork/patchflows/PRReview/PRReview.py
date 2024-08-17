@@ -1,10 +1,13 @@
+import json
 from pathlib import Path
 
 import yaml
 
 from patchwork.common.utils.progress_bar import PatchflowProgressBar
+from patchwork.common.utils.step_typing import validate_steps_with_inputs
 from patchwork.step import Step
 from patchwork.steps import (
+    LLM,
     CallLLM,
     CreatePRComment,
     ExtractModelResponse,
@@ -50,6 +53,21 @@ class PRReview(Step):
 
         self.is_suggestion_required = bool(final_inputs.get("diff_suggestion"))
 
+        validate_steps_with_inputs(
+            set(final_inputs.keys()).union(
+                {
+                    "prompt_id",
+                    "prompt_values",
+                    "modified_code_files",
+                    "pr_comment",
+                }
+            ),
+            ReadPRDiffs,
+            LLM,
+            PreparePR,
+            CreatePRComment,
+        )
+
         self.inputs = final_inputs
 
     def run(self) -> dict:
@@ -59,38 +77,30 @@ class PRReview(Step):
         outputs = ReadPRDiffs(self.inputs).run()
         self.inputs.update(outputs)
 
-        other_fields = ""
-        if self.is_suggestion_required:
-            other_fields = "B. Suggestion:\n<Improvement suggestion>"
-        for prompt_values in self.inputs["prompt_values"]:
-            prompt_values["other_fields"] = other_fields
-
-        self.inputs["prompt_id"] = "diffreview"
-        self.inputs["response_partitions"] = {
-            "summary": ["A. Summary:", ""],
-            "suggestion": ["B. Suggestion:", "A. Summary:"],
-        }
-        outputs = PreparePrompt(self.inputs).run()
-        self.inputs.update(outputs)
-        outputs = CallLLM(self.inputs).run()
-        self.inputs.update(outputs)
-        outputs = ExtractModelResponse(self.inputs).run()
+        outputs = LLM(
+            dict(
+                prompt_id="diffreview-suggestion" if self.is_suggestion_required else "diffreview",
+                model_response_format=dict(type="json_object"),
+                **self.inputs,
+            )
+        ).run()
         self.inputs.update(outputs)
 
         summaries = []
-        for response, prompt_values in zip(self.inputs["extracted_responses"], self.inputs["prompt_values"]):
+        for raw_response, prompt_values in zip(self.inputs["openai_responses"], self.inputs["prompt_values"]):
+            response = json.loads(raw_response)
             summary = {}
             if "path" in prompt_values.keys():
                 summary["path"] = prompt_values["path"]
-            if "summary" in response.keys():
-                summary["commit_message"] = response["summary"]
+            if "review" in response.keys():
+                summary["commit_message"] = response["review"]
             if "suggestion" in response.keys():
                 summary["patch_message"] = response["suggestion"]
             summaries.append(summary)
 
         header = ""
         if self.verbosity > _SUMMARY_LEVEL[_SHORT]:
-            filtered_summaries = [summary["commit_message"] for summary in summaries]
+            filtered_summaries = [summary["commit_message"] for summary in summaries if summary.get("commit_message")]
             self.inputs["prompt_id"] = "diffreview_summary"
             self.inputs["prompt_values"] = [{"diffreviews": "\n".join(filtered_summaries)}]
 
@@ -105,7 +115,7 @@ class PRReview(Step):
         outputs = PreparePR(self.inputs).run()
         self.inputs.update(outputs)
 
-        self.inputs["pr_comments"] = [{"body": self.inputs["pr_body"]}]
+        self.inputs["pr_comment"] = self.inputs["pr_body"]
         outputs = CreatePRComment(self.inputs).run()
         self.inputs.update(outputs)
 

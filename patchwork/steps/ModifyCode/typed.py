@@ -1,15 +1,13 @@
-from __future__ import annotations
-
-from typing_extensions import Iterable, TypedDict
+from typing_extensions import Dict, List, TypedDict
 
 
 class ModifyCodeInputs(TypedDict):
-    files_to_patch: Iterable[dict]
-    extracted_responses: Iterable[dict[str, str]]
+    files_to_patch: List[Dict]
+    extracted_responses: List[Dict[str, str]]
 
 
 class ModifyCodeOutputs(TypedDict):
-    modified_code_files: list["ModifiedCodeFile"]
+    modified_code_files: List["ModifiedCodeFile"]
 
 
 class ModifiedCodeFile(TypedDict, total=False):

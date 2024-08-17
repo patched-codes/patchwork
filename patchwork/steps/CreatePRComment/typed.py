@@ -1,14 +1,19 @@
-from typing_extensions import NotRequired, TypedDict
+from typing_extensions import Annotated, TypedDict
+
+from patchwork.common.utils.step_typing import StepTypeConfig
 
 
-class CreatePRCommentInputs(TypedDict):
+class __CreatePRCommentRequiredInputs(TypedDict):
     pr_url: str
-    pr_comments: str
-    noisy_comments: NotRequired[bool]
-    scm_url: NotRequired[str]
-    gitlab_api_key: NotRequired[str]
-    github_api_key: NotRequired[str]
+    pr_comment: str
+
+
+class CreatePRCommentInputs(__CreatePRCommentRequiredInputs, total=False):
+    noisy_comments: Annotated[bool, StepTypeConfig(is_config=True)]
+    scm_url: Annotated[str, StepTypeConfig(is_config=True)]
+    gitlab_api_key: Annotated[str, StepTypeConfig(is_config=True, or_op=["github_api_key"])]
+    github_api_key: Annotated[str, StepTypeConfig(is_config=True, or_op=["gitlab_api_key"])]
 
 
 class CreatePRCommentOutputs(TypedDict):
-    pass
+    pr_url: str

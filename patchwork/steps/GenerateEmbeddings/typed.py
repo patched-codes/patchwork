@@ -1,12 +1,15 @@
-from __future__ import annotations
+from typing_extensions import Annotated, Any, Dict, List, TypedDict
 
-from typing_extensions import Any, Iterable, NotRequired, TypedDict
+from patchwork.common.utils.step_typing import StepTypeConfig
 
 
-class GenerateEmbeddingsInputs(TypedDict):
-    embedding_name: str
-    documents: Iterable[dict[str, Any]]
-    disable_cache: NotRequired[bool]
+class __GenerateEmbeddingsRequiredInputs(TypedDict):
+    embedding_name: Annotated[str, StepTypeConfig(is_config=True)]
+    documents: List[Dict[str, Any]]
+
+
+class GenerateEmbeddingsInputs(__GenerateEmbeddingsRequiredInputs, total=False):
+    disable_cache: Annotated[bool, StepTypeConfig(is_config=True)]
 
 
 class GenerateEmbeddingsOutputs(TypedDict):

@@ -1,14 +1,17 @@
-from __future__ import annotations
+from typing_extensions import Annotated, Any, Dict, List, TypedDict
 
-from typing_extensions import Any, Iterable, NotRequired, TypedDict
+from patchwork.common.utils.step_typing import StepTypeConfig
 
 
-class PreparePromptInputs(TypedDict):
-    prompt_template_file: str
-    prompt_id: str
-    prompt_value_file: NotRequired[str]
-    prompt_values: NotRequired[Iterable[dict[str, Any]]]
+class __PreparePromptRequiredInputs(TypedDict):
+    prompt_template_file: Annotated[str, StepTypeConfig(is_config=True)]
+    prompt_id: Annotated[str, StepTypeConfig(is_config=True)]
+
+
+class PreparePromptInputs(__PreparePromptRequiredInputs, total=False):
+    prompt_value_file: Annotated[str, StepTypeConfig(or_op=["prompt_values"])]
+    prompt_values: Annotated[List[Dict[str, Any]], StepTypeConfig(or_op=["prompt_value_file"])]
 
 
 class PreparePromptOutputs(TypedDict):
-    prompts: Iterable[dict]
+    prompts: List[Dict]

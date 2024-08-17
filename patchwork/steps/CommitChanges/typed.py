@@ -1,14 +1,17 @@
-from __future__ import annotations
+from typing_extensions import Annotated, Any, Dict, List, TypedDict
 
-from typing_extensions import NotRequired, TypedDict
+from patchwork.common.utils.step_typing import StepTypeConfig
 
 
-class CommitChangesInputs(TypedDict):
-    modified_code_files: list[str]
-    disable_branch: NotRequired[bool]
-    force_branch_creation: NotRequired[bool]
-    branch_prefix: NotRequired[str]
-    branch_suffix: NotRequired[str]
+class __CommitChangesRequiredInputs(TypedDict):
+    modified_code_files: List[Dict[str, Any]]
+
+
+class CommitChangesInputs(__CommitChangesRequiredInputs, total=False):
+    disable_branch: Annotated[bool, StepTypeConfig(is_config=True)]
+    force_branch_creation: Annotated[bool, StepTypeConfig(is_config=True)]
+    branch_prefix: Annotated[str, StepTypeConfig(is_config=True)]
+    branch_suffix: Annotated[str, StepTypeConfig(is_config=True)]
 
 
 class CommitChangesOutputs(TypedDict):

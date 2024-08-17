@@ -8,7 +8,7 @@ from pathlib import Path
 import tiktoken
 from chardet.universaldetector import UniversalDetector
 from git import Head, Repo
-from typing_extensions import Callable, TypedDict
+from typing_extensions import Callable
 
 from patchwork.common.utils.dependency import chromadb
 from patchwork.managed_files import HOME_FOLDER
@@ -169,10 +169,6 @@ def get_current_branch(repo: Repo) -> Head:
     return from_branch
 
 
-def get_required_keys(cls: TypedDict) -> set:
-    return getattr(cls, "__required_keys__", set())
-
-
 def is_container() -> bool:
     test_files = ["/.dockerenv", "/run/.containerenv"]
     if any(Path(file).exists() for file in test_files):
@@ -192,3 +188,7 @@ def is_container() -> bool:
 
     # TODO: cgroup v2 detection
     return False
+
+
+def exclude_none_dict(d: dict) -> dict:
+    return {k: v for k, v in d.items() if v is not None}

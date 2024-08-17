@@ -12,7 +12,7 @@ from typing_extensions import Any
 from patchwork.common.context_strategy.context_strategies import ContextStrategies
 from patchwork.common.utils.utils import count_openai_tokens, open_with_chardet
 from patchwork.logger import logger
-from patchwork.step import Step
+from patchwork.step import Step, StepStatus
 
 
 def get_source_code_context(
@@ -173,6 +173,9 @@ def get_severity(result, reporting_descriptors):
 def transform_sarif_results(
     sarif_data: dict, base_path: Path, context_length: int, vulnerability_limit: int, severity_threshold: Severity
 ) -> dict[tuple[str, int, int, int], list[str]]:
+    total_results = len([1 for run in sarif_data.get("runs", []) for result in run.get("results", [])])
+    logger.info(f"Found {total_results} results from SARIF data")
+
     # Process each result in SARIF data
     grouped_messages = defaultdict(list)
     vulnerability_count = 0
@@ -208,7 +211,10 @@ def transform_sarif_results(
                 start_line = start_line - 1
 
                 # Generate file path assuming code is in the current working directory
-                file_path = str(uri.relative_to(base_path))
+                if uri.is_absolute():
+                    file_path = str(uri.relative_to(base_path))
+                else:
+                    file_path = str(uri)
 
                 # Extract lines from the code file
                 logger.debug(f"Extracting context for {file_path} at {start_line}:{end_line}")
@@ -230,6 +236,11 @@ def transform_sarif_results(
                     context_end = None
                     source_code_context = None
                     logger.debug(f"File not found in the current working directory: {file_path}")
+                except Exception as e:
+                    context_start = None
+                    context_end = None
+                    source_code_context = None
+                    logger.error(f"Error reading file: {file_path}", e)
 
                 if source_code_context is None:
                     logger.debug(f"No context found for {file_path} at {start_line}:{end_line}")
@@ -253,8 +264,7 @@ class ExtractCode(Step):
     required_keys = {"sarif_values"}
 
     def __init__(self, inputs: dict):
-        logger.info(f"Run started {self.__class__.__name__}")
-
+        super().__init__(inputs)
         if not all(key in inputs.keys() for key in self.required_keys):
             raise ValueError(f'Missing required data: "{self.required_keys}"')
 
@@ -264,9 +274,6 @@ class ExtractCode(Step):
         self.vulnerability_limit = inputs.get("vulnerability_limit", 10)
         self.severity_threshold = Severity.from_str(inputs.get("severity", "UNKNOWN"))
 
-        # Prepare for data extraction
-        self.extracted_code_contexts = []
-
     def run(self) -> dict:
         base_path = Path.cwd()
 
@@ -274,7 +281,14 @@ class ExtractCode(Step):
             self.sarif_data, base_path, self.context_length, self.vulnerability_limit, self.severity_threshold
         )
 
-        self.extracted_code_contexts = [
+        if len(grouped_messages) == 0:
+            self.set_status(StepStatus.SKIPPED, "No vulnerabilities found")
+            return dict(files_to_patch=[])
+
+        if len(grouped_messages) == self.vulnerability_limit:
+            logger.debug(f"Taking {self.vulnerability_limit} vulnerability because vulnerability limit reached")
+
+        extracted_code_contexts = [
             {
                 "uri": str(file_path),
                 "startLine": start,
@@ -285,8 +299,4 @@ class ExtractCode(Step):
             for (file_path, start, end, context), msgs in grouped_messages.items()
         ]
 
-        logger.info(f"Run completed {self.__class__.__name__}")
-
-        return dict(
-            files_to_patch=self.extracted_code_contexts,
-        )
+        return dict(files_to_patch=extracted_code_contexts)

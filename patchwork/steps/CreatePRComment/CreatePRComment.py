@@ -1,14 +1,13 @@
 from patchwork.common.client.scm import GithubClient, GitlabClient
 from patchwork.logger import logger
-from patchwork.step import Step
+from patchwork.step import Step, StepStatus
 
 
 class CreatePRComment(Step):
-    required_keys = {"pr_url", "pr_comments"}
+    required_keys = {"pr_url", "pr_comment"}
 
     def __init__(self, inputs: dict):
-        logger.info(f"Run started {self.__class__.__name__}")
-
+        super().__init__(inputs)
         if not all(key in inputs.keys() for key in self.required_keys):
             raise ValueError(f'Missing required data: "{self.required_keys}"')
 
@@ -23,19 +22,18 @@ class CreatePRComment(Step):
             self.scm_client.set_url(inputs["scm_url"])
 
         self.pr = self.scm_client.get_pr_by_url(inputs["pr_url"])
-        self.pr_comments = inputs["pr_comments"]
+        self.pr_comment = inputs["pr_comment"]
         self.noisy = bool(inputs.get("noisy_comments", False))
 
     def run(self) -> dict:
         if not self.noisy:
             self.pr.reset_comments()
 
-        for pr_comment in self.pr_comments:
-            comment = self.pr.create_comment(**pr_comment)
-            if comment is None:
-                logger.error(f"Failed to create comment: {pr_comment}")
-            else:
-                logger.info(f"Comment created for PR: {self.pr.url}")
+        comment = self.pr.create_comment(body=self.pr_comment)
+        if comment is None:
+            self.set_status(StepStatus.FAILED)
+            logger.error(f"Failed to create comment: {self.pr_comment}")
+        else:
+            logger.info(f"Comment created for PR: {self.pr.url()}")
 
-        logger.info(f"Run completed {self.__class__.__name__}")
-        return dict()
+        return dict(pr_url=self.pr.url())
