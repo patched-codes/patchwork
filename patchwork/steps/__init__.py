@@ -36,7 +36,7 @@ from patchwork.steps.PreparePrompt.PreparePrompt import PreparePrompt
 from patchwork.steps.QueryEmbeddings.QueryEmbeddings import QueryEmbeddings
 from patchwork.steps.ReadIssues.ReadIssues import ReadIssues
 from patchwork.steps.ReadPRDiffs.ReadPRDiffs import ReadPRDiffs
-from patchwork.steps.ReadPRDiffsPB.ReadPRDiffs import ReadPRDiffsPB
+from patchwork.steps.ReadPRDiffsPB.ReadPRDiffsPB import ReadPRDiffsPB
 from patchwork.steps.ReadPRs.ReadPRs import ReadPRs
 from patchwork.steps.ScanDepscan.ScanDepscan import ScanDepscan
 from patchwork.steps.ScanSemgrep.ScanSemgrep import ScanSemgrep

@@ -50,9 +50,9 @@ class ReadPRDiffsPB(Step):
         body = pr_texts.get("body", "")
         comments = pr_texts.get("comments", [])
         diffs: List[dict] = []
-        for path, diffs in pr_texts.get("diffs", {}).items():
+        for path, diff_text in pr_texts.get("diffs", {}).items():
             if filter_by_extension(path, _IGNORED_EXTENSIONS):
                 continue
-            diffs.append(dict(path=path, diff=diffs))
+            diffs.append(dict(path=path, diff=diff_text))
 
         return dict(title=title, body=body, comments=comments, diffs=diffs)
