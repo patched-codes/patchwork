@@ -33,6 +33,7 @@ from patchwork.steps.ModifyCodePB.ModifyCodePB import ModifyCodePB
 from patchwork.steps.PR.PR import PR
 from patchwork.steps.PreparePR.PreparePR import PreparePR
 from patchwork.steps.PreparePrompt.PreparePrompt import PreparePrompt
+from patchwork.steps.PRPB.PRPB import PRPB
 from patchwork.steps.QueryEmbeddings.QueryEmbeddings import QueryEmbeddings
 from patchwork.steps.ReadFile.ReadFile import ReadFile
 from patchwork.steps.ReadIssues.ReadIssues import ReadIssues
@@ -72,6 +73,7 @@ __all__ = [
     "PR",
     "PreparePR",
     "PreparePrompt",
+    "PRPB",
     "QueryEmbeddings",
     "ReadFile",
     "ReadIssues",
