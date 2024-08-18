@@ -1,6 +1,5 @@
 from typing_extensions import Annotated, List, TypedDict
 
-from patchwork.common.client.scm import PullRequestComment
 from patchwork.common.utils.step_typing import StepTypeConfig
 from patchwork.steps.ReadPRDiffsPB.typed import ReadPRDiffsPBOutputs
 

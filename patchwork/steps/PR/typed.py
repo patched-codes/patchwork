@@ -5,6 +5,8 @@ from patchwork.common.utils.step_typing import StepTypeConfig
 
 class ModifiedCodeFile(TypedDict):
     path: str
+    commit_message: str
+    patch_message: str
 
 
 class __PRInputsRequired(TypedDict):
