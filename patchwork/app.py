@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib
 import importlib.util
 import json
+import signal
 import traceback
 from collections import deque
 from pathlib import Path
@@ -25,6 +26,14 @@ _DATA_FORMAT_MAPPING = {
 _CONFIG_NAME = "config.yml"
 _PROMPT_NAME = "prompt.json"
 _PATCHFLOW_MODULE_NAME = "patchwork.patchflows"
+
+
+def sigint_handler(signum, frame):
+    logger.info("Received SIGINT, exiting")
+    exit(1)
+
+
+signal.signal(signal.SIGINT, sigint_handler)
 
 
 def _get_patchflow_names(base_path: Path | str | None) -> Iterable[str]:
