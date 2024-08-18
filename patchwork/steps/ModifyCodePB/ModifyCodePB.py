@@ -28,4 +28,4 @@ class ModifyCodePB(Step, input_class=ModifyCodePBInputs, output_class=ModifyCode
             }
         )
         modified_code_files = modify_code.run()
-        return dict(**modified_code_files[0])
+        return dict(**modified_code_files["modified_code_files"][0])
