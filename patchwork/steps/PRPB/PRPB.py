@@ -11,9 +11,9 @@ class PRPB(Step, input_class=PRPBInputs, output_class=PRPBOutputs):
         super().__init__(inputs)
         key_map = dict(path=inputs['path_key'])
         if inputs.get('title_key') is not None:
-            key_map['commit_message'] = inputs['title_key']
+            key_map['commit_message'] = inputs['comment_title_key']
         if inputs.get('message_key') is not None:
-            key_map['patch_message'] = inputs['message_key']
+            key_map['patch_message'] = inputs['comment_message_key']
 
         self.modified_files = []
         for modified_file in inputs.get('modified_files', []):

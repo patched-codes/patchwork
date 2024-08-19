@@ -10,8 +10,8 @@ class __PRPBInputsRequired(TypedDict):
 
 
 class PRPBInputs(__PRPBInputsRequired, total=False):
-    title_key: str
-    message_key: str
+    comment_title_key: str
+    comment_message_key: str
     # CommitChangesInputs
     disable_branch: Annotated[bool, StepTypeConfig(is_config=True)]
     force_branch_creation: Annotated[bool, StepTypeConfig(is_config=True)]
