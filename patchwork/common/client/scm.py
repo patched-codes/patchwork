@@ -341,7 +341,10 @@ class GithubPullRequest(PullRequestProtocol):
         return dict(
             title=self._pr.title or "",
             body=self._pr.body or "",
-            comments=[dict(user=comment.user.name, body=comment.body) for comment in self._pr.get_comments()],
+            comments=[
+                dict(user=comment.user.name, body=comment.body)
+                for comment in itertools.chain(self._pr.get_comments(), self._pr.get_issue_comments())
+            ],
             # None checks for binary files
             diffs={file.filename: file.patch for file in self._pr.get_files() if file.patch is not None},
         )

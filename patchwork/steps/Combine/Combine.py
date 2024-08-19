@@ -18,7 +18,7 @@ class Combine(Step):
         base_list = isinstance(self.base, list)
         update_list = isinstance(self.update, list)
         if not base_list and not update_list:
-            return dict(result_json={**self.base, **self.update})
+            return {**self.base, **self.update}
 
         if base_list and update_list:
             final_output = []
