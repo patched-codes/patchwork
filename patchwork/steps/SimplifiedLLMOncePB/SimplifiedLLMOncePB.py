@@ -2,7 +2,7 @@ import json
 
 from patchwork.step import Step
 from patchwork.steps import SimplifiedLLM
-from patchwork.steps.SimplifiedLLM import SimplifiedLLM
+from patchwork.steps.SimplifiedLLM.SimplifiedLLM import SimplifiedLLM
 from patchwork.steps.SimplifiedLLMOncePB.typed import SimplifiedLLMOncePBInputs
 
 
@@ -19,7 +19,7 @@ class SimplifiedLLMOncePB(Step, input_class=SimplifiedLLMOncePBInputs):
     def __json_schema_as_suffix(self, prompt: str):
         return f"""\
 {prompt}
-Respond with the following json format:
+Respond with the following json format but minified:
 {json.dumps(self.json_schema, indent=2)}
 """
 
