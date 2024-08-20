@@ -6,9 +6,9 @@ from itertools import islice
 from pathlib import Path
 from pprint import pformat
 from textwrap import indent
+
 from rich.markup import escape
 
-from rich import markup
 from patchwork.common.client.llm.aio import AioLlmClient
 from patchwork.common.client.llm.anthropic import AnthropicLlmClient
 from patchwork.common.client.llm.google import GoogleLlmClient

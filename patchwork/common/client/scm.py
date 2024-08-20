@@ -176,6 +176,7 @@ class ScmPlatformClientProtocol(Protocol):
         state: PullRequestState | None = None,
         original_branch: str | None = None,
         feature_branch: str | None = None,
+        limit: int | None = None,
     ) -> list[PullRequestProtocol]:
         ...
 
@@ -420,6 +421,7 @@ class GithubClient(ScmPlatformClientProtocol):
         state: PullRequestState | None = None,
         original_branch: str | None = None,
         feature_branch: str | None = None,
+        limit: int | None = None,
     ) -> list[GithubPullRequest]:
         repo = self.github.get_repo(slug)
         kwargs_list = dict(state=[None], target_branch=[None], source_branch=[None])
@@ -431,12 +433,12 @@ class GithubClient(ScmPlatformClientProtocol):
         if feature_branch is not None:
             kwargs_list["head"] = [feature_branch]  # type: ignore
 
-        prs = []
+        page_list = []
         keys = kwargs_list.keys()
         for instance in itertools.product(*kwargs_list.values()):
             kwargs = dict(((key, value) for key, value in zip(keys, instance) if value is not None))
             pages = repo.get_pulls(**kwargs)
-            prs.extend(iter(pages))
+            page_list.append(pages)
 
         branch_checker = lambda pr: True
         if original_branch is not None:
@@ -445,7 +447,11 @@ class GithubClient(ScmPlatformClientProtocol):
             branch_checker = lambda pr: branch_checker and pr.head.ref == feature_branch
 
         # filter out PRs that are not the ones we are looking for
-        return [GithubPullRequest(pr) for pr in prs if branch_checker(pr)]
+        rv_list = []
+        for pr in itertools.islice(itertools.chain(*page_list), limit):
+            if branch_checker(pr):
+                rv_list.append(GithubPullRequest(pr))
+        return rv_list
 
     def create_pr(
         self,
@@ -544,6 +550,7 @@ class GitlabClient(ScmPlatformClientProtocol):
         state: PullRequestState | None = None,
         original_branch: str | None = None,
         feature_branch: str | None = None,
+        limit: int | None = None,
     ) -> list[PullRequestProtocol]:
         project = self.gitlab.projects.get(slug)
         kwargs_list = dict(iterator=[True], state=[None], target_branch=[None], source_branch=[None])
@@ -555,14 +562,18 @@ class GitlabClient(ScmPlatformClientProtocol):
         if feature_branch is not None:
             kwargs_list["source_branch"] = [feature_branch]  # type: ignore
 
-        mrs = []
+        page_list = []
         keys = kwargs_list.keys()
         for instance in itertools.product(*kwargs_list.values()):
             kwargs = dict(((key, value) for key, value in zip(keys, instance) if value is not None))
             mrs_instance = project.mergerequests.list(**kwargs)
-            mrs.extend(mrs_instance)
+            page_list.append(mrs_instance)
 
-        return [GitlabMergeRequest(mr) for mr in mrs]
+        rv_list = []
+        for mr in itertools.islice(itertools.chain(mrs), limit):
+            rv_list.append(GitlabMergeRequest(mr))
+
+        return rv_list
 
     def create_pr(
         self,

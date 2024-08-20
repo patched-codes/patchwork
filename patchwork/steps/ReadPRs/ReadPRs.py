@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import List
-
 from patchwork.common.client.scm import (
     GithubClient,
     GitlabClient,
@@ -51,6 +49,7 @@ class ReadPRs(Step):
         self.repo_slug = inputs["repo_slug"]
         self.pr_ids = self.__parse_pr_ids_input(inputs.get("pr_ids"))
         self.pr_state = self.__parse_pr_state_input(inputs.get("pr_state"))
+        self.limit = inputs.get("limit", 50)
 
     @staticmethod
     def __parse_pr_ids_input(pr_ids_input: list[str] | str | None) -> list:
@@ -81,10 +80,10 @@ class ReadPRs(Step):
 
         return state
 
-    def run(self) -> List[DataPoint]:
-        prs = self.scm_client.find_prs(self.repo_slug, state=self.pr_state)
+    def run(self) -> DataPoint:
+        prs = self.scm_client.find_prs(self.repo_slug, state=self.pr_state, limit=self.limit)
         if len(prs) < 1:
-            return list()
+            return dict(pr_texts=[])
 
         if len(self.pr_ids) > 0:
             prs = filter(lambda _pr: str(_pr.id) in self.pr_ids, prs)
@@ -93,7 +92,7 @@ class ReadPRs(Step):
         for pr in prs:
             data_point = self.__pr_to_data_point(pr)
             data_points.append(data_point)
-        return data_points
+        return dict(pr_texts=data_points)
 
     @staticmethod
     def __pr_to_data_point(pr: PullRequestProtocol):
