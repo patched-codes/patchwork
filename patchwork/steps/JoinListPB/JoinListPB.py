@@ -15,7 +15,7 @@ class JoinListPB(Step, input_class=JoinListPBInputs, output_class=JoinListPBOutp
         join_list = JoinList(
             {
                 **self.inputs,
-                "list": [item for item in self.list if item.get(self.key) is not None],
+                "list": [item.get(self.key) for item in self.list if item.get(self.key) is not None],
             }
         )
         join_list_output = join_list.run()

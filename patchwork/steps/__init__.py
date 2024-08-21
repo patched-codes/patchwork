@@ -33,7 +33,9 @@ from patchwork.steps.ModifyCodePB.ModifyCodePB import ModifyCodePB
 from patchwork.steps.PR.PR import PR
 from patchwork.steps.PreparePR.PreparePR import PreparePR
 from patchwork.steps.PreparePrompt.PreparePrompt import PreparePrompt
+from patchwork.steps.PRPB.PRPB import PRPB
 from patchwork.steps.QueryEmbeddings.QueryEmbeddings import QueryEmbeddings
+from patchwork.steps.ReadFile.ReadFile import ReadFile
 from patchwork.steps.ReadIssues.ReadIssues import ReadIssues
 from patchwork.steps.ReadPRDiffs.ReadPRDiffs import ReadPRDiffs
 from patchwork.steps.ReadPRDiffsPB.ReadPRDiffsPB import ReadPRDiffsPB
@@ -41,6 +43,8 @@ from patchwork.steps.ReadPRs.ReadPRs import ReadPRs
 from patchwork.steps.ScanDepscan.ScanDepscan import ScanDepscan
 from patchwork.steps.ScanSemgrep.ScanSemgrep import ScanSemgrep
 from patchwork.steps.SimplifiedLLM.SimplifiedLLM import SimplifiedLLM
+from patchwork.steps.SimplifiedLLMOnce.SimplifiedLLMOnce import SimplifiedLLMOnce
+from patchwork.steps.SimplifiedLLMOncePB.SimplifiedLLMOncePB import SimplifiedLLMOncePB
 from patchwork.steps.SlackMessage.SlackMessage import SlackMessage
 
 __all__ = [
@@ -69,6 +73,7 @@ __all__ = [
     "PR",
     "PreparePR",
     "PreparePrompt",
+    "PRPB",
     "QueryEmbeddings",
     "ReadFile",
     "ReadIssues",
@@ -78,6 +83,8 @@ __all__ = [
     "ScanDepscan",
     "ScanSemgrep",
     "SimplifiedLLM",
+    "SimplifiedLLMOnce",
+    "SimplifiedLLMOncePB",
     "SlackMessage",
     "JoinList",
     "JoinListPB",
