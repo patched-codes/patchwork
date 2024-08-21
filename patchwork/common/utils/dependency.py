@@ -1,4 +1,4 @@
-import importlib
+import importlib.util
 from functools import lru_cache
 
 __DEPENDENCY_GROUPS = {
@@ -11,7 +11,10 @@ __DEPENDENCY_GROUPS = {
 @lru_cache(maxsize=None)
 def import_with_dependency_group(name):
     try:
-        return importlib.import_module(name)
+        module_info = importlib.util.find_spec(name)
+        if module_info is None:
+            raise ImportError
+        return importlib.util.module_from_spec(module_info)
     except ImportError:
         error_msg = f"Missing dependency for {name}, please `pip install {name}`"
         dependency_group = next(
