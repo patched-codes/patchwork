@@ -4,7 +4,12 @@ from patchwork.steps.PRPB.typed import PRPBInputs, PRPBOutputs
 
 
 class PRPB(Step, input_class=PRPBInputs, output_class=PRPBOutputs):
-    def __init__(self, inputs):
+    def __init__(self, inputs: PRPBInputs) -> None:
+        """Initialize PRPB step.
+
+        Args:
+            inputs (PRPBInputs): Input parameters for the PRPB step.
+        """
         super().__init__(inputs)
         key_map = dict(path=inputs["path_key"])
         if inputs.get("title_key") is not None:
@@ -18,7 +23,12 @@ class PRPB(Step, input_class=PRPBInputs, output_class=PRPBOutputs):
             self.modified_files.append(converted_modified_file)
         self.inputs = inputs
 
-    def run(self):
+    def run(self) -> PRPBOutputs:
+        """Run the PRPB step.
+
+        Returns:
+            PRPBOutputs: Output of the PRPB step.
+        """
         pr = PR({**self.inputs, "modified_code_files": self.modified_files})
         pr_outputs = pr.run()
 
