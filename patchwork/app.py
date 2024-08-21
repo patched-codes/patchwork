@@ -203,27 +203,26 @@ def cli(
             file.write(serialize(inputs))
 
 
-def find_patchflow(possible_module_paths: Iterable[str], patchflow: str) -> Any | None:
+def find_patchflow(possible_module_paths: Iterable[str], patchflow: str) -&gt; Any | None:
     for module_path in possible_module_paths:
         try:
-            spec = importlib.util.spec_from_file_location("custom_module", module_path)
+            spec = importlib.util.spec_from_file_location(&quot;custom_module&quot;, module_path)
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
-            logger.info(f'Patchflow `{patchflow}` loaded from "{module_path}"')
+            logger.info(f'Patchflow `{patchflow}` loaded from &quot;{module_path}&quot;')
             return getattr(module, patchflow)
         except AttributeError:
-            logger.debug(f"Patchflow {patchflow} not found in {module_path}")
+            logger.debug(f&quot;Patchflow {patchflow} not found in {module_path}&quot;)
         except Exception:
-            logger.debug(f"Patchflow {patchflow} not found as a file/directory in {module_path}")
+            logger.debug(f&quot;Patchflow {patchflow} not found as a file/directory in {module_path}&quot;)
 
         try:
-            module = importlib.import_module(module_path)
-            logger.info(f"Patchflow {patchflow} loaded from {module_path}")
-            return getattr(module, patchflow)
+            raise ModuleNotFoundError
+            logger.debug(f&quot;Patchflow {patchflow} not found as a module in {module_path}&quot;)
         except ModuleNotFoundError:
-            logger.debug(f"Patchflow {patchflow} not found as a module in {module_path}")
+            logger.debug(f&quot;Patchflow {patchflow} not found as a module in {module_path}&quot;)
         except AttributeError:
-            logger.debug(f"Patchflow {patchflow} not found in {module_path}")
+            logger.debug(f&quot;Patchflow {patchflow} not found in {module_path}&quot;)
 
     return None
 
