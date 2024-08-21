@@ -1,13 +1,16 @@
 import json
+from typing import Any, Dict
 
 from patchwork.step import Step
-from patchwork.steps import SimplifiedLLM
 from patchwork.steps.SimplifiedLLM.SimplifiedLLM import SimplifiedLLM
 from patchwork.steps.SimplifiedLLMOncePB.typed import SimplifiedLLMOncePBInputs
 
 
 class SimplifiedLLMOncePB(Step, input_class=SimplifiedLLMOncePBInputs):
-    def __init__(self, inputs):
+    """A step that uses SimplifiedLLM with a JSON schema suffix."""
+
+    def __init__(self, inputs: Dict[str, Any]):
+        """Initialize the SimplifiedLLMOncePB step."""
         super().__init__(inputs)
 
         self.user = inputs["prompt_user"]
@@ -16,23 +19,25 @@ class SimplifiedLLMOncePB(Step, input_class=SimplifiedLLMOncePBInputs):
         self.json_schema = inputs["json_schema"]
         self.inputs = inputs
 
-    def __json_schema_as_suffix(self, prompt: str):
+    def __json_schema_as_suffix(self, prompt: str) -> str:
+        """Add JSON schema as a suffix to the prompt."""
         return f"""\
 {prompt}
 Respond with the following json format but minified:
 {json.dumps(self.json_schema, indent=2)}
 """
 
-    def run(self) -> dict:
+    def run(self) -> Dict[str, Any]:
+        """Run the SimplifiedLLMOncePB step."""
         if self.system is not None:
-            prompt_dict = dict(
-                prompt_system=self.__json_schema_as_suffix(self.system),
-                prompt_user=self.user,
-            )
+            prompt_dict = {
+                "prompt_system": self.__json_schema_as_suffix(self.system),
+                "prompt_user": self.user,
+            }
         else:
-            prompt_dict = dict(
-                prompt_user=self.__json_schema_as_suffix(self.user),
-            )
+            prompt_dict = {
+                "prompt_user": self.__json_schema_as_suffix(self.user),
+            }
 
         llm = SimplifiedLLM(
             {
@@ -44,6 +49,6 @@ Respond with the following json format but minified:
         )
         llm_output = llm.run()
 
-        return dict(
+        return {
             **llm_output.get("extracted_responses")[0],
-        )
+        }
