@@ -38,9 +38,9 @@ def replace_code_in_file(
     end_line: int | None,
     new_code: str,
 ) -> None:
+    """Replaces specified lines in a file with new code."""
     path = Path(file_path)
     if path.exists():
-        """Replaces specified lines in a file with new code."""
         text = path.read_text()
 
         lines = text.splitlines(keepends=True)
