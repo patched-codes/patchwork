@@ -5,7 +5,7 @@ class ModifyCodePBInputs(TypedDict):
     file_path: str
     start_line: int
     end_line: int
-    patch: str
+    new_code: str
 
 
 class ModifyCodePBOutputs(TypedDict):

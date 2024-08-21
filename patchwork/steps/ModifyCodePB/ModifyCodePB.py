@@ -11,7 +11,7 @@ class ModifyCodePB(Step, input_class=ModifyCodePBInputs, output_class=ModifyCode
         self.file_path = inputs["file_path"]
         self.start_line = inputs["start_line"]
         self.end_line = inputs["end_line"]
-        self.patch = inputs["patch"]
+        self.patch = inputs["new_code"]
 
     def run(self) -> dict:
         modify_code = ModifyCode(
