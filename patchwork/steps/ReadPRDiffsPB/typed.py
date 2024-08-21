@@ -14,7 +14,7 @@ class ReadPRDiffsPBInputs(__ReadPRDiffsPBRequiredInputs, total=False):
     github_api_key: Annotated[str, StepTypeConfig(is_config=True, or_op=["gitlab_api_key"])]
 
 
-class ReadPRDiffsPBOutputs(TypedDict):
+class ReadPRDiffsOutputs(TypedDict):
     title: str
     body: str
     comments: List[PullRequestComment]

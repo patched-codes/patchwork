@@ -95,7 +95,7 @@ class TerminalHandler(RichHandler):
         if self.__progress_bar is not None:
             renderables.append(self.__progress_bar)
 
-        self.__live = Live(Group(*renderables), console=console, vertical_overflow="visible")
+        self.__live = Live(Group(*renderables), console=console, vertical_overflow="crop")
         try:
             self.__live.start()
             yield

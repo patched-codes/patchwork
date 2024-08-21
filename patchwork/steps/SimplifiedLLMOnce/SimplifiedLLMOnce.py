@@ -1,6 +1,7 @@
 from patchwork.common.utils.utils import exclude_none_dict
 from patchwork.step import Step
-from patchwork.steps.SimplifiedLLM.SimplifiedLLM import SimplifiedLLM
+from patchwork.steps import SimplifiedLLM
+from patchwork.steps.SimplifiedLLM import SimplifiedLLM
 from patchwork.steps.SimplifiedLLMOnce.typed import SimplifiedLLMOnceInputs
 
 

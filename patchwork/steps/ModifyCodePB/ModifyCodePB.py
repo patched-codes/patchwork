@@ -8,27 +8,24 @@ from patchwork.steps.ModifyCodePB.typed import ModifyCodePBInputs, ModifyCodePBO
 class ModifyCodePB(Step, input_class=ModifyCodePBInputs, output_class=ModifyCodePBOutputs):
     def __init__(self, inputs: dict):
         super().__init__(inputs)
-        self.file_path = inputs["file_path"]
-        self.start_line = inputs["start_line"]
-        self.end_line = inputs["end_line"]
-        self.patch = inputs["patch"]
+        self.files_with_patch = inputs["files_with_patch"]
 
     def run(self) -> dict:
         modify_code = ModifyCode(
             {
                 "files_to_patch": [
                     dict(
-                        uri=self.file_path,
-                        startLine=self.start_line,
-                        endLine=self.end_line,
+                        uri=self.files_with_patch.get("file_path"),
+                        startLine=self.files_with_patch.get("start_line"),
+                        endLine=self.files_with_patch.get("end_line"),
                     )
                 ],
                 "extracted_responses": [
                     dict(
-                        patch=self.patch,
+                        patch=self.files_with_patch.get("patch"),
                     )
                 ],
             }
         )
         modified_code_files = modify_code.run()
-        return dict(**modified_code_files["modified_code_files"][0])
+        return dict(**modified_code_files[0])
