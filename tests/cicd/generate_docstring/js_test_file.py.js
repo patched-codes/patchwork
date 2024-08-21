@@ -1,14 +1,33 @@
 
+/**
+ * Adds two numbers together.
+ * @param {number} a - The first number to be added.
+ * @param {number} b - The second number to be added.
+ * @returns {number} The sum of the two numbers.
+ */
 function a_plus_b(a, b) {
     return a + b;
 }
 
+/**
+ * Executes a query on a SQLite database and invokes a callback function for each row in the result set.
+ * @param {object} db - The SQLite database object
+ * @param {string} query - The SQL query to be executed
+ * @param {function} callback - The callback function to be invoked for each row in the result set
+ */
 const sqlite = (db, query, callback) => {
     db.serialize(function () {
         db.each(query, callback);
     });
 }
 
+/**
+ * Compare function to be used for sorting objects based on a specific key in the keymap.
+ * @param {string} keymap - The key to compare the objects by.
+ * @param {Object} a - The first object to compare.
+ * @param {Object} b - The second object to compare.
+ * @returns {number} Returns -1 if a[keymap] is less than b[keymap], 1 if a[keymap] is greater than b[keymap], or 0 if they are equal.
+ */
 const compare= function (keymap, a, b) {
     if (a[keymap] < b[keymap]) {
         return -1;
