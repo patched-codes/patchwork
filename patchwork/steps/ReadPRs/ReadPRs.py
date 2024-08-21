@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import TypedDict, List, Dict, Optional
 
 from patchwork.common.client.scm import (
     GithubClient,
@@ -24,13 +25,22 @@ _IGNORED_EXTENSIONS = [
     ".lock",
 ]
 
+class PRDataPoint(TypedDict):
+    title: str
+    body: str
+    diffs: List[Dict[str, str]]
+    comments: List[str]
 
-def filter_by_extension(file, extensions):
+class ReadPRsOutput(TypedDict):
+    pr_texts: List[PRDataPoint]
+
+def filter_by_extension(file: str, extensions: List[str]) -> bool:
+    """Check if a file ends with any of the given extensions."""
     return any(file.endswith(ext) for ext in extensions)
-
 
 class ReadPRs(Step):
     def __init__(self, inputs: DataPoint):
+        """Initialize the ReadPRs step."""
         super().__init__(inputs)
         missing_keys = ReadPRsInputs.__required_keys__.difference(inputs.keys())
         if len(missing_keys) > 0:
@@ -52,7 +62,8 @@ class ReadPRs(Step):
         self.limit = inputs.get("limit", 50)
 
     @staticmethod
-    def __parse_pr_ids_input(pr_ids_input: list[str] | str | None) -> list:
+    def __parse_pr_ids_input(pr_ids_input: Optional[List[str] | str]) -> List[str]:
+        """Parse the PR IDs input."""
         if not pr_ids_input:
             return []
 
@@ -68,7 +79,8 @@ class ReadPRs(Step):
         return []
 
     @staticmethod
-    def __parse_pr_state_input(state_input: str | None) -> PullRequestState:
+    def __parse_pr_state_input(state_input: Optional[str]) -> PullRequestState:
+        """Parse the PR state input."""
         if not state_input:
             logger.debug(f"No pull request state given. Defaulting to OPEN.")
             return PullRequestState.OPEN
@@ -80,10 +92,11 @@ class ReadPRs(Step):
 
         return state
 
-    def run(self) -> DataPoint:
+    def run(self) -> ReadPRsOutput:
+        """Run the ReadPRs step."""
         prs = self.scm_client.find_prs(self.repo_slug, state=self.pr_state, limit=self.limit)
         if len(prs) < 1:
-            return dict(pr_texts=[])
+            return ReadPRsOutput(pr_texts=[])
 
         if len(self.pr_ids) > 0:
             prs = filter(lambda _pr: str(_pr.id) in self.pr_ids, prs)
@@ -92,10 +105,11 @@ class ReadPRs(Step):
         for pr in prs:
             data_point = self.__pr_to_data_point(pr)
             data_points.append(data_point)
-        return dict(pr_texts=data_points)
+        return ReadPRsOutput(pr_texts=data_points)
 
     @staticmethod
-    def __pr_to_data_point(pr: PullRequestProtocol):
+    def __pr_to_data_point(pr: PullRequestProtocol) -> PRDataPoint:
+        """Convert a PullRequestProtocol to a PRDataPoint."""
         pr_texts = pr.texts()
         title = pr_texts.get("title", "")
         body = pr_texts.get("body", "")
@@ -104,9 +118,9 @@ class ReadPRs(Step):
         for path, diff in pr_texts.get("diffs", {}).items():
             if filter_by_extension(path, _IGNORED_EXTENSIONS):
                 continue
-            diffs.append(dict(path=path, diff=diff))
+            diffs.append({"path": path, "diff": diff})
 
-        return dict(
+        return PRDataPoint(
             title=title,
             body=body,
             diffs=diffs,
