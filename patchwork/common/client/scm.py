@@ -150,24 +150,76 @@ class PullRequestProtocol(Protocol):
 
 class ScmPlatformClientProtocol(Protocol):
     def test(self) -> bool:
+        """Test the connection to the SCM.
+
+        Returns:
+            bool: True if the connection is successful, False otherwise.
+        """
         ...
 
     def set_url(self, url: str) -> None:
+        """Set the URL for the SCM.
+
+        Args:
+            url (str): The URL to set.
+        """
         ...
 
     def get_slug_and_id_from_url(self, url: str) -> tuple[str, int] | None:
+        """Extract slug and ID from a given URL.
+
+        Args:
+            url (str): The URL to parse.
+
+        Returns:
+            tuple[str, int] | None: A tuple containing the slug and ID, or None if parsing fails.
+        """
         ...
 
     def find_issue_by_url(self, url: str) -> IssueText | None:
+        """Find an issue by its URL.
+
+        Args:
+            url (str): The URL of the issue.
+
+        Returns:
+            IssueText | None: The found issue, or None if not found.
+        """
         ...
 
     def find_issue_by_id(self, slug: str, issue_id: int) -> IssueText | None:
+        """Find an issue by its slug and ID.
+
+        Args:
+            slug (str): The slug of the repository.
+            issue_id (int): The ID of the issue.
+
+        Returns:
+            IssueText | None: The found issue, or None if not found.
+        """
         ...
 
     def get_pr_by_url(self, url: str) -> PullRequestProtocol | None:
+        """Get a pull request by its URL.
+
+        Args:
+            url (str): The URL of the pull request.
+
+        Returns:
+            PullRequestProtocol | None: The found pull request, or None if not found.
+        """
         ...
 
     def find_pr_by_id(self, slug: str, pr_id: int) -> PullRequestProtocol | None:
+        """Find a pull request by its slug and ID.
+
+        Args:
+            slug (str): The slug of the repository.
+            pr_id (int): The ID of the pull request.
+
+        Returns:
+            PullRequestProtocol | None: The found pull request, or None if not found.
+        """
         ...
 
     def find_prs(
@@ -178,6 +230,18 @@ class ScmPlatformClientProtocol(Protocol):
         feature_branch: str | None = None,
         limit: int | None = None,
     ) -> list[PullRequestProtocol]:
+        """Find pull requests based on given criteria.
+
+        Args:
+            slug (str): The slug of the repository.
+            state (PullRequestState | None, optional): The state of the pull requests to find.
+            original_branch (str | None, optional): The original branch of the pull requests.
+            feature_branch (str | None, optional): The feature branch of the pull requests.
+            limit (int | None, optional): The maximum number of pull requests to return.
+
+        Returns:
+            list[PullRequestProtocol]: A list of found pull requests.
+        """
         ...
 
     def create_pr(
@@ -188,13 +252,35 @@ class ScmPlatformClientProtocol(Protocol):
         original_branch: str,
         feature_branch: str,
     ) -> PullRequestProtocol:
+        """Create a new pull request.
+
+        Args:
+            slug (str): The slug of the repository.
+            title (str): The title of the pull request.
+            body (str): The body/description of the pull request.
+            original_branch (str): The original branch for the pull request.
+            feature_branch (str): The feature branch for the pull request.
+
+        Returns:
+            PullRequestProtocol: The created pull request.
+        """
         ...
 
     def create_issue_comment(
         self, slug: str, issue_text: str, title: str | None = None, issue_id: int | None = None
     ) -> str:
-        ...
+        """Create a comment on an issue.
 
+        Args:
+            slug (str): The slug of the repository.
+            issue_text (str): The text of the comment.
+            title (str | None, optional): The title of the issue.
+            issue_id (int | None, optional): The ID of the issue.
+
+        Returns:
+            str: The URL of the created comment.
+        """
+        ...
 
 class GitlabMergeRequest(PullRequestProtocol):
     def __init__(self, mr: ProjectMergeRequest):
