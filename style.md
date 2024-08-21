@@ -48,8 +48,7 @@
 ## 8. Code Formatting
 - Use Black for code formatting
 - Use isort for import sorting
-- Use consistent quotes for dictionary keys (single or double)
-- Use raw characters instead of HTML escape characters in string literals
+- Use consistent double quotes for dictionary keys
 
 ## 9. Version Control
 - Follow versioning conventions for development versions (e.g., X.X.X.devX)
