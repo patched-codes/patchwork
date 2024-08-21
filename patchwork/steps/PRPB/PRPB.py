@@ -13,8 +13,16 @@ class PRPB(Step, input_class=PRPBInputs, output_class=PRPBOutputs):
             key_map["patch_message"] = inputs["comment_message_key"]
 
         self.modified_files = []
-        for modified_file in inputs.get("modified_files", []):
-            converted_modified_file = {key: modified_file.get(mapped_key) for key, mapped_key in key_map.items()}
+        input_modified_files = inputs.get("modified_files")
+        if isinstance(input_modified_files, list):
+            for modified_file in input_modified_files:
+                converted_modified_file = {key: modified_file.get(mapped_key) for key, mapped_key in key_map.items()}
+                self.modified_files.append(converted_modified_file)
+        elif isinstance(input_modified_files, dict):
+            converted_modified_file = {key: input_modified_files.get(mapped_key) for key, mapped_key in key_map.items()}
+            self.modified_files.append(converted_modified_file)
+        elif isinstance(input_modified_files, str):
+            converted_modified_file = {"path": input_modified_files}
             self.modified_files.append(converted_modified_file)
         self.inputs = inputs
 
