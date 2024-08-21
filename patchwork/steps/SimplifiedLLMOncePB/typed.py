@@ -7,12 +7,12 @@ from patchwork.steps.CallLLM.CallLLM import TOKEN_URL
 class __SimplifiedLLMOncePBInputsRequired(TypedDict):
     json_schema: Annotated[Dict[str, Any], StepTypeConfig(is_config=True)]
     # PreparePromptInputs
-    prompt_user: Annotated[str, StepTypeConfig(is_config=True)]
+    user_prompt: Annotated[str, StepTypeConfig(is_config=True)]
     prompt_value: Dict[str, Any]
 
 
 class SimplifiedLLMOncePBInputs(__SimplifiedLLMOncePBInputsRequired, total=False):
-    prompt_system: Annotated[str, StepTypeConfig(is_config=True)]
+    system_prompt: Annotated[str, StepTypeConfig(is_config=True)]
     # CallLLMInputs
     model: Annotated[str, StepTypeConfig(is_config=True)]
     openai_api_key: Annotated[
