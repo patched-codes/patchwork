@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from pathlib import Path
-
 from patchwork.step import Step, StepStatus
 
 
@@ -32,23 +30,15 @@ def handle_indent(src: list[str], target: list[str], start: int, end: int) -> li
     return [indent + line for line in target]
 
 
-def replace_code_in_file(
-    file_path: str,
-    start_line: int | None,
-    end_line: int | None,
-    new_code: str,
-) -> None:
-    path = Path(file_path)
-    if path.exists():
-        """Replaces specified lines in a file with new code."""
-        text = path.read_text()
+def replace_code_in_file(file_path, start_line, end_line, new_code):
+    """Replaces specified lines in a file with new code."""
+    with open(file_path, "r") as file:
+        text = file.read()
 
-        lines = text.splitlines(keepends=True)
+    lines = text.splitlines(keepends=True)
 
-        # Insert the new code at the start line after converting it into a list of lines
-        lines[start_line:end_line] = handle_indent(lines, new_code.splitlines(keepends=True), start_line, end_line)
-    else:
-        lines = new_code.splitlines(keepends=True)
+    # Insert the new code at the start line after converting it into a list of lines
+    lines[start_line:end_line] = handle_indent(lines, new_code.splitlines(keepends=True), start_line, end_line)
 
     # Save the modified contents back to the file
     save_file_contents(file_path, "".join(lines))
@@ -77,9 +67,9 @@ class ModifyCode(Step):
             return dict(modified_code_files=[])
 
         for code_snippet, extracted_response in sorted_list:
-            uri = code_snippet.get("uri")
-            start_line = code_snippet.get("startLine")
-            end_line = code_snippet.get("endLine")
+            uri = code_snippet["uri"]
+            start_line = code_snippet["startLine"]
+            end_line = code_snippet["endLine"]
             new_code = extracted_response.get("patch")
             if new_code is None or new_code == "":
                 continue

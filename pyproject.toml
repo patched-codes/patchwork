@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "patchwork-cli"
-version = "0.0.49.dev6"
+version = "0.0.48"
 description = ""
 authors = ["patched.codes"]
 license = "AGPL"
@@ -31,7 +31,7 @@ tree-sitter-languages = "~1.10.2"
 python-gitlab = "^4.4.0"
 pygithub = "~2.1.1"
 gitpython = "~3.1.40"
-pydantic = "~2.8.2"
+pydantic = "~2.6.4"
 tiktoken = "~0.6.0"
 libcst = "~1.1.0"
 patched-code2prompt = "0.2.0"

@@ -7,8 +7,6 @@ from pathlib import Path
 from pprint import pformat
 from textwrap import indent
 
-from rich.markup import escape
-
 from patchwork.common.client.llm.aio import AioLlmClient
 from patchwork.common.client.llm.anthropic import AnthropicLlmClient
 from patchwork.common.client.llm.google import GoogleLlmClient
@@ -128,7 +126,7 @@ class CallLLM(Step):
         parsed_model_args = self.__parse_model_args()
 
         for prompt in prompts:
-            logger.trace(f"Message sent: \n{escape(indent(pformat(prompt), '  '))}")
+            logger.trace(f"Message sent: \n{indent(pformat(prompt), '  ')}")
             try:
                 completion = self.client.chat_completion(model=self.model, messages=prompt, **parsed_model_args)
             except Exception as e:
@@ -149,7 +147,7 @@ class CallLLM(Step):
                     content = ""
             else:
                 content = completion.choices[0].message.content
-                logger.trace(f"Response received: \n{escape(indent(content, '  '))}")
+                logger.trace(f"Response received: \n{indent(content, '  ')}")
 
             contents.append(content)
 
