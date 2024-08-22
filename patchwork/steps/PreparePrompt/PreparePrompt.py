@@ -7,10 +7,9 @@ from pathlib import Path
 
 from chevron import render
 
+from patchwork.common.constants import PROMPT_TEMPLATE_FILE_KEY
 from patchwork.logger import logger
 from patchwork.step import Step, StepStatus
-
-PROMPT_TEMPLATE_FILE_KEY = "prompt_template_file"
 
 
 def _find_by_prompt_template_file(prompt_template_file: str | None, prompt_id: str | None) -> list[dict] | None:

@@ -1,7 +1,7 @@
 from typing_extensions import Annotated, Dict, List, TypedDict
 
+from patchwork.common.constants import TOKEN_URL
 from patchwork.common.utils.step_typing import StepTypeConfig
-from patchwork.steps.CallLLM.CallLLM import TOKEN_URL
 
 
 class CallLLMInputs(TypedDict, total=False):
