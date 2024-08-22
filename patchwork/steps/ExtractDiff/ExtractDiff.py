@@ -184,7 +184,7 @@ class ExtractDiff(Step):
             name = namespace + ":" + name
         vuln_version = update_info["vuln_version"]
         fixed_version = update_info["fixed_version"]
-        info = requests.get(self.libraries_base_url + platform_type + "/" + name + "?api_key=" + self.libraries_api_key)
+        info = requests.get(self.libraries_base_url + platform_type + "/" + name + "?api_key=" + self.libraries_api_key, timeout=10)
         if info.status_code != 200:
             logger.info(f"Unable to get repo url for library {name}")
             return {}
@@ -204,7 +204,7 @@ class ExtractDiff(Step):
         temp_file_path = None
 
         for vuln_version, fixed_version in generate_version_combinations(vuln_version, fixed_version):
-            diff_file = requests.get(compare_url + vuln_version + "..." + fixed_version, headers=headers)
+            diff_file = requests.get(compare_url + vuln_version + "..." + fixed_version, headers=headers, timeout=10)
 
             if diff_file.text.startswith("diff"):
                 with defered_temp_file("w") as fp:
