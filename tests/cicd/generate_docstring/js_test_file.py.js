@@ -24,6 +24,11 @@ const sqlite = (db, query, callback) => {
      * @returns {undefined} This method doesn't return a value
      */
     
+    /**
+     * Serializes the database operation by running the provided function within a transaction.
+     * @param {Function} callback - The function to be executed within the transaction.
+     * @returns {void} 
+     */
     db.serialize(function () {
         db.each(query, callback);
     });
