@@ -13,7 +13,7 @@ class ReadFile(Step):
         self.file = inputs["file_path"]
 
     def run(self):
-        with open_with_chardet(self.file, 'r') as f:
+        with open_with_chardet(self.file, "r") as f:
             file_contents = f.read()
 
         return dict(file_path=self.file, file_content=file_contents)

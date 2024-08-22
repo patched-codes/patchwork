@@ -15,12 +15,13 @@ from patchwork.common.client.llm.google import GoogleLlmClient
 from patchwork.common.client.llm.openai import OpenAiLlmClient
 from patchwork.logger import logger
 from patchwork.step import Step, StepStatus
+from patchwork.steps.CallLLM.typed import CallLLMInputs, CallLLMOutputs
 
 TOKEN_URL = "https://app.patched.codes/signin"
 _DEFAULT_PATCH_URL = "https://patchwork.patched.codes/v1"
 
 
-class CallLLM(Step):
+class CallLLM(Step, input_class=CallLLMInputs, output_class=CallLLMOutputs):
     def __init__(self, inputs: dict):
         super().__init__(inputs)
         # Set 'openai_key' from inputs or environment if not already set
@@ -78,7 +79,7 @@ class CallLLM(Step):
                 "Please copy the access token that is generated, "
                 "and add `--patched_api_key=<token>` to the command line.\n"
                 "\n"
-                "If you are using a OpenAI API Key, please set `--openai_api_key=<token>`.\n"
+                "If you are using an OpenAI API Key, please set `--openai_api_key=<token>`.\n"
             )
 
         self.client = AioLlmClient(*clients)
