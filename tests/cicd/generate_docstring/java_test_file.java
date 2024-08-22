@@ -7,6 +7,13 @@ class Test {
     * @return The sum of the two input integers
     */
     
+    /**
+    * Sums up two integers and returns the result.
+    * 
+    * @param a The first integer to be added
+    * @param b The second integer to be added
+    * @return The sum of the two input integers
+    */
     public static int a_plus_b(Integer a, Integer b) {
         return a + b;
     }
