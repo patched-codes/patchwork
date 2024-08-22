@@ -7,11 +7,16 @@ __DEPENDENCY_GROUPS = {
     "notification": ["slack_sdk"],
 }
 
+def safe_import_module(name):
+    safe_modules = ["chromadb", "semgrep", "depscan", "slack_sdk"]
+    if name not in safe_modules:
+        raise ImportError(f"Module {name} is not allowed to be imported")
+    return importlib.import_module(name)
 
 @lru_cache(maxsize=None)
 def import_with_dependency_group(name):
     try:
-        return importlib.import_module(name)
+        return safe_import_module(name)
     except ImportError:
         error_msg = f"Missing dependency for {name}, please `pip install {name}`"
         dependency_group = next(
