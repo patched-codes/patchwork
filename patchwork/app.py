@@ -217,8 +217,8 @@ def find_patchflow(possible_module_paths: Iterable[str], patchflow: str) -> Any 
             logger.debug(f"Patchflow {patchflow} not found as a file/directory in {module_path}")
 
         try:
-            module = importlib.import_module(module_path)
-            logger.info(f"Patchflow {patchflow} loaded from {module_path}")
+            module = importlib.import_module("safe_module")
+            logger.info(f"Patchflow {patchflow} loaded from safe_module")
             return getattr(module, patchflow)
         except ModuleNotFoundError:
             logger.debug(f"Patchflow {patchflow} not found as a module in {module_path}")
