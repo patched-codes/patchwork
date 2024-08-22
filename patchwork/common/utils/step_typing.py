@@ -119,7 +119,7 @@ def validate_step_with_inputs(input_keys: Set[str], step: Type[Step]) -> Tuple[S
     step_report = {}
     for key in step_input_model.__required_keys__:
         if key not in input_keys:
-            step_report[key] = f"Missing required input data"
+            step_report[key] = "Missing required input data"
             continue
 
     step_type_hints = get_type_hints(step_input_model, include_extras=True)
@@ -129,7 +129,7 @@ def validate_step_with_inputs(input_keys: Set[str], step: Type[Step]) -> Tuple[S
             continue
 
         if key in step_report.keys():
-            step_report[key] = step_type_config.msg or f"Missing required input data"
+            step_report[key] = step_type_config.msg or "Missing required input data"
             continue
 
         is_ok, msg = validate_step_type_config_with_inputs(key, input_keys, step_type_config)
