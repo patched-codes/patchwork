@@ -39,3 +39,5 @@ If you are using a OpenAI API Key, please set `--openai_api_key=<token>`.""",
 
 class CallLLMOutputs(TypedDict):
     openai_responses: List[str]
+    request_tokens: List[int]
+    response_tokens: List[int]

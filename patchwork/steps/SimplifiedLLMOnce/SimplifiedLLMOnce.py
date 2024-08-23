@@ -23,5 +23,7 @@ class SimplifiedLLMOnce(Step):
                 prompt=llm_output.get("prompts")[0],
                 openai_response=llm_output.get("openai_responses")[0],
                 extracted_response=llm_output.get("extracted_responses")[0],
+                request_tokens=llm_output.get("request_tokens")[0],
+                response_tokens=llm_output.get("response_tokens")[0],
             )
         )

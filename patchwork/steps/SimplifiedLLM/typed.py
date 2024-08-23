@@ -39,6 +39,7 @@ If you are using a OpenAI API Key, please set `--openai_api_key=<token>`.""",
         str, StepTypeConfig(is_config=True, or_op=["patched_api_key", "openai_api_key", "anthropic_api_key"])
     ]
     json: Annotated[bool, StepTypeConfig(is_config=True)]
+    json_example_schema: Annotated[str, StepTypeConfig(is_config=True)]
     # ExtractModelResponseInputs
     response_partitions: Annotated[Dict[str, List[str]], StepTypeConfig(is_config=True)]
 
@@ -48,5 +49,7 @@ class SimplifiedLLMOutputs(TypedDict):
     prompts: List[Dict]
     # CallLLMOutputs
     openai_responses: List[str]
+    request_tokens: List[int]
+    response_tokens: List[int]
     # ExtractModelResponseOutputs
     extracted_responses: List[Dict[str, str]]
