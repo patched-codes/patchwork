@@ -52,5 +52,7 @@ class LLMOutputs(TypedDict):
     prompts: List[Dict]
     # CallLLMOutputs
     openai_responses: List[str]
+    request_tokens: List[int]
+    response_tokens: List[int]
     # ExtractModelResponseOutputs
     extracted_responses: List[Dict[str, str]]

@@ -76,5 +76,7 @@ class SimplifiedLLM(Step):
                 prompts=prepare_prompt_outputs.get("prompts"),
                 openai_responses=call_llm_outputs.get("openai_responses"),
                 extracted_responses=extract_model_response_outputs.get("extracted_responses"),
+                request_tokens=call_llm_outputs.get("request_tokens"),
+                response_tokens=call_llm_outputs.get("response_tokens"),
             )
         )

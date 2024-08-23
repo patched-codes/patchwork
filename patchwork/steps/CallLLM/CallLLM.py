@@ -2,10 +2,12 @@ from __future__ import annotations
 
 import json
 import os
+from dataclasses import dataclass
 from itertools import islice
 from pathlib import Path
 from pprint import pformat
 from textwrap import indent
+from typing import NamedTuple
 
 from rich.markup import escape
 
@@ -17,6 +19,14 @@ from patchwork.common.constants import DEFAULT_PATCH_URL, TOKEN_URL
 from patchwork.logger import logger
 from patchwork.step import Step, StepStatus
 from patchwork.steps.CallLLM.typed import CallLLMInputs, CallLLMOutputs
+
+
+@dataclass
+class _InnerCallLLMResponse:
+    prompts: list[dict]
+    response: str
+    request_token: int
+    response_token: int
 
 
 class CallLLM(Step, input_class=CallLLMInputs, output_class=CallLLMOutputs):
@@ -115,13 +125,21 @@ class CallLLM(Step, input_class=CallLLMInputs, output_class=CallLLMOutputs):
 
         contents = self.__call(prompts)
 
+        openai_responses = []
+        request_tokens = []
+        response_tokens = []
+        for content in contents:
+            openai_responses.append(content.response)
+            request_tokens.append(content.request_token)
+            response_tokens.append(content.response_token)
+
         if self.save_responses_to_file:
-            self.__persist_to_file(contents)
+            self.__persist_to_file(openai_responses)
 
-        return dict(openai_responses=contents)
+        return dict(openai_responses=openai_responses, request_tokens=request_tokens, response_tokens=response_tokens)
 
-    def __call(self, prompts: list[dict]) -> list[str]:
-        contents = []
+    def __call(self, prompts: list[list[dict]]) -> list[_InnerCallLLMResponse]:
+        contents: list[_InnerCallLLMResponse] = []
 
         # Parse model arguments
         parsed_model_args = self.__parse_model_args()
@@ -150,7 +168,12 @@ class CallLLM(Step, input_class=CallLLMInputs, output_class=CallLLMOutputs):
                 content = completion.choices[0].message.content
                 logger.trace(f"Response received: \n{escape(indent(content, '  '))}")
 
-            contents.append(content)
+            contents.append(_InnerCallLLMResponse(
+                prompts=prompt,
+                response=content,
+                request_token=completion.usage.prompt_tokens,
+                response_token=completion.usage.completion_tokens
+            ))
 
         return contents
 

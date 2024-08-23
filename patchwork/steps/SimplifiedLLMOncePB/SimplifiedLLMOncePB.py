@@ -43,6 +43,8 @@ Respond only with the following json format, do not include any additional infor
         )
         llm_output = llm.run()
 
-        return dict(
+        return {
             **llm_output.get("extracted_responses")[0],
-        )
+            "request_tokens": llm_output.get("request_tokens")[0],
+            "response_tokens": llm_output.get("response_tokens")[0],
+        }

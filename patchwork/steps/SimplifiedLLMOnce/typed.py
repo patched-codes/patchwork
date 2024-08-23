@@ -47,5 +47,7 @@ class SimplifiedLLMOnceOutputs(TypedDict):
     prompt: Dict
     # CallLLMOutputs
     openai_response: str
+    request_tokens: int
+    response_tokens: int
     # ExtractModelResponseOutputs
     extracted_response: Dict[str, str]
