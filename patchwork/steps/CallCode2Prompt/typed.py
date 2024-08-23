@@ -13,5 +13,12 @@ class CallCode2PromptInputs(__CallCode2PromptRequiredInputs, total=False):
     markdown_file_name: Annotated[str, StepTypeConfig(is_config=True)]
 
 
+class FileToPatch(TypedDict):
+    uri: str
+    startLine: int
+    endLine: int
+    fullContent: str
+
+
 class CallCode2PromptOutputs(TypedDict):
-    files_to_patch: Iterable[dict]
+    files_to_patch: Iterable[FileToPatch]

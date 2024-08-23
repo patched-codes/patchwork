@@ -14,8 +14,8 @@ from click import echo
 from typing_extensions import Iterable
 
 from patchwork.common.client.patched import PatchedClient
+from patchwork.common.constants import PROMPT_TEMPLATE_FILE_KEY
 from patchwork.logger import init_cli_logger, logger
-from patchwork.steps.PreparePrompt import PreparePrompt
 
 _DATA_FORMAT_MAPPING = {
     "yaml": yaml.dump,
@@ -157,7 +157,7 @@ def cli(
 
                 patchwork_prompt_path = patchwork_path / _PROMPT_NAME
                 if patchwork_prompt_path.is_file():
-                    inputs[PreparePrompt.PROMPT_TEMPLATE_FILE_KEY] = patchwork_prompt_path
+                    inputs[PROMPT_TEMPLATE_FILE_KEY] = patchwork_prompt_path
                     logger.info(f"Prompt template loaded from {patchwork_prompt_path}")
                 else:
                     logger.debug(

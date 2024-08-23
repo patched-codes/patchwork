@@ -1,20 +1,17 @@
-from typing_extensions import Annotated, List, TypedDict
+from typing_extensions import Annotated, Dict, List, TypedDict
 
 from patchwork.common.utils.step_typing import StepTypeConfig
 
 
-class ModifiedCodeFile(TypedDict):
-    path: str
-    commit_message: str
-    patch_message: str
-
-
-class __PRInputsRequired(TypedDict):
+class __PRPBInputsRequired(TypedDict):
     # CommitChangesInputs & PreparePRInputs
-    modified_code_files: List["ModifiedCodeFile"]
+    modified_files: List[Dict]
+    path_key: str
 
 
-class PRInputs(__PRInputsRequired, total=False):
+class PRPBInputs(__PRPBInputsRequired, total=False):
+    comment_title_key: str
+    comment_message_key: str
     # CommitChangesInputs
     disable_branch: Annotated[bool, StepTypeConfig(is_config=True)]
     force_branch_creation: Annotated[bool, StepTypeConfig(is_config=True)]
@@ -31,7 +28,7 @@ class PRInputs(__PRInputsRequired, total=False):
     github_api_key: Annotated[str, StepTypeConfig(is_config=True)]
 
 
-class PROutputs(TypedDict):
+class PRPBOutputs(TypedDict):
     # CommitChangesOutputs
     base_branch: str
     target_branch: str

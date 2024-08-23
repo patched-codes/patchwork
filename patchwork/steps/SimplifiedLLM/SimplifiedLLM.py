@@ -12,7 +12,7 @@ from patchwork.steps.SimplifiedLLM.typed import SimplifiedLLMInputs
 
 def json_loads(s: str) -> dict:
     try:
-        return json.loads(s)
+        return json.loads(s, strict=False)
     except json.JSONDecodeError:
         return dict()
 

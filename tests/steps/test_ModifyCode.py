@@ -73,7 +73,7 @@ def test_modify_code_run(tmp_path):
     assert len(result["modified_code_files"]) == 1
 
 
-def test_modify_code_empty_edit(tmp_path):
+def test_modify_code_none_edit(tmp_path):
     file_path = tmp_path / "test.txt"
     file_path.write_text("line 1\nline 2\nline 3")
 
@@ -83,7 +83,7 @@ def test_modify_code_empty_edit(tmp_path):
 
     inputs = {
         "files_to_patch": [{"uri": str(file_path), "startLine": 1, "endLine": 2}],
-        "extracted_responses": [{"patch": ""}],
+        "extracted_responses": [{"patch": None}],
     }
     modify_code = ModifyCode(inputs)
     result = modify_code.run()

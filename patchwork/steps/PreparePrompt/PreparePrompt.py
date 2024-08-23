@@ -6,12 +6,13 @@ import string
 from pathlib import Path
 
 from chevron import render
+import chevron
 
+from patchwork.common.constants import PROMPT_TEMPLATE_FILE_KEY
 from patchwork.logger import logger
 from patchwork.step import Step, StepStatus
 
-PROMPT_TEMPLATE_FILE_KEY = "prompt_template_file"
-
+chevron.render.__globals__['_html_escape'] = lambda string: string
 
 def _find_by_prompt_template_file(prompt_template_file: str | None, prompt_id: str | None) -> list[dict] | None:
     if prompt_template_file is None or prompt_id is None:

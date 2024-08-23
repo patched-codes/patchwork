@@ -7,18 +7,19 @@ from pathlib import Path
 from pprint import pformat
 from textwrap import indent
 
+from rich.markup import escape
+
 from patchwork.common.client.llm.aio import AioLlmClient
 from patchwork.common.client.llm.anthropic import AnthropicLlmClient
 from patchwork.common.client.llm.google import GoogleLlmClient
 from patchwork.common.client.llm.openai import OpenAiLlmClient
+from patchwork.common.constants import DEFAULT_PATCH_URL, TOKEN_URL
 from patchwork.logger import logger
 from patchwork.step import Step, StepStatus
-
-TOKEN_URL = "https://app.patched.codes/signin"
-_DEFAULT_PATCH_URL = "https://patchwork.patched.codes/v1"
+from patchwork.steps.CallLLM.typed import CallLLMInputs, CallLLMOutputs
 
 
-class CallLLM(Step):
+class CallLLM(Step, input_class=CallLLMInputs, output_class=CallLLMOutputs):
     def __init__(self, inputs: dict):
         super().__init__(inputs)
         # Set 'openai_key' from inputs or environment if not already set
@@ -49,7 +50,7 @@ class CallLLM(Step):
 
         patched_key = inputs.get("patched_api_key")
         if patched_key is not None:
-            client = OpenAiLlmClient(patched_key, _DEFAULT_PATCH_URL)
+            client = OpenAiLlmClient(patched_key, DEFAULT_PATCH_URL)
             clients.append(client)
 
         openai_key = inputs.get("openai_api_key") or os.environ.get("OPENAI_API_KEY")
@@ -76,7 +77,7 @@ class CallLLM(Step):
                 "Please copy the access token that is generated, "
                 "and add `--patched_api_key=<token>` to the command line.\n"
                 "\n"
-                "If you are using a OpenAI API Key, please set `--openai_api_key=<token>`.\n"
+                "If you are using an OpenAI API Key, please set `--openai_api_key=<token>`.\n"
             )
 
         self.client = AioLlmClient(*clients)
@@ -126,7 +127,7 @@ class CallLLM(Step):
         parsed_model_args = self.__parse_model_args()
 
         for prompt in prompts:
-            logger.trace(f"Message sent: \n{indent(pformat(prompt), '  ')}")
+            logger.trace(f"Message sent: \n{escape(indent(pformat(prompt), '  '))}")
             try:
                 completion = self.client.chat_completion(model=self.model, messages=prompt, **parsed_model_args)
             except Exception as e:
@@ -147,7 +148,7 @@ class CallLLM(Step):
                     content = ""
             else:
                 content = completion.choices[0].message.content
-                logger.trace(f"Response received: \n{indent(content, '  ')}")
+                logger.trace(f"Response received: \n{escape(indent(content, '  '))}")
 
             contents.append(content)
 
