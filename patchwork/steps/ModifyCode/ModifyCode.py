@@ -33,10 +33,10 @@ def handle_indent(src: list[str], target: list[str], start: int, end: int) -> li
 
 
 def replace_code_in_file(
-    file_path: str,
-    start_line: int | None,
-    end_line: int | None,
-    new_code: str,
+        file_path: str,
+        start_line: int | None,
+        end_line: int | None,
+        new_code: str,
 ) -> None:
     path = Path(file_path)
     if path.exists():
@@ -81,7 +81,7 @@ class ModifyCode(Step):
             start_line = code_snippet.get("startLine")
             end_line = code_snippet.get("endLine")
             new_code = extracted_response.get("patch")
-            if new_code is None or new_code == "":
+            if new_code is None:
                 continue
 
             replace_code_in_file(uri, start_line, end_line, new_code)
