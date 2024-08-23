@@ -10,6 +10,9 @@ __DEPENDENCY_GROUPS = {
 
 @lru_cache(maxsize=None)
 def import_with_dependency_group(name):
+    if name not in __DEPENDENCY_GROUPS or name not in [d for k, v in __DEPENDENCY_GROUPS.items() for d in v]:
+        raise ImportError(f"Invalid dependency group: {name}")
+        
     try:
         return importlib.import_module(name)
     except ImportError:
