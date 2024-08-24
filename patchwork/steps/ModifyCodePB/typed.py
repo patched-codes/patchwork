@@ -1,11 +1,14 @@
 from typing_extensions import TypedDict
 
 
-class ModifyCodePBInputs(TypedDict):
+class __ModifyCodePBRequiredInputs(TypedDict):
     file_path: str
+    new_code: str
+
+
+class ModifyCodePBInputs(__ModifyCodePBRequiredInputs, total=False):
     start_line: int
     end_line: int
-    new_code: str
 
 
 class ModifyCodePBOutputs(TypedDict):

@@ -39,7 +39,7 @@ def replace_code_in_file(
         new_code: str,
 ) -> None:
     path = Path(file_path)
-    if path.exists():
+    if path.exists() and start_line is not None and end_line is not None:
         """Replaces specified lines in a file with new code."""
         text = path.read_text()
 
