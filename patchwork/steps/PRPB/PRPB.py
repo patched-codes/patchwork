@@ -17,6 +17,8 @@ class PRPB(Step, input_class=PRPBInputs, output_class=PRPBOutputs):
         if isinstance(input_modified_files, list):
             for modified_file in input_modified_files:
                 converted_modified_file = {key: modified_file.get(mapped_key) for key, mapped_key in key_map.items()}
+                if converted_modified_file.get("path") is None:
+                    continue
                 self.modified_files.append(converted_modified_file)
         elif isinstance(input_modified_files, dict):
             converted_modified_file = {key: input_modified_files.get(mapped_key) for key, mapped_key in key_map.items()}
