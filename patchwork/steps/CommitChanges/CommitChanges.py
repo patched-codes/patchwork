@@ -132,7 +132,9 @@ class CommitChanges(Step):
         modified_files = {Path(modified_code_file["path"]).resolve() for modified_code_file in self.modified_code_files}
         true_modified_files = modified_files.intersection(repo_changed_files.union(repo_untracked_files))
         if len(true_modified_files) < 1:
-            self.set_status(StepStatus.SKIPPED, "Branch creation is disabled.")
+            self.set_status(
+                StepStatus.SKIPPED, "No file found to add, commit and push. Branch creation will be disabled."
+            )
             from_branch = get_current_branch(repo)
             from_branch_name = from_branch.name if not from_branch.is_remote() else from_branch.remote_head
             return dict(target_branch=from_branch_name)
