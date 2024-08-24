@@ -1,7 +1,9 @@
 from patchwork.step import Step
 from patchwork.steps import PR
 from patchwork.steps.PRPB.typed import PRPBInputs, PRPBOutputs
+import logging
 
+logger = logging.getLogger(__name__)
 
 class PRPB(Step, input_class=PRPBInputs, output_class=PRPBOutputs):
     def __init__(self, inputs):
@@ -18,6 +20,7 @@ class PRPB(Step, input_class=PRPBInputs, output_class=PRPBOutputs):
             for modified_file in input_modified_files:
                 converted_modified_file = {key: modified_file.get(mapped_key) for key, mapped_key in key_map.items()}
                 if converted_modified_file.get("path") is None:
+                    logger.warning(f"Skipping file due to missing path attribute: {modified_file}")
                     continue
                 self.modified_files.append(converted_modified_file)
         elif isinstance(input_modified_files, dict):
