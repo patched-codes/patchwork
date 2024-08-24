@@ -7,19 +7,22 @@ __DEPENDENCY_GROUPS = {
     "notification": ["slack_sdk"],
 }
 
+ALLOWED_MODULES = ["chromadb", "semgrep", "depscan", "slack_sdk"]
 
 @lru_cache(maxsize=None)
 def import_with_dependency_group(name):
     try:
+        if name not in ALLOWED_MODULES:
+            raise ImportError(f"Module {name} is not whitelisted for import")
         return importlib.import_module(name)
-    except ImportError:
+    except ImportError as e:
         error_msg = f"Missing dependency for {name}, please `pip install {name}`"
         dependency_group = next(
             (group for group, dependencies in __DEPENDENCY_GROUPS.items() if name in dependencies), None
         )
         if dependency_group is not None:
             error_msg = f"Please `pip install patchwork-cli[{dependency_group}]` to use this step"
-        raise ImportError(error_msg)
+        raise ImportError(error_msg) from e
 
 
 def chromadb():
