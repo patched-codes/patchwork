@@ -38,12 +38,14 @@ class ExtractCodeMethodForCommentContexts(Step):
             if comment_position is not None:
                 start_line = comment_position.start
                 end_line = comment_position.end
+            elif isinstance(position.language, PythonLanguage) and position.meta_positions.get("body") is not None:
+                # if the comment is not found in python functions/methods, we will use the body position
+                body_position = position.meta_positions.get("body")
+                start_line = body_position.start
+                end_line = body_position.start
             else:
                 start_line = position.start
                 end_line = position.start
-                if isinstance(position.language, PythonLanguage):
-                    start_line = start_line + 1
-                    end_line = end_line + 1
 
             extracted_code_context = dict(
                 uri=file_path,

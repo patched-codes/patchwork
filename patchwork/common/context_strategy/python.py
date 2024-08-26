@@ -3,7 +3,6 @@ from __future__ import annotations
 import libcst
 from libcst import (
     BaseCompoundStatement,
-    BaseExpression,
     BaseSuite,
     ConcatenatedString,
     Expr,
@@ -94,20 +93,31 @@ class _FunctionCollector(_PythonCollector):
         """
         position = self._visit(node)
         docstring_node = self._get_docstring_node(node.body)
-        code_range = self.get_metadata(PositionProvider, docstring_node)
-        comment_position = Position(
-            start=code_range.start.line - 1,
-            end=code_range.end.line,
-            start_col=code_range.start.column - 1,
-            end_col=code_range.end.column,
+        if docstring_node:
+            docstring_code_range = self.get_metadata(PositionProvider, docstring_node)
+            comment_position = Position(
+                start=docstring_code_range.start.line - 1,
+                end=docstring_code_range.end.line,
+                start_col=docstring_code_range.start.column - 1,
+                end_col=docstring_code_range.end.column,
+                language=PythonLanguage(),
+            )
+            position.meta_positions["comment"] = comment_position
+
+        body_code_range = self.get_metadata(PositionProvider, node.body)
+        body_position = Position(
+            start=body_code_range.start.line - 1,
+            end=body_code_range.end.line,
+            start_col=body_code_range.start.column - 1,
+            end_col=body_code_range.end.column,
             language=PythonLanguage(),
         )
-        position.meta_positions["comment"] = comment_position
+        position.meta_positions["body"] = body_position
         return True
 
     def _get_docstring_node(
         self, body: BaseSuite | Sequence[SimpleStatementLine | BaseCompoundStatement]
-    ) -> Expr | BaseSuite | Sequence[SimpleStatementLine | BaseCompoundStatement] | BaseExpression:
+    ) -> Expr | None:
         """
         Copied from FunctionDef::get_docstring()
 
@@ -117,26 +127,26 @@ class _FunctionCollector(_PythonCollector):
             body (BaseSuite | Sequence[SimpleStatementLine | BaseCompoundStatement]): The body of the node.
 
         Returns:
-            Expr: The extracted docstring node or the first expression of the function if not found.
+            Expr | None: The extracted docstring node or None if not found.
         """
         if isinstance(body, Sequence):
             if body:
                 expr = body[0]
             else:
-                return body
+                return None
         else:
             expr = body
         while isinstance(expr, (BaseSuite, SimpleStatementLine)):
             if len(expr.body) == 0:
-                return expr
+                return None
             expr = expr.body[0]
         if not isinstance(expr, Expr):
-            return body
+            return None
         val = expr.value
         if isinstance(val, (SimpleString, ConcatenatedString)):
             return expr
         else:
-            return val
+            return None
 
 
 class _BlockCollector(_PythonCollector):
