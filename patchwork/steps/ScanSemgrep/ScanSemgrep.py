@@ -20,7 +20,10 @@ class ScanSemgrep(Step):
             with open(sarif_file_path, "r") as fp:
                 self.sarif_values = json.load(fp)
         elif inputs.get("sarif_values") is not None:
-            self.sarif_values = inputs.get("sarif_values")
+            sarif_values = inputs.get("sarif_values")
+            if isinstance(sarif_values, str):
+                sarif_values = json.loads(sarif_values)
+            self.sarif_values = sarif_values
         else:
             self.sarif_values = None
 
