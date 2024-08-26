@@ -18,11 +18,11 @@ class ScanSemgrep(Step):
             if not sarif_file_path.is_file():
                 raise ValueError(f'Unable to find input file: "{sarif_file_path}"')
             with open(sarif_file_path, "r") as fp:
-                self.sarif_values = json.load(fp)
+                self.sarif_values = json.load(fp, strict=False)
         elif inputs.get("sarif_values") is not None:
             sarif_values = inputs.get("sarif_values")
             if isinstance(sarif_values, str):
-                sarif_values = json.loads(sarif_values)
+                sarif_values = json.loads(sarif_values, strict=False)
             self.sarif_values = sarif_values
         else:
             self.sarif_values = None
