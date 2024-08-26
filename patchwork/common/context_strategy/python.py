@@ -3,6 +3,7 @@ from __future__ import annotations
 import libcst
 from libcst import (
     BaseCompoundStatement,
+    BaseExpression,
     BaseSuite,
     ConcatenatedString,
     Expr,
@@ -93,21 +94,20 @@ class _FunctionCollector(_PythonCollector):
         """
         position = self._visit(node)
         docstring_node = self._get_docstring_node(node.body)
-        if docstring_node:
-            code_range = self.get_metadata(PositionProvider, docstring_node)
-            comment_position = Position(
-                start=code_range.start.line - 1,
-                end=code_range.end.line,
-                start_col=code_range.start.column - 1,
-                end_col=code_range.end.column,
-                language=PythonLanguage(),
-            )
-            position.meta_positions["comment"] = comment_position
+        code_range = self.get_metadata(PositionProvider, docstring_node)
+        comment_position = Position(
+            start=code_range.start.line - 1,
+            end=code_range.end.line,
+            start_col=code_range.start.column - 1,
+            end_col=code_range.end.column,
+            language=PythonLanguage(),
+        )
+        position.meta_positions["comment"] = comment_position
         return True
 
     def _get_docstring_node(
         self, body: BaseSuite | Sequence[SimpleStatementLine | BaseCompoundStatement]
-    ) -> Expr | None:
+    ) -> Expr | BaseSuite | Sequence[SimpleStatementLine | BaseCompoundStatement] | BaseExpression:
         """
         Copied from FunctionDef::get_docstring()
 
@@ -117,26 +117,26 @@ class _FunctionCollector(_PythonCollector):
             body (BaseSuite | Sequence[SimpleStatementLine | BaseCompoundStatement]): The body of the node.
 
         Returns:
-            Expr | None: The extracted docstring node or None if not found.
+            Expr: The extracted docstring node or the first expression of the function if not found.
         """
         if isinstance(body, Sequence):
             if body:
                 expr = body[0]
             else:
-                return None
+                return body
         else:
             expr = body
         while isinstance(expr, (BaseSuite, SimpleStatementLine)):
             if len(expr.body) == 0:
-                return None
+                return expr
             expr = expr.body[0]
         if not isinstance(expr, Expr):
-            return None
+            return body
         val = expr.value
         if isinstance(val, (SimpleString, ConcatenatedString)):
             return expr
         else:
-            return None
+            return val
 
 
 class _BlockCollector(_PythonCollector):
