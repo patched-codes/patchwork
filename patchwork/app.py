@@ -203,8 +203,12 @@ def cli(
             file.write(serialize(inputs))
 
 
-def find_patchflow(possible_module_paths: Iterable[str], patchflow: str) -> Any | None:
+def find_patchflow(possible_module_paths: Iterable[str], patchflow: str, whitelist: Set[str]) -> Any | None:
     for module_path in possible_module_paths:
+        if module_path not in whitelist:
+            logger.warning(f"Module path {module_path} is not in the whitelist.")
+            continue
+
         try:
             spec = importlib.util.spec_from_file_location("custom_module", module_path)
             module = importlib.util.module_from_spec(spec)
