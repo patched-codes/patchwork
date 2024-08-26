@@ -94,15 +94,25 @@ class _FunctionCollector(_PythonCollector):
         position = self._visit(node)
         docstring_node = self._get_docstring_node(node.body)
         if docstring_node:
-            code_range = self.get_metadata(PositionProvider, docstring_node)
+            docstring_code_range = self.get_metadata(PositionProvider, docstring_node)
             comment_position = Position(
-                start=code_range.start.line - 1,
-                end=code_range.end.line,
-                start_col=code_range.start.column - 1,
-                end_col=code_range.end.column,
+                start=docstring_code_range.start.line - 1,
+                end=docstring_code_range.end.line,
+                start_col=docstring_code_range.start.column - 1,
+                end_col=docstring_code_range.end.column,
                 language=PythonLanguage(),
             )
             position.meta_positions["comment"] = comment_position
+
+        body_code_range = self.get_metadata(PositionProvider, node.body)
+        body_position = Position(
+            start=body_code_range.start.line - 1,
+            end=body_code_range.end.line,
+            start_col=body_code_range.start.column - 1,
+            end_col=body_code_range.end.column,
+            language=PythonLanguage(),
+        )
+        position.meta_positions["body"] = body_position
         return True
 
     def _get_docstring_node(
