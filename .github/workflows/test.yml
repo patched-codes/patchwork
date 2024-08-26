@@ -91,7 +91,7 @@ jobs:
       - name: AutoFix Patchwork
         run: |
           poetry run patchwork AutoFix --log debug \
-          --openai_api_key=${{ secrets.OPENAI_KEY }} \
+          --patched_api_key=${{ secrets.PATCHED_API_KEY }} \
           --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
           --force_pr_creation \
           --disable_telemetry
@@ -100,7 +100,7 @@ jobs:
         run: |
           poetry run patchwork DependencyUpgrade --log debug \
           --libraries_api_key=${{ secrets.LIBRARIES_KEY }} \
-          --openai_api_key=${{ secrets.OPENAI_KEY }} \
+          --patched_api_key=${{ secrets.PATCHED_API_KEY }} \
           --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
           --language=python \
           --force_pr_creation \
@@ -144,7 +144,7 @@ jobs:
       - name: Propose relevant file to issues
         run: |
           poetry run patchwork ResolveIssue --log debug \
-          --openai_api_key=${{ secrets.OPENAI_KEY }} \
+          --patched_api_key=${{ secrets.PATCHED_API_KEY }} \
           --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
           --issue_url=https://github.com/patched-codes/patchwork/issues/20 \
           --disable_telemetry
@@ -187,7 +187,7 @@ jobs:
       - name: PR Review
         run: |
           poetry run patchwork PRReview --log debug \
-          --openai_api_key=${{ secrets.OPENAI_KEY }} \
+          --patched_api_key=${{ secrets.PATCHED_API_KEY }} \
           --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
           --pr_url=https://github.com/patched-codes/patchwork/pull/${{ steps.findPr.outputs.number }} \
           --disable_telemetry
@@ -195,7 +195,7 @@ jobs:
       - name: Generate Docstring
         run: |
           poetry run patchwork GenerateDocstring --log debug \
-          --openai_api_key=${{ secrets.OPENAI_KEY }} \
+          --patched_api_key=${{ secrets.PATCHED_API_KEY }} \
           --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
           --base_path=tests/cicd/generate_docstring \
           --disable_telemetry
@@ -215,7 +215,7 @@ jobs:
               branch_name=$(echo "$base_name" | sed -e 's/[^a-zA-Z0-9]/_/g' -e 's/__*/_/g' -e 's/^_//g' -e 's/_$//g')
           
               poetry run patchwork GenerateREADME --log debug \
-              --openai_api_key=${{ secrets.OPENAI_KEY }} \
+              --patched_api_key=${{ secrets.PATCHED_API_KEY }} \
               --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
               --filter=*.py \
               --folder_path=$dir \
