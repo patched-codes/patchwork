@@ -25,16 +25,6 @@ class TypeInfo {
   public describe(identifier: string, filePath: string): string {
     const sourceFile = this.project.addSourceFileAtPath(filePath);
 
-    const variable = sourceFile.getVariableDeclaration(identifier);
-    if (variable) {
-      return this.describeVariable(variable, 0);
-    }
-
-    const functionDeclaration = sourceFile.getFunction(identifier);
-    if (functionDeclaration) {
-      return this.describeFunction(functionDeclaration, 0);
-    }
-
     const classDeclaration = sourceFile.getClass(identifier);
     if (classDeclaration) {
       return this.describeClass(classDeclaration, 0);
@@ -48,6 +38,16 @@ class TypeInfo {
     const typeAlias = sourceFile.getTypeAlias(identifier);
     if (typeAlias) {
       return this.describeTypeAlias(typeAlias, 0);
+    }
+
+    const variable = sourceFile.getVariableDeclaration(identifier);
+    if (variable) {
+      return this.describeVariable(variable, 0);
+    }
+
+    const functionDeclaration = sourceFile.getFunction(identifier);
+    if (functionDeclaration) {
+      return this.describeFunction(functionDeclaration, 0);
     }
 
     const enumDeclaration = sourceFile.getEnum(identifier);
