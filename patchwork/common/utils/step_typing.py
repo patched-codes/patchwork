@@ -106,8 +106,14 @@ def validate_step_type_config_with_inputs(
 
 
 def validate_step_with_inputs(input_keys: Set[str], step: Type[Step]) -> Tuple[Set[str], Dict[str, str]]:
+    ALLOWED_MODULE_PATHS = ['allowed.module.path1', 'allowed.module.path2']
+    
     module_path, _, _ = step.__module__.rpartition(".")
     step_name = step.__name__
+    
+    if module_path not in ALLOWED_MODULE_PATHS:
+        raise ValueError("Untrusted module path detected")
+
     type_module = importlib.import_module(f"{module_path}.typed")
     step_input_model = getattr(type_module, f"{step_name}Inputs", __NOT_GIVEN)
     step_output_model = getattr(type_module, f"{step_name}Outputs", __NOT_GIVEN)
@@ -127,15 +133,15 @@ def validate_step_with_inputs(input_keys: Set[str], step: Type[Step]) -> Tuple[S
         step_type_config = find_step_type_config(field_info)
         if step_type_config is None:
             continue
-
+    
         if key in step_report.keys():
             step_report[key] = step_type_config.msg or f"Missing required input data"
             continue
-
+    
         is_ok, msg = validate_step_type_config_with_inputs(key, input_keys, step_type_config)
         if not is_ok:
             step_report[key] = msg
-
+    
     return set(step_output_model.__required_keys__), step_report
 
 
