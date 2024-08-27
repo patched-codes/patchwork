@@ -168,3 +168,5 @@ patchwork/node_modules/
 
 # vscode
 .vscode/
+
+node_modules/

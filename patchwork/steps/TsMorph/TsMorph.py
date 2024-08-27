@@ -5,6 +5,8 @@ from pathlib import Path
 from patchwork.step import Step
 
 
+_DEFAULT_TS_FILE = Path(__file__).parent / "get_type_info.ts"
+
 class TsMorph(Step):
     def __init__(self, inputs: dict):
         super().__init__(inputs)
@@ -23,13 +25,13 @@ class TsMorph(Step):
         full_file_path = os.path.join(cwd, file_path)
 
         # Get the directory of the current script
-        current_dir = cwd
+        # current_dir = cwd
 
         # Construct the path to get_type_info.ts
-        get_type_info_path = os.path.join(current_dir, "get_type_info.ts")
+        # get_type_info_path = os.path.join(current_dir, "get_type_info.ts")
 
         # Run the subprocess call
-        subprocess.run(["tsx", get_type_info_path, full_file_path, variable_name], check=True)
+        subprocess.run(["tsx", _DEFAULT_TS_FILE, full_file_path, variable_name], check=True, cwd = cwd)
 
         # Read the output file
         output_path = os.path.join(cwd, "temp_output_declaration.txt")
