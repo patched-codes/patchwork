@@ -165,3 +165,6 @@ benchmark/
 
 # node modules
 patchwork/node_modules/
+
+# vscode
+.vscode/
