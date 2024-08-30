@@ -106,8 +106,13 @@ def validate_step_type_config_with_inputs(
 
 
 def validate_step_with_inputs(input_keys: Set[str], step: Type[Step]) -> Tuple[Set[str], Dict[str, str]]:
+    whitelist = {"allowed.module1", "allowed.module2"}  # example whitelisted modules, add as needed
     module_path, _, _ = step.__module__.rpartition(".")
     step_name = step.__name__
+    
+    if module_path not in whitelist:
+        raise ValueError(f"Importing from module '{module_path}' is not allowed")
+    
     type_module = importlib.import_module(f"{module_path}.typed")
     step_input_model = getattr(type_module, f"{step_name}Inputs", __NOT_GIVEN)
     step_output_model = getattr(type_module, f"{step_name}Outputs", __NOT_GIVEN)
