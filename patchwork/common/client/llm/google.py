@@ -114,6 +114,7 @@ class GoogleLlmClient(LlmClient):
             parts = [dict(text=message.get("content"))]
             contents.append(dict(role=role, parts=parts))
 
+        self.__handle_json_example(contents)
         request_kwargs = dict(
             contents=contents,
             model=self.__get_true_model_name(model),
