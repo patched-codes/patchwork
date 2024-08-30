@@ -2,6 +2,7 @@ import os
 import subprocess
 from pathlib import Path
 
+from patchwork.logger import logger
 from patchwork.step import Step, StepStatus
 
 FOLDER_PATH = "folder_path"
@@ -15,7 +16,9 @@ class CallCode2Prompt(Step):
         if not all(key in inputs.keys() for key in self.required_keys):
             raise ValueError(f'Missing required data: "{self.required_keys}"')
 
-        self.folder_path = inputs[FOLDER_PATH]
+        self.folder_path = Path(inputs[FOLDER_PATH])
+        if not self.folder_path.is_dir():
+            raise ValueError(f"Folder path does not exist: {self.folder_path}")
         self.filter = inputs.get("filter", None)
         self.suppress_comments = inputs.get("suppress_comments", False)
         self.markdown_file_name = inputs.get("markdown_file_name", "README.md")
@@ -51,8 +54,10 @@ class CallCode2Prompt(Step):
             with open(self.code_file_path, "r") as file:
                 file_content = file.read()
         except FileNotFoundError:
-            self.set_status(StepStatus.FAILED, f"Unable to find file: {self.code_file_path}")
-            return dict(files_to_patch=[])
+            logger.info(f"Unable to find file: {self.code_file_path}")
+            return dict(files_to_patch=[
+                dict(uri=self.code_file_path, fullContent=prompt_content_md)
+            ])
 
         lines = file_content.splitlines(keepends=True)
 
