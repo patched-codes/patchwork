@@ -7,9 +7,13 @@ __DEPENDENCY_GROUPS = {
     "notification": ["slack_sdk"],
 }
 
+__WHITELIST = {"chromadb", "semgrep", "depscan", "slack_sdk"}
 
 @lru_cache(maxsize=None)
 def import_with_dependency_group(name):
+    if name not in __WHITELIST:
+        raise ImportError(f"Module {name} is not in the whitelist")
+    
     try:
         return importlib.import_module(name)
     except ImportError:
