@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import functools
+import json
 
 from openai import OpenAI
 from openai.types.chat import (
@@ -62,7 +63,7 @@ class OpenAiLlmClient(LlmClient):
         max_tokens: Optional[int] | NotGiven = NOT_GIVEN,
         n: Optional[int] | NotGiven = NOT_GIVEN,
         presence_penalty: Optional[float] | NotGiven = NOT_GIVEN,
-        response_format: str | completion_create_params.ResponseFormat | NotGiven = NOT_GIVEN,
+        response_format: dict | completion_create_params.ResponseFormat | NotGiven = NOT_GIVEN,
         stop: Union[Optional[str], List[str]] | NotGiven = NOT_GIVEN,
         temperature: Optional[float] | NotGiven = NOT_GIVEN,
         top_logprobs: Optional[int] | NotGiven = NOT_GIVEN,
@@ -84,11 +85,14 @@ class OpenAiLlmClient(LlmClient):
             top_p=top_p,
         )
 
-        if isinstance(response_format, str):
-            base_model = example_json_to_base_model(response_format)
-            input_kwargs["response_format"] = base_model_to_schema(base_model)
-        elif isinstance(response_format, dict):
-            base_model = example_dict_to_base_model(response_format)
-            input_kwargs["response_format"] = base_model_to_schema(base_model)
+        if response_format is not NOT_GIVEN:
+            if isinstance(response_format, str):
+                base_model = example_json_to_base_model(response_format)
+                input_kwargs["response_format"] = base_model_to_schema(base_model)
+            elif isinstance(response_format, dict):
+                base_model = example_dict_to_base_model(response_format)
+                input_kwargs["response_format"] = base_model_to_schema(base_model)
+            else:
+                raise ValueError("response_format must be a string or dict")
 
         return self.client.chat.completions.create(**NotGiven.remove_not_given(input_kwargs))

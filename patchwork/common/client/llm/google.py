@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import functools
+import json
 import time
 
 from google.ai.generativelanguage_v1 import GenerateContentResponse
@@ -91,7 +92,7 @@ class GoogleLlmClient(LlmClient):
         max_tokens: Optional[int] | NotGiven = NOT_GIVEN,
         n: Optional[int] | NotGiven = NOT_GIVEN,
         presence_penalty: Optional[float] | NotGiven = NOT_GIVEN,
-        response_format: str | completion_create_params.ResponseFormat | NotGiven = NOT_GIVEN,
+        response_format: dict | completion_create_params.ResponseFormat | NotGiven = NOT_GIVEN,
         stop: Union[Optional[str], List[str]] | NotGiven = NOT_GIVEN,
         temperature: Optional[float] | NotGiven = NOT_GIVEN,
         top_logprobs: Optional[int] | NotGiven = NOT_GIVEN,
@@ -114,7 +115,9 @@ class GoogleLlmClient(LlmClient):
             parts = [dict(text=message.get("content"))]
             contents.append(dict(role=role, parts=parts))
 
-        self.__handle_json_example(contents)
+        if isinstance(response_format, dict):
+            self.__handle_json_example(contents, response_format)
+
         request_kwargs = dict(
             contents=contents,
             model=self.__get_true_model_name(model),
@@ -126,18 +129,23 @@ class GoogleLlmClient(LlmClient):
         response = self.generative_client.generate_content(request)
         return self.__google_response_to_openai_response(response, model)
 
-    def __handle_json_example(self, contents: list[dict]) -> None:
+    @staticmethod
+    def __handle_json_example(contents: list[dict], example_json: dict) -> None:
         for message in reversed(contents):
             if message["role"] != "user":
                 continue
 
-            message["parts"][0]["text"] = self.__json_example_schema(self, message["parts"][0]["text"])
+            message["parts"][0]["text"] = GoogleLlmClient.__json_example_schema(
+                message["parts"][0]["text"], example_json
+            )
+            break
 
     @staticmethod
-    def __json_example_schema(self, json_example: str) -> str:
+    def __json_example_schema(original_prompt: str, example_json: dict) -> str:
         return f"""\
+{original_prompt}
 Respond only with the following json format, do not include any additional information:
-{json_example}
+{json.dumps(example_json, indent=2)}
 """
 
     @staticmethod

@@ -52,7 +52,7 @@ class CallLLM(Step, input_class=CallLLMInputs, output_class=CallLLMOutputs):
         self.call_limit = int(inputs.get("max_llm_calls", -1))
         self.model_args = {key[len("model_") :]: value for key, value in inputs.items() if key.startswith("model_")}
         self.save_responses_to_file = inputs.get("save_responses_to_file", None)
-        self.model = inputs.get("model", "gpt-3.5-turbo")
+        self.model = inputs.get("model", "gpt-4o-mini")
         self.allow_truncated = inputs.get("allow_truncated", False)
 
         clients = []
