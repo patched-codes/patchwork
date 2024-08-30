@@ -1,54 +1,39 @@
-# Code Style Guidelines
+
+# Refined Code Style Guidelines
 
 ## 1. Naming Conventions
-- Use snake_case for function names in Python
-- Use camelCase for function names in JavaScript and method names in Java
-- Use clear and descriptive naming conventions
+- Use descriptive and consistent naming for variables, functions, and classes.
 
 ## 2. Code Structure
-- Follow a modular structure with separate files for different components
-- Use class inheritance for organizing related components
-- Use separate files for typed inputs/outputs, main functionality, and initialization
-- Include an __init__.py file in each module, even if empty
-- Import new modules in __init__.py and update the __all__ list
+- Maintain consistent function signatures across different implementations of the same interface.
+- Break down complex logic into smaller, more manageable functions (modularization).
+- Use consistent indentation and line breaks, especially in function definitions and method calls.
 
 ## 3. Documentation
-- Include a README.md file for each module or component, providing:
-  - Brief overview of contents and purpose
-  - Table of contents for easy navigation
-  - Usage instructions and context
-  - Clear input and output specifications
-- Use markdown formatting for documentation, including headers and lists
-- Add docstrings to functions with detailed descriptions, including:
-  - Parameters and their types
-  - Return values and their types
-  - Brief description of function purpose
-- Use consistent docstring formats for each language (e.g., Google-style for Python, JSDoc for JavaScript, Javadoc for Java)
+- Add or update inline comments and docstrings for new or modified functions.
+- Provide comprehensive documentation for modules, including detailed README.md files.
+- Use consistent docstring guidelines across the project.
+- Implement and maintain up-to-date type hints, especially for function parameters and return types.
 
 ## 4. Error Handling
-- Handle exceptions properly when importing modules
-- Provide specific error messages for missing dependencies, including installation instructions
+- Implement proper error handling and logging for edge cases and exceptions.
+- Include fallback mechanisms for potentially missing data.
 
 ## 5. Security
-- Use spec_from_file_location() and module_from_spec() instead of import_module() for dynamic imports
-- Implement a whitelist approach for allowed module imports
-- Avoid using f-strings with untrusted user input
+- Implement whitelists for module imports to prevent arbitrary code execution.
 
-## 6. Typing
-- Use TypedDict for defining input and output structures
-- Use Annotated for StepTypeConfig
-- Use type annotations for improved code clarity
-- Use type hints for function parameters and return values
+## 6. Dependency Management
+- Carefully manage and update dependencies in the project configuration.
+- Keep dependencies up-to-date and secure.
 
-## 7. Dependency Management
-- Keep dependencies up-to-date with specified version ranges
-- Use semantic versioning for dependencies (e.g., ^1.5.0, ~2.32.0)
-- Pin transitive dependencies
+## 7. Data Handling
+- Use a standardized approach to handling JSON data and schemas across different modules.
 
-## 8. Code Formatting
-- Use Black for code formatting
-- Use isort for import sorting
-- Use consistent double quotes for dictionary keys
+## 8. Version Control
+- Use proper version control practices, including meaningful commit messages and version updates.
+- Prefer workflow dispatch input for version control instead of tags.
 
-## 9. Version Control
-- Follow versioning conventions for development versions (e.g., X.X.X.devX)
+## 9. Logging
+- Consistently import and use the logger across all modules.
+
+These refined guidelines combine similar rules, remove redundancies, and ensure each guideline is categorized and clear. The categories have been adjusted to better fit the consolidated guidelines, with "Performance" removed as it wasn't explicitly addressed in the original list, and "Dependency Management", "Data Handling", "Version Control", and "Logging" added as new categories to accommodate specific guidelines that didn't fit into the original categories.
