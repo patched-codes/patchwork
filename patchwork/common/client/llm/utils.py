@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from json5 import loads
 from openai.lib._parsing._completions import type_to_response_format_param
 from openai.types.chat.completion_create_params import ResponseFormat
 from pydantic import BaseModel, Field, create_model

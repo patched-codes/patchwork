@@ -13,7 +13,7 @@ from typing_extensions import Dict, Iterable, List, Optional, Union
 from patchwork.common.client.llm.protocol import NOT_GIVEN, LlmClient, NotGiven
 from patchwork.common.client.llm.utils import (
     base_model_to_schema,
-    example_json_to_base_model,
+    example_json_to_base_model, example_dict_to_base_model,
 )
 
 
@@ -86,6 +86,9 @@ class OpenAiLlmClient(LlmClient):
 
         if isinstance(response_format, str):
             base_model = example_json_to_base_model(response_format)
+            input_kwargs["response_format"] = base_model_to_schema(base_model)
+        elif isinstance(response_format, dict):
+            base_model = example_dict_to_base_model(response_format)
             input_kwargs["response_format"] = base_model_to_schema(base_model)
 
         return self.client.chat.completions.create(**NotGiven.remove_not_given(input_kwargs))

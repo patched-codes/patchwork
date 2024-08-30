@@ -10,7 +10,7 @@ class SimplifiedLLMOncePB(Step, input_class=SimplifiedLLMOncePBInputs):
         self.user = inputs["user_prompt"]
         self.system = inputs.get("system_prompt")
         self.prompt_value = inputs["prompt_value"]
-        self.json_example = inputs["json_example"]
+        self.json_example = inputs["json_schema"]
         self.inputs = inputs
 
     def run(self) -> dict:
