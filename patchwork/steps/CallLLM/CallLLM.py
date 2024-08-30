@@ -154,6 +154,8 @@ class CallLLM(Step, input_class=CallLLMInputs, output_class=CallLLMOutputs):
             if completion is None or len(completion.choices) < 1:
                 logger.error(f"No response choice given")
                 content = ""
+                request_token = 0
+                response_token = 0
             elif completion.choices[0].finish_reason == "length":
                 if self.allow_truncated:
                     content = completion.choices[0].message.content
@@ -163,16 +165,20 @@ class CallLLM(Step, input_class=CallLLMInputs, output_class=CallLLMOutputs):
                         f" Use --allow_truncated option to process truncated responses."
                     )
                     content = ""
+                request_token = completion.usage.prompt_tokens
+                response_token = completion.usage.completion_tokens
             else:
                 content = completion.choices[0].message.content
+                request_token = completion.usage.prompt_tokens
+                response_token = completion.usage.completion_tokens
                 logger.trace(f"Response received: \n{escape(indent(content, '  '))}")
 
             contents.append(
                 _InnerCallLLMResponse(
                     prompts=prompt,
                     response=content,
-                    request_token=completion.usage.prompt_tokens,
-                    response_token=completion.usage.completion_tokens,
+                    request_token=request_token,
+                    response_token=response_token,
                 )
             )
 

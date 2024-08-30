@@ -85,14 +85,8 @@ class OpenAiLlmClient(LlmClient):
             top_p=top_p,
         )
 
-        if response_format is not NOT_GIVEN:
-            if isinstance(response_format, str):
-                base_model = example_json_to_base_model(response_format)
-                input_kwargs["response_format"] = base_model_to_schema(base_model)
-            elif isinstance(response_format, dict):
-                base_model = example_dict_to_base_model(response_format)
-                input_kwargs["response_format"] = base_model_to_schema(base_model)
-            else:
-                raise ValueError("response_format must be a string or dict")
+        if response_format is not NOT_GIVEN and response_format.get("type") not in {"text", "json_object"}:
+            base_model = example_dict_to_base_model(response_format)
+            input_kwargs["response_format"] = base_model_to_schema(base_model)
 
         return self.client.chat.completions.create(**NotGiven.remove_not_given(input_kwargs))
