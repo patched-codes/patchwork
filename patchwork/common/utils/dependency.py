@@ -7,9 +7,12 @@ __DEPENDENCY_GROUPS = {
     "notification": ["slack_sdk"],
 }
 
+__SAFE_MODULES = {"chromadb", "semgrep", "depscan", "slack_sdk"}
 
 @lru_cache(maxsize=None)
 def import_with_dependency_group(name):
+    if name not in __SAFE_MODULES:
+        raise ImportError(f"Module {name} is not permitted for import.")
     try:
         return importlib.import_module(name)
     except ImportError:
