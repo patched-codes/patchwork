@@ -11,6 +11,10 @@ from openai.types.chat import (
 from typing_extensions import Dict, Iterable, List, Optional, Union
 
 from patchwork.common.client.llm.protocol import NOT_GIVEN, LlmClient, NotGiven
+from patchwork.common.client.llm.utils import (
+    base_model_to_schema,
+    example_json_to_base_model,
+)
 
 
 @functools.lru_cache
@@ -58,7 +62,7 @@ class OpenAiLlmClient(LlmClient):
         max_tokens: Optional[int] | NotGiven = NOT_GIVEN,
         n: Optional[int] | NotGiven = NOT_GIVEN,
         presence_penalty: Optional[float] | NotGiven = NOT_GIVEN,
-        response_format: completion_create_params.ResponseFormat | NotGiven = NOT_GIVEN,
+        response_format: str | completion_create_params.ResponseFormat | NotGiven = NOT_GIVEN,
         stop: Union[Optional[str], List[str]] | NotGiven = NOT_GIVEN,
         temperature: Optional[float] | NotGiven = NOT_GIVEN,
         top_logprobs: Optional[int] | NotGiven = NOT_GIVEN,
@@ -79,4 +83,9 @@ class OpenAiLlmClient(LlmClient):
             top_logprobs=top_logprobs,
             top_p=top_p,
         )
+
+        if isinstance(response_format, str):
+            base_model = example_json_to_base_model(response_format)
+            input_kwargs["response_format"] = base_model_to_schema(base_model)
+
         return self.client.chat.completions.create(**NotGiven.remove_not_given(input_kwargs))

@@ -7,7 +7,6 @@ from itertools import islice
 from pathlib import Path
 from pprint import pformat
 from textwrap import indent
-from typing import NamedTuple
 
 from rich.markup import escape
 
@@ -168,12 +167,14 @@ class CallLLM(Step, input_class=CallLLMInputs, output_class=CallLLMOutputs):
                 content = completion.choices[0].message.content
                 logger.trace(f"Response received: \n{escape(indent(content, '  '))}")
 
-            contents.append(_InnerCallLLMResponse(
-                prompts=prompt,
-                response=content,
-                request_token=completion.usage.prompt_tokens,
-                response_token=completion.usage.completion_tokens
-            ))
+            contents.append(
+                _InnerCallLLMResponse(
+                    prompts=prompt,
+                    response=content,
+                    request_token=completion.usage.prompt_tokens,
+                    response_token=completion.usage.completion_tokens,
+                )
+            )
 
         return contents
 
