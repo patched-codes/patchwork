@@ -46,7 +46,7 @@ from patchwork.steps.SimplifiedLLM.SimplifiedLLM import SimplifiedLLM
 from patchwork.steps.SimplifiedLLMOnce.SimplifiedLLMOnce import SimplifiedLLMOnce
 from patchwork.steps.SimplifiedLLMOncePB.SimplifiedLLMOncePB import SimplifiedLLMOncePB
 from patchwork.steps.SlackMessage.SlackMessage import SlackMessage
-from patchwork.steps.TsMorph.TsMorph import TsMorph
+from patchwork.steps.GetTypescriptTypeInfo.GetTypescriptTypeInfo import GetTypescriptTypeInfo
 
 __all__ = [
     "AnalyzeImpact",
@@ -89,5 +89,5 @@ __all__ = [
     "SlackMessage",
     "JoinList",
     "JoinListPB",
-    "TsMorph",
+    "GetTypescriptTypeInfo",
 ]

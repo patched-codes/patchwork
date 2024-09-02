@@ -1,10 +1,10 @@
 from typing_extensions import TypedDict
 
 
-class TsMorphInputs(TypedDict):
+class GetTypescriptTypeInfoInputs(TypedDict):
     file_path: str
     variable_name: str
 
 
-class TsMorphOutputs(TypedDict):
+class GetTypescriptTypeInfoOutputs(TypedDict):
     type_information: str

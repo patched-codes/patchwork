@@ -238,22 +238,39 @@ function getTypeDescriptor(
 
 function main() {
   const args = process.argv.slice(2);
-  if (args.length < 2 || args.length > 3) {
-    console.error("Usage: node script.js <file_path> <identifier> [max_depth]");
+  let maxDepth = 5;
+  let filePath, identifier;
+
+  for (let i = 0; i < args.length; i++) {
+    if (args[i].startsWith("--max-depth=")) {
+      maxDepth = parseInt(args[i].split("=")[1], 10);
+      if (isNaN(maxDepth)) {
+        console.error("Invalid max depth value");
+        process.exit(1);
+      }
+    } else if (!filePath) {
+      filePath = args[i];
+    } else if (!identifier) {
+      identifier = args[i];
+    }
+  }
+
+  if (!filePath || !identifier) {
+    console.error(
+      "Usage: node script.js <file_path> <identifier> [--max-depth=<number>]"
+    );
     process.exit(1);
   }
 
-  const [file_path, identifier, max_depth] = args;
-  const maxDepth = max_depth ? parseInt(max_depth, 10) : 5;
   console.log(
     "Getting type info for",
     identifier,
     "in",
-    file_path,
+    filePath,
     "with max depth",
     maxDepth
   );
-  const typeString = getTypeDescriptor(identifier, file_path, maxDepth);
+  const typeString = getTypeDescriptor(identifier, filePath, maxDepth);
 
   const outputPath = path.join(process.cwd(), "temp_output_declaration.txt");
 

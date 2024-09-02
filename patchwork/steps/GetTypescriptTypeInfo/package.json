@@ -1,7 +1,7 @@
 {
-  "name": "patchwork",
-  "version": "1.0.0",
-  "description": "Internal package setup for some Patchwork steps",
+  "name": "get-typescript-type-info",
+  "version": "0.0.1",
+  "description": "A simple cli to get typescript type info for a given variable in a file",
   "license": "ISC",
   "scripts": {
     "get-type-info": "tsx get_type_info.ts"
