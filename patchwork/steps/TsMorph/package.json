@@ -4,7 +4,7 @@
   "description": "Internal package setup for some Patchwork steps",
   "license": "ISC",
   "scripts": {
-    "get-type-info": "tsx steps/TsMorph/get_type_info.ts"
+    "get-type-info": "tsx get_type_info.ts"
   },
   "dependencies": {
     "ts-morph": "^23.0.0"
@@ -14,5 +14,5 @@
     "tsx": "^4.18.0",
     "typescript": "^5.5.4"
   },
-  "packageManager": "pnpm@9.9.0+sha512.60c18acd138bff695d339be6ad13f7e936eea6745660d4cc4a776d5247c540d0edee1a563695c183a66eb917ef88f2b4feb1fc25f32a7adcadc7aaf3438e99c1"
+  "packageManager": "pnpm@9.9.0+sha256.7a4261e50d9a44d9240baf6c9d6e10089dcf0a79d0007f2a26985a6927324177"
 }
