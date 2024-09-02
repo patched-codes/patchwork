@@ -1,5 +1,6 @@
 import json
 
+from patchwork.common.client.llm.utils import example_json_to_schema
 from patchwork.common.utils.utils import exclude_none_dict
 from patchwork.step import Step
 from patchwork.steps.CallLLM.CallLLM import CallLLM
@@ -44,7 +45,7 @@ class SimplifiedLLM(Step):
         model_keys = [key for key in self.inputs.keys() if key.startswith("model_")]
         response_format = dict(type="json_object" if self.is_json_mode else "text")
         if self.json_example is not None:
-            response_format = self.json_example
+            response_format = example_json_to_schema(self.json_example)
         call_llm_inputs = {
             "prompts": prepare_prompt_outputs.get("prompts"),
             **{

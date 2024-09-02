@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import functools
-import json
 
 from openai import OpenAI
 from openai.types.chat import (
@@ -12,10 +11,6 @@ from openai.types.chat import (
 from typing_extensions import Dict, Iterable, List, Optional, Union
 
 from patchwork.common.client.llm.protocol import NOT_GIVEN, LlmClient, NotGiven
-from patchwork.common.client.llm.utils import (
-    base_model_to_schema,
-    example_json_to_base_model, example_dict_to_base_model,
-)
 
 
 @functools.lru_cache
@@ -84,9 +79,5 @@ class OpenAiLlmClient(LlmClient):
             top_logprobs=top_logprobs,
             top_p=top_p,
         )
-
-        if response_format is not NOT_GIVEN and response_format.get("type") not in {"text", "json_object"}:
-            base_model = example_dict_to_base_model(response_format)
-            input_kwargs["response_format"] = base_model_to_schema(base_model)
 
         return self.client.chat.completions.create(**NotGiven.remove_not_given(input_kwargs))

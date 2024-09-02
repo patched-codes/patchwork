@@ -12,16 +12,15 @@ from openai.types.chat import (
     ChatCompletionMessageParam,
     completion_create_params,
 )
-from openai.types.chat.chat_completion_message_tool_call import Function, ChatCompletionMessageToolCall
 from openai.types.chat.chat_completion import Choice, CompletionUsage
+from openai.types.chat.chat_completion_message_tool_call import (
+    ChatCompletionMessageToolCall,
+    Function,
+)
 from openai.types.completion_usage import CompletionUsage
 from typing_extensions import Dict, Iterable, List, Optional, Union
 
 from patchwork.common.client.llm.protocol import NOT_GIVEN, LlmClient, NotGiven
-from patchwork.common.client.llm.utils import (
-    base_model_to_schema,
-    example_json_to_base_model, example_dict_to_base_model,
-)
 
 
 def _anthropic_to_openai_response(model: str, anthropic_response: Message) -> ChatCompletion:
@@ -29,7 +28,7 @@ def _anthropic_to_openai_response(model: str, anthropic_response: Message) -> Ch
 
     choices = []
     for i, content_block in enumerate(anthropic_response.content):
-        if content_block.type == "text" :
+        if content_block.type == "text":
             chat_completion_message = ChatCompletionMessage(
                 role="assistant",
                 content=content_block.text,
@@ -41,16 +40,14 @@ def _anthropic_to_openai_response(model: str, anthropic_response: Message) -> Ch
                 content=text,
                 tool_calls=[
                     ChatCompletionMessageToolCall(
-                        id=content_block.id,
-                        type="function",
-                        function=Function(name=content_block.name, arguments=text)
+                        id=content_block.id, type="function", function=Function(name=content_block.name, arguments=text)
                     )
                 ],
             )
         choice = Choice(
             index=i,
             finish_reason=stop_reason_map.get(anthropic_response.stop_reason, "stop"),
-            message=chat_completion_message
+            message=chat_completion_message,
         )
         choices.append(choice)
 
@@ -83,20 +80,20 @@ class AnthropicLlmClient(LlmClient):
         return model in self.__definitely_allowed_models or model.startswith(self.__allowed_model_prefix)
 
     def chat_completion(
-            self,
-            messages: Iterable[ChatCompletionMessageParam],
-            model: str,
-            frequency_penalty: Optional[float] | NotGiven = NOT_GIVEN,
-            logit_bias: Optional[Dict[str, int]] | NotGiven = NOT_GIVEN,
-            logprobs: Optional[bool] | NotGiven = NOT_GIVEN,
-            max_tokens: Optional[int] | NotGiven = NOT_GIVEN,
-            n: Optional[int] | NotGiven = NOT_GIVEN,
-            presence_penalty: Optional[float] | NotGiven = NOT_GIVEN,
-            response_format: dict | completion_create_params.ResponseFormat | NotGiven = NOT_GIVEN,
-            stop: Union[Optional[str], List[str]] | NotGiven = NOT_GIVEN,
-            temperature: Optional[float] | NotGiven = NOT_GIVEN,
-            top_logprobs: Optional[int] | NotGiven = NOT_GIVEN,
-            top_p: Optional[float] | NotGiven = NOT_GIVEN,
+        self,
+        messages: Iterable[ChatCompletionMessageParam],
+        model: str,
+        frequency_penalty: Optional[float] | NotGiven = NOT_GIVEN,
+        logit_bias: Optional[Dict[str, int]] | NotGiven = NOT_GIVEN,
+        logprobs: Optional[bool] | NotGiven = NOT_GIVEN,
+        max_tokens: Optional[int] | NotGiven = NOT_GIVEN,
+        n: Optional[int] | NotGiven = NOT_GIVEN,
+        presence_penalty: Optional[float] | NotGiven = NOT_GIVEN,
+        response_format: completion_create_params.ResponseFormat | NotGiven = NOT_GIVEN,
+        stop: Union[Optional[str], List[str]] | NotGiven = NOT_GIVEN,
+        temperature: Optional[float] | NotGiven = NOT_GIVEN,
+        top_logprobs: Optional[int] | NotGiven = NOT_GIVEN,
+        top_p: Optional[float] | NotGiven = NOT_GIVEN,
     ) -> ChatCompletion:
         system: Union[str, Iterable[TextBlockParam]] | NotGiven = NOT_GIVEN
         other_messages = []
@@ -118,19 +115,15 @@ class AnthropicLlmClient(LlmClient):
             temperature=temperature,
             top_p=top_p,
         )
-        if response_format is not NOT_GIVEN:
-            if isinstance(response_format, str):
-                base_model = example_json_to_base_model(response_format)
-            elif isinstance(response_format, dict):
-                base_model = example_dict_to_base_model(response_format)
-            else:
-                raise ValueError(f"Invalid response_format type: {type(response_format)}")
+        if response_format is not NOT_GIVEN and response_format.get("type") == "json_schema":
             input_kwargs["tool_choice"] = dict(type="tool", name="response_format")
-            input_kwargs["tools"] = [dict(
-                name="response_format",
-                description="The response format to use",
-                input_schema=base_model_to_schema(base_model)["json_schema"]["schema"]
-            )]
+            input_kwargs["tools"] = [
+                dict(
+                    name="response_format",
+                    description="The response format to use",
+                    input_schema=response_format["json_schema"]["schema"],
+                )
+            ]
 
         response = self.client.messages.create(**NotGiven.remove_not_given(input_kwargs))
         return _anthropic_to_openai_response(model, response)
