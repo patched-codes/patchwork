@@ -3,12 +3,13 @@ import subprocess
 from pathlib import Path
 
 from patchwork.step import Step
+from patchwork.steps.GetTypescriptTypeInfo.typed import GetTypescriptTypeInfoInputs, GetTypescriptTypeInfoOutputs
 
 
 _DEFAULT_TS_FILE = Path(__file__).parent / "get_type_info.ts"
 
 
-class GetTypescriptTypeInfo(Step):
+class GetTypescriptTypeInfo(Step, input_class=GetTypescriptTypeInfoInputs, output_class=GetTypescriptTypeInfoOutputs):
     def __init__(self, inputs: dict):
         super().__init__(inputs)
         required_keys = {"file_path", "variable_name"}
