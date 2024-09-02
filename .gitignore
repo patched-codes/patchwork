@@ -163,10 +163,8 @@ cython_debug/
 **/.DS_Store
 benchmark/
 
-# node modules
-patchwork/node_modules/
-
 # vscode
 .vscode/
 
+# node modules
 node_modules/
