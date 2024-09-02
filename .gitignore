@@ -162,3 +162,9 @@ cython_debug/
 
 **/.DS_Store
 benchmark/
+
+# vscode
+.vscode/
+
+# node modules
+node_modules/

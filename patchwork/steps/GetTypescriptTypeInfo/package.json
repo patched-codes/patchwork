@@ -1,0 +1,18 @@
+{
+  "name": "get-typescript-type-info",
+  "version": "0.0.1",
+  "description": "A simple cli to get typescript type info for a given variable in a file",
+  "license": "ISC",
+  "scripts": {
+    "get-type-info": "tsx get_type_info.ts"
+  },
+  "dependencies": {
+    "ts-morph": "^23.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.0",
+    "tsx": "^4.18.0",
+    "typescript": "^5.5.4"
+  },
+  "packageManager": "pnpm@9.9.0+sha256.7a4261e50d9a44d9240baf6c9d6e10089dcf0a79d0007f2a26985a6927324177"
+}
