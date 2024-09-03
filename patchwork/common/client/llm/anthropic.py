@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import time
 from functools import lru_cache
 
@@ -12,6 +13,10 @@ from openai.types.chat import (
     completion_create_params,
 )
 from openai.types.chat.chat_completion import Choice, CompletionUsage
+from openai.types.chat.chat_completion_message_tool_call import (
+    ChatCompletionMessageToolCall,
+    Function,
+)
 from openai.types.completion_usage import CompletionUsage
 from typing_extensions import Dict, Iterable, List, Optional, Union
 
@@ -23,13 +28,26 @@ def _anthropic_to_openai_response(model: str, anthropic_response: Message) -> Ch
 
     choices = []
     for i, content_block in enumerate(anthropic_response.content):
+        if content_block.type == "text":
+            chat_completion_message = ChatCompletionMessage(
+                role="assistant",
+                content=content_block.text,
+            )
+        else:
+            text = json.dumps(content_block.input)
+            chat_completion_message = ChatCompletionMessage(
+                role="assistant",
+                content=text,
+                tool_calls=[
+                    ChatCompletionMessageToolCall(
+                        id=content_block.id, type="function", function=Function(name=content_block.name, arguments=text)
+                    )
+                ],
+            )
         choice = Choice(
             index=i,
             finish_reason=stop_reason_map.get(anthropic_response.stop_reason, "stop"),
-            message=ChatCompletionMessage(
-                role="assistant",
-                content=content_block.text,
-            ),
+            message=chat_completion_message,
         )
         choices.append(choice)
 
@@ -97,6 +115,15 @@ class AnthropicLlmClient(LlmClient):
             temperature=temperature,
             top_p=top_p,
         )
+        if response_format is not NOT_GIVEN and response_format.get("type") == "json_schema":
+            input_kwargs["tool_choice"] = dict(type="tool", name="response_format")
+            input_kwargs["tools"] = [
+                dict(
+                    name="response_format",
+                    description="The response format to use",
+                    input_schema=response_format["json_schema"]["schema"],
+                )
+            ]
 
         response = self.client.messages.create(**NotGiven.remove_not_given(input_kwargs))
         return _anthropic_to_openai_response(model, response)

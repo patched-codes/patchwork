@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "patchwork-cli"
-version = "0.0.55"
+version = "0.0.57"
 description = ""
 authors = ["patched.codes"]
 license = "AGPL"
@@ -15,7 +15,7 @@ classifiers = [
     "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Software Development :: Quality Assurance",
     "Topic :: Software Development :: Testing",
@@ -23,7 +23,7 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.9"
 typing-extensions = "^4.11.0"
 click = "~8.1.0"
 openai = "^1.13.3"
@@ -41,7 +41,7 @@ semver = "~3.0.2"
 requests = "~2.31.0"
 chardet = "~5.2.0"
 attrs = "~23.2.0"
-google-ai-generativelanguage = "~0.6.7"
+google-generativeai = "~0.7.2"
 anthropic = "~0.31.2"
 rich = "~13.7.1"
 chevron = "~0.14.0"
@@ -50,15 +50,15 @@ scikit-learn = "^1.3.2"
 tree-sitter = "~0.21.3"
 numpy = [
     { version = "^1.26", python = "^3.12", optional = true},
-    { version = "^1.24", python = "^3.8, <=3.11", optional = true}
+    { version = "^1.24", python = "^3.9, <=3.11", optional = true}
 ]
 pandas = [
     { version = "^2.1.4", python = "^3.12", optional = true},
-    { version = "^2.0.3", python = "3.8, <=3.11", optional = true}
+    { version = "^2.0.3", python = "3.9, <=3.11", optional = true}
 ]
 scipy = [
     { version = "^1.7.3", python = "^3.12", optional = true},
-    { version = "^1.6.1", python = "3.8, <=3.11", optional = true}
+    { version = "^1.6.1", python = "3.9, <=3.11", optional = true}
 ]
 
 # extras

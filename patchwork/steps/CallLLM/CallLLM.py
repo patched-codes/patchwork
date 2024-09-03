@@ -7,7 +7,6 @@ from itertools import islice
 from pathlib import Path
 from pprint import pformat
 from textwrap import indent
-from typing import NamedTuple
 
 from rich.markup import escape
 
@@ -53,7 +52,7 @@ class CallLLM(Step, input_class=CallLLMInputs, output_class=CallLLMOutputs):
         self.call_limit = int(inputs.get("max_llm_calls", -1))
         self.model_args = {key[len("model_") :]: value for key, value in inputs.items() if key.startswith("model_")}
         self.save_responses_to_file = inputs.get("save_responses_to_file", None)
-        self.model = inputs.get("model", "gpt-3.5-turbo")
+        self.model = inputs.get("model", "gpt-4o-mini")
         self.allow_truncated = inputs.get("allow_truncated", False)
 
         clients = []
@@ -155,6 +154,8 @@ class CallLLM(Step, input_class=CallLLMInputs, output_class=CallLLMOutputs):
             if completion is None or len(completion.choices) < 1:
                 logger.error(f"No response choice given")
                 content = ""
+                request_token = 0
+                response_token = 0
             elif completion.choices[0].finish_reason == "length":
                 if self.allow_truncated:
                     content = completion.choices[0].message.content
@@ -164,16 +165,22 @@ class CallLLM(Step, input_class=CallLLMInputs, output_class=CallLLMOutputs):
                         f" Use --allow_truncated option to process truncated responses."
                     )
                     content = ""
+                request_token = completion.usage.prompt_tokens
+                response_token = completion.usage.completion_tokens
             else:
                 content = completion.choices[0].message.content
+                request_token = completion.usage.prompt_tokens
+                response_token = completion.usage.completion_tokens
                 logger.trace(f"Response received: \n{escape(indent(content, '  '))}")
 
-            contents.append(_InnerCallLLMResponse(
-                prompts=prompt,
-                response=content,
-                request_token=completion.usage.prompt_tokens,
-                response_token=completion.usage.completion_tokens
-            ))
+            contents.append(
+                _InnerCallLLMResponse(
+                    prompts=prompt,
+                    response=content,
+                    request_token=request_token,
+                    response_token=response_token,
+                )
+            )
 
         return contents
 

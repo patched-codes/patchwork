@@ -58,7 +58,7 @@ class OpenAiLlmClient(LlmClient):
         max_tokens: Optional[int] | NotGiven = NOT_GIVEN,
         n: Optional[int] | NotGiven = NOT_GIVEN,
         presence_penalty: Optional[float] | NotGiven = NOT_GIVEN,
-        response_format: completion_create_params.ResponseFormat | NotGiven = NOT_GIVEN,
+        response_format: dict | completion_create_params.ResponseFormat | NotGiven = NOT_GIVEN,
         stop: Union[Optional[str], List[str]] | NotGiven = NOT_GIVEN,
         temperature: Optional[float] | NotGiven = NOT_GIVEN,
         top_logprobs: Optional[int] | NotGiven = NOT_GIVEN,
@@ -79,4 +79,5 @@ class OpenAiLlmClient(LlmClient):
             top_logprobs=top_logprobs,
             top_p=top_p,
         )
+
         return self.client.chat.completions.create(**NotGiven.remove_not_given(input_kwargs))

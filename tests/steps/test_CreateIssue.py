@@ -37,9 +37,8 @@ def test_run(mocker):
         "scm_url": "https://github.com/my/repo",
         "github_api_key": "my api key",
     }
-    mocked_github_client = mocker.Mock(spec=GithubClient)
-    mocker.patch.object(GithubClient, "__new__", return_value=mocked_github_client)
-    mocked_github_client.create_issue_comment.return_value = "https://github.com/my/repo/issues/1"
+    mocked_create_issue_comment = mocker.patch("patchwork.common.client.scm.GithubClient.create_issue_comment")
+    mocked_create_issue_comment.return_value = "https://github.com/my/repo/issues/1"
 
     create_issue = CreateIssue(inputs)
     output = create_issue.run()
