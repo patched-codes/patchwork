@@ -158,8 +158,8 @@ class PatchedClient(click.ParamType):
                     is_container=is_container(),
                 ),
             ),
+            timeout=10
         )
-
     def send_public_telemetry(self, patchflow: str, inputs: dict):
         try:
             _thread = Thread(target=asyncio.run, args=(self._public_telemetry(patchflow, inputs),))
