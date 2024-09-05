@@ -262,6 +262,14 @@ function main() {
     process.exit(1);
   }
 
+  const basePath = '/app/restricted/';
+  const joinedPath = path.join(basePath, crypto.randomUUID());
+  const fullPath = path.normalize(joinedPath);
+  if (!fullPath.startsWith(basePath)) {
+   console.log("Invalid path specified!");
+   process.exit(1);
+  }
+
   console.log(
     "Getting type info for",
     identifier,
@@ -281,5 +289,4 @@ function main() {
     console.error(`Error writing to file: ${error}`);
   }
 }
-
 main();
