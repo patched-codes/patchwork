@@ -69,6 +69,9 @@ class CreatePR(Step):
         return is_push_success
 
     def run(self) -> dict:
+        if self.inputs.get("debug") is not None:
+            self.debug(self.inputs)
+            
         repo = git.Repo(Path.cwd(), search_parent_directories=True)
         if not self.enabled:
             if (

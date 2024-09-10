@@ -18,6 +18,9 @@ class LLM(Step):
         self.inputs = inputs
 
     def run(self) -> dict:
+        if self.inputs.get("debug") is not None:
+            self.debug(self.inputs)
+            
         prepare_prompt_outputs = PreparePrompt(self.inputs).run()
         call_llm_outputs = CallLLM(
             dict(

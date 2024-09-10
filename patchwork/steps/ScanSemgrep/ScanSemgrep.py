@@ -28,6 +28,9 @@ class ScanSemgrep(Step):
             self.sarif_values = None
 
     def run(self) -> dict:
+        if self.inputs.get("debug") is not None:
+            self.debug(self.inputs)
+            
         if self.sarif_values is not None:
             self.set_status(StepStatus.SKIPPED, "Using provided SARIF")
             return dict(sarif_values=self.sarif_values)

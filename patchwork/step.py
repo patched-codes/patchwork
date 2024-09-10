@@ -2,6 +2,7 @@ import abc
 from enum import Flag, auto
 
 from typing_extensions import Any, Dict, List, Union, is_typeddict
+from pynput import keyboard
 
 from patchwork.logger import logger
 
@@ -85,6 +86,24 @@ class Step(abc.ABC):
             raise ValueError(f"Invalid status: {status}")
         self.__status = status
         self.__status_msg = msg
+    
+    def debug(self, inputs):
+        print("\nInputs:")
+        for key, value in inputs.items():
+            print(f"{key}: {value}")
+        print("\n")
+        print("Press enter to continue, any other key to exit...\n")
+        def on_press(key):
+            print("KEY PRESSEd", key)
+            if key == keyboard.Key.enter:
+                print("Continuing...\n")
+                return False
+            else:
+                print("Exiting...\n")
+                exit()
+        with keyboard.Listener(on_release=on_press) as listener:
+            listener.join()
+        
 
     @property
     def status(self) -> StepStatus:

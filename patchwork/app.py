@@ -144,6 +144,7 @@ def setup_cli():
 )
 @click.option("patched_api_key", "--patched_api_key", help="API key to use with the patched.codes service.")
 @click.option("disable_telemetry", "--disable_telemetry", is_flag=True, help="Disable telemetry.", default=False)
+@click.option("debug", "--debug", is_flag=True, help="Enable debug mode.", default=False)
 def cli(
     log: str,
     patchflow: str,
@@ -153,6 +154,7 @@ def cli(
     data_format: str,
     patched_api_key: str | None,
     disable_telemetry: bool,
+    debug: bool
 ):
     setup_cli()
 
@@ -203,6 +205,9 @@ def cli(
                 logger.error(f"Config path {config} is neither a file nor a directory")
                 exit(1)
 
+        if debug:
+            inputs["debug"] = True
+
         patchflow_class = find_patchflow(possbile_module_paths, patchflow_name)
         if patchflow_class is None:
             logger.error(f"Patchflow {patchflow_name} not found in {possbile_module_paths}")
@@ -220,6 +225,8 @@ def cli(
             inputs[key] = value
 
     with logger.panel(f"Patchflow {patchflow} logs") as _:
+        if inputs.get("debug") is not None:
+            logger.info("DEBUGGING ENABLED. INPUTS WILL BE SHOWN BEFORE EACH STEP BEFORE PROCEEDING TO RUN IT.")
         try:
             patched = PatchedClient(inputs.get("patched_api_key"))
             if not disable_telemetry:

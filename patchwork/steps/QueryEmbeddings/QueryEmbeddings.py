@@ -26,6 +26,9 @@ class QueryEmbeddings(Step):
         self.token_limit = inputs.get("token_limit", 4096)
 
     def run(self):
+        if self.inputs.get("debug") is not None:
+            self.debug(self.inputs)
+            
         results = self.collection.query(
             query_texts=self.texts, n_results=self.top_k, include=["metadatas", "distances"]
         )

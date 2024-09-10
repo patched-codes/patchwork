@@ -15,6 +15,9 @@ class SimplifiedLLMOnce(Step):
         self.inputs = inputs
 
     def run(self) -> dict:
+        if self.inputs.get("debug") is not None:
+            self.debug(self.inputs)
+            
         llm = SimplifiedLLM({**self.inputs, "prompt_values": [self.prompt_value]})
         llm_output = llm.run()
 

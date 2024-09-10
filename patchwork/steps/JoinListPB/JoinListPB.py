@@ -12,6 +12,9 @@ class JoinListPB(Step, input_class=JoinListPBInputs, output_class=JoinListPBOutp
         self.inputs = inputs
 
     def run(self):
+        if self.inputs.get("debug") is not None:
+            self.debug(self.inputs)
+            
         join_list = JoinList(
             {
                 **self.inputs,

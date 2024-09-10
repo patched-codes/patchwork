@@ -71,6 +71,9 @@ class PRReview(Step):
         self.inputs = final_inputs
 
     def run(self) -> dict:
+        if self.inputs.get("debug") is not None:
+            self.debug(self.inputs)
+            
         if self.verbosity == _SUMMARY_LEVEL[_NONE]:
             return dict()
 

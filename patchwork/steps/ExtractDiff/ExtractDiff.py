@@ -172,6 +172,9 @@ class ExtractDiff(Step):
         self.inputs = inputs
 
     def run(self) -> dict:
+        if self.inputs.get("debug") is not None:
+            self.debug(self.inputs)
+            
         regex = r"https?://github\.com/(?P<owner>[^/]+)/(?P<repo>[^/]+)"
         base_url = "https://api.github.com/repos/"
         update_info = self.update_info

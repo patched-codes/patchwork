@@ -54,6 +54,9 @@ class GenerateCodeRepositoryEmbeddings(Step):
         self.inputs = inputs
 
     def run(self) -> dict:
+        if self.inputs.get("debug") is not None:
+            self.debug(self.inputs)
+            
         cwd = Path.cwd()
         base_embedding_name = cwd.name
         embedding_name = base_embedding_name

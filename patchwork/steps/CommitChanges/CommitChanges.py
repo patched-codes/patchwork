@@ -124,6 +124,9 @@ class CommitChanges(Step):
             raise ValueError("Both branch_prefix and branch_suffix cannot be empty")
 
     def run(self) -> dict:
+        if self.inputs.get("debug") is not None:
+            self.debug(self.inputs)
+            
         cwd = Path.cwd()
         repo = git.Repo(cwd, search_parent_directories=True)
         repo_dir_path = Path(repo.working_tree_dir)

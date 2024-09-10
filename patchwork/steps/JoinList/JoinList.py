@@ -13,6 +13,9 @@ class JoinList(Step):
         self.delimiter = inputs["delimiter"]
 
     def run(self):
+        if self.inputs.get("debug") is not None:
+            self.debug(self.inputs)
+            
         if len(self.list) == 0:
             self.set_status(StepStatus.SKIPPED, "List is empty")
             return dict()

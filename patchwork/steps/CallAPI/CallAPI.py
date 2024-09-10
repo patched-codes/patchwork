@@ -19,5 +19,8 @@ class CallAPI(Step):
             self.body = json.dumps(self.body)
 
     def run(self):
+        if self.inputs.get("debug") is not None:
+            self.debug(self.inputs)
+            
         res = request(self.method, self.url, headers=self.headers, data=self.body)
         return dict(status_code=res.status_code, headers=res.headers, body=res.text)

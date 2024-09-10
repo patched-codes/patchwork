@@ -33,6 +33,9 @@ class SimplifiedLLM(Step):
         self.inputs = inputs
 
     def run(self) -> dict:
+        if self.inputs.get("debug") is not None:
+            self.debug(self.inputs)
+            
         prompts = [dict(role="user", content=self.user)]
         if self.system:
             prompts.insert(0, dict(role="system", content=self.system))

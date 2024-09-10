@@ -30,6 +30,9 @@ class ReadIssues(Step):
             raise ValueError(f"Could not find issue with url: {inputs['issue_url']}")
 
     def run(self) -> dict:
+        if self.inputs.get("debug") is not None:
+            self.debug(self.inputs)
+            
         return dict(
             issue_title=self.issue.get("title"),
             issue_body=self.issue.get("body"),

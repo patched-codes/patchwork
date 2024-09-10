@@ -74,6 +74,9 @@ class PreparePrompt(Step):
         self.prompt_values = prompt_values
 
     def run(self) -> dict:
+        if self.inputs.get("debug") is not None:
+            self.debug(self.inputs)
+            
         if len(self.prompt_values) == 0:
             self.set_status(StepStatus.SKIPPED, "No prompt values provided")
             return dict(prompts=[])

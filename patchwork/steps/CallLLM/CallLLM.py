@@ -108,6 +108,9 @@ class CallLLM(Step, input_class=CallLLMInputs, output_class=CallLLMOutputs):
                 f.write(json.dumps(data) + "\n")
 
     def run(self) -> dict:
+        if self.inputs.get("debug") is not None:
+            self.debug(self.inputs)
+            
         prompt_length = len(self.prompts)
         if prompt_length == 0:
             self.set_status(StepStatus.SKIPPED, "No prompts to process")

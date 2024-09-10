@@ -34,6 +34,9 @@ class FilterBySimilarity(Step, input_class=FilterBySimilarityInputs, output_clas
         return keys
 
     def run(self):
+        if self.inputs.get("debug") is not None:
+            self.debug(self.inputs)
+            
         if len(self.list) == 0:
             self.set_status(StepStatus.SKIPPED, "List is empty")
             return dict()

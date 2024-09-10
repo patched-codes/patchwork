@@ -16,6 +16,9 @@ class GetTypescriptTypeInfo(Step, input_class=GetTypescriptTypeInfoInputs, outpu
         self.inputs = inputs
 
     def run(self) -> dict:
+        if self.inputs.get("debug") is not None:
+            self.debug(self.inputs)
+            
         file_path = self.inputs["file_path"]
         variable_name = self.inputs["variable_name"]
         cwd = Path.cwd()

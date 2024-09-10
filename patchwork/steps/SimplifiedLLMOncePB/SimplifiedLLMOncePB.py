@@ -14,6 +14,9 @@ class SimplifiedLLMOncePB(Step, input_class=SimplifiedLLMOncePBInputs):
         self.inputs = inputs
 
     def run(self) -> dict:
+        if self.inputs.get("debug") is not None:
+            self.debug(self.inputs)
+            
         if self.system is not None:
             prompt_dict = dict(
                 prompt_system=self.system,

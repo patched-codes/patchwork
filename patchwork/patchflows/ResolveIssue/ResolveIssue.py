@@ -64,6 +64,9 @@ class ResolveIssue(Step):
         self.inputs = final_inputs
 
     def run(self) -> dict:
+        if self.inputs.get("debug") is not None:
+            self.debug(self.inputs)
+            
         outputs = GenerateCodeRepositoryEmbeddings(self.inputs).run()
         self.inputs.update(outputs)
 
