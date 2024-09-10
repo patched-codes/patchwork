@@ -88,18 +88,18 @@ class Step(abc.ABC):
         self.__status_msg = msg
     
     def debug(self, inputs):
-        print("\nInputs:")
+        logger.info("\nInputs:")
         for key, value in inputs.items():
-            print(f"{key}: {value}")
-        print("\n")
-        print("Press enter to continue, any other key to exit...\n")
+            logger.info(f"{key}: {value}")
+        logger.info("\n")
+        logger.info("Press enter to continue, any other key to exit...\n")
         def on_press(key):
-            print("KEY PRESSEd", key)
+            logger.info("KEY PRESSEd", key)
             if key == keyboard.Key.enter:
-                print("Continuing...\n")
+                logger.info("Continuing...\n")
                 return False
             else:
-                print("Exiting...\n")
+                logger.info("Exiting...\n")
                 exit()
         with keyboard.Listener(on_release=on_press) as listener:
             listener.join()
