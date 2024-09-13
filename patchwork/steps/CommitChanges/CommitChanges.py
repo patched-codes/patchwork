@@ -126,7 +126,10 @@ class CommitChanges(Step):
 
     def __get_ignored_groks(self, repo: Repo) -> set[str]:
         ignored_groks = set()
-        lines = (Path(repo.working_tree_dir) / ".gitignore").read_text().splitlines()
+        gitignore_file = Path(repo.working_tree_dir) / ".gitignore"
+        if not gitignore_file.is_file():
+            return ignored_groks
+        lines = gitignore_file.read_text().splitlines()
         for line in lines:
             stripped_line = line.strip()
             if stripped_line.startswith("#") or stripped_line == "":
