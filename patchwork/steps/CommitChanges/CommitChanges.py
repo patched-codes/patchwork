@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import contextlib
+import fnmatch
 from pathlib import Path
 
 import git
@@ -123,12 +124,27 @@ class CommitChanges(Step):
         if self.enabled and self.branch_prefix == "" and self.branch_suffix == "":
             raise ValueError("Both branch_prefix and branch_suffix cannot be empty")
 
+    def __get_ignored_groks(self, repo: Repo) -> set[str]:
+        ignored_groks = set()
+        lines = (Path(repo.working_tree_dir) / ".gitignore").read_text().splitlines()
+        for line in lines:
+            stripped_line = line.strip()
+            if stripped_line.startswith("#") or stripped_line == "":
+                continue
+            ignored_groks.add(stripped_line)
+        return ignored_groks
+
     def __get_repo_tracked_modified_files(self, repo: Repo) -> set[Path]:
         repo_dir_path = Path(repo.working_tree_dir)
-        repo_changed_files = {repo_dir_path / item.a_path for item in repo.index.diff(None)}
-        if len(repo_changed_files) > 0:
-            repo_ignored_files = repo.ignored(*repo_changed_files)
-            repo_changed_files = repo_changed_files.difference(repo_ignored_files)
+        ignored_groks = self.__get_ignored_groks(repo)
+
+        repo_changed_files = set()
+        for item in repo.index.diff(None):
+            repo_changed_file = item.a_path
+            if any(fnmatch.fnmatch(repo_changed_file, ignored_grok) for ignored_grok in ignored_groks):
+                continue
+            repo_changed_files.add(repo_dir_path / repo_changed_file)
+
         return repo_changed_files
 
     def run(self) -> dict:
