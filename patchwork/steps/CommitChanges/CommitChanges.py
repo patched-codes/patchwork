@@ -128,6 +128,8 @@ class CommitChanges(Step):
         repo = git.Repo(cwd, search_parent_directories=True)
         repo_dir_path = Path(repo.working_tree_dir)
         repo_changed_files = {repo_dir_path / item.a_path for item in repo.index.diff(None)}
+        repo_ignored_files = repo.ignored(*repo_changed_files)
+        repo_changed_files = repo_changed_files.difference(repo_ignored_files)
         repo_untracked_files = {repo_dir_path / item for item in repo.untracked_files}
         modified_files = {Path(modified_code_file["path"]).resolve() for modified_code_file in self.modified_code_files}
         true_modified_files = modified_files.intersection(repo_changed_files.union(repo_untracked_files))
@@ -150,7 +152,7 @@ class CommitChanges(Step):
             to_branch,
         ):
             for modified_file in true_modified_files:
-                repo.git.add("-f", modified_file)
+                repo.git.add(modified_file)
                 commit_with_msg(repo, f"Patched {modified_file}")
 
             return dict(
