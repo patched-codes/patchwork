@@ -123,13 +123,19 @@ class CommitChanges(Step):
         if self.enabled and self.branch_prefix == "" and self.branch_suffix == "":
             raise ValueError("Both branch_prefix and branch_suffix cannot be empty")
 
+    def __get_repo_tracked_modified_files(self, repo: Repo) -> set[Path]:
+        repo_dir_path = Path(repo.working_tree_dir)
+        repo_changed_files = {repo_dir_path / item.a_path for item in repo.index.diff(None)}
+        if len(repo_changed_files) > 0:
+            repo_ignored_files = repo.ignored(*repo_changed_files)
+            repo_changed_files = repo_changed_files.difference(repo_ignored_files)
+        return repo_changed_files
+
     def run(self) -> dict:
         cwd = Path.cwd()
         repo = git.Repo(cwd, search_parent_directories=True)
         repo_dir_path = Path(repo.working_tree_dir)
-        repo_changed_files = {repo_dir_path / item.a_path for item in repo.index.diff(None)}
-        repo_ignored_files = repo.ignored(*repo_changed_files)
-        repo_changed_files = repo_changed_files.difference(repo_ignored_files)
+        repo_changed_files = self.__get_repo_tracked_modified_files(repo)
         repo_untracked_files = {repo_dir_path / item for item in repo.untracked_files}
         modified_files = {Path(modified_code_file["path"]).resolve() for modified_code_file in self.modified_code_files}
         true_modified_files = modified_files.intersection(repo_changed_files.union(repo_untracked_files))
