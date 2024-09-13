@@ -150,7 +150,7 @@ class CommitChanges(Step):
             to_branch,
         ):
             for modified_file in true_modified_files:
-                repo.git.add(modified_file)
+                repo.git.add("-f", modified_file)
                 commit_with_msg(repo, f"Patched {modified_file}")
 
             return dict(
