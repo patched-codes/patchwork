@@ -10,6 +10,10 @@ __DEPENDENCY_GROUPS = {
 
 @lru_cache(maxsize=None)
 def import_with_dependency_group(name):
+    authorized_modules = {dep for deps in __DEPENDENCY_GROUPS.values() for dep in deps}
+    if name not in authorized_modules:
+        raise ImportError(f"Unauthorized module {name}")
+    
     try:
         return importlib.import_module(name)
     except ImportError:
