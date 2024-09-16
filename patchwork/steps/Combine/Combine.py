@@ -6,6 +6,27 @@ from patchwork.steps.Combine.typed import CombineInputs
 
 class Combine(Step):
     def __init__(self, inputs):
+        """Initialize a CombineInputs instance.
+        
+        Args:
+            inputs (dict): A dictionary containing the required input data.
+        
+        Returns:
+            None
+        
+        Raises:
+            """Merges two JSON objects or lists of JSON objects.
+            
+            Args:
+                self: The instance of the class containing base and update attributes.
+            
+            Returns:
+                dict or list: The merged result. If both inputs are dictionaries, returns a merged dictionary.
+                If both inputs are lists, returns a list of merged dictionaries. If one input is a list and
+                the other is a dictionary, returns a list where the dictionary is merged with each item in the list.
+            """
+            ValueError: If any required keys are missing from the inputs dictionary.
+        """
         super().__init__(inputs)
         missing_keys = CombineInputs.__required_keys__.difference(inputs.keys())
         if len(missing_keys) > 0:
