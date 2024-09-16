@@ -8,6 +8,7 @@ on:
       - dependencyupgrade-*
       - generatereadme-*
       - generatedocstring-*
+      - demo*
 
 jobs:
   all-test:
