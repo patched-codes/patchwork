@@ -75,7 +75,6 @@ orjson = {version = "~3.9.15", optional = true }
 
 # notifications
 slack-sdk = {version = "~3.28.0", optional = true }
-pynput = "^1.7.7"
 
 [tool.poetry.extras]
 security = ["semgrep", "owasp-depscan"]

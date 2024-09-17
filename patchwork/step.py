@@ -1,8 +1,16 @@
 import abc
 from enum import Flag, auto
+import sys
+import os
+
+# modules required for keyboard input
+if os.name == 'nt':  # in case of windows
+    import msvcrt
+else: # for unix based systems
+    import termios
+    import tty
 
 from typing_extensions import Any, Dict, List, Union, is_typeddict
-from pynput import keyboard
 
 from patchwork.logger import logger
 
@@ -87,22 +95,30 @@ class Step(abc.ABC):
         self.__status = status
         self.__status_msg = msg
     
+    def get_key(self):
+        if os.name == 'nt':  # Windows
+            return msvcrt.getch().decode('utf-8')
+        else:  # Linux / macOS
+            fd = sys.stdin.fileno()
+            old_settings = termios.tcgetattr(fd)
+            try:
+                tty.setraw(sys.stdin.fileno())
+                key = sys.stdin.read(1)
+            finally:
+                termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+            return key
+        
     def debug(self, inputs):
         logger.info("\nInputs:")
         for key, value in inputs.items():
             logger.info(f"{key}: {value}")
         logger.info("\n")
         logger.info("Press enter to continue, any other key to exit...\n")
-        def on_press(key):
-            logger.info("KEY PRESSEd", key)
-            if key == keyboard.Key.enter:
-                logger.info("Continuing...\n")
-                return False
-            else:
-                logger.info("Exiting...\n")
-                exit()
-        with keyboard.Listener(on_release=on_press) as listener:
-            listener.join()
+        key = self.get_key()
+        if key == "\n" or key == "\r":
+            logger.info("Continuing...\n")
+        else:
+            logger.info("Exiting...\n")
         
 
     @property
