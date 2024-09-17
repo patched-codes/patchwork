@@ -21,7 +21,7 @@ from openai.types.chat.chat_completion import ChatCompletion, Choice
 from typing_extensions import Any, Dict, Iterable, List, Optional, Union
 
 from patchwork.common.client.llm.protocol import NOT_GIVEN, LlmClient, NotGiven
-from patchwork.common.client.llm.utils import base_model_to_schema, json_schema_to_model
+from patchwork.common.client.llm.utils import json_schema_to_model
 
 
 @functools.lru_cache
@@ -52,20 +52,20 @@ class GoogleLlmClient(LlmClient):
         return model in self.get_models()
 
     def chat_completion(
-            self,
-            messages: Iterable[ChatCompletionMessageParam],
-            model: str,
-            frequency_penalty: Optional[float] | NotGiven = NOT_GIVEN,
-            logit_bias: Optional[Dict[str, int]] | NotGiven = NOT_GIVEN,
-            logprobs: Optional[bool] | NotGiven = NOT_GIVEN,
-            max_tokens: Optional[int] | NotGiven = NOT_GIVEN,
-            n: Optional[int] | NotGiven = NOT_GIVEN,
-            presence_penalty: Optional[float] | NotGiven = NOT_GIVEN,
-            response_format: completion_create_params.ResponseFormat | NotGiven = NOT_GIVEN,
-            stop: Union[Optional[str], List[str]] | NotGiven = NOT_GIVEN,
-            temperature: Optional[float] | NotGiven = NOT_GIVEN,
-            top_logprobs: Optional[int] | NotGiven = NOT_GIVEN,
-            top_p: Optional[float] | NotGiven = NOT_GIVEN,
+        self,
+        messages: Iterable[ChatCompletionMessageParam],
+        model: str,
+        frequency_penalty: Optional[float] | NotGiven = NOT_GIVEN,
+        logit_bias: Optional[Dict[str, int]] | NotGiven = NOT_GIVEN,
+        logprobs: Optional[bool] | NotGiven = NOT_GIVEN,
+        max_tokens: Optional[int] | NotGiven = NOT_GIVEN,
+        n: Optional[int] | NotGiven = NOT_GIVEN,
+        presence_penalty: Optional[float] | NotGiven = NOT_GIVEN,
+        response_format: completion_create_params.ResponseFormat | NotGiven = NOT_GIVEN,
+        stop: Union[Optional[str], List[str]] | NotGiven = NOT_GIVEN,
+        temperature: Optional[float] | NotGiven = NOT_GIVEN,
+        top_logprobs: Optional[int] | NotGiven = NOT_GIVEN,
+        top_p: Optional[float] | NotGiven = NOT_GIVEN,
     ) -> ChatCompletion:
         generation_dict = dict(
             stop_sequences=[stop] if isinstance(stop, str) else stop,

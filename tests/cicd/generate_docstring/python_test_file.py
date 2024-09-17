@@ -16,7 +16,6 @@ def compare(key_map, item1, item2):
     else:
         return 0
 
-def random_alphabets(
-        length: int
-):
-    return ''.join(random.choices(string.ascii_letters, k=length))
+
+def random_alphabets(length: int):
+    return "".join(random.choices(string.ascii_letters, k=length))

@@ -3,8 +3,10 @@ import subprocess
 from pathlib import Path
 
 from patchwork.step import Step
-from patchwork.steps.GetTypescriptTypeInfo.typed import GetTypescriptTypeInfoInputs, GetTypescriptTypeInfoOutputs
-
+from patchwork.steps.GetTypescriptTypeInfo.typed import (
+    GetTypescriptTypeInfoInputs,
+    GetTypescriptTypeInfoOutputs,
+)
 
 _DEFAULT_TS_FILE = Path(__file__).parent / "get_type_info.ts"
 

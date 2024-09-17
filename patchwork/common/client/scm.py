@@ -12,23 +12,17 @@ from attrs import define
 from github import Auth, Consts, Github, GithubException, PullRequest
 from gitlab import Gitlab, GitlabAuthenticationError, GitlabError
 from gitlab.v4.objects import ProjectMergeRequest
+from giturlparse import parse, GitUrlParsed
 from typing_extensions import Protocol, TypedDict
 
 from patchwork.logger import logger
 
 
 def get_slug_from_remote_url(remote_url: str) -> str:
-    # TODO: consider using https://github.com/nephila/giturlparse instead
-    if remote_url.startswith("git@"):
-        # ssh
-        _, _, potential_slug = remote_url.partition(":")
-    else:
-        potential_slug = "/".join(remote_url.split("/")[-2:])
-
-    if potential_slug.endswith(".git"):
-        potential_slug = potential_slug[:-4]
-
-    return potential_slug
+    parsed_repo: GitUrlParsed = parse(remote_url)
+    parts = [parsed_repo.owner, *parsed_repo.groups, parsed_repo.name]
+    slug = "/".join(parts)
+    return slug
 
 
 @define
@@ -81,7 +75,7 @@ class PullRequestProtocol(Protocol):
         ...
 
     def create_comment(
-            self, body: str, path: str | None = None, start_line: int | None = None, end_line: int | None = None
+        self, body: str, path: str | None = None, start_line: int | None = None, end_line: int | None = None
     ) -> str | None:
         ...
 
@@ -171,27 +165,27 @@ class ScmPlatformClientProtocol(Protocol):
         ...
 
     def find_prs(
-            self,
-            slug: str,
-            state: PullRequestState | None = None,
-            original_branch: str | None = None,
-            feature_branch: str | None = None,
-            limit: int | None = None,
+        self,
+        slug: str,
+        state: PullRequestState | None = None,
+        original_branch: str | None = None,
+        feature_branch: str | None = None,
+        limit: int | None = None,
     ) -> list[PullRequestProtocol]:
         ...
 
     def create_pr(
-            self,
-            slug: str,
-            title: str,
-            body: str,
-            original_branch: str,
-            feature_branch: str,
+        self,
+        slug: str,
+        title: str,
+        body: str,
+        original_branch: str,
+        feature_branch: str,
     ) -> PullRequestProtocol:
         ...
 
     def create_issue_comment(
-            self, slug: str, issue_text: str, title: str | None = None, issue_id: int | None = None
+        self, slug: str, issue_text: str, title: str | None = None, issue_id: int | None = None
     ) -> str:
         ...
 
@@ -212,7 +206,7 @@ class GitlabMergeRequest(PullRequestProtocol):
         self._mr.save()
 
     def create_comment(
-            self, body: str, path: str | None = None, start_line: int | None = None, end_line: int | None = None
+        self, body: str, path: str | None = None, start_line: int | None = None, end_line: int | None = None
     ) -> str | None:
         final_body = f"{_COMMENT_MARKER} \n{PullRequestProtocol._apply_pr_template(self, body)}"
         if path is None:
@@ -316,7 +310,7 @@ class GithubPullRequest(PullRequestProtocol):
         self._pr.edit(body=final_body)
 
     def create_comment(
-            self, body: str, path: str | None = None, start_line: int | None = None, end_line: int | None = None
+        self, body: str, path: str | None = None, start_line: int | None = None, end_line: int | None = None
     ) -> str | None:
         final_body = f"{_COMMENT_MARKER} \n{PullRequestProtocol._apply_pr_template(self, body)}"
 
@@ -416,12 +410,12 @@ class GithubClient(ScmPlatformClientProtocol):
             return None
 
     def find_prs(
-            self,
-            slug: str,
-            state: PullRequestState | None = None,
-            original_branch: str | None = None,
-            feature_branch: str | None = None,
-            limit: int | None = None,
+        self,
+        slug: str,
+        state: PullRequestState | None = None,
+        original_branch: str | None = None,
+        feature_branch: str | None = None,
+        limit: int | None = None,
     ) -> list[GithubPullRequest]:
         repo = self.github.get_repo(slug)
         kwargs_list = dict(state=[None], target_branch=[None], source_branch=[None])
@@ -454,12 +448,12 @@ class GithubClient(ScmPlatformClientProtocol):
         return rv_list
 
     def create_pr(
-            self,
-            slug: str,
-            title: str,
-            body: str,
-            original_branch: str,
-            feature_branch: str,
+        self,
+        slug: str,
+        title: str,
+        body: str,
+        original_branch: str,
+        feature_branch: str,
     ) -> PullRequestProtocol:
         # before creating a PR, check if one already exists
         repo = self.github.get_repo(slug)
@@ -468,7 +462,7 @@ class GithubClient(ScmPlatformClientProtocol):
         return pr
 
     def create_issue_comment(
-            self, slug: str, issue_text: str, title: str | None = None, issue_id: int | None = None
+        self, slug: str, issue_text: str, title: str | None = None, issue_id: int | None = None
     ) -> str:
         repo = self.github.get_repo(slug)
         if issue_id is not None:
@@ -545,12 +539,12 @@ class GitlabClient(ScmPlatformClientProtocol):
             return None
 
     def find_prs(
-            self,
-            slug: str,
-            state: PullRequestState | None = None,
-            original_branch: str | None = None,
-            feature_branch: str | None = None,
-            limit: int | None = None,
+        self,
+        slug: str,
+        state: PullRequestState | None = None,
+        original_branch: str | None = None,
+        feature_branch: str | None = None,
+        limit: int | None = None,
     ) -> list[PullRequestProtocol]:
         project = self.gitlab.projects.get(slug)
         kwargs_list = dict(iterator=[True], state=[None], target_branch=[None], source_branch=[None])
@@ -576,12 +570,12 @@ class GitlabClient(ScmPlatformClientProtocol):
         return rv_list
 
     def create_pr(
-            self,
-            slug: str,
-            title: str,
-            body: str,
-            original_branch: str,
-            feature_branch: str,
+        self,
+        slug: str,
+        title: str,
+        body: str,
+        original_branch: str,
+        feature_branch: str,
     ) -> PullRequestProtocol:
         # before creating a PR, check if one already exists
         project = self.gitlab.projects.get(slug)
@@ -598,7 +592,7 @@ class GitlabClient(ScmPlatformClientProtocol):
         return mr
 
     def create_issue_comment(
-            self, slug: str, issue_text: str, title: str | None = None, issue_id: int | None = None
+        self, slug: str, issue_text: str, title: str | None = None, issue_id: int | None = None
     ) -> str:
         if issue_id is not None:
             obj = self.gitlab.projects.get(slug).issues.get(issue_id).notes.create({"body": issue_text})
