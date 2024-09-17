@@ -106,7 +106,11 @@ def validate_step_type_config_with_inputs(
 
 
 def validate_step_with_inputs(input_keys: Set[str], step: Type[Step]) -> Tuple[Set[str], Dict[str, str]]:
+    allowed_modules = {"module1.typed", "module2.typed"}  # Define your allowed modules here
     module_path, _, _ = step.__module__.rpartition(".")
+    if f"{module_path}.typed" not in allowed_modules:
+        raise ValueError(f"Importing from module path {module_path}.typed is not allowed")
+    
     step_name = step.__name__
     type_module = importlib.import_module(f"{module_path}.typed")
     step_input_model = getattr(type_module, f"{step_name}Inputs", __NOT_GIVEN)
