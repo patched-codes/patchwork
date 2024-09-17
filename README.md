@@ -19,7 +19,7 @@
 
 </div>
 
-Patchwork automates development gruntwork like PR reviews, bug fixing, security patching, and more using a self-hosted CLI agent and your preferred LLMs.
+Patchwork automates development gruntwork like PR reviews, bug fixing, security patching, and more using a self-hosted CLI agent and your preferred LLMs. Try the hosted version [here](https://app.patched.codes/signin).
 
 ## Key Components
 
