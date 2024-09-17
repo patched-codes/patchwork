@@ -570,7 +570,7 @@ class GitlabClient(ScmPlatformClientProtocol):
             page_list.append(mrs_instance)
 
         rv_list = []
-        for mr in itertools.islice(itertools.chain(mrs), limit):
+        for mr in itertools.islice(itertools.chain(page_list), limit):
             rv_list.append(GitlabMergeRequest(mr))
 
         return rv_list
