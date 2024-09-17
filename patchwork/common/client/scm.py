@@ -12,7 +12,7 @@ from attrs import define
 from github import Auth, Consts, Github, GithubException, PullRequest
 from gitlab import Gitlab, GitlabAuthenticationError, GitlabError
 from gitlab.v4.objects import ProjectMergeRequest
-from giturlparse import parse, GitUrlParsed
+from giturlparse import GitUrlParsed, parse
 from typing_extensions import Protocol, TypedDict
 
 from patchwork.logger import logger
