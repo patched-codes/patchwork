@@ -14,6 +14,7 @@ from patchwork.steps.FilterBySimilarity.typed import (
 class FilterBySimilarity(Step, input_class=FilterBySimilarityInputs, output_class=FilterBySimilarityOutputs):
     def __init__(self, inputs):
         super().__init__(inputs)
+        self.inputs = inputs
 
         self.list = inputs["list"]
         self.keywords = inputs["keywords"]

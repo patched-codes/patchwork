@@ -11,6 +11,7 @@ class PR(Step):
 
     def __init__(self, inputs):
         super().__init__(inputs)
+        self.inputs = inputs
         missing_keys = self.required_keys.difference(set(inputs.keys()))
         if len(missing_keys) > 0:
             raise ValueError(f'Missing required data: "{missing_keys}"')

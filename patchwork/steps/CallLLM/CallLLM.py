@@ -31,6 +31,7 @@ class _InnerCallLLMResponse:
 class CallLLM(Step, input_class=CallLLMInputs, output_class=CallLLMOutputs):
     def __init__(self, inputs: dict):
         super().__init__(inputs)
+        self.inputs = inputs
         # Set 'openai_key' from inputs or environment if not already set
         inputs.setdefault("openai_api_key", os.environ.get("OPENAI_API_KEY"))
 

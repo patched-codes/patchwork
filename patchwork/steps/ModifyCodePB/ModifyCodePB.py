@@ -8,6 +8,7 @@ from patchwork.steps.ModifyCodePB.typed import ModifyCodePBInputs, ModifyCodePBO
 class ModifyCodePB(Step, input_class=ModifyCodePBInputs, output_class=ModifyCodePBOutputs):
     def __init__(self, inputs: dict):
         super().__init__(inputs)
+        self.inputs = inputs
         self.file_path = inputs["file_path"]
         self.start_line = inputs.get("start_line")
         self.end_line = inputs.get("end_line")

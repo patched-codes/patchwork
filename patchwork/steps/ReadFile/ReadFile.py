@@ -6,6 +6,7 @@ from patchwork.steps.ReadFile.typed import ReadFileInputs
 class ReadFile(Step):
     def __init__(self, inputs):
         super().__init__(inputs)
+        self.inputs = inputs
         missing_keys = ReadFileInputs.__required_keys__.difference(inputs.keys())
         if len(missing_keys) > 0:
             raise ValueError(f"Missing required data: {missing_keys}")

@@ -16,6 +16,7 @@ class ExtractModelResponse(Step):
     required_keys = {"openai_responses"}
 
     def __init__(self, inputs: dict):
+        self.inputs = inputs
         super().__init__(inputs)
         if not all(key in inputs.keys() for key in self.required_keys):
             raise ValueError(f'Missing required data: "{self.required_keys}"')

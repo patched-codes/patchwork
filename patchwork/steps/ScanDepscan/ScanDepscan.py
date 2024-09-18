@@ -71,6 +71,7 @@ class ScanDepscan(Step):
         - Depending on system configuration, administrative privileges may be required to install global npm packages.
         """
         super().__init__(inputs)
+        self.inputs = inputs
         import_with_dependency_group("depscan")
         install_cdxgen()
 

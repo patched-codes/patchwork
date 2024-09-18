@@ -32,6 +32,7 @@ def filter_by_extension(file, extensions):
 class ReadPRs(Step):
     def __init__(self, inputs: DataPoint):
         super().__init__(inputs)
+        self.inputs = inputs
         missing_keys = ReadPRsInputs.__required_keys__.difference(inputs.keys())
         if len(missing_keys) > 0:
             raise ValueError(f"Missing required data: {missing_keys}")
