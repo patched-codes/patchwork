@@ -32,7 +32,7 @@ _SUMMARY_LEVEL = {
 
 class PRReview(Step):
     def __init__(self, inputs: dict):
-        if inputs.debug is None:
+        if inputs.get("debug") is None:
             PatchflowProgressBar(self).register_steps(
                 CallLLM,
                 CreatePRComment,

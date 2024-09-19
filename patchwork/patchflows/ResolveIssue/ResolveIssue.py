@@ -27,7 +27,7 @@ _DEFAULT_PROMPT_JSON = Path(__file__).parent / "prompt.json"
 
 class ResolveIssue(Step):
     def __init__(self, inputs: dict):
-        if inputs.debug is None:
+        if inputs.get("debug") is None:
             PatchflowProgressBar(self).register_steps(
                 CallLLM,
                 CommitChanges,

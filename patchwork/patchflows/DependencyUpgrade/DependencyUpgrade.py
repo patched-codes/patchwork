@@ -28,7 +28,7 @@ _DEFAULT_INPUT_FILE = Path(__file__).parent / "defaults.yml"
 
 class DependencyUpgrade(Step):
     def __init__(self, inputs: dict):
-        if inputs.debug is None:
+        if inputs.get("debug") is None:
             PatchflowProgressBar(self).register_steps(
                 AnalyzeImpact,
                 CallLLM,
