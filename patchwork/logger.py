@@ -160,3 +160,28 @@ def init_cli_logger(log_level: str) -> logging.Logger:
     setattr(logger, "freeze", th.freeze)
     logger.setLevel(logging.TRACE)
     return logger
+
+def init_debug_logger(log_level: str) -> logging.Logger:
+    global logger, __noop
+
+    warnings.simplefilter("ignore")
+    logger.removeHandler(__noop)
+
+    if not os.path.exists(HOME_FOLDER):  # Check if HOME_FOLDER exists at this point
+        os.makedirs(HOME_FOLDER)
+    try:
+        fh = logging.FileHandler(LOG_FILE, mode="w")
+        formatter = logging.Formatter("%(asctime)s :: %(filename)s@%(funcName)s@%(lineno)d :: %(levelname)s :: %(msg)s")
+        fh.setFormatter(formatter)
+        logger.addHandler(fh)
+    except FileNotFoundError:
+        logger.error(f"Unable to create log file: {LOG_FILE}")
+
+    th = TerminalHandler(log_level.upper())
+    logger.addHandler(th)
+    setattr(logger, "panel", th.panel)
+    setattr(logger, "register_progress_bar", th.register_progress_bar)
+    setattr(logger, "deregister_progress_bar", th.deregister_progress_bar)
+    setattr(logger, "freeze", th.freeze)
+    logger.setLevel(logging.TRACE)
+    return logger

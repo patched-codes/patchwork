@@ -29,15 +29,16 @@ _DEFAULT_PROMPT_JSON = Path(__file__).parent / "prompt.json"
 
 class GenerateDocstring(Step):
     def __init__(self, inputs: dict):
-        PatchflowProgressBar(self).register_steps(
-            CallLLM,
-            CommitChanges,
-            CreatePR,
-            ExtractModelResponse,
-            ModifyCode,
-            PreparePR,
-            PreparePrompt,
-        )
+        if inputs.debug is None:
+            PatchflowProgressBar(self).register_steps(
+                CallLLM,
+                CommitChanges,
+                CreatePR,
+                ExtractModelResponse,
+                ModifyCode,
+                PreparePR,
+                PreparePrompt,
+            )
         final_inputs = yaml.safe_load(_DEFAULT_INPUT_FILE.read_text())
 
         if final_inputs is None:
