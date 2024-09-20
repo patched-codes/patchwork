@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "patchwork-cli"
-version = "0.0.58"
+version = "0.0.59"
 description = ""
 authors = ["patched.codes"]
 license = "AGPL"
@@ -45,6 +45,7 @@ google-generativeai = "~0.7.2"
 anthropic = "~0.31.2"
 rich = "~13.7.1"
 chevron = "~0.14.0"
+giturlparse = "~0.12.0"
 scikit-learn = "^1.3.2"
 # pinning transitive dependencies
 tree-sitter = "~0.21.3"

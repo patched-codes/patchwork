@@ -1,6 +1,5 @@
 import pytest
 
-from patchwork.common.client.scm import GithubClient
 from patchwork.steps.CreateIssue.CreateIssue import CreateIssue
 
 

@@ -16,6 +16,7 @@ def compare(key_map, item1, item2):
     else:
         return 0
 
+
 def random_alphabets(
         length: int
 ):

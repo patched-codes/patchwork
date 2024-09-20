@@ -12,23 +12,17 @@ from attrs import define
 from github import Auth, Consts, Github, GithubException, PullRequest
 from gitlab import Gitlab, GitlabAuthenticationError, GitlabError
 from gitlab.v4.objects import ProjectMergeRequest
+from giturlparse import GitUrlParsed, parse
 from typing_extensions import Protocol, TypedDict
 
 from patchwork.logger import logger
 
 
 def get_slug_from_remote_url(remote_url: str) -> str:
-    # TODO: consider using https://github.com/nephila/giturlparse instead
-    if remote_url.startswith("git@"):
-        # ssh
-        _, _, potential_slug = remote_url.partition(":")
-    else:
-        potential_slug = "/".join(remote_url.split("/")[-2:])
-
-    if potential_slug.endswith(".git"):
-        potential_slug = potential_slug[:-4]
-
-    return potential_slug
+    parsed_repo: GitUrlParsed = parse(remote_url)
+    parts = [parsed_repo.owner, *parsed_repo.groups, parsed_repo.name]
+    slug = "/".join(parts)
+    return slug
 
 
 @define
@@ -567,10 +561,10 @@ class GitlabClient(ScmPlatformClientProtocol):
         for instance in itertools.product(*kwargs_list.values()):
             kwargs = dict(((key, value) for key, value in zip(keys, instance) if value is not None))
             mrs_instance = project.mergerequests.list(**kwargs)
-            page_list.append(mrs_instance)
+            page_list.append(list(mrs_instance))
 
         rv_list = []
-        for mr in itertools.islice(itertools.chain(mrs), limit):
+        for mr in itertools.islice(itertools.chain(*page_list), limit):
             rv_list.append(GitlabMergeRequest(mr))
 
         return rv_list
