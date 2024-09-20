@@ -1,6 +1,9 @@
+from __future__ import annotations
 import os
 import subprocess
+import tempfile
 from pathlib import Path
+from typing_extensions import Buffer
 
 from patchwork.logger import logger
 from patchwork.step import Step, StepStatus
@@ -8,7 +11,62 @@ from patchwork.step import Step, StepStatus
 FOLDER_PATH = "folder_path"
 
 
+
 class CallCode2Prompt(Step):
+    __CUSTOM_GIT_IGNORE = [
+        # Compiled source
+        "*.com",
+        "*.class",
+        "*.dll",
+        "*.exe",
+        "*.o",
+        "*.so",
+        # Archives
+        "*.7z",
+        "*.dmg",
+        "*.gz",
+        "*.iso",
+        "*.jar",
+        "*.rar",
+        "*.tar",
+        "*.zip",
+        # data stores
+        "*.log",
+        "*.sql",
+        "*.sqlite",
+        "*.yml",
+        "*.json",
+        # OS generated files
+        ".DS_Store",
+        ".DS_Store?",
+        "._*",
+        ".Spotlight-V100",
+        ".Trashes",
+        "ehthumbs.db",
+        "Thumbs.db",
+        # Test files
+        "test",
+        "tests",
+        "Test",
+        "Tests",
+        "testing",
+        "Testing",
+        "*.test.js",
+        "*.test.ts",
+        "*.test.jsx",
+        "*.test.tsx",
+        "*.spec.js",
+        "*.spec.ts",
+        "*.spec.jsx",
+        "*.spec.tsx",
+        # IDE files
+        ".idea",
+        ".vscode",
+        "*.suo",
+        "*.ntvs*",
+        "*.njsproj",
+        "*.sln",
+    ]
     required_keys = {FOLDER_PATH}
 
     def __init__(self, inputs: dict):
@@ -29,12 +87,19 @@ class CallCode2Prompt(Step):
             with open(self.code_file_path, "a") as file:
                 pass  # No need to write anything, just create the file if it doesn't exist
 
-    def run(self) -> dict:
+    def __get_cmd_args(self, git_ignore_temp_fp) -> list[str]:
         cmd = [
             "code2prompt",
             "--path",
             self.folder_path,
         ]
+
+        repo_gitignore = self.folder_path / ".gitignore"
+        custom_gitignore_text = "\n".join(self.__CUSTOM_GIT_IGNORE)
+        if repo_gitignore.is_file():
+            custom_gitignore_text = custom_gitignore_text + "\n" + repo_gitignore.read_text()
+        git_ignore_temp_fp.write(custom_gitignore_text)
+        cmd.extend(["--git-ignore", git_ignore_temp_fp.name])
 
         if self.filter is not None:
             cmd.extend(["--filter", self.filter])
@@ -42,8 +107,13 @@ class CallCode2Prompt(Step):
         if self.suppress_comments:
             cmd.append("--suppress-comments")
 
+        return cmd
+
+    def run(self) -> dict:
         try:
-            p = subprocess.run(cmd, capture_output=True, text=True, check=True)
+            with tempfile.NamedTemporaryFile(mode="w+") as temp_file:
+                cmd = self.__get_cmd_args(temp_file)
+                p = subprocess.run(cmd, capture_output=True, text=True, check=True)
             prompt_content_md = p.stdout
         except subprocess.CalledProcessError as e:
             self.set_status(StepStatus.FAILED, f"Subprocess failed: {e}")
