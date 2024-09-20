@@ -99,7 +99,7 @@ class CallCode2Prompt(Step):
         if repo_gitignore.is_file():
             custom_gitignore_text = custom_gitignore_text + "\n" + repo_gitignore.read_text()
         git_ignore_temp_fp.write(custom_gitignore_text)
-        cmd.extend(["--git-ignore", git_ignore_temp_fp.name])
+        cmd.extend(["--gitignore", git_ignore_temp_fp.name])
 
         if self.filter is not None:
             cmd.extend(["--filter", self.filter])
