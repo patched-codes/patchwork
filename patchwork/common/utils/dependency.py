@@ -7,9 +7,12 @@ __DEPENDENCY_GROUPS = {
     "notification": ["slack_sdk"],
 }
 
+__WHITELISTED_MODULES = {"chromadb", "semgrep", "depscan", "slack_sdk"}
 
 @lru_cache(maxsize=None)
 def import_with_dependency_group(name):
+    if name not in __WHITELISTED_MODULES:
+        raise ImportError(f"Attempted to import an untrusted module: {name}")
     try:
         return importlib.import_module(name)
     except ImportError:
@@ -28,3 +31,4 @@ def chromadb():
 
 def slack_sdk():
     return import_with_dependency_group("slack_sdk")
+
