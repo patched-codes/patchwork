@@ -68,9 +68,15 @@ def _anthropic_to_openai_response(model: str, anthropic_response: Message) -> Ch
 class AnthropicLlmClient(LlmClient):
     __allowed_model_prefix = "claude-3-"
     __definitely_allowed_models = {"claude-2.0", "claude-2.1", "claude-instant-1.2"}
+    __100k_models = {"claude-2.0", "claude-instant-1.2"}
 
     def __init__(self, api_key: str):
         self.client = Anthropic(api_key=api_key)
+
+    def __get_model_limit(self, model: str) -> int:
+        if model in self.__100k_models:
+            return 100_000
+        return 200_000
 
     @lru_cache(maxsize=None)
     def get_models(self) -> set[str]:
@@ -78,6 +84,22 @@ class AnthropicLlmClient(LlmClient):
 
     def is_model_supported(self, model: str) -> bool:
         return model in self.__definitely_allowed_models or model.startswith(self.__allowed_model_prefix)
+
+    def is_prompt_supported(self, messages: Iterable[ChatCompletionMessageParam], model: str) -> int:
+        model_limit = self.__get_model_limit(model)
+        token_count = 0
+        for message in messages:
+            message_token_count = self.client.count_tokens(message.get("content"))
+            token_count = token_count + message_token_count
+            if token_count > model_limit:
+                return -1
+
+        return model_limit - token_count
+
+    def truncate_messages(
+        self, messages: Iterable[ChatCompletionMessageParam], model: str
+    ) -> Iterable[ChatCompletionMessageParam]:
+        return self._truncate_messages(self, messages, model)
 
     def chat_completion(
         self,

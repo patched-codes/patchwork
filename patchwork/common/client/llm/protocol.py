@@ -7,6 +7,8 @@ from openai.types.chat import (
 )
 from typing_extensions import Any, Dict, Iterable, List, Optional, Protocol, Union
 
+from patchwork.common.client.llm.utils import truncate_message
+
 
 class NotGiven:
     ...
@@ -31,6 +33,37 @@ class LlmClient(Protocol):
 
     def is_model_supported(self, model: str) -> bool:
         ...
+
+    def is_prompt_supported(self, messages: Iterable[ChatCompletionMessageParam], model: str) -> int:
+        ...
+
+    def truncate_messages(
+        self, messages: Iterable[ChatCompletionMessageParam], model: str
+    ) -> Iterable[ChatCompletionMessageParam]:
+        ...
+
+    @staticmethod
+    def _truncate_messages(
+        client: "LlmClient", messages: Iterable[ChatCompletionMessageParam], model: str
+    ) -> Iterable[ChatCompletionMessageParam]:
+        last_message = None
+        truncated_messages = []
+        for message in messages:
+            future_truncated_messages = truncated_messages.copy()
+            future_truncated_messages.append(message)
+            if client.is_prompt_supported(future_truncated_messages, model) < 0:
+                last_message = message
+                break
+            truncated_messages.append(message)
+
+        def direction_callback(message: str) -> int:
+            return client.is_prompt_supported([{"content": message}], model)
+
+        if last_message is not None:
+            last_message["content"] = truncate_message(last_message["content"], direction_callback)
+            truncated_messages.append(last_message)
+
+        return truncated_messages
 
     def chat_completion(
         self,

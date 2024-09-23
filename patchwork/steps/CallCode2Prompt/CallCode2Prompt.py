@@ -1,15 +1,14 @@
 from __future__ import annotations
+
 import os
 import subprocess
 import tempfile
 from pathlib import Path
-from typing_extensions import Buffer
 
 from patchwork.logger import logger
 from patchwork.step import Step, StepStatus
 
 FOLDER_PATH = "folder_path"
-
 
 
 class CallCode2Prompt(Step):
@@ -81,11 +80,16 @@ class CallCode2Prompt(Step):
         self.suppress_comments = inputs.get("suppress_comments", False)
         self.markdown_file_name = inputs.get("markdown_file_name", "README.md")
         self.code_file_path = str(Path(self.folder_path) / self.markdown_file_name)
+        self.modes = self.__parse_modes(inputs.get("code2prompt_modes", ""))
         # Check if the file exists
         if not os.path.exists(self.code_file_path):
             # The file does not exist, create it by opening it in append mode and then closing it
             with open(self.code_file_path, "a") as file:
                 pass  # No need to write anything, just create the file if it doesn't exist
+
+    @staticmethod
+    def __parse_modes(modes: str) -> list[str]:
+        return [mode.strip() for mode in modes.split(",") if mode.strip() != ""]
 
     def __get_cmd_args(self, git_ignore_temp_fp) -> list[str]:
         cmd = [
@@ -100,6 +104,9 @@ class CallCode2Prompt(Step):
             custom_gitignore_text = custom_gitignore_text + "\n" + repo_gitignore.read_text()
         git_ignore_temp_fp.write(custom_gitignore_text)
         cmd.extend(["--gitignore", git_ignore_temp_fp.name])
+
+        for mode in self.modes:
+            cmd.append(f"--{mode}")
 
         if self.filter is not None:
             cmd.extend(["--filter", self.filter])

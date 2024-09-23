@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import functools
 
+import tiktoken
 from openai import OpenAI
 from openai.types.chat import (
     ChatCompletion,
@@ -26,6 +27,15 @@ def _cached_list_models_from_openai(api_key):
 
 
 class OpenAiLlmClient(LlmClient):
+    __MODEL_LIMITS = {
+        "gpt-3.5-turbo": 16_385,
+        "gpt-4	": 8_192,
+        "gpt-4-turbo": 8_192,
+        "o1-mini": 128_000,
+        "gpt-4o-mini": 128_000,
+        "gpt-4o": 128_000,
+    }
+
     def __init__(self, api_key: str, base_url=None, **kwargs):
         self.api_key = api_key
         self.base_url = base_url
@@ -47,6 +57,26 @@ class OpenAiLlmClient(LlmClient):
         if self.__is_not_openai_url():
             return True
         return model in self.get_models()
+
+    def __get_model_limits(self, model: str) -> int:
+        return self.__MODEL_LIMITS.get(model, 128_000)
+
+    def is_prompt_supported(self, messages: Iterable[ChatCompletionMessageParam], model: str) -> int:
+        model_limit = self.__get_model_limits(model)
+        token_count = 0
+        encoding = tiktoken.encoding_for_model(model)
+        for message in messages:
+            message_token_count = len(encoding.encode(message.get("content")))
+            token_count = token_count + message_token_count
+            if token_count > model_limit:
+                return -1
+
+        return model_limit - token_count
+
+    def truncate_messages(
+        self, messages: Iterable[ChatCompletionMessageParam], model: str
+    ) -> Iterable[ChatCompletionMessageParam]:
+        return self._truncate_messages(self, messages, model)
 
     def chat_completion(
         self,

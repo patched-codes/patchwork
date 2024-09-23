@@ -13,7 +13,7 @@ from rich.markup import escape
 from patchwork.common.client.llm.aio import AioLlmClient
 from patchwork.common.client.llm.anthropic import AnthropicLlmClient
 from patchwork.common.client.llm.google import GoogleLlmClient
-from patchwork.common.client.llm.openai import OpenAiLlmClient
+from patchwork.common.client.llm.openai_ import OpenAiLlmClient
 from patchwork.common.constants import DEFAULT_PATCH_URL, TOKEN_URL
 from patchwork.logger import logger
 from patchwork.step import Step, StepStatus
@@ -144,6 +144,11 @@ class CallLLM(Step, input_class=CallLLMInputs, output_class=CallLLMOutputs):
         parsed_model_args = self.__parse_model_args()
 
         for prompt in prompts:
+            is_input_accepted = self.client.is_prompt_supported(prompt, self.model) > 0
+            if not is_input_accepted:
+                self.set_status(StepStatus.WARNING, "Input token limit exceeded.")
+                prompt = self.client.truncate_messages(prompt, self.model)
+
             logger.trace(f"Message sent: \n{escape(indent(pformat(prompt), '  '))}")
             try:
                 completion = self.client.chat_completion(model=self.model, messages=prompt, **parsed_model_args)
@@ -152,27 +157,21 @@ class CallLLM(Step, input_class=CallLLMInputs, output_class=CallLLMOutputs):
                 completion = None
 
             if completion is None or len(completion.choices) < 1:
-                logger.error(f"No response choice given")
+                self.set_status(StepStatus.FAILED, "Model did not return a response.")
                 content = ""
                 request_token = 0
                 response_token = 0
             elif completion.choices[0].finish_reason == "length":
-                if self.allow_truncated:
-                    content = completion.choices[0].message.content
-                else:
-                    logger.error(
-                        f"Response truncated because of finish reason = length."
-                        f" Use --allow_truncated option to process truncated responses."
-                    )
-                    content = ""
+                self.set_status(StepStatus.WARNING, "Response truncated because of finish reason = length.")
+                content = completion.choices[0].message.content
                 request_token = completion.usage.prompt_tokens
                 response_token = completion.usage.completion_tokens
             else:
                 content = completion.choices[0].message.content
                 request_token = completion.usage.prompt_tokens
                 response_token = completion.usage.completion_tokens
-                logger.trace(f"Response received: \n{escape(indent(content, '  '))}")
 
+            logger.trace(f"Response received: \n{escape(indent(content, '  '))}")
             contents.append(
                 _InnerCallLLMResponse(
                     prompts=prompt,
