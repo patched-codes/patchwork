@@ -109,39 +109,3 @@ def __example_dict_to_base_model(example_data: dict) -> Type[BaseModel]:
         base_model_field_defs[example_data_key] = (value_typing, field)
 
     return create_model("ResponseFormat", **base_model_field_defs)
-
-
-def truncate_message(message: str, direction_callback) -> str:
-    direction = direction_callback(message)
-    if direction >= 0:
-        return message
-
-    max_guess = len(message)
-    min_guess = 1
-    return _truncate_message(message, direction_callback, min_guess, max_guess)
-
-
-def _truncate_message(message, direction_callback, min_guess, max_guess):
-    change = int((max_guess - min_guess) / 2)
-    guess = min_guess + change
-    vector = direction_callback(message[:guess])
-    if vector == 0:
-        return message[:guess]
-    print(f"min_guess: {min_guess}, max_guess: {max_guess}, change: {change}, vector: {vector}")
-    if vector > 0:
-        min_guess = guess
-    else:
-        max_guess = guess
-
-    return _truncate_message(message, direction_callback, min_guess, max_guess)
-
-# TODO: Add tests for truncate_message
-# if __name__ == "__main__":
-    # import random
-    # import string
-    # for i in range(1, 1000):
-    #     text = "".join(random.choices(string.ascii_lowercase, k=random.choice(range(i, i + 20))))
-    #     print(f"Truncating {text} to {text[:i]}")
-    #     new = truncate_message(text, lambda x: i - len(x))
-    #     assert text[:i] == new
-    #     print(f"Truncated {text} to {new}")
