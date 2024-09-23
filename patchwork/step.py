@@ -110,8 +110,15 @@ class Step(abc.ABC):
         
     def debug(self, inputs):
         logger.info("\nInputs:")
+        MAX_LENGTH = 1000 # Max limit to print inputs
+        printed_chars = 0
         for key, value in inputs.items():
-            logger.info(f"{key}: {value}")
+            input_val = f"{key}: {value}"
+            if printed_chars + len(input_val) > MAX_LENGTH:
+                continue
+            else:
+                printed_chars += len(input_val)
+                logger.info(input_val)
         logger.info("\n")
         logger.info("Press enter to continue, any other key to exit...\n")
         key = self.get_key()
