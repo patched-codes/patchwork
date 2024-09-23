@@ -7,8 +7,6 @@ from openai.types.chat import (
 )
 from typing_extensions import Any, Dict, Iterable, List, Optional, Protocol, Union
 
-from patchwork.common.client.llm.utils import truncate_message
-
 
 class NotGiven:
     ...
@@ -59,6 +57,7 @@ class LlmClient(Protocol):
             truncated_messages.append(message)
 
         if last_message is not None:
+
             def direction_callback(message: str) -> int:
                 # add 500 as a safety margin
                 return client.is_prompt_supported([{"content": message}], model) - safety_margin
@@ -67,7 +66,7 @@ class LlmClient(Protocol):
                 message=last_message["content"],
                 direction_callback=direction_callback,
                 min_guess=1,
-                max_guess=len(last_message["content"])
+                max_guess=len(last_message["content"]),
             )
             truncated_messages.append(last_message)
 
@@ -97,7 +96,6 @@ class LlmClient(Protocol):
             max_guess = guess
 
         return LlmClient.__truncate_message(message, direction_callback, min_guess, max_guess)
-
 
     def chat_completion(
         self,
