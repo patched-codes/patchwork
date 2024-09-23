@@ -26,8 +26,8 @@ from patchwork.common.client.llm.utils import json_schema_to_model
 
 
 @functools.lru_cache
-def _cached_list_model_from_google() -> set[Model]:
-    return set(generativeai.list_models())
+def _cached_list_model_from_google() -> list[Model]:
+    return list(generativeai.list_models())
 
 
 class GoogleLlmClient(LlmClient):
