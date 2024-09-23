@@ -11,6 +11,7 @@ class CallCode2PromptInputs(__CallCode2PromptRequiredInputs, total=False):
     filter: Annotated[str, StepTypeConfig(is_config=True)]
     suppress_comments: Annotated[bool, StepTypeConfig(is_config=True)]
     markdown_file_name: Annotated[str, StepTypeConfig(is_config=True)]
+    code2prompt_modes: str
 
 
 class FileToPatch(TypedDict):

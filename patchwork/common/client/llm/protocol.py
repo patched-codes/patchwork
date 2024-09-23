@@ -32,6 +32,71 @@ class LlmClient(Protocol):
     def is_model_supported(self, model: str) -> bool:
         ...
 
+    def is_prompt_supported(self, messages: Iterable[ChatCompletionMessageParam], model: str) -> int:
+        ...
+
+    def truncate_messages(
+        self, messages: Iterable[ChatCompletionMessageParam], model: str
+    ) -> Iterable[ChatCompletionMessageParam]:
+        ...
+
+    @staticmethod
+    def _truncate_messages(
+        client: "LlmClient", messages: Iterable[ChatCompletionMessageParam], model: str
+    ) -> Iterable[ChatCompletionMessageParam]:
+        safety_margin = 500
+
+        last_message = None
+        truncated_messages = []
+        for message in messages:
+            future_truncated_messages = truncated_messages.copy()
+            future_truncated_messages.append(message)
+            if client.is_prompt_supported(future_truncated_messages, model) - safety_margin < 0:
+                last_message = message
+                break
+            truncated_messages.append(message)
+
+        if last_message is not None:
+
+            def direction_callback(message: str) -> int:
+                # add 500 as a safety margin
+                return client.is_prompt_supported([{"content": message}], model) - safety_margin
+
+            last_message["content"] = LlmClient.__truncate_message(
+                message=last_message["content"],
+                direction_callback=direction_callback,
+                min_guess=1,
+                max_guess=len(last_message["content"]),
+            )
+            truncated_messages.append(last_message)
+
+        return truncated_messages
+
+    @staticmethod
+    def __truncate_message(message, direction_callback, min_guess, max_guess):
+        # TODO: Add tests for truncate_message
+        # if __name__ == "__main__":
+        # import random
+        # import string
+        # for i in range(1, 1000):
+        #     text = "".join(random.choices(string.ascii_lowercase, k=random.choice(range(i, i + 20))))
+        #     print(f"Truncating {text} to {text[:i]}")
+        #     new = truncate_message(text, lambda x: i - len(x))
+        #     assert text[:i] == new
+        #     print(f"Truncated {text} to {new}")
+        change = int((max_guess - min_guess) / 2)
+        guess = min_guess + change
+        vector = direction_callback(message[:guess])
+        if vector == 0:
+            return message[:guess]
+
+        if vector > 0:
+            min_guess = guess
+        else:
+            max_guess = guess
+
+        return LlmClient.__truncate_message(message, direction_callback, min_guess, max_guess)
+
     def chat_completion(
         self,
         messages: Iterable[ChatCompletionMessageParam],

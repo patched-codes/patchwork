@@ -29,6 +29,20 @@ class AioLlmClient(LlmClient):
     def is_model_supported(self, model: str) -> bool:
         return any(client.is_model_supported(model) for client in self.__clients)
 
+    def is_prompt_supported(self, messages: Iterable[ChatCompletionMessageParam], model: str) -> bool:
+        for client in self.__clients:
+            if client.is_model_supported(model):
+                return client.is_prompt_supported(messages, model)
+        return False
+
+    def truncate_messages(
+        self, messages: Iterable[ChatCompletionMessageParam], model: str
+    ) -> Iterable[ChatCompletionMessageParam]:
+        for client in self.__clients:
+            if client.is_model_supported(model):
+                return client.truncate_messages(messages, model)
+        return messages
+
     def chat_completion(
         self,
         messages: Iterable[ChatCompletionMessageParam],
