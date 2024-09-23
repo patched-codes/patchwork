@@ -140,8 +140,6 @@ def _truncate_message(message, direction_callback, left, right, vector):
 
 
 if __name__ == "__main__":
-    import random
-    import string
     i = 18
     text = "iyhtdencocjswkknqnendjmxnspuhccegmxdc"
     print(f"Truncating {text} to {text[:i]}")
