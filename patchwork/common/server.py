@@ -6,7 +6,7 @@ from typing_extensions import Annotated
 from patchwork.common.client.llm.aio import AioLlmClient
 from patchwork.common.client.llm.anthropic import AnthropicLlmClient
 from patchwork.common.client.llm.google import GoogleLlmClient
-from patchwork.common.client.llm.openai import OpenAiLlmClient
+from patchwork.common.client.llm.openai_ import OpenAiLlmClient
 
 app = FastAPI()
 

@@ -30,6 +30,10 @@ def get_source_code_context(
         context = "".join(source_lines[position.start : position.end])
         if count_openai_tokens(context) <= context_token_length:
             return position.start, position.end
+        else:
+            logger.warn(
+                f"The selected context is larger than the contex_size limit of {context_token_length}. You can increase the context_size and try again. "
+            )
 
     return None, None
 

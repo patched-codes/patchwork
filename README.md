@@ -19,7 +19,7 @@
 
 </div>
 
-Patchwork automates development gruntwork like PR reviews, bug fixing, security patching, and more using a self-hosted CLI agent and your preferred LLMs.
+Patchwork automates development gruntwork like PR reviews, bug fixing, security patching, and more using a self-hosted CLI agent and your preferred LLMs. Try the hosted version [here](https://app.patched.codes/signin).
 
 ## Key Components
 
@@ -124,7 +124,7 @@ python -m llama_cpp.server --hf_model_repo_id bullerwins/Meta-Llama-3.1-8B-Instr
 Then run your patchflow:
 
 ```
-patchwork AutoFix client_base_url=https://localhost/v1 openai_api_key=no_key_local_model
+patchwork AutoFix client_base_url=http://localhost:8080/v1 openai_api_key=no_key_local_model
 ```
 
 ## Patchflows
@@ -167,7 +167,7 @@ Contributions for new patchflows and steps, or to the core framework are welcome
 
 We also provide a chat assistant to help you create new steps and patchflows easily. 
 
-- [Patchwork Assistant on HuggingChat](https://hf.co/chat/assistant/66322701fd4787e0c1f7696b) (based on Llama-3)
+- [Patchwork Assistant on HuggingChat](https://hf.co/chat/assistant/66322701fd4787e0c1f7696b) (based on Llama-3.1)
 
 ## Roadmap
 

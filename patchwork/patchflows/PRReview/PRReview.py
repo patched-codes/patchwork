@@ -104,7 +104,9 @@ class PRReview(Step):
 
         header = ""
         if self.verbosity > _SUMMARY_LEVEL[_SHORT]:
-            filtered_summaries = [str(summary["commit_message"]) for summary in summaries if summary.get("commit_message")]
+            filtered_summaries = [
+                str(summary["commit_message"]) for summary in summaries if summary.get("commit_message")
+            ]
             self.inputs["prompt_id"] = "diffreview_summary"
             self.inputs["prompt_values"] = [{"diffreviews": "\n".join(filtered_summaries)}]
 

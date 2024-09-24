@@ -22,6 +22,7 @@ class StepStatus(Flag):
     COMPLETED = auto()
     FAILED = auto()
     SKIPPED = auto()
+    WARNING = auto()
 
     def __str__(self):
         return self.name.lower()

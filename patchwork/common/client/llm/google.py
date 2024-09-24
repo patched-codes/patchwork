@@ -11,6 +11,7 @@ from google.generativeai.types.content_types import (
     unpack_defs,
 )
 from google.generativeai.types.generation_types import GenerateContentResponse
+from google.generativeai.types.model_types import Model
 from openai.types import CompletionUsage
 from openai.types.chat import (
     ChatCompletionMessage,
@@ -21,16 +22,12 @@ from openai.types.chat.chat_completion import ChatCompletion, Choice
 from typing_extensions import Any, Dict, Iterable, List, Optional, Union
 
 from patchwork.common.client.llm.protocol import NOT_GIVEN, LlmClient, NotGiven
-from patchwork.common.client.llm.utils import base_model_to_schema, json_schema_to_model
+from patchwork.common.client.llm.utils import json_schema_to_model
 
 
 @functools.lru_cache
-def _cached_list_model_from_google(api_key):
-    models = set()
-    for model in generativeai.list_models():
-        models.add(model.name.removeprefix("models/"))
-
-    return models
+def _cached_list_model_from_google() -> list[Model]:
+    return list(generativeai.list_models())
 
 
 class GoogleLlmClient(LlmClient):
@@ -40,32 +37,67 @@ class GoogleLlmClient(LlmClient):
         dict(category="HARM_CATEGORY_DANGEROUS_CONTENT", threshold="BLOCK_NONE"),
         dict(category="HARM_CATEGORY_HARASSMENT", threshold="BLOCK_NONE"),
     ]
+    __MODEL_PREFIX = "models/"
 
     def __init__(self, api_key: str):
         self.__api_key = api_key
         generativeai.configure(api_key=api_key)
 
+    def __get_model_limits(self, model: str) -> int:
+        for model_info in _cached_list_model_from_google():
+            if model_info.name == f"{self.__MODEL_PREFIX}{model}":
+                return model_info.input_token_limit
+        return 1_000_000
+
     def get_models(self) -> set[str]:
-        return _cached_list_model_from_google(self.__api_key)
+        return {model.name.removeprefix(self.__MODEL_PREFIX) for model in _cached_list_model_from_google()}
 
     def is_model_supported(self, model: str) -> bool:
         return model in self.get_models()
 
+    def is_prompt_supported(self, messages: Iterable[ChatCompletionMessageParam], model: str) -> int:
+        system, chat = self.__openai_messages_to_google_messages(messages)
+        gen_model = generativeai.GenerativeModel(model_name=model, system_instruction=system)
+        token_count = gen_model.count_tokens(chat).total_tokens
+        model_limit = self.__get_model_limits(model)
+        return model_limit - token_count
+
+    def truncate_messages(
+        self, messages: Iterable[ChatCompletionMessageParam], model: str
+    ) -> Iterable[ChatCompletionMessageParam]:
+        return self._truncate_messages(self, messages, model)
+
+    @staticmethod
+    def __openai_messages_to_google_messages(
+        messages: Iterable[ChatCompletionMessageParam],
+    ) -> tuple[str, list[dict[str, Any]]]:
+        system_content = None
+        contents = []
+        for message in messages:
+            if message.get("role") == "system":
+                system_content = message.get("content")
+                continue
+            role = "model" if message.get("role") == "assistant" else "user"
+            parts = [dict(text=message.get("content"))]
+            contents.append(dict(role=role, parts=parts))
+
+        return system_content, contents
+
     def chat_completion(
-            self,
-            messages: Iterable[ChatCompletionMessageParam],
-            model: str,
-            frequency_penalty: Optional[float] | NotGiven = NOT_GIVEN,
-            logit_bias: Optional[Dict[str, int]] | NotGiven = NOT_GIVEN,
-            logprobs: Optional[bool] | NotGiven = NOT_GIVEN,
-            max_tokens: Optional[int] | NotGiven = NOT_GIVEN,
-            n: Optional[int] | NotGiven = NOT_GIVEN,
-            presence_penalty: Optional[float] | NotGiven = NOT_GIVEN,
-            response_format: completion_create_params.ResponseFormat | NotGiven = NOT_GIVEN,
-            stop: Union[Optional[str], List[str]] | NotGiven = NOT_GIVEN,
-            temperature: Optional[float] | NotGiven = NOT_GIVEN,
-            top_logprobs: Optional[int] | NotGiven = NOT_GIVEN,
-            top_p: Optional[float] | NotGiven = NOT_GIVEN,
+        self,
+        messages: Iterable[ChatCompletionMessageParam],
+        model: str,
+        frequency_penalty: Optional[float] | NotGiven = NOT_GIVEN,
+        logit_bias: Optional[Dict[str, int]] | NotGiven = NOT_GIVEN,
+        logprobs: Optional[bool] | NotGiven = NOT_GIVEN,
+        max_tokens: Optional[int] | NotGiven = NOT_GIVEN,
+        n: Optional[int] | NotGiven = NOT_GIVEN,
+        presence_penalty: Optional[float] | NotGiven = NOT_GIVEN,
+        response_format: completion_create_params.ResponseFormat | NotGiven = NOT_GIVEN,
+        stop: Union[Optional[str], List[str]] | NotGiven = NOT_GIVEN,
+        temperature: Optional[float] | NotGiven = NOT_GIVEN,
+        top_logprobs: Optional[int] | NotGiven = NOT_GIVEN,
+        top_p: Optional[float] | NotGiven = NOT_GIVEN,
     ) -> ChatCompletion:
         generation_dict = dict(
             stop_sequences=[stop] if isinstance(stop, str) else stop,
@@ -84,15 +116,7 @@ class GoogleLlmClient(LlmClient):
                 response_format.get("json_schema", {}).get("schema")
             )
 
-        system_content = None
-        contents = []
-        for message in messages:
-            if message.get("role") == "system":
-                system_content = message.get("content")
-                continue
-            role = "model" if message.get("role") == "assistant" else "user"
-            parts = [dict(text=message.get("content"))]
-            contents.append(dict(role=role, parts=parts))
+        system_content, contents = self.__openai_messages_to_google_messages(messages)
 
         model_client = generativeai.GenerativeModel(
             model_name=model,

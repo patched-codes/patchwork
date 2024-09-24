@@ -25,6 +25,9 @@ from patchwork.steps.GenerateCodeRepositoryEmbeddings.GenerateCodeRepositoryEmbe
     GenerateCodeRepositoryEmbeddings,
 )
 from patchwork.steps.GenerateEmbeddings.GenerateEmbeddings import GenerateEmbeddings
+from patchwork.steps.GetTypescriptTypeInfo.GetTypescriptTypeInfo import (
+    GetTypescriptTypeInfo,
+)
 from patchwork.steps.JoinList.JoinList import JoinList
 from patchwork.steps.JoinListPB.JoinListPB import JoinListPB
 from patchwork.steps.LLM.LLM import LLM
@@ -46,7 +49,6 @@ from patchwork.steps.SimplifiedLLM.SimplifiedLLM import SimplifiedLLM
 from patchwork.steps.SimplifiedLLMOnce.SimplifiedLLMOnce import SimplifiedLLMOnce
 from patchwork.steps.SimplifiedLLMOncePB.SimplifiedLLMOncePB import SimplifiedLLMOncePB
 from patchwork.steps.SlackMessage.SlackMessage import SlackMessage
-from patchwork.steps.GetTypescriptTypeInfo.GetTypescriptTypeInfo import GetTypescriptTypeInfo
 
 __all__ = [
     "AnalyzeImpact",
