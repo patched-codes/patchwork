@@ -22,6 +22,10 @@ class StepStatus(Enum):
     def __str__(self):
         return self.name.lower()
 
+    @classmethod
+    def values(cls):
+        return list(StepStatus.__members__.values())
+
 
 class Step(abc.ABC):
     def __init__(self, inputs: DataPoint):
@@ -84,7 +88,7 @@ class Step(abc.ABC):
         return output
 
     def set_status(self, status: StepStatus, msg: Optional[str] = None):
-        if status not in StepStatus:
+        if status not in StepStatus.values():
             raise ValueError(f"Invalid status: {status}")
 
         if status.priority >= self.__status.priority:
