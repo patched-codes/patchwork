@@ -1,7 +1,7 @@
 import abc
-from enum import Flag, auto
+from enum import auto, IntFlag
 
-from typing_extensions import Any, Dict, List, Union, is_typeddict
+from typing_extensions import Any, Dict, List, Union, is_typeddict, Optional
 
 from patchwork.logger import logger
 
@@ -9,11 +9,11 @@ DataPoint = Dict[str, Union[str, int, float, bool, "OneOrMore"]]
 OneOrMoreDataPoint = Union[DataPoint, List[DataPoint]]
 
 
-class StepStatus(Flag):
+class StepStatus(IntFlag):
     COMPLETED = auto()
-    FAILED = auto()
     SKIPPED = auto()
     WARNING = auto()
+    FAILED = auto()
 
     def __str__(self):
         return self.name.lower()
@@ -81,18 +81,24 @@ class Step(abc.ABC):
         logger.info(f"Run {self.__status} {self.__step_name}")
         return output
 
-    def set_status(self, status: StepStatus, msg: str = None):
+    def set_status(self, status: StepStatus, msg: Optional[str] = None):
         if status not in StepStatus:
             raise ValueError(f"Invalid status: {status}")
-        self.__status = status
-        self.__status_msg = msg
+
+        if status > self.__status:
+            self.__status = status
+            self.__status_msg = msg
 
     @property
     def status(self) -> StepStatus:
         return self.__status
 
+    @property
+    def status_message(self) -> Optional[str]:
+        return self.__status_msg
+
     @abc.abstractmethod
-    def run(self) -> OneOrMoreDataPoint:
+    def run(self) -> DataPoint:
         """
         Runs the step.
         :return: a dictionary of outputs

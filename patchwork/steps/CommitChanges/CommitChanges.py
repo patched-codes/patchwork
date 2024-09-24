@@ -144,8 +144,10 @@ class CommitChanges(Step):
         repo_changed_files = set()
         for item in repo.index.diff(None):
             repo_changed_file = item.a_path
-            if any(fnmatch.fnmatch(repo_changed_file, ignored_grok) for ignored_grok in ignored_groks):
-                continue
+            for ignored_grok in ignored_groks:
+                if fnmatch.fnmatch(repo_changed_file, ignored_grok):
+                    logger.warn(f"Ignoring file: {repo_changed_file} because of \"{ignored_grok}\" in .gitignore file.")
+                    continue
             repo_changed_files.add(repo_dir_path / repo_changed_file)
 
         return repo_changed_files

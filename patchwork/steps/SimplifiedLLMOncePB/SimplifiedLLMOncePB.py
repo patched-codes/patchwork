@@ -34,6 +34,7 @@ class SimplifiedLLMOncePB(Step, input_class=SimplifiedLLMOncePBInputs):
             }
         )
         llm_output = llm.run()
+        self.set_status(llm.status, llm.status_message)
 
         return {
             **llm_output.get("extracted_responses")[0],

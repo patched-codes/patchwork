@@ -2,7 +2,7 @@ import json
 
 from patchwork.common.client.llm.utils import example_json_to_schema
 from patchwork.common.utils.utils import exclude_none_dict
-from patchwork.step import Step
+from patchwork.step import Step, StepStatus
 from patchwork.steps.CallLLM.CallLLM import CallLLM
 from patchwork.steps.ExtractModelResponse.ExtractModelResponse import (
     ExtractModelResponse,
@@ -40,7 +40,9 @@ class SimplifiedLLM(Step):
             prompt_template=prompts,
             prompt_values=self.prompt_values,
         )
-        prepare_prompt_outputs = PreparePrompt(prepare_prompt_inputs).run()
+        prepare_prompt = PreparePrompt(prepare_prompt_inputs)
+        prepare_prompt_outputs = prepare_prompt.run()
+        self.set_status(prepare_prompt.status, prepare_prompt.status_message)
 
         model_keys = [key for key in self.inputs.keys() if key.startswith("model_")]
         response_format = dict(type="json_object" if self.is_json_mode else "text")
@@ -63,18 +65,30 @@ class SimplifiedLLM(Step):
             },
             "model_response_format": response_format,
         }
-        call_llm_outputs = CallLLM(call_llm_inputs).run()
+        call_llm = CallLLM(call_llm_inputs)
+        call_llm_outputs = call_llm.run()
+        self.set_status(call_llm.status, call_llm.status_message)
 
         if self.is_json_mode:
-            json_response = [json_loads(response) for response in call_llm_outputs.get("openai_responses")]
-            extract_model_response_outputs = dict(extracted_responses=json_response)
+            json_responses = []
+            for response in call_llm_outputs.get("openai_responses"):
+                try:
+                    json_response = json.loads(response, strict=False)
+                    json_responses.append(json_response)
+                except json.JSONDecodeError:
+                    self.set_status(StepStatus.FAILED, "Failed to parse JSON response")
+                    continue
+
+            extract_model_response_outputs = dict(extracted_responses=json_responses)
         else:
             extract_model_response_inputs = dict(
                 openai_responses=call_llm_outputs.get("openai_responses"),
             )
             if self.inputs.get("response_partitions"):
                 extract_model_response_inputs["response_partitions"] = self.inputs["response_partitions"]
-            extract_model_response_outputs = ExtractModelResponse(extract_model_response_inputs).run()
+            extract_model_response = ExtractModelResponse(extract_model_response_inputs)
+            extract_model_response_outputs = extract_model_response.run()
+            self.set_status(extract_model_response.status, extract_model_response.status_message)
 
         return exclude_none_dict(
             dict(
