@@ -58,7 +58,10 @@ class GoogleLlmClient(LlmClient):
     def is_prompt_supported(self, messages: Iterable[ChatCompletionMessageParam], model: str) -> int:
         system, chat = self.__openai_messages_to_google_messages(messages)
         gen_model = generativeai.GenerativeModel(model_name=model, system_instruction=system)
-        token_count = gen_model.count_tokens(chat).total_tokens
+        try:
+            token_count = gen_model.count_tokens(chat).total_tokens
+        except Exception as e:
+            return -1
         model_limit = self.__get_model_limits(model)
         return model_limit - token_count
 
