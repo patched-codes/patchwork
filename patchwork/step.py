@@ -1,5 +1,5 @@
 import abc
-from enum import auto, IntFlag
+from enum import auto, IntFlag, Enum
 
 from typing_extensions import Any, Dict, List, Union, is_typeddict, Optional
 
@@ -9,11 +9,15 @@ DataPoint = Dict[str, Union[str, int, float, bool, "OneOrMore"]]
 OneOrMoreDataPoint = Union[DataPoint, List[DataPoint]]
 
 
-class StepStatus(IntFlag):
-    COMPLETED = auto()
-    SKIPPED = auto()
-    WARNING = auto()
-    FAILED = auto()
+class StepStatus(Enum):
+    COMPLETED = (1, logger.info)
+    SKIPPED = (2, logger.warning)
+    WARNING = (3, logger.warning)
+    FAILED = (4, logger.error)
+
+    def __init__(self, priority: int, logger_func):
+        self.priority = priority
+        self._logger = logger_func
 
     def __str__(self):
         return self.name.lower()
@@ -66,16 +70,14 @@ class Step(abc.ABC):
         except Exception as e:
             exc = e
 
-        is_fail = self.__status == StepStatus.FAILED or exc is not None
         if self.__status_msg is not None:
-            message_logger = logger.error if is_fail else logger.info
-            message_logger(f"Step {self.__step_name} message: {self.__status_msg}")
+            self.__status._logger(f"Step {self.__step_name} message: {self.__status_msg}")
 
         if exc is not None:
             logger.error(f"Step {self.__step_name} failed")
             raise exc
 
-        if is_fail:
+        if self.__status == StepStatus.FAILED:
             raise ValueError(f"Step {self.__step_name} failed")
 
         logger.info(f"Run {self.__status} {self.__step_name}")
@@ -85,7 +87,7 @@ class Step(abc.ABC):
         if status not in StepStatus:
             raise ValueError(f"Invalid status: {status}")
 
-        if status > self.__status:
+        if status.priority >= self.__status.priority:
             self.__status = status
             self.__status_msg = msg
 
