@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import atexit
+import dataclasses
 import signal
 import tempfile
 from pathlib import Path
@@ -8,7 +9,7 @@ from pathlib import Path
 import tiktoken
 from chardet.universaldetector import UniversalDetector
 from git import Head, Repo
-from typing_extensions import Callable
+from typing_extensions import Any, Callable
 
 from patchwork.common.utils.dependency import chromadb
 from patchwork.managed_files import HOME_FOLDER
@@ -192,3 +193,18 @@ def is_container() -> bool:
 
 def exclude_none_dict(d: dict) -> dict:
     return {k: v for k, v in d.items() if v is not None}
+
+
+@dataclasses.dataclass(slots=True)
+class RetryData:
+    retry_limit: int
+    retry_count: int
+
+
+def retry(callback: Callable[[int], Any], retry_limit=3) -> Any:
+    for i in range(retry_limit):
+        try:
+            return callback(RetryData(retry_limit=retry_limit, retry_count=i))
+        except Exception as e:
+            if i == retry_limit - 1:
+                raise e

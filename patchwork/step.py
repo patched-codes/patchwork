@@ -1,7 +1,7 @@
 import abc
-from enum import auto, IntFlag, Enum
+from enum import Enum
 
-from typing_extensions import Any, Dict, List, Union, is_typeddict, Optional
+from typing_extensions import Any, Dict, List, Optional, Union, is_typeddict
 
 from patchwork.logger import logger
 

@@ -146,7 +146,7 @@ class CommitChanges(Step):
             repo_changed_file = item.a_path
             for ignored_grok in ignored_groks:
                 if fnmatch.fnmatch(repo_changed_file, ignored_grok):
-                    logger.warn(f"Ignoring file: {repo_changed_file} because of \"{ignored_grok}\" in .gitignore file.")
+                    logger.warn(f'Ignoring file: {repo_changed_file} because of "{ignored_grok}" in .gitignore file.')
                     continue
             repo_changed_files.add(repo_dir_path / repo_changed_file)
 

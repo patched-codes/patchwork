@@ -100,7 +100,7 @@ def test_json_run(mocker):
     )
     mocked_extract_model_response.status = StepStatus.COMPLETED
     mocked_extract_model_response.status_message = "COMPLETED"
-    
+
     simplified_llm = SimplifiedLLM(inputs)
     output = simplified_llm.run()
 
