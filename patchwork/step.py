@@ -1,7 +1,7 @@
 import abc
-from enum import Flag, auto
+from enum import Enum
 
-from typing_extensions import Any, Dict, List, Union, is_typeddict
+from typing_extensions import Any, Dict, List, Optional, Union, is_typeddict
 
 from patchwork.logger import logger
 
@@ -9,14 +9,22 @@ DataPoint = Dict[str, Union[str, int, float, bool, "OneOrMore"]]
 OneOrMoreDataPoint = Union[DataPoint, List[DataPoint]]
 
 
-class StepStatus(Flag):
-    COMPLETED = auto()
-    FAILED = auto()
-    SKIPPED = auto()
-    WARNING = auto()
+class StepStatus(Enum):
+    COMPLETED = (1, logger.info)
+    SKIPPED = (2, logger.warning)
+    WARNING = (3, logger.warning)
+    FAILED = (4, logger.error)
+
+    def __init__(self, priority: int, logger_func):
+        self.priority = priority
+        self._logger = logger_func
 
     def __str__(self):
         return self.name.lower()
+
+    @classmethod
+    def values(cls):
+        return list(StepStatus.__members__.values())
 
 
 class Step(abc.ABC):
@@ -66,33 +74,37 @@ class Step(abc.ABC):
         except Exception as e:
             exc = e
 
-        is_fail = self.__status == StepStatus.FAILED or exc is not None
         if self.__status_msg is not None:
-            message_logger = logger.error if is_fail else logger.info
-            message_logger(f"Step {self.__step_name} message: {self.__status_msg}")
+            self.__status._logger(f"Step {self.__step_name} message: {self.__status_msg}")
 
         if exc is not None:
             logger.error(f"Step {self.__step_name} failed")
             raise exc
 
-        if is_fail:
+        if self.__status == StepStatus.FAILED:
             raise ValueError(f"Step {self.__step_name} failed")
 
         logger.info(f"Run {self.__status} {self.__step_name}")
         return output
 
-    def set_status(self, status: StepStatus, msg: str = None):
-        if status not in StepStatus:
+    def set_status(self, status: StepStatus, msg: Optional[str] = None):
+        if status not in StepStatus.values():
             raise ValueError(f"Invalid status: {status}")
-        self.__status = status
-        self.__status_msg = msg
+
+        if status.priority >= self.__status.priority:
+            self.__status = status
+            self.__status_msg = msg
 
     @property
     def status(self) -> StepStatus:
         return self.__status
 
+    @property
+    def status_message(self) -> Optional[str]:
+        return self.__status_msg
+
     @abc.abstractmethod
-    def run(self) -> OneOrMoreDataPoint:
+    def run(self) -> DataPoint:
         """
         Runs the step.
         :return: a dictionary of outputs

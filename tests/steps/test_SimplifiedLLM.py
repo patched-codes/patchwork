@@ -1,5 +1,6 @@
 import pytest
 
+from patchwork.step import StepStatus
 from patchwork.steps.CallLLM.CallLLM import CallLLM
 from patchwork.steps.ExtractModelResponse.ExtractModelResponse import (
     ExtractModelResponse,
@@ -35,12 +36,20 @@ def test_non_json_run(mocker):
 
     mocked_prepare_prompt = mocker.MagicMock()
     mocked_prepare_prompt_class = mocker.patch.object(PreparePrompt, "__new__", return_value=mocked_prepare_prompt)
+    mocked_prepare_prompt.status = StepStatus.COMPLETED
+    mocked_prepare_prompt.status_message = "COMPLETED"
+
     mocked_call_llm = mocker.MagicMock()
     mocked_call_llm_class = mocker.patch.object(CallLLM, "__new__", return_value=mocked_call_llm)
+    mocked_call_llm.status = StepStatus.COMPLETED
+    mocked_call_llm.status_message = "COMPLETED"
+
     mocked_extract_model_response = mocker.MagicMock()
     mocked_extract_model_response_class = mocker.patch.object(
         ExtractModelResponse, "__new__", return_value=mocked_extract_model_response
     )
+    mocked_extract_model_response.status = StepStatus.COMPLETED
+    mocked_extract_model_response.status_message = "COMPLETED"
 
     simplified_llm = SimplifiedLLM(inputs)
     output = simplified_llm.run()
@@ -77,12 +86,20 @@ def test_json_run(mocker):
 
     mocked_prepare_prompt = mocker.MagicMock()
     mocked_prepare_prompt_class = mocker.patch.object(PreparePrompt, "__new__", return_value=mocked_prepare_prompt)
+    mocked_prepare_prompt.status = StepStatus.COMPLETED
+    mocked_prepare_prompt.status_message = "COMPLETED"
+
     mocked_call_llm = mocker.MagicMock()
     mocked_call_llm_class = mocker.patch.object(CallLLM, "__new__", return_value=mocked_call_llm)
+    mocked_call_llm.status = StepStatus.COMPLETED
+    mocked_call_llm.status_message = "COMPLETED"
+
     mocked_extract_model_response = mocker.MagicMock()
     mocked_extract_model_response_class = mocker.patch.object(
         ExtractModelResponse, "__new__", return_value=mocked_extract_model_response
     )
+    mocked_extract_model_response.status = StepStatus.COMPLETED
+    mocked_extract_model_response.status_message = "COMPLETED"
 
     simplified_llm = SimplifiedLLM(inputs)
     output = simplified_llm.run()
