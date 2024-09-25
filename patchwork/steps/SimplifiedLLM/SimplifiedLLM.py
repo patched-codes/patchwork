@@ -108,7 +108,5 @@ class SimplifiedLLM(Step):
             },
             "model_response_format": response_format,
         }
-        retry_unit = partial(
-            self.__retry_unit, call_llm_inputs=call_llm_inputs, prepare_prompt_outputs=prepare_prompt_outputs
-        )
+        retry_unit = partial(self.__retry_unit, prepare_prompt_outputs, call_llm_inputs)
         return retry(retry_unit, retry_limit=3)

@@ -3567,13 +3567,13 @@ files = [
 
 [[package]]
 name = "patched-code2prompt"
-version = "0.9.0.dev0"
+version = "0.9.0.dev1"
 description = "A tool to convert code snippets into AI prompts for documentation or explanation purposes."
 optional = false
 python-versions = "<4.0,>=3.8"
 files = [
-    {file = "patched_code2prompt-0.9.0.dev0-py3-none-any.whl", hash = "sha256:971850098bdfb9f73277087e5727d3b5c4fbba4d9193ab38f64d1e8111028f3d"},
-    {file = "patched_code2prompt-0.9.0.dev0.tar.gz", hash = "sha256:2100fde039fa925627d1119aa9655f81ff3ded08c2a7f566bea3e09e7ab5240f"},
+    {file = "patched_code2prompt-0.9.0.dev1-py3-none-any.whl", hash = "sha256:24edb3c96abe9a42669910d519334cd78cba2f0432dedc9fcdf70a1fdd17926c"},
+    {file = "patched_code2prompt-0.9.0.dev1.tar.gz", hash = "sha256:d5a0fb3fa9ff57fdc728d7112973d6ee70a00dc0f24ad48795f9cb70be4ba39c"},
 ]
 
 [package.dependencies]
@@ -6969,4 +6969,4 @@ security = ["owasp-depscan", "semgrep"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "c6f9dd9cdb9bf3df815e91a48684a70998b942fb258a68dfb65429642033d248"
+content-hash = "7fca42e7e45f6745d88f824c1732f04f960c4b203206478da64525d4c4d45ede"
