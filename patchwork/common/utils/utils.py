@@ -195,7 +195,7 @@ def exclude_none_dict(d: dict) -> dict:
     return {k: v for k, v in d.items() if v is not None}
 
 
-@dataclasses.dataclass(slots=True)
+@dataclasses.dataclass
 class RetryData:
     retry_limit: int
     retry_count: int
