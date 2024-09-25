@@ -74,9 +74,12 @@ class AnthropicLlmClient(LlmClient):
         self.client = Anthropic(api_key=api_key)
 
     def __get_model_limit(self, model: str) -> int:
+        # it is observed that the count tokens is not accurate, so we are using a safety margin
+        # we usually see 40k tokens overestimation on large prompts
+        safety_margin = 40_000
         if model in self.__100k_models:
-            return 100_000
-        return 200_000
+            return 100_000 - safety_margin
+        return 200_000 - safety_margin
 
     @lru_cache(maxsize=None)
     def get_models(self) -> set[str]:

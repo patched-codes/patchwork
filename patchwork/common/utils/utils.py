@@ -204,9 +204,10 @@ class RetryData:
 
 def retry(callback: Callable[[RetryData], Any], retry_limit=3) -> Any:
     for i in range(retry_limit):
+        retry_count = i + 1
         try:
-            return callback(RetryData(retry_limit=retry_limit, retry_count=i))
+            return callback(RetryData(retry_limit=retry_limit, retry_count=retry_count))
         except Exception as e:
-            logger.error(f"Retry {i + 1} failed with error: {e}")
-            if i == retry_limit - 1:
+            logger.error(f"Retry {retry_count} failed with error: {e}")
+            if retry_count == retry_limit:
                 raise e
