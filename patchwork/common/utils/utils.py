@@ -12,6 +12,7 @@ from git import Head, Repo
 from typing_extensions import Any, Callable
 
 from patchwork.common.utils.dependency import chromadb
+from patchwork.logger import logger
 from patchwork.managed_files import HOME_FOLDER
 
 _CLEANUP_FILES: set[Path] = set()
@@ -201,10 +202,11 @@ class RetryData:
     retry_count: int
 
 
-def retry(callback: Callable[[int], Any], retry_limit=3) -> Any:
+def retry(callback: Callable[[RetryData], Any], retry_limit=3) -> Any:
     for i in range(retry_limit):
         try:
             return callback(RetryData(retry_limit=retry_limit, retry_count=i))
         except Exception as e:
+            logger.error(f"Retry {i + 1} failed with error: {e}")
             if i == retry_limit - 1:
                 raise e
