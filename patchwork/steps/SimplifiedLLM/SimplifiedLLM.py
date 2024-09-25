@@ -51,6 +51,7 @@ class SimplifiedLLM(Step):
                     json_response = json.loads(response, strict=False)
                     json_responses.append(json_response)
                 except json.JSONDecodeError:
+                    call_llm.set_status(StepStatus.FAILED, "Failed to decode JSON response")
                     self.__record_status_or_raise(retry_data, call_llm)
                     continue
 
@@ -63,7 +64,7 @@ class SimplifiedLLM(Step):
                 extract_model_response_inputs["response_partitions"] = self.inputs["response_partitions"]
             extract_model_response = ExtractModelResponse(extract_model_response_inputs)
             extract_model_response_outputs = extract_model_response.run()
-            self.__record_status_or_raise(retry_data, call_llm)
+            self.__record_status_or_raise(retry_data, extract_model_response)
 
         return exclude_none_dict(
             dict(
