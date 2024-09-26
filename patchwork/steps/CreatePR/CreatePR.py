@@ -87,6 +87,7 @@ class CreatePR(Step):
                     )
                     return dict()
 
+            self.set_status(StepStatus.WARNING, "PR creation is disabled. Skipping PR creation.")
             logger.warning(f"PR creation is disabled. Skipping PR creation.")
             return dict()
 

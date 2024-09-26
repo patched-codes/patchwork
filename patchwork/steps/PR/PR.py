@@ -22,17 +22,25 @@ class PR(Step):
     def run(self):
         if self.inputs.get("debug") is not None:
             self.debug(self.inputs)
-            
-        commit_changes_output = CommitChanges(self.inputs).run()
-        prepare_pr_output = PreparePR(self.inputs).run()
-        create_pr_outputs = CreatePR(
+
+        commit_changes = CommitChanges(self.inputs)
+        commit_changes_output = commit_changes.run()
+        self.set_status(commit_changes.status, commit_changes.status_message)
+
+        prepare_pr = PreparePR(self.inputs)
+        prepare_pr_output = prepare_pr.run()
+        self.set_status(prepare_pr.status, prepare_pr.status_message)
+
+        create_pr = CreatePR(
             dict(
                 base_branch=commit_changes_output.get("base_branch"),
                 target_branch=commit_changes_output.get("target_branch"),
                 pr_body=prepare_pr_output.get("pr_body"),
                 **self.inputs,
             )
-        ).run()
+        )
+        create_pr_outputs = create_pr.run()
+        self.set_status(create_pr.status, create_pr.status_message)
 
         return exclude_none_dict(
             dict(
