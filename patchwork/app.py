@@ -292,8 +292,7 @@ def cli(
             exit(1)
     else:
         with logger.panel(f"Patchflow {patchflow} logs") as _:
-            if inputs.get("debug") is not None:
-                logger.info("DEBUGGING ENABLED. INPUTS WILL BE SHOWN BEFORE EACH STEP BEFORE PROCEEDING TO RUN IT.")
+            logger.info("DEBUGGING ENABLED. INPUTS WILL BE SHOWN BEFORE EACH STEP BEFORE PROCEEDING TO RUN IT.")
             try:
                 patched = PatchedClient(inputs.get("patched_api_key"))
                 if not disable_telemetry:
