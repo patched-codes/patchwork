@@ -14,12 +14,6 @@ class CallCode2PromptInputs(__CallCode2PromptRequiredInputs, total=False):
     code2prompt_modes: str
 
 
-class FileToPatch(TypedDict):
-    uri: str
-    startLine: int
-    endLine: int
-    fullContent: str
-
-
 class CallCode2PromptOutputs(TypedDict):
-    files_to_patch: Iterable[FileToPatch]
+    uri: str
+    fullContent: str

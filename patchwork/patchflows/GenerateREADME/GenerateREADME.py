@@ -54,16 +54,14 @@ class GenerateREADME(Step):
         final_inputs["pr_title"] = f"PatchWork {self.__class__.__name__}"
 
         validate_steps_with_inputs(
-            set(final_inputs.keys()).union({"prompt_values"}), CallCode2Prompt, LLM, ModifyCode, PR
+            set(final_inputs.keys()).union({"prompt_values", "files_to_patch"}), CallCode2Prompt, LLM, ModifyCode, PR
         )
 
         self.inputs = final_inputs
 
     def run(self) -> dict:
         outputs = CallCode2Prompt(self.inputs).run()
-        self.inputs.update(outputs)
-
-        self.inputs["prompt_values"] = self.inputs.get("files_to_patch", [])
+        self.inputs["files_to_patch"] = self.inputs["prompt_values"] = [outputs]
         self.inputs["response_partitions"] = {"patch": []}
         outputs = LLM(self.inputs).run()
         self.inputs.update(outputs)

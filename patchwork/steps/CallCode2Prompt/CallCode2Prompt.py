@@ -124,20 +124,7 @@ class CallCode2Prompt(Step):
             prompt_content_md = p.stdout
         except subprocess.CalledProcessError as e:
             self.set_status(StepStatus.FAILED, f"Subprocess failed: {e}")
-            return dict(files_to_patch=[])
+            return dict()
 
-        # Attempt to read the documentation's current content
-        try:
-            with open(self.code_file_path, "r") as file:
-                file_content = file.read()
-        except FileNotFoundError:
-            logger.info(f"Unable to find file: {self.code_file_path}")
-            return dict(files_to_patch=[dict(uri=self.code_file_path, fullContent=prompt_content_md)])
+        return dict(uri=self.code_file_path, fullContent=prompt_content_md)
 
-        lines = file_content.splitlines(keepends=True)
-
-        return dict(
-            files_to_patch=[
-                dict(uri=self.code_file_path, startLine=0, endLine=len(lines), fullContent=prompt_content_md)
-            ]
-        )
