@@ -16,6 +16,4 @@ class CallCode2PromptInputs(__CallCode2PromptRequiredInputs, total=False):
 
 class CallCode2PromptOutputs(TypedDict):
     uri: str
-    startLine: int
-    endLine: int
     fullContent: str
