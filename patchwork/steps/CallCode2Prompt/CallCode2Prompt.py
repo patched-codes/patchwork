@@ -132,12 +132,8 @@ class CallCode2Prompt(Step):
                 file_content = file.read()
         except FileNotFoundError:
             logger.info(f"Unable to find file: {self.code_file_path}")
-            return dict(files_to_patch=[dict(uri=self.code_file_path, fullContent=prompt_content_md)])
+            return dict(uri=self.code_file_path, fullContent=prompt_content_md)
 
         lines = file_content.splitlines(keepends=True)
 
-        return dict(
-            files_to_patch=[
-                dict(uri=self.code_file_path, startLine=0, endLine=len(lines), fullContent=prompt_content_md)
-            ]
-        )
+        return dict(uri=self.code_file_path, startLine=0, endLine=len(lines), fullContent=prompt_content_md)

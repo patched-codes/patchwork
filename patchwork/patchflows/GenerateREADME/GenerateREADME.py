@@ -61,9 +61,8 @@ class GenerateREADME(Step):
 
     def run(self) -> dict:
         outputs = CallCode2Prompt(self.inputs).run()
-        self.inputs.update(outputs)
 
-        self.inputs["prompt_values"] = self.inputs.get("files_to_patch", [])
+        self.inputs["prompt_values"] = outputs
         self.inputs["response_partitions"] = {"patch": []}
         outputs = LLM(self.inputs).run()
         self.inputs.update(outputs)
