@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 import contextlib
-import fnmatch
 from pathlib import Path
 
 import git
 from git import Repo
 from typing_extensions import Generator
 
+from patchwork.common.utils.filter_paths import PathFilter
 from patchwork.common.utils.utils import get_current_branch
 from patchwork.logger import logger
 from patchwork.step import Step, StepStatus
@@ -124,30 +124,17 @@ class CommitChanges(Step):
         if self.enabled and self.branch_prefix == "" and self.branch_suffix == "":
             raise ValueError("Both branch_prefix and branch_suffix cannot be empty")
 
-    def __get_ignored_groks(self, repo: Repo) -> set[str]:
-        ignored_groks = set()
-        gitignore_file = Path(repo.working_tree_dir) / ".gitignore"
-        if not gitignore_file.is_file():
-            return ignored_groks
-        lines = gitignore_file.read_text().splitlines()
-        for line in lines:
-            stripped_line = line.strip()
-            if stripped_line.startswith("#") or stripped_line == "":
-                continue
-            ignored_groks.add(stripped_line)
-        return ignored_groks
-
     def __get_repo_tracked_modified_files(self, repo: Repo) -> set[Path]:
         repo_dir_path = Path(repo.working_tree_dir)
-        ignored_groks = self.__get_ignored_groks(repo)
+        path_filter = PathFilter(repo.working_tree_dir)
 
         repo_changed_files = set()
         for item in repo.index.diff(None):
-            repo_changed_file = item.a_path
-            for ignored_grok in ignored_groks:
-                if fnmatch.fnmatch(repo_changed_file, ignored_grok):
-                    logger.warn(f'Ignoring file: {repo_changed_file} because of "{ignored_grok}" in .gitignore file.')
-                    continue
+            repo_changed_file = Path(item.a_path)
+            possible_ignored_grok = path_filter.get_grok_ignored(repo_changed_file)
+            if possible_ignored_grok is not None:
+                logger.warn(f'Ignoring file: {item.a_path} because of "{possible_ignored_grok}" in .gitignore file.')
+                continue
             repo_changed_files.add(repo_dir_path / repo_changed_file)
 
         return repo_changed_files
