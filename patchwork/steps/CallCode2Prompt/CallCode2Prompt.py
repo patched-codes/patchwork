@@ -5,7 +5,6 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-from patchwork.logger import logger
 from patchwork.step import Step, StepStatus
 
 FOLDER_PATH = "folder_path"
@@ -127,4 +126,3 @@ class CallCode2Prompt(Step):
             return dict()
 
         return dict(uri=self.code_file_path, fullContent=prompt_content_md)
-
