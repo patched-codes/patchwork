@@ -5,7 +5,12 @@ from pathlib import Path
 
 from patchwork.common.context_strategy.context_strategies import ContextStrategies
 from patchwork.common.context_strategy.position import Position
-from patchwork.common.utils.filter_paths import PathFilter, IGNORE_DIRS, IGNORE_EXTS_GLOBS, IGNORE_FILES_GLOBS
+from patchwork.common.utils.filter_paths import (
+    IGNORE_DIRS,
+    IGNORE_EXTS_GLOBS,
+    IGNORE_FILES_GLOBS,
+    PathFilter,
+)
 from patchwork.common.utils.utils import open_with_chardet
 from patchwork.logger import logger
 from patchwork.step import Step

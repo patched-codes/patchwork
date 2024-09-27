@@ -1,7 +1,9 @@
 from __future__ import annotations
-import git
+
 from fnmatch import fnmatch
 from pathlib import Path
+
+import git
 
 IGNORE_DIRS = {
     ".git",
@@ -79,4 +81,3 @@ class PathFilter:
             return file_depth
 
         return None
-
