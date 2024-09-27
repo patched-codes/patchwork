@@ -36,7 +36,7 @@ class PathFilter:
     def __init__(self, base_path: str | Path = Path.cwd(), ignored_groks: set[str] | None = None, max_depth: int = -1):
         self.base_path = Path(base_path)
         self.max_depth = max_depth
-        self.__ignored_groks = ignored_groks if ignored_groks is None else set()
+        self.__ignored_groks = ignored_groks if ignored_groks is not None else set()
         try:
             self.__repo = git.Repo(base_path, search_parent_directories=True)
             self.__ignored_groks.update(self.__get_gitignore_ignored_groks())
@@ -70,7 +70,11 @@ class PathFilter:
         if self.max_depth == -1:
             return None
 
-        file_depth = len(file.relative_to(self.base_path).parts)
+        try:
+            file_depth = len(file.relative_to(self.base_path).parts)
+        except ValueError:
+            return None
+
         if file_depth > self.max_depth:
             return file_depth
 
