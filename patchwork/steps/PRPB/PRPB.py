@@ -29,8 +29,7 @@ class PRPB(Step, input_class=PRPBInputs, output_class=PRPBOutputs):
         self.inputs = inputs
 
     def run(self):
-        if self.inputs.get("debug") is not None:
-            self.debug(self.inputs)
+        self.debug(self.inputs)
             
         pr = PR({**self.inputs, "modified_code_files": self.modified_files})
         pr_outputs = pr.run()

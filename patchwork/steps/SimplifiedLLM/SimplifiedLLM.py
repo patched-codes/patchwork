@@ -78,8 +78,7 @@ class SimplifiedLLM(Step):
         )
 
     def run(self) -> dict:
-        if self.inputs.get("debug") is not None:
-            self.debug(self.inputs)
+        self.debug(self.inputs)
             
         prompts = [dict(role="user", content=self.user)]
         if self.system:

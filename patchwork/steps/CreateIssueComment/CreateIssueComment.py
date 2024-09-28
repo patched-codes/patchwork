@@ -30,8 +30,7 @@ class CreateIssueComment(Step):
         self.issue_url = inputs["issue_url"]
 
     def run(self) -> dict:
-        if self.inputs.get("debug") is not None:
-            self.debug(self.inputs)
+        self.debug(self.inputs)
             
         try:
             slug, issue_id = self.scm_client.get_slug_and_id_from_url(self.issue_url)

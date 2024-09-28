@@ -16,8 +16,7 @@ class Combine(Step):
         self.update = inputs["update_json"]
 
     def run(self):
-        if self.inputs.get("debug") is not None:
-            self.debug(self.inputs)
+        self.debug(self.inputs)
             
         base_list = isinstance(self.base, list)
         update_list = isinstance(self.update, list)

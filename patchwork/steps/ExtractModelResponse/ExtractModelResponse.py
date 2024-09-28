@@ -25,8 +25,7 @@ class ExtractModelResponse(Step):
         self.partitions = inputs.get("response_partitions", defaultdict(list))
 
     def run(self) -> dict:
-        if self.inputs.get("debug") is not None:
-            self.debug(self.inputs)
+        self.debug(self.inputs)
             
         if len(self.openai_responses) == 0:
             self.set_status(StepStatus.SKIPPED, "No OpenAI responses to extract from.")

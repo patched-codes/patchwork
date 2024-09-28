@@ -34,8 +34,7 @@ class CreateIssue(Step):
         self.issue_text = inputs["issue_text"]
 
     def run(self) -> dict:
-        if self.inputs.get("debug") is not None:
-            self.debug(self.inputs)
+        self.debug(self.inputs)
             
         repo = git.Repo(Path.cwd(), search_parent_directories=True)
 

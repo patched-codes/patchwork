@@ -20,8 +20,7 @@ class PR(Step):
         return
 
     def run(self):
-        if self.inputs.get("debug") is not None:
-            self.debug(self.inputs)
+        self.debug(self.inputs)
 
         commit_changes = CommitChanges(self.inputs)
         commit_changes_output = commit_changes.run()

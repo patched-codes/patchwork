@@ -61,8 +61,7 @@ class GenerateREADME(Step):
         self.inputs = final_inputs
 
     def run(self) -> dict:
-        if self.inputs.get("debug") is not None:
-            self.debug(self.inputs)
+        self.debug(self.inputs)
             
         outputs = CallCode2Prompt(self.inputs).run()
         self.inputs["files_to_patch"] = self.inputs["prompt_values"] = [outputs]

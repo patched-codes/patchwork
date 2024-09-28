@@ -280,8 +280,7 @@ class ExtractCode(Step):
         self.severity_threshold = Severity.from_str(inputs.get("severity", "UNKNOWN"))
 
     def run(self) -> dict:
-        if self.inputs.get("debug") is not None:
-            self.debug(self.inputs)
+        self.debug(self.inputs)
             
         base_path = Path.cwd()
 

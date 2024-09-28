@@ -15,8 +15,7 @@ class ModifyCodePB(Step, input_class=ModifyCodePBInputs, output_class=ModifyCode
         self.patch = inputs.get("new_code")
 
     def run(self) -> dict:
-        if self.inputs.get("debug") is not None:
-            self.debug(self.inputs)
+        self.debug(self.inputs)
             
         if self.patch is None:
             self.set_status(StepStatus.SKIPPED, "No patch provided")

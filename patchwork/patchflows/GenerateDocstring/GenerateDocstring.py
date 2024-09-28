@@ -61,8 +61,7 @@ class GenerateDocstring(Step):
         self.inputs: dict[str, Any] = final_inputs
 
     def run(self) -> dict:
-        if self.inputs.get("debug") is not None:
-            self.debug(self.inputs)
+        self.debug(self.inputs)
             
         outputs = ExtractCodeMethodForCommentContexts(self.inputs).run()
         self.inputs.update(outputs)

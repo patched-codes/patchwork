@@ -141,8 +141,7 @@ class CommitChanges(Step):
         return repo_changed_files
 
     def run(self) -> dict:
-        if self.inputs.get("debug") is not None:
-            self.debug(self.inputs)
+        self.debug(self.inputs)
             
         cwd = Path.cwd()
         repo = git.Repo(cwd, search_parent_directories=True)

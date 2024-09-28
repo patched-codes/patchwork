@@ -69,8 +69,7 @@ class ModifyCode(Step):
         self.extracted_responses = inputs[self.UPDATED_SNIPPETS_KEY]
 
     def run(self) -> dict:
-        if self.inputs.get("debug") is not None:
-            self.debug(self.inputs)
+        self.debug(self.inputs)
             
         modified_code_files = []
         sorted_list = sorted(

@@ -103,8 +103,7 @@ class ScanDepscan(Step):
         - The caller is responsible for ensuring that the 'depscan' tool can run successfully and that the specified
         temporary directory exists and is writable.
         """
-        if self.inputs.get("debug") is not None:
-            self.debug(self.inputs)
+        self.debug(self.inputs)
             
         # Generate a unique temporary file path
         with tempfile.TemporaryDirectory() as temp_file_path:

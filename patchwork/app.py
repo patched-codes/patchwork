@@ -8,6 +8,7 @@ import traceback
 from collections import deque
 from pathlib import Path
 from typing import Any
+from contextlib import nullcontext
 
 import click
 import yaml
@@ -16,7 +17,7 @@ from typing_extensions import Iterable
 
 from patchwork.common.client.patched import PatchedClient
 from patchwork.common.constants import PROMPT_TEMPLATE_FILE_KEY
-from patchwork.logger import init_cli_logger, init_debug_logger, logger
+from patchwork.logger import init_cli_logger, logger
 
 _DATA_FORMAT_MAPPING = {
     "yaml": yaml.dump,
@@ -157,10 +158,7 @@ def cli(
 ):
     setup_cli()
 
-    if debug:
-        init_debug_logger(log)
-    else:
-        init_cli_logger(log)
+    init_cli_logger(log)
 
     if "::" in patchflow:
         module_path, _, patchflow_name = patchflow.partition("::")
@@ -169,8 +167,10 @@ def cli(
         module_path = _PATCHFLOW_MODULE_NAME
 
     possbile_module_paths = deque((module_path,))
+
+    panel = logger.panel("Initializing Patchwork CLI") if debug else nullcontext()
     
-    if debug:
+    with panel:
         inputs = {}
         if patched_api_key is not None:
             inputs["patched_api_key"] = patched_api_key
@@ -216,54 +216,6 @@ def cli(
         if patchflow_class is None:
             logger.error(f"Patchflow {patchflow_name} not found in {possbile_module_paths}")
             exit(1)
-
-    else:
-        with logger.panel("Initializing Patchwork CLI"):
-            inputs = {}
-            if patched_api_key is not None:
-                inputs["patched_api_key"] = patched_api_key
-
-            if config is not None:
-                logger.info(f"Using given config value: {config}")
-                config_path = Path(config)
-                if config_path.is_file():
-                    inputs = yaml.safe_load(config_path.read_text()) or {}
-                    logger.info(f"Input values loaded from {config}")
-                elif config_path.is_dir():
-                    patchwork_path = config_path / patchflow_name
-
-                    patchwork_python_path = patchwork_path / f"{patchflow_name}.py"
-                    if patchwork_python_path.is_file():
-                        possbile_module_paths.appendleft(str(patchwork_python_path.resolve()))
-
-                    patchwork_config_path = patchwork_path / _CONFIG_NAME
-                    if patchwork_config_path.is_file():
-                        inputs = yaml.safe_load(patchwork_config_path.read_text()) or {}
-                        logger.info(f"Input values loaded from {patchwork_config_path}")
-                    else:
-                        logger.debug(
-                            f'Config file "{patchwork_config_path}" not found from directory {config}, using default config'
-                        )
-
-                    patchwork_prompt_path = patchwork_path / _PROMPT_NAME
-                    if patchwork_prompt_path.is_file():
-                        inputs[PROMPT_TEMPLATE_FILE_KEY] = patchwork_prompt_path
-                        logger.info(f"Prompt template loaded from {patchwork_prompt_path}")
-                    else:
-                        logger.debug(
-                            f'Prompt file "{patchwork_prompt_path}" not found from directory {config}, using default prompt'
-                        )
-                else:
-                    logger.error(f"Config path {config} is neither a file nor a directory")
-                    exit(1)
-
-            if debug:
-                inputs["debug"] = True
-
-            patchflow_class = find_patchflow(possbile_module_paths, patchflow_name)
-            if patchflow_class is None:
-                logger.error(f"Patchflow {patchflow_name} not found in {possbile_module_paths}")
-                exit(1)
 
     for opt in opts:
         key, equal_sign, value = opt.partition("=")
