@@ -140,6 +140,7 @@ class Step(abc.ABC):
             logger.info("Continuing...\n")
         else:
             logger.info("Exiting...\n")
+            exit()
         
     @property
     def status(self) -> StepStatus:
