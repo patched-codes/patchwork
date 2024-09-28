@@ -5,7 +5,12 @@ from pathlib import Path
 
 from patchwork.common.context_strategy.context_strategies import ContextStrategies
 from patchwork.common.context_strategy.position import Position
-from patchwork.common.ignore import is_ignored
+from patchwork.common.utils.filter_paths import (
+    IGNORE_DIRS,
+    IGNORE_EXTS_GLOBS,
+    IGNORE_FILES_GLOBS,
+    PathFilter,
+)
 from patchwork.common.utils.utils import open_with_chardet
 from patchwork.logger import logger
 from patchwork.step import Step
@@ -98,19 +103,29 @@ class ExtractCodeContexts(Step):
         )
 
     def get_positions(self, max_depth: int):
+        ignored_groks = IGNORE_DIRS | IGNORE_EXTS_GLOBS | IGNORE_FILES_GLOBS
+        path_filter = PathFilter(base_path=self.base_path, ignored_groks=ignored_groks, max_depth=max_depth)
+
         files_to_consider = []
         if self.base_path.is_file():
             files_to_consider.append(self.base_path)
         else:
             for root, dirs, files in os.walk(self.base_path):
-                current_depth = len(Path(root).relative_to(self.base_path).parts)
-                if max_depth != -1 and current_depth > max_depth:
+                possible_depth = path_filter.get_depth_ignored(root)
+                if possible_depth is not None:
                     dirs[:] = []  # Prune subdirectories
                     continue
+
                 for file in files:
                     file_path = Path(root) / file
-                    if not file_path.is_file() or is_ignored(file_path):
+                    if not file_path.is_file():
                         continue
+
+                    possible_grok = path_filter.get_grok_ignored(file_path)
+                    if possible_grok is not None:
+                        logger.warning(f'Ignoring file: {file_path} because of "{possible_grok}" exclusion filter')
+                        continue
+
                     files_to_consider.append(file_path)
 
         grouping = getattr(ContextStrategies, self.context_grouping, ContextStrategies.ALL)
