@@ -23,8 +23,6 @@ class PreparePR(Step):
             self.header = inputs["pr_header"]
 
     def run(self) -> dict:
-        self.debug(self.inputs)
-            
         if len(self.modified_code_files) == 0:
             self.set_status(StepStatus.SKIPPED, "No modified files to prepare a PR for.")
             return dict(pr_body="")

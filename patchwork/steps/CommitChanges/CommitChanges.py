@@ -140,9 +140,7 @@ class CommitChanges(Step):
 
         return repo_changed_files
 
-    def run(self) -> dict:
-        self.debug(self.inputs)
-            
+    def run(self) -> dict:   
         cwd = Path.cwd()
         repo = git.Repo(cwd, search_parent_directories=True)
         repo_dir_path = Path(repo.working_tree_dir)

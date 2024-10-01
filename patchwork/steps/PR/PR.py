@@ -20,8 +20,6 @@ class PR(Step):
         return
 
     def run(self):
-        self.debug(self.inputs)
-
         commit_changes = CommitChanges(self.inputs)
         commit_changes_output = commit_changes.run()
         self.set_status(commit_changes.status, commit_changes.status_message)

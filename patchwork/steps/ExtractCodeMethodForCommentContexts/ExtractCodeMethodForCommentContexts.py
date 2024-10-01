@@ -24,8 +24,6 @@ class ExtractCodeMethodForCommentContexts(Step):
         self.max_depth = int(inputs.get("max_depth", -1))
 
     def run(self) -> dict:
-        self.debug(self.inputs)
-            
         positions_gen = ExtractCodeContexts(
             dict(
                 base_path=self.base_path,

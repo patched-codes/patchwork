@@ -85,8 +85,6 @@ class ExtractCodeContexts(Step):
         self.max_depth = int(inputs.get("max_depth", -1))
 
     def run(self) -> dict:
-        self.debug(self.inputs)
-            
         extracted_code_contexts = []
         for file_path, src, position in self.get_positions(max_depth=self.max_depth):
             extracted_code_context = dict(

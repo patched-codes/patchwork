@@ -60,9 +60,7 @@ class GenerateDocstring(Step):
 
         self.inputs: dict[str, Any] = final_inputs
 
-    def run(self) -> dict:
-        self.debug(self.inputs)
-            
+    def run(self) -> dict:    
         outputs = ExtractCodeMethodForCommentContexts(self.inputs).run()
         self.inputs.update(outputs)
 

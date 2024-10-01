@@ -57,8 +57,6 @@ class GenerateEmbeddings(Step):
         self.overlap_size = inputs.get("overlap_size", 2000)
 
     def run(self) -> dict:
-        self.debug(self.inputs)
-            
         document_ids = []
         documents = []
         document_metadatas = []

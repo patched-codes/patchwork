@@ -54,9 +54,7 @@ class GenerateCodeRepositoryEmbeddings(Step):
         self.disable_cache = inputs.get("disable_cache", False)
         self.inputs = inputs
 
-    def run(self) -> dict:
-        self.debug(self.inputs)
-            
+    def run(self) -> dict: 
         cwd = Path.cwd()
         base_embedding_name = cwd.name
         embedding_name = base_embedding_name

@@ -26,10 +26,7 @@ class CreatePRComment(Step):
         self.pr_comment = inputs["pr_comment"]
         self.noisy = bool(inputs.get("noisy_comments", False))
 
-    def run(self) -> dict:
-        if self.inputs.get("debug") is not None:
-            self.debug(self.inputs)
-            
+    def run(self) -> dict:    
         if not self.noisy:
             self.pr.reset_comments()
 

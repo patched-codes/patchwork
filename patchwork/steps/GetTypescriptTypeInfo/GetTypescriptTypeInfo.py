@@ -17,9 +17,7 @@ class GetTypescriptTypeInfo(Step, input_class=GetTypescriptTypeInfoInputs, outpu
 
         self.inputs = inputs
 
-    def run(self) -> dict:
-        self.debug(self.inputs)
-            
+    def run(self) -> dict: 
         file_path = self.inputs["file_path"]
         variable_name = self.inputs["variable_name"]
         cwd = Path.cwd()

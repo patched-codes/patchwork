@@ -82,8 +82,6 @@ class ReadPRs(Step):
         return state
 
     def run(self) -> DataPoint:
-        self.debug(self.inputs)
-            
         prs = self.scm_client.find_prs(self.repo_slug, state=self.pr_state, limit=self.limit)
         if len(prs) < 1:
             return dict(pr_texts=[])

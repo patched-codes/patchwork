@@ -69,9 +69,7 @@ class CreatePR(Step):
         logger.debug(f"Pushed to {self.original_remote_name}/{self.target_branch}")
         return is_push_success
 
-    def run(self) -> dict:
-        self.debug(self.inputs)
-            
+    def run(self) -> dict:    
         repo = git.Repo(Path.cwd(), search_parent_directories=True)
         if not self.enabled:
             if (

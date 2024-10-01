@@ -83,8 +83,6 @@ class AutoFix(Step):
         self.inputs = final_inputs
 
     def run(self) -> dict:
-        self.debug(self.inputs)
-
         outputs = ScanSemgrep(self.inputs).run()
         self.inputs.update(outputs)
         outputs = ExtractCode(self.inputs).run()

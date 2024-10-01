@@ -19,8 +19,6 @@ class CallAPI(Step):
         if self.body and isinstance(self.body, dict):
             self.body = json.dumps(self.body)
 
-    def run(self):
-        self.debug(self.inputs)
-            
+    def run(self):    
         res = request(self.method, self.url, headers=self.headers, data=self.body)
         return dict(status_code=res.status_code, headers=res.headers, body=res.text)

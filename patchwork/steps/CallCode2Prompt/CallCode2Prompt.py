@@ -87,9 +87,7 @@ class CallCode2Prompt(Step):
             with open(self.code_file_path, "a") as file:
                 pass  # No need to write anything, just create the file if it doesn't exist
 
-    def run(self) -> dict:
-        self.debug(self.inputs)
-            
+    def run(self) -> dict:    
         cmd = [
             "code2prompt",
             "--path",

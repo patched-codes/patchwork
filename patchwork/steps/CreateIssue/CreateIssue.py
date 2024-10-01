@@ -33,9 +33,7 @@ class CreateIssue(Step):
         self.issue_title = inputs["issue_title"]
         self.issue_text = inputs["issue_text"]
 
-    def run(self) -> dict:
-        self.debug(self.inputs)
-            
+    def run(self) -> dict:    
         repo = git.Repo(Path.cwd(), search_parent_directories=True)
 
         original_remote_name = "origin"

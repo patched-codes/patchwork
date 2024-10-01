@@ -64,9 +64,7 @@ class ResolveIssue(Step):
         self.fix_issue = bool(final_inputs.get("fix_issue", False))
         self.inputs = final_inputs
 
-    def run(self) -> dict:
-        self.debug(self.inputs)
-            
+    def run(self) -> dict:   
         outputs = GenerateCodeRepositoryEmbeddings(self.inputs).run()
         self.inputs.update(outputs)
 

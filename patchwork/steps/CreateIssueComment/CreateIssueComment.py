@@ -29,9 +29,7 @@ class CreateIssueComment(Step):
         self.issue_text = inputs["issue_text"]
         self.issue_url = inputs["issue_url"]
 
-    def run(self) -> dict:
-        self.debug(self.inputs)
-            
+    def run(self) -> dict:   
         try:
             slug, issue_id = self.scm_client.get_slug_and_id_from_url(self.issue_url)
             url = self.scm_client.create_issue_comment(slug, self.issue_text, issue_id=issue_id)

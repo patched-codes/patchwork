@@ -14,8 +14,6 @@ class ReadFile(Step):
         self.file = inputs["file_path"]
 
     def run(self):
-        self.debug(self.inputs)
-            
         with open_with_chardet(self.file, "r") as f:
             file_contents = f.read()
 

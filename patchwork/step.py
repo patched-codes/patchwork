@@ -156,4 +156,5 @@ class Step(abc.ABC):
         Runs the step.
         :return: a dictionary of outputs
         """
+        self.debug(self.inputs)
         ...

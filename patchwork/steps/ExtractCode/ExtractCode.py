@@ -280,8 +280,6 @@ class ExtractCode(Step):
         self.severity_threshold = Severity.from_str(inputs.get("severity", "UNKNOWN"))
 
     def run(self) -> dict:
-        self.debug(self.inputs)
-            
         base_path = Path.cwd()
 
         grouped_messages = transform_sarif_results(

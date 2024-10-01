@@ -64,7 +64,5 @@ class SlackMessage(Step):
                 self.slack_message = self.slack_message.replace("{{" + replacement_key + "}}", str(replacement_value))
 
     def run(self):
-        self.debug(self.inputs)
-            
         response = self.slack_client.chat_postMessage(channel=self.slack_channel, text=self.slack_message)
         return dict(is_slack_message_sent=response.get("ok", False))

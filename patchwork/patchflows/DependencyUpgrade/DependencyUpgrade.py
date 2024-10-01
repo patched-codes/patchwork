@@ -68,8 +68,6 @@ class DependencyUpgrade(Step):
         self.inputs = final_inputs
 
     def run(self) -> dict:
-        self.debug(self.inputs)
-            
         outputs = ScanDepscan(self.inputs).run()
         self.inputs.update(outputs)
         outputs = ExtractPackageManagerFile(self.inputs).run()

@@ -44,8 +44,6 @@ class ReadPRDiffs(Step):
         self.pr = self.scm_client.get_pr_by_url(inputs["pr_url"])
 
     def run(self) -> dict:
-        self.debug(self.inputs)
-            
         pr_texts = self.pr.texts()
         title = pr_texts.get("title", "")
         body = pr_texts.get("body", "")

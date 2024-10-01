@@ -161,9 +161,7 @@ class ExtractPackageManagerFile(Step):
             This method assumes that the SBOM VDR file is correctly formatted and accessible. It also
             assumes that the source files referenced within the SBOM VDR data are accessible for reading.
             The method logs detailed information about its execution status, including any file access issues.
-        """
-        self.debug(self.inputs)
-            
+        """ 
         components = self.sbom_vdr_values.get("components", [])
         # Initialize a dictionary to hold the mapping of purls to SrcFiles
         purl_to_srcfile = {}

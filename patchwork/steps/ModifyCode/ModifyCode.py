@@ -69,8 +69,6 @@ class ModifyCode(Step):
         self.extracted_responses = inputs[self.UPDATED_SNIPPETS_KEY]
 
     def run(self) -> dict:
-        self.debug(self.inputs)
-            
         modified_code_files = []
         sorted_list = sorted(
             zip(self.files_to_patch, self.extracted_responses), key=lambda x: x[0].get("startLine", -1), reverse=True
