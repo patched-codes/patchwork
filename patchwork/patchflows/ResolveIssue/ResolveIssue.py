@@ -27,20 +27,19 @@ _DEFAULT_PROMPT_JSON = Path(__file__).parent / "prompt.json"
 
 class ResolveIssue(Step):
     def __init__(self, inputs: dict):
-        if inputs.get("debug") is None:
-            PatchflowProgressBar(self).register_steps(
-                CallLLM,
-                CommitChanges,
-                CreateIssueComment,
-                CreatePR,
-                ExtractModelResponse,
-                GenerateCodeRepositoryEmbeddings,
-                ModifyCode,
-                PreparePR,
-                PreparePrompt,
-                QueryEmbeddings,
-                ReadIssues,
-            )
+        PatchflowProgressBar(self).register_steps(
+            CallLLM,
+            CommitChanges,
+            CreateIssueComment,
+            CreatePR,
+            ExtractModelResponse,
+            GenerateCodeRepositoryEmbeddings,
+            ModifyCode,
+            PreparePR,
+            PreparePrompt,
+            QueryEmbeddings,
+            ReadIssues,
+        )
         final_inputs = yaml.safe_load(_DEFAULT_INPUT_FILE.read_text())
 
         if final_inputs is None:
@@ -64,7 +63,7 @@ class ResolveIssue(Step):
         self.fix_issue = bool(final_inputs.get("fix_issue", False))
         self.inputs = final_inputs
 
-    def run(self) -> dict:   
+    def run(self) -> dict:
         outputs = GenerateCodeRepositoryEmbeddings(self.inputs).run()
         self.inputs.update(outputs)
 

@@ -47,7 +47,6 @@ def _find_by_prompt_template_file(prompt_template_file: str | None, prompt_id: s
 class PreparePrompt(Step):
     def __init__(self, inputs: dict):
         super().__init__(inputs)
-        self.inputs = inputs
         self.prompt_template = _find_by_prompt_template_file(
             inputs.get(PROMPT_TEMPLATE_FILE_KEY), inputs.get("prompt_id")
         )

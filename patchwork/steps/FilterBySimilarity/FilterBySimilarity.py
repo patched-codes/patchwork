@@ -14,7 +14,6 @@ from patchwork.steps.FilterBySimilarity.typed import (
 class FilterBySimilarity(Step, input_class=FilterBySimilarityInputs, output_class=FilterBySimilarityOutputs):
     def __init__(self, inputs):
         super().__init__(inputs)
-        self.inputs = inputs
 
         self.list = inputs["list"]
         self.keywords = inputs["keywords"]
@@ -34,7 +33,7 @@ class FilterBySimilarity(Step, input_class=FilterBySimilarityInputs, output_clas
 
         return keys
 
-    def run(self):  
+    def run(self):
         if len(self.list) == 0:
             self.set_status(StepStatus.SKIPPED, "List is empty")
             return dict()

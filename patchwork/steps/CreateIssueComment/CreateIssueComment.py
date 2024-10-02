@@ -11,7 +11,6 @@ class CreateIssueComment(Step):
 
     def __init__(self, inputs: dict):
         super().__init__(inputs)
-        self.inputs = inputs
         if not all(key in inputs.keys() for key in self.required_keys):
             raise ValueError(f'Missing required data: "{self.required_keys}"')
 
@@ -29,7 +28,7 @@ class CreateIssueComment(Step):
         self.issue_text = inputs["issue_text"]
         self.issue_url = inputs["issue_url"]
 
-    def run(self) -> dict:   
+    def run(self) -> dict:
         try:
             slug, issue_id = self.scm_client.get_slug_and_id_from_url(self.issue_url)
             url = self.scm_client.create_issue_comment(slug, self.issue_text, issue_id=issue_id)

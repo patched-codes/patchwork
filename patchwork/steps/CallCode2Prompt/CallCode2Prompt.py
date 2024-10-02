@@ -69,7 +69,6 @@ class CallCode2Prompt(Step):
 
     def __init__(self, inputs: dict):
         super().__init__(inputs)
-        self.inputs = inputs
         if not all(key in inputs.keys() for key in self.required_keys):
             raise ValueError(f'Missing required data: "{self.required_keys}"')
 
@@ -87,7 +86,11 @@ class CallCode2Prompt(Step):
             with open(self.code_file_path, "a") as file:
                 pass  # No need to write anything, just create the file if it doesn't exist
 
-    def run(self) -> dict:    
+    @staticmethod
+    def __parse_modes(modes: str) -> list[str]:
+        return [mode.strip() for mode in modes.split(",") if mode.strip() != ""]
+
+    def __get_cmd_args(self, git_ignore_temp_fp) -> list[str]:
         cmd = [
             "code2prompt",
             "--path",

@@ -6,8 +6,7 @@ from patchwork.steps.SimplifiedLLMOncePB.typed import SimplifiedLLMOncePBInputs
 class SimplifiedLLMOncePB(Step, input_class=SimplifiedLLMOncePBInputs):
     def __init__(self, inputs):
         super().__init__(inputs)
-        self.inputs = inputs
-        
+
         self.user = inputs["user_prompt"]
         self.system = inputs.get("system_prompt")
         self.prompt_value = inputs["prompt_value"]
