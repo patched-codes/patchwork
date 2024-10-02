@@ -7,7 +7,6 @@ from patchwork.steps.Combine.typed import CombineInputs
 class Combine(Step):
     def __init__(self, inputs):
         super().__init__(inputs)
-        self.inputs = inputs
         missing_keys = CombineInputs.__required_keys__.difference(inputs.keys())
         if len(missing_keys) > 0:
             raise ValueError(f"Missing required data: {missing_keys}")
@@ -15,7 +14,7 @@ class Combine(Step):
         self.base = inputs["base_json"]
         self.update = inputs["update_json"]
 
-    def run(self):    
+    def run(self):
         base_list = isinstance(self.base, list)
         update_list = isinstance(self.update, list)
         if not base_list and not update_list:

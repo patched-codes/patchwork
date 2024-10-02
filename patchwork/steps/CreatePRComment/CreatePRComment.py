@@ -8,7 +8,6 @@ class CreatePRComment(Step):
 
     def __init__(self, inputs: dict):
         super().__init__(inputs)
-        self.inputs = inputs
         if not all(key in inputs.keys() for key in self.required_keys):
             raise ValueError(f'Missing required data: "{self.required_keys}"')
 
@@ -26,7 +25,7 @@ class CreatePRComment(Step):
         self.pr_comment = inputs["pr_comment"]
         self.noisy = bool(inputs.get("noisy_comments", False))
 
-    def run(self) -> dict:    
+    def run(self) -> dict:
         if not self.noisy:
             self.pr.reset_comments()
 

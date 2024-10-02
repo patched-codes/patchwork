@@ -73,7 +73,6 @@ class ExtractCodeContexts(Step):
 
     def __init__(self, inputs: dict):
         super().__init__(inputs)
-        self.inputs = inputs
         if not all(key in inputs.keys() for key in self.required_keys):
             raise ValueError(f'Missing required data: "{self.required_keys}"')
 

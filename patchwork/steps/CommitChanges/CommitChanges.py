@@ -108,7 +108,6 @@ class CommitChanges(Step):
 
     def __init__(self, inputs: dict):
         super().__init__(inputs)
-        self.inputs = inputs
         if not all(key in inputs.keys() for key in self.required_keys):
             raise ValueError(f'Missing required data: "{self.required_keys}"')
 
@@ -140,7 +139,7 @@ class CommitChanges(Step):
 
         return repo_changed_files
 
-    def run(self) -> dict:   
+    def run(self) -> dict:
         cwd = Path.cwd()
         repo = git.Repo(cwd, search_parent_directories=True)
         repo_dir_path = Path(repo.working_tree_dir)

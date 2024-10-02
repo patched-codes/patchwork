@@ -24,17 +24,16 @@ _DEFAULT_INPUT_FILE = Path(__file__).parent / "defaults.yml"
 
 class GenerateREADME(Step):
     def __init__(self, inputs: dict):
-        if inputs.get("debug") is None:
-            PatchflowProgressBar(self).register_steps(
-                CallCode2Prompt,
-                CallLLM,
-                CommitChanges,
-                CreatePR,
-                ExtractModelResponse,
-                ModifyCode,
-                PreparePR,
-                PreparePrompt,
-            )
+        PatchflowProgressBar(self).register_steps(
+            CallCode2Prompt,
+            CallLLM,
+            CommitChanges,
+            CreatePR,
+            ExtractModelResponse,
+            ModifyCode,
+            PreparePR,
+            PreparePrompt,
+        )
         final_inputs = yaml.safe_load(_DEFAULT_INPUT_FILE.read_text())
         final_inputs.update(inputs)
 

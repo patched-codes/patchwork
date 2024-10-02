@@ -18,7 +18,6 @@ class CreatePR(Step):
 
     def __init__(self, inputs: dict):
         super().__init__(inputs)
-        self.inputs = inputs
         if not all(key in inputs.keys() for key in self.required_keys):
             raise ValueError(f'Missing required data: "{self.required_keys}"')
 
@@ -69,7 +68,7 @@ class CreatePR(Step):
         logger.debug(f"Pushed to {self.original_remote_name}/{self.target_branch}")
         return is_push_success
 
-    def run(self) -> dict:    
+    def run(self) -> dict:
         repo = git.Repo(Path.cwd(), search_parent_directories=True)
         if not self.enabled:
             if (

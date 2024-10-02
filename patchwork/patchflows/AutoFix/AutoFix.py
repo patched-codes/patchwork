@@ -43,18 +43,17 @@ class Compatibility(IntEnum):
 
 class AutoFix(Step):
     def __init__(self, inputs: dict):
-        if inputs.get("debug") is None:
-            PatchflowProgressBar(self).register_steps(
-                CallLLM,
-                CommitChanges,
-                CreatePR,
-                ExtractCode,
-                ExtractModelResponse,
-                ModifyCode,
-                PreparePR,
-                PreparePrompt,
-                ScanSemgrep,
-            )
+        PatchflowProgressBar(self).register_steps(
+            CallLLM,
+            CommitChanges,
+            CreatePR,
+            ExtractCode,
+            ExtractModelResponse,
+            ModifyCode,
+            PreparePR,
+            PreparePrompt,
+            ScanSemgrep,
+        )
         final_inputs = yaml.safe_load(_DEFAULT_INPUT_FILE.read_text())
         final_inputs.update(inputs)
 

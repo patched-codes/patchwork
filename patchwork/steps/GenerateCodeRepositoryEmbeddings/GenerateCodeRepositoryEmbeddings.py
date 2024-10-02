@@ -46,7 +46,6 @@ class GenerateCodeRepositoryEmbeddings(Step):
 
     def __init__(self, inputs: dict):
         super().__init__(inputs)
-        self.inputs = inputs
         if not all(key in inputs.keys() for key in self.required_keys):
             raise ValueError(f'Missing required data: "{self.required_keys}"')
 
@@ -54,7 +53,7 @@ class GenerateCodeRepositoryEmbeddings(Step):
         self.disable_cache = inputs.get("disable_cache", False)
         self.inputs = inputs
 
-    def run(self) -> dict: 
+    def run(self) -> dict:
         cwd = Path.cwd()
         base_embedding_name = cwd.name
         embedding_name = base_embedding_name

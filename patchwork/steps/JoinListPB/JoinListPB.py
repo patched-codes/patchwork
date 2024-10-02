@@ -6,7 +6,6 @@ from patchwork.steps.JoinListPB.typed import JoinListPBInputs, JoinListPBOutputs
 class JoinListPB(Step, input_class=JoinListPBInputs, output_class=JoinListPBOutputs):
     def __init__(self, inputs):
         super().__init__(inputs)
-        self.inputs = inputs
 
         self.key = inputs["key"]
         self.list = inputs["list"]

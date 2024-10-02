@@ -10,7 +10,6 @@ from patchwork.step import Step, StepStatus
 class ScanSemgrep(Step):
     def __init__(self, inputs: dict):
         super().__init__(inputs)
-        self.inputs = inputs
 
         self.extra_args = inputs.get("semgrep_extra_args", "")
         sarif_file_path = inputs.get("sarif_file_path")

@@ -71,7 +71,6 @@ class ScanDepscan(Step):
         - Depending on system configuration, administrative privileges may be required to install global npm packages.
         """
         super().__init__(inputs)
-        self.inputs = inputs
         import_with_dependency_group("depscan")
         install_cdxgen()
 
@@ -103,7 +102,6 @@ class ScanDepscan(Step):
         - The caller is responsible for ensuring that the 'depscan' tool can run successfully and that the specified
         temporary directory exists and is writable.
         """
-            
         # Generate a unique temporary file path
         with tempfile.TemporaryDirectory() as temp_file_path:
             cmd = [

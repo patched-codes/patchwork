@@ -31,7 +31,6 @@ class _InnerCallLLMResponse:
 class CallLLM(Step, input_class=CallLLMInputs, output_class=CallLLMOutputs):
     def __init__(self, inputs: dict):
         super().__init__(inputs)
-        self.inputs = inputs
         # Set 'openai_key' from inputs or environment if not already set
         inputs.setdefault("openai_api_key", os.environ.get("OPENAI_API_KEY"))
 
@@ -108,7 +107,7 @@ class CallLLM(Step, input_class=CallLLMInputs, output_class=CallLLMOutputs):
                 }
                 f.write(json.dumps(data) + "\n")
 
-    def run(self) -> dict:   
+    def run(self) -> dict:
         prompt_length = len(self.prompts)
         if prompt_length == 0:
             self.set_status(StepStatus.SKIPPED, "No prompts to process")

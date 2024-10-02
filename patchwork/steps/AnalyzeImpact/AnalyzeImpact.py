@@ -83,7 +83,7 @@ class AnalyzeImpact(Step):
 
         self.inputs = inputs
 
-    def run(self) -> dict:    
+    def run(self) -> dict:
         extracted_responses = self.inputs["extracted_responses"]
         if len(extracted_responses) == 0:
             self.set_status(StepStatus.SKIPPED, "No extracted responses found")

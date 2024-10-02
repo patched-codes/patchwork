@@ -16,7 +16,6 @@ class CreateIssue(Step):
 
     def __init__(self, inputs: dict):
         super().__init__(inputs)
-        self.inputs = inputs
         if not all(key in inputs.keys() for key in self.required_keys):
             raise ValueError(f'Missing required data: "{self.required_keys}"')
 
@@ -33,7 +32,7 @@ class CreateIssue(Step):
         self.issue_title = inputs["issue_title"]
         self.issue_text = inputs["issue_text"]
 
-    def run(self) -> dict:    
+    def run(self) -> dict:
         repo = git.Repo(Path.cwd(), search_parent_directories=True)
 
         original_remote_name = "origin"

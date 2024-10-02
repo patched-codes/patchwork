@@ -32,15 +32,14 @@ _SUMMARY_LEVEL = {
 
 class PRReview(Step):
     def __init__(self, inputs: dict):
-        if inputs.get("debug") is None:
-            PatchflowProgressBar(self).register_steps(
-                CallLLM,
-                CreatePRComment,
-                ExtractModelResponse,
-                PreparePR,
-                PreparePrompt,
-                ReadPRDiffs,
-            )
+        PatchflowProgressBar(self).register_steps(
+            CallLLM,
+            CreatePRComment,
+            ExtractModelResponse,
+            PreparePR,
+            PreparePrompt,
+            ReadPRDiffs,
+        )
         final_inputs = yaml.safe_load(_DEFAULT_INPUT_FILE.read_text())
         final_inputs.update(inputs)
 

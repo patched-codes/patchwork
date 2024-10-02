@@ -7,8 +7,6 @@ from patchwork.steps.SimplifiedLLMOnce.typed import SimplifiedLLMOnceInputs
 class SimplifiedLLMOnce(Step):
     def __init__(self, inputs):
         super().__init__(inputs)
-        self.inputs = inputs
-        self.inputs = inputs
         missing_keys = SimplifiedLLMOnceInputs.__required_keys__.difference(set(inputs.keys()))
         if len(missing_keys) > 0:
             raise ValueError(f'Missing required data: "{missing_keys}"')
