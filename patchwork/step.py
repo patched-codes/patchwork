@@ -50,6 +50,9 @@ class Step(abc.ABC):
             missing_keys = self.__input_class.__required_keys__.difference(inputs.keys())
             if len(missing_keys) > 0:
                 raise ValueError(f"Missing required data: {list(missing_keys)}")
+            
+        # store the inputs
+        self.inputs = inputs
 
         # record step name for later use
         self.__step_name = self.__class__.__name__
@@ -77,8 +80,8 @@ class Step(abc.ABC):
             cls.__output_class = None
 
     def __managed_run(self, *args, **kwargs) -> Any:
+        self.debug(self.inputs)
         logger.info(f"Run started {self.__step_name}")
-
         exc = None
         try:
             output = self.original_run(*args, **kwargs)
@@ -156,5 +159,4 @@ class Step(abc.ABC):
         Runs the step.
         :return: a dictionary of outputs
         """
-        self.debug(self.inputs)
         ...
