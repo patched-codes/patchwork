@@ -7,9 +7,12 @@ __DEPENDENCY_GROUPS = {
     "notification": ["slack_sdk"],
 }
 
+__ALLOWED_MODULES = {dep for group in __DEPENDENCY_GROUPS.values() for dep in group}
 
 @lru_cache(maxsize=None)
 def import_with_dependency_group(name):
+    if name not in __ALLOWED_MODULES:
+        raise ImportError(f"Module {name} is not allowed for import.")
     try:
         return importlib.import_module(name)
     except ImportError:
