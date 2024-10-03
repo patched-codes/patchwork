@@ -57,7 +57,7 @@ def get_source_code_contexts(
         for i in range(len(positions) - 1):
             if i in del_idxs:
                 continue
-            for j in range(i + 1, len(positions) - 1):
+            for j in range(i + 1, len(positions)):
                 if positions[i].end < positions[j].start:
                     break
                 del_idxs.append(j)

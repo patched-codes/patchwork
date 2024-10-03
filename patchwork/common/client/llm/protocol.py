@@ -58,9 +58,11 @@ class LlmClient(Protocol):
 
         if last_message is not None:
 
-            def direction_callback(message: str) -> int:
+            def direction_callback(message_to_test: str) -> int:
+                current_messages = truncated_messages.copy()
+                current_messages.append({"content": message_to_test})
                 # add 500 as a safety margin
-                return client.is_prompt_supported([{"content": message}], model) - safety_margin
+                return client.is_prompt_supported(current_messages, model) - safety_margin
 
             last_message["content"] = LlmClient.__truncate_message(
                 message=last_message["content"],
