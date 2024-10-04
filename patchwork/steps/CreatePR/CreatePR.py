@@ -81,7 +81,7 @@ class CreatePR(Step):
                         StepStatus.FAILED,
                         f"Failed to push to {self.original_remote_name}/{self.target_branch}. Skipping PR creation.",
                     )
-                    return dict()
+                return dict()
 
             self.set_status(StepStatus.WARNING, "PR creation is disabled. Skipping PR creation.")
             logger.warning(f"PR creation is disabled. Skipping PR creation.")
