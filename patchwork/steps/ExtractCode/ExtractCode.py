@@ -253,7 +253,7 @@ def transform_sarif_results(
                 fix_messages = ""
                 fix_message_delimiter = "\n- "
                 for fix in result.get("fixes", []):
-                    fix_msg = fix.get("description", {}).get("text")
+                    fix_msg = fix.get("description", {}).get("text", "")
                     fix_messages = fix_messages + fix_message_delimiter + fix_msg
 
                 start = context_start if context_start is not None else start_line
@@ -262,8 +262,7 @@ def transform_sarif_results(
                 if fix_messages.strip() != "":
                     msg = (
                         f"{msg}\n"
-                        "Suggested fixes:\n"
-                        f"{fix_messages}"
+                        f"Suggested fixes:{fix_messages}"
                     )
                 grouped_messages[(file_path, start, end, source_code_context)].append(msg)
 
