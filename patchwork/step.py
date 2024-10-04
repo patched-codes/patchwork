@@ -124,7 +124,7 @@ class Step(abc.ABC):
             return key
         
     def debug(self, inputs):
-        if inputs.get("debug") is None: 
+        if inputs.get("debug") is None or inputs.get("debug") is False: 
             return
         logger.info("\nInputs:")
         MAX_LENGTH = 1000 # Max limit to print inputs

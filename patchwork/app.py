@@ -227,24 +227,12 @@ def cli(
         else:
             # treat --key=value as a key-value pair
             inputs[key] = value
+    
+    patchflow_panel = nullcontext() if debug  else logger.panel(f"Patchflow {patchflow} inputs")
 
-    if debug: 
-        logger.info("DEBUGGING ENABLED. INPUTS WILL BE SHOWN BEFORE EACH STEP BEFORE PROCEEDING TO RUN IT.")
-        try:
-            patched = PatchedClient(inputs.get("patched_api_key"))
-            if not disable_telemetry:
-                patched.send_public_telemetry(patchflow_name, inputs)
-
-            with patched.patched_telemetry(patchflow_name, {}):
-                patchflow_instance = patchflow_class(inputs)
-                patchflow_instance.run()
-        except Exception as e:
-            logger.debug(traceback.format_exc())
-            logger.error(f"Error running patchflow {patchflow}: {e}")
-            exit(1)
-    else:
-        with logger.panel(f"Patchflow {patchflow} logs") as _:
-            logger.info("DEBUGGING ENABLED. INPUTS WILL BE SHOWN BEFORE EACH STEP BEFORE PROCEEDING TO RUN IT.")
+    with patchflow_panel as _:
+            if debug is True:
+                logger.info("DEBUGGING ENABLED. INPUTS WILL BE SHOWN BEFORE EACH STEP BEFORE PROCEEDING TO RUN IT.")
             try:
                 patched = PatchedClient(inputs.get("patched_api_key"))
                 if not disable_telemetry:
