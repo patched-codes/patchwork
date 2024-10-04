@@ -64,4 +64,73 @@ def test_extract_code_run(extract_code_instance, tmp_path):
         assert output_data[0]["startLine"] == 0
         assert output_data[0]["endLine"] == 1
         assert output_data[0]["affectedCode"] == "print('Hello, world!')"
-        assert output_data[0]["messageText"] == "Error message"
+        assert output_data[0]["messageText"] == "Issue Description: Error message"
+
+
+@pytest.fixture
+def extract_code_instance_with_fix(tmp_path):
+    original_dir = Path.cwd()
+
+    os.chdir(tmp_path)
+
+    test_file = tmp_path / "test.py"
+    test_file.write_text("print('Hello, world!')")
+
+    inputs = {
+        "sarif_values": {
+            "runs": [
+                {
+                    "results": [
+                        {
+                            "fixes": [
+                                {
+                                    "description": {
+                                        "text": "Fix here"
+                                    }
+                                },
+                                {
+                                    "description": {
+                                        "text": "Fix there"
+                                    }
+                                }
+                            ],
+                            "message": {"text": "Error message"},
+                            "ruleId": "1",
+                            "locations": [
+                                {
+                                    "physicalLocation": {
+                                        "artifactLocation": {"uri": str(test_file)},
+                                        "region": {"startLine": 1, "endLine": 1},
+                                    }
+                                }
+                            ],
+                        }
+                    ],
+                    "tool": {"driver": {"rules": [{"id": "1", "defaultConfiguration": {"level": "high"}}]}},
+                }
+            ],
+        },
+        "context_size": 1000,
+        "vulnerability_limit": 10,
+        "severity": "HIGH",
+    }
+    yield ExtractCode(inputs)
+    os.chdir(original_dir)
+
+
+def test_extract_code_run_with_fix(extract_code_instance_with_fix, tmp_path):
+    # Run the extract code step
+    result = extract_code_instance_with_fix.run()
+
+    assert result.keys() == {"files_to_patch"}
+    for output_data in result.values():
+        assert len(output_data) == 1
+        assert output_data[0]["uri"] == "test.py"
+        assert output_data[0]["startLine"] == 0
+        assert output_data[0]["endLine"] == 1
+        assert output_data[0]["affectedCode"] == "print('Hello, world!')"
+        assert output_data[0]["messageText"] == """\
+Issue Description: Error message
+Suggested fixes:
+- Fix here
+- Fix there"""

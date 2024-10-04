@@ -250,12 +250,21 @@ def transform_sarif_results(
                     logger.debug(f"No context found for {file_path} at {start_line}:{end_line}")
                     continue
 
+                fix_messages = ""
+                fix_message_delimiter = "\n- "
+                for fix in result.get("fixes", []):
+                    fix_msg = fix.get("description", {}).get("text", "")
+                    fix_messages = fix_messages + fix_message_delimiter + fix_msg
+
                 start = context_start if context_start is not None else start_line
                 end = context_end if context_end is not None else end_line
-
-                grouped_messages[(file_path, start, end, source_code_context)].append(
-                    result.get("message", {}).get("text", "")
-                )
+                msg = f"Issue Description: {result.get('message', {}).get('text', '')}"
+                if fix_messages.strip() != "":
+                    msg = (
+                        f"{msg}\n"
+                        f"Suggested fixes:{fix_messages}"
+                    )
+                grouped_messages[(file_path, start, end, source_code_context)].append(msg)
 
                 vulnerability_count = vulnerability_count + 1
                 if 0 < vulnerability_limit <= vulnerability_count:
@@ -298,7 +307,7 @@ class ExtractCode(Step):
                 "startLine": start,
                 "endLine": end,
                 "affectedCode": context,
-                "messageText": "\n".join(msgs),
+                "messageText": "\n\n".join(msgs),
             }
             for (file_path, start, end, context), msgs in grouped_messages.items()
         ]
