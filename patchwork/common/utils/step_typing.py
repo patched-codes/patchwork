@@ -106,8 +106,13 @@ def validate_step_type_config_with_inputs(
 
 
 def validate_step_with_inputs(input_keys: Set[str], step: Type[Step]) -> Tuple[Set[str], Dict[str, str]]:
+    trusted_modules = {"trusted_module_1", "trusted_module_2"}  # Add trusted module names here
     module_path, _, _ = step.__module__.rpartition(".")
     step_name = step.__name__
+    
+    if module_path not in trusted_modules:
+        raise ValueError("Attempt to load an untrusted module.")
+
     type_module = importlib.import_module(f"{module_path}.typed")
     step_input_model = getattr(type_module, f"{step_name}Inputs", __NOT_GIVEN)
     step_output_model = getattr(type_module, f"{step_name}Outputs", __NOT_GIVEN)
