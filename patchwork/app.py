@@ -8,6 +8,7 @@ import traceback
 from collections import deque
 from pathlib import Path
 from typing import Any
+from contextlib import nullcontext
 
 import click
 import yaml
@@ -129,8 +130,7 @@ def setup_cli():
         ],
         case_sensitive=False,
     ),
-    is_eager=True,
-    callback=lambda x, y, z: init_cli_logger(z),
+    is_eager=True
 )
 @click.argument("patchflow", nargs=1, required=True)
 @click.argument("opts", nargs=-1, type=click.UNPROCESSED, required=False)
@@ -144,6 +144,7 @@ def setup_cli():
 )
 @click.option("patched_api_key", "--patched_api_key", help="API key to use with the patched.codes service.")
 @click.option("disable_telemetry", "--disable_telemetry", is_flag=True, help="Disable telemetry.", default=False)
+@click.option("debug", "--debug", is_flag=True, help="Enable debug mode.", default=False)
 def cli(
     log: str,
     patchflow: str,
@@ -153,8 +154,11 @@ def cli(
     data_format: str,
     patched_api_key: str | None,
     disable_telemetry: bool,
+    debug: bool
 ):
     setup_cli()
+
+    init_cli_logger(log)
 
     if "::" in patchflow:
         module_path, _, patchflow_name = patchflow.partition("::")
@@ -164,7 +168,9 @@ def cli(
 
     possbile_module_paths = deque((module_path,))
 
-    with logger.panel("Initializing Patchwork CLI"):
+    panel = logger.panel("Initializing Patchwork CLI") if debug else nullcontext()
+    
+    with panel:
         inputs = {}
         if patched_api_key is not None:
             inputs["patched_api_key"] = patched_api_key
@@ -203,6 +209,9 @@ def cli(
                 logger.error(f"Config path {config} is neither a file nor a directory")
                 exit(1)
 
+        if debug:
+            inputs["debug"] = True
+
         patchflow_class = find_patchflow(possbile_module_paths, patchflow_name)
         if patchflow_class is None:
             logger.error(f"Patchflow {patchflow_name} not found in {possbile_module_paths}")
@@ -218,20 +227,24 @@ def cli(
         else:
             # treat --key=value as a key-value pair
             inputs[key] = value
+    
+    patchflow_panel = nullcontext() if debug  else logger.panel(f"Patchflow {patchflow} inputs")
 
-    with logger.panel(f"Patchflow {patchflow} logs") as _:
-        try:
-            patched = PatchedClient(inputs.get("patched_api_key"))
-            if not disable_telemetry:
-                patched.send_public_telemetry(patchflow_name, inputs)
+    with patchflow_panel as _:
+            if debug is True:
+                logger.info("DEBUGGING ENABLED. INPUTS WILL BE SHOWN BEFORE EACH STEP BEFORE PROCEEDING TO RUN IT.")
+            try:
+                patched = PatchedClient(inputs.get("patched_api_key"))
+                if not disable_telemetry:
+                    patched.send_public_telemetry(patchflow_name, inputs)
 
-            with patched.patched_telemetry(patchflow_name, {}):
-                patchflow_instance = patchflow_class(inputs)
-                patchflow_instance.run()
-        except Exception as e:
-            logger.debug(traceback.format_exc())
-            logger.error(f"Error running patchflow {patchflow}: {e}")
-            exit(1)
+                with patched.patched_telemetry(patchflow_name, {}):
+                    patchflow_instance = patchflow_class(inputs)
+                    patchflow_instance.run()
+            except Exception as e:
+                logger.debug(traceback.format_exc())
+                logger.error(f"Error running patchflow {patchflow}: {e}")
+                exit(1)
 
     if output is not None:
         serialize = _DATA_FORMAT_MAPPING.get(data_format, json.dumps)

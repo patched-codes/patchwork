@@ -1,4 +1,15 @@
 import abc
+from enum import Flag, auto
+import sys
+import os
+
+# modules required for keyboard input
+if os.name == 'nt':  # in case of windows
+    import msvcrt
+else: # for unix based systems
+    import termios
+    import tty
+
 from enum import Enum
 
 from typing_extensions import Any, Dict, List, Optional, Union, is_typeddict
@@ -39,6 +50,9 @@ class Step(abc.ABC):
             missing_keys = self.__input_class.__required_keys__.difference(inputs.keys())
             if len(missing_keys) > 0:
                 raise ValueError(f"Missing required data: {list(missing_keys)}")
+            
+        # store the inputs
+        self.inputs = inputs
 
         # record step name for later use
         self.__step_name = self.__class__.__name__
@@ -66,8 +80,8 @@ class Step(abc.ABC):
             cls.__output_class = None
 
     def __managed_run(self, *args, **kwargs) -> Any:
+        self.debug(self.inputs)
         logger.info(f"Run started {self.__step_name}")
-
         exc = None
         try:
             output = self.original_run(*args, **kwargs)
@@ -90,11 +104,47 @@ class Step(abc.ABC):
     def set_status(self, status: StepStatus, msg: Optional[str] = None):
         if status not in StepStatus.values():
             raise ValueError(f"Invalid status: {status}")
-
+        self.__status = status
+        self.__status_msg = msg
         if status.priority >= self.__status.priority:
             self.__status = status
             self.__status_msg = msg
 
+    def get_key(self):
+        if os.name == 'nt':  # Windows
+            return msvcrt.getch().decode('utf-8')
+        else:  # Linux / macOS
+            fd = sys.stdin.fileno()
+            old_settings = termios.tcgetattr(fd)
+            try:
+                tty.setraw(sys.stdin.fileno())
+                key = sys.stdin.read(1)
+            finally:
+                termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+            return key
+        
+    def debug(self, inputs):
+        if inputs.get("debug") is None or inputs.get("debug") is False: 
+            return
+        logger.info("\nInputs:")
+        MAX_LENGTH = 1000 # Max limit to print inputs
+        printed_chars = 0
+        for key, value in inputs.items():
+            input_val = f"{key}: {value}"
+            if printed_chars + len(input_val) > MAX_LENGTH:
+                continue
+            else:
+                printed_chars += len(input_val)
+                logger.info(input_val)
+        logger.info("\n")
+        logger.info("Press enter to continue, any other key to exit...\n")
+        key = self.get_key()
+        if key == "\n" or key == "\r":
+            logger.info("Continuing...\n")
+        else:
+            logger.info("Exiting...\n")
+            exit()
+        
     @property
     def status(self) -> StepStatus:
         return self.__status
