@@ -32,7 +32,7 @@ fix_issue: true
 You can choose any LLM API as long as it has an OpenAI API compatible chat completions endpoint. Just update the default values of the following options:
 
 ```yaml
-model: gpt-3.5-turbo
+model: gpt-4o
 client_base_url: https://api.openai.com/v1
 ```
 

@@ -14,7 +14,7 @@ by default you will need to provide the `openai_api_key` and the `github_api_key
 
 ## What it does?
 
-The GenerateDocstring patchflow starts from a `base_path` (default is the current directory), recursively traverse the directory to extract methods from the source code files. It will then use them to create a prompt to be sent to `gpt-3.5-turbo` to update the source code with the docstrings. You can check the default [prompt template](./prompt.json). The udpated files are then committed to the repository under a new branch and finally a pull request is created for the user to review and merge the changes. 
+The GenerateDocstring patchflow starts from a `base_path` (default is the current directory), recursively traverse the directory to extract methods from the source code files. It will then use them to create a prompt to be sent to `gpt-4o` to update the source code with the docstrings. You can check the default [prompt template](./prompt.json). The udpated files are then committed to the repository under a new branch and finally a pull request is created for the user to review and merge the changes. 
 
 ## Configuration
 
@@ -25,7 +25,7 @@ The following are the default configurations that can be modified by the user to
 You can choose any LLM API as long as it has an OpenAI API compatible chat completions endpoint. Just update the default values of the following options:
 
 ```yaml
-- model: gpt-3.5-turbo
+- model: gpt-4o
 - client_base_url: https://api.openai.com/v1
 ```
 
