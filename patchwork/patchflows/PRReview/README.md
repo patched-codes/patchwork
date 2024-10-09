@@ -14,7 +14,7 @@ by default you will need to provide the `openai_api_key` and the `github_api_key
 
 ## What it does?
 
-The PRReview patchflow will first read the PR. It will then extract the diff from the PR and use it to create a prompt to be sent to `gpt-3.5-turbo` to create a summary. You can check the default [prompt template](./pr_review_prompt.json). The PR summary is then added as a comment to the PR.
+The PRReview patchflow will first read the PR. It will then extract the diff from the PR and use it to create a prompt to be sent to `gpt-4o` to create a summary. You can check the default [prompt template](./pr_review_prompt.json). The PR summary is then added as a comment to the PR.
 
 ## Configuration
 
@@ -25,7 +25,7 @@ The following are the default configurations that can be modified by the user to
 You can choose any LLM API as long as it has an OpenAI API compatible chat completions endpoint. Just update the default values of the following options:
 
 ```yaml
-- model: gpt-3.5-turbo
+- model: gpt-4o
 - client_base_url: https://api.openai.com/v1
 ```
 

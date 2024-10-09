@@ -13,7 +13,7 @@ fix_issue: false
 # openai_api_key: required-for-openai
 # google_api_key: required-for-google
 # client_base_url: https://api.openai.com/v1
-# model: gpt-3.5-turbo
+# model: gpt-4o
 
 # CommitChanges Inputs
 disable_branch: false
