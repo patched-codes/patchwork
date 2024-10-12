@@ -131,7 +131,7 @@ class Step(abc.ABC):
         printed_chars = 0
         for key, value in inputs.items():
             if "api_key" in key.lower():
-                continue 
+                value = "*" * len(value)
             input_val = f"{key}: {value}"
             if printed_chars + len(input_val) > MAX_LENGTH:
                 continue
