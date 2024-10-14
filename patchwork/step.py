@@ -131,10 +131,7 @@ class Step(abc.ABC):
         printed_chars = 0
         for key, value in inputs.items():
             if "api_key" in key.lower():
-                if len(value) >= 24:
-                    value = f"{value[:4]}{'*' * (len(value) - 8)}{value[-4:]}"
-                else:
-                    value = "*" * len(value)
+               value = "<masked api key>"
             input_val = f"{key}: {value}"
             if printed_chars + len(input_val) > MAX_LENGTH:
                 continue
