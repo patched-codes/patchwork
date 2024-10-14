@@ -130,6 +130,8 @@ class Step(abc.ABC):
         MAX_LENGTH = 1000 # Max limit to print inputs
         printed_chars = 0
         for key, value in inputs.items():
+            if "api_key" in key.lower():
+               value = "<masked api key>"
             input_val = f"{key}: {value}"
             if printed_chars + len(input_val) > MAX_LENGTH:
                 continue
