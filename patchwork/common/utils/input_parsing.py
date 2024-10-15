@@ -1,0 +1,63 @@
+from __future__ import annotations
+from typing_extensions import Union, AnyStr
+from collections.abc import Iterable, Mapping
+
+__ITEM_TYPE = Union[AnyStr, Mapping]
+
+def __parse_to_list_handle_str(input_value: AnyStr, possible_delimiters: Iterable[AnyStr | None]) -> list[str]:
+    for possible_delimiter in possible_delimiters:
+        if possible_delimiter is None:
+            return input_value.strip()
+
+        if possible_delimiter in input_value:
+            return input_value.split(possible_delimiter)
+
+    return []
+
+def __parse_to_list_handle_dict(input_value: Mapping, possible_keys: Iterable[AnyStr | None]) -> list[str]:
+    for possible_key in possible_keys:
+        if input_value.get(possible_key) is not None:
+            return input_value.get(possible_key)
+
+    return []
+
+def __parse_to_list_handle_iterable(input_value: Iterable[__ITEM_TYPE], possible_keys: Iterable[AnyStr | None]) -> list[str]:
+    rv = []
+    for item in input_value:
+        if isinstance(item, dict):
+            for possible_key in possible_keys:
+                if item.get(possible_key) is not None:
+                    rv.append(item.get(possible_key))
+        else:
+            rv.append(item)
+
+    return rv
+
+def parse_to_list(
+        input_value: __ITEM_TYPE | Iterable[__ITEM_TYPE],
+        possible_delimiters: Iterable[AnyStr | None] | None = None ,
+        possible_keys: Iterable[AnyStr | None] | None = None
+) -> list[str]:
+    if len(input_value) < 1:
+        return []
+
+    if possible_delimiters is None:
+        possible_delimiters = []
+    if possible_keys is None:
+        possible_keys = []
+
+    value_to_parse = []
+    if isinstance(value_to_parse, dict):
+        value_to_parse = __parse_to_list_handle_dict(input_value, possible_keys)
+    elif isinstance(value_to_parse, str):
+        value_to_parse = __parse_to_list_handle_str(value_to_parse, possible_delimiters)
+    elif isinstance(value_to_parse, Iterable):
+        value_to_parse = __parse_to_list_handle_iterable(input_value, possible_keys)
+
+    rv = []
+    for value in value_to_parse:
+        stripped_value = value.strip()
+        if stripped_value == "":
+            continue
+        rv.append(stripped_value)
+    return rv

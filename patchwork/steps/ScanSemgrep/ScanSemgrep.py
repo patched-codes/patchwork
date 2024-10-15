@@ -3,11 +3,13 @@ import subprocess
 from pathlib import Path
 
 from patchwork.common.utils.dependency import import_with_dependency_group
+from patchwork.common.utils.input_parsing import parse_to_list
 from patchwork.logger import logger
 from patchwork.step import Step, StepStatus
+from patchwork.steps.ScanSemgrep.typed import ScanSemgrepOutputs, ScanSemgrepInputs
 
 
-class ScanSemgrep(Step):
+class ScanSemgrep(Step, input_class=ScanSemgrepInputs, output_class=ScanSemgrepOutputs):
     def __init__(self, inputs: dict):
         super().__init__(inputs)
 
@@ -27,6 +29,8 @@ class ScanSemgrep(Step):
         else:
             self.sarif_values = None
 
+        self.paths = parse_to_list(inputs.get("paths", ""), possible_delimiters=[",", None], possible_keys=["path"])
+
     def run(self) -> dict:
         if self.sarif_values is not None:
             self.set_status(StepStatus.SKIPPED, "Using provided SARIF")
@@ -37,6 +41,8 @@ class ScanSemgrep(Step):
 
         cmd = [
             "semgrep",
+            "scan",
+            *self.paths,
             *self.extra_args.split(),
             "--sarif",
         ]
