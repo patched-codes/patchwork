@@ -60,6 +60,9 @@ def list_option_callback(ctx: click.Context, param: click.Parameter, value: str 
 
 
 def find_patchflow(possible_module_paths: Iterable[str], patchflow: str) -> Any | None:
+    # Define a whitelist of allowed modules
+    allowed_modules = {'allowed_module1', 'allowed_module2', 'allowed_module3'}
+    
     for module_path in possible_module_paths:
         try:
             spec = importlib.util.spec_from_file_location("custom_module", module_path)
@@ -72,14 +75,17 @@ def find_patchflow(possible_module_paths: Iterable[str], patchflow: str) -> Any 
         except Exception:
             logger.debug(f"Patchflow {patchflow} not found as a file/directory in {module_path}")
 
-        try:
-            module = importlib.import_module(module_path)
-            logger.info(f"Patchflow {patchflow} loaded from {module_path}")
-            return getattr(module, patchflow)
-        except ModuleNotFoundError:
-            logger.debug(f"Patchflow {patchflow} not found as a module in {module_path}")
-        except AttributeError:
-            logger.debug(f"Patchflow {patchflow} not found in {module_path}")
+        if module_path in allowed_modules:
+            try:
+                module = importlib.import_module(module_path)
+                logger.info(f"Patchflow {patchflow} loaded from {module_path}")
+                return getattr(module, patchflow)
+            except ModuleNotFoundError:
+                logger.debug(f"Patchflow {patchflow} not found as a module in {module_path}")
+            except AttributeError:
+                logger.debug(f"Patchflow {patchflow} not found in {module_path}")
+        else:
+            logger.debug(f"Module {module_path} is not in the whitelist and will not be imported")
 
     return None
 
