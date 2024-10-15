@@ -7,7 +7,7 @@ __ITEM_TYPE = Union[AnyStr, Mapping]
 def __parse_to_list_handle_str(input_value: AnyStr, possible_delimiters: Iterable[AnyStr | None]) -> list[str]:
     for possible_delimiter in possible_delimiters:
         if possible_delimiter is None:
-            return input_value.strip()
+            return input_value.split()
 
         if possible_delimiter in input_value:
             return input_value.split(possible_delimiter)
