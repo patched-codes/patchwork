@@ -47,11 +47,11 @@ def parse_to_list(
         possible_keys = []
 
     value_to_parse = []
-    if isinstance(value_to_parse, dict):
+    if isinstance(input_value, dict):
         value_to_parse = __parse_to_list_handle_dict(input_value, possible_keys)
-    elif isinstance(value_to_parse, str):
-        value_to_parse = __parse_to_list_handle_str(value_to_parse, possible_delimiters)
-    elif isinstance(value_to_parse, Iterable):
+    elif isinstance(input_value, str):
+        value_to_parse = __parse_to_list_handle_str(input_value, possible_delimiters)
+    elif isinstance(input_value, Iterable):
         value_to_parse = __parse_to_list_handle_iterable(input_value, possible_keys)
 
     rv = []
