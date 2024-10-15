@@ -29,7 +29,8 @@ class ScanSemgrep(Step, input_class=ScanSemgrepInputs, output_class=ScanSemgrepO
         else:
             self.sarif_values = None
 
-        self.paths = parse_to_list(inputs.get("paths", ""), possible_delimiters=[",", None], possible_keys=["path"])
+        path_key = inputs.get("path_key", "path")
+        self.paths = parse_to_list(inputs.get("paths", ""), possible_delimiters=[",", None], possible_keys=[path_key])
 
     def run(self) -> dict:
         if self.sarif_values is not None:
