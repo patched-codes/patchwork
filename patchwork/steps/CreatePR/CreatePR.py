@@ -120,6 +120,7 @@ def push(repo: git.Repo, args) -> bool:
     except GitCommandError as e:
         logger.error("Git command failed with:")
         logger.error(e.stdout)
+        logger.error(e.stderr)
         pass
 
     freeze_func = getattr(logger, "freeze", None)
@@ -133,6 +134,7 @@ def push(repo: git.Repo, args) -> bool:
     except GitCommandError as e:
         logger.error("Git command failed with:")
         logger.error(e.stdout)
+        logger.error(e.stderr)
         pass
 
     return False
