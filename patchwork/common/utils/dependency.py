@@ -10,6 +10,11 @@ __DEPENDENCY_GROUPS = {
 
 @lru_cache(maxsize=None)
 def import_with_dependency_group(name):
+    allowed_modules = {dep for deps in __DEPENDENCY_GROUPS.values() for dep in deps}
+    
+    if name not in allowed_modules:
+        raise ImportError(f"Importing of the module '{name}' is not allowed.")
+    
     try:
         return importlib.import_module(name)
     except ImportError:
@@ -28,3 +33,4 @@ def chromadb():
 
 def slack_sdk():
     return import_with_dependency_group("slack_sdk")
+
