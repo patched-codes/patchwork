@@ -117,7 +117,9 @@ def push(repo: git.Repo, args) -> bool:
         with repo.git.custom_environment(GIT_TERMINAL_PROMPT="0"):
             repo.git.push(*args)
         return True
-    except GitCommandError:
+    except GitCommandError as e:
+        logger.error("Git command failed with:")
+        logger.error(e.stdout)
         pass
 
     freeze_func = getattr(logger, "freeze", None)
@@ -128,7 +130,9 @@ def push(repo: git.Repo, args) -> bool:
         with logger.freeze():
             repo.git.push(*args)
         return True
-    except GitCommandError:
+    except GitCommandError as e:
+        logger.error("Git command failed with:")
+        logger.error(e.stdout)
         pass
 
     return False
