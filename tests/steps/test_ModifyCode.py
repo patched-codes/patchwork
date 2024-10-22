@@ -40,7 +40,7 @@ def test_replace_code_in_file(tmp_path):
     end_line = 3
     new_code = "new line 1\nnew line 2"
     replace_code_in_file(str(file_path), start_line, end_line, new_code)
-    assert file_path.read_text() == "line 1\nnew line 1\nnew line 2"
+    assert file_path.read_text() == "line 1\nnew line 1\nnew line 2\n"
 
 
 def test_modify_code_init():
