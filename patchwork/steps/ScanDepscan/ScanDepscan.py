@@ -75,6 +75,7 @@ class ScanDepscan(Step):
         install_cdxgen()
 
         self.language = inputs.get("language", None)
+        self.license = inputs.get("license", None)
 
     def run(self) -> dict:
         """
@@ -117,8 +118,12 @@ class ScanDepscan(Step):
             else:
                 sbom_vdr_file_name = "sbom-universal"
 
+            env = os.environ.copy()
+            if self.license is not None:
+                env["FETCH_LICENSE"] = "true"
+
             try:
-                p = subprocess.run(cmd, capture_output=True, text=True, cwd=os.getcwd())
+                p = subprocess.run(cmd, capture_output=True, text=True, cwd=os.getcwd(), env=env)
             except subprocess.CalledProcessError as e:
                 logger.debug("Command execution failed.")
                 logger.debug("stdout:\n" + e.stdout)
