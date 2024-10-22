@@ -39,6 +39,10 @@ def replace_code_in_file(
     new_code: str,
 ) -> None:
     path = Path(file_path)
+    new_code_lines = new_code.splitlines(keepends=True)
+    if len(new_code_lines) > 0 and not new_code_lines[-1].endswith("\n"):
+        new_code_lines[-1] += "\n"
+
     if path.exists() and start_line is not None and end_line is not None:
         """Replaces specified lines in a file with new code."""
         text = path.read_text()
@@ -46,9 +50,9 @@ def replace_code_in_file(
         lines = text.splitlines(keepends=True)
 
         # Insert the new code at the start line after converting it into a list of lines
-        lines[start_line:end_line] = handle_indent(lines, new_code.splitlines(keepends=True), start_line, end_line)
+        lines[start_line:end_line] = handle_indent(lines, new_code_lines, start_line, end_line)
     else:
-        lines = new_code.splitlines(keepends=True)
+        lines = new_code_lines
 
     # Save the modified contents back to the file
     save_file_contents(file_path, "".join(lines))
