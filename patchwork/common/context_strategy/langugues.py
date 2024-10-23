@@ -38,11 +38,11 @@ class JavaLanguage(LanguageProtocol):
         """
         self._comment_format = """\
 /**
-* <Method description>
-* 
-* @param <Parameter name> <Parameter description>
-* @return <Return description>
-*/
+ * <Method description>
+ * 
+ * @param <Parameter name> <Parameter description>
+ * @return <Return description>
+ */
 """
 
     @property
@@ -54,6 +54,9 @@ class JavaLanguage(LanguageProtocol):
         str: The comment format for the language.
         """
         return self._comment_format
+
+
+CppLanguage = JavaLanguage
 
 
 class PythonLanguage(LanguageProtocol):

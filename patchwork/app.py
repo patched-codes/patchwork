@@ -6,9 +6,9 @@ import json
 import signal
 import traceback
 from collections import deque
+from contextlib import nullcontext
 from pathlib import Path
 from typing import Any
-from contextlib import nullcontext
 
 import click
 import yaml
@@ -130,7 +130,7 @@ def setup_cli():
         ],
         case_sensitive=False,
     ),
-    is_eager=True
+    is_eager=True,
 )
 @click.argument("patchflow", nargs=1, required=True)
 @click.argument("opts", nargs=-1, type=click.UNPROCESSED, required=False)
@@ -154,7 +154,7 @@ def cli(
     data_format: str,
     patched_api_key: str | None,
     disable_telemetry: bool,
-    debug: bool
+    debug: bool,
 ):
     setup_cli()
 
@@ -169,7 +169,7 @@ def cli(
     possbile_module_paths = deque((module_path,))
 
     panel = logger.panel("Initializing Patchwork CLI") if debug else nullcontext()
-    
+
     with panel:
         inputs = {}
         if patched_api_key is not None:
@@ -227,24 +227,24 @@ def cli(
         else:
             # treat --key=value as a key-value pair
             inputs[key] = value
-    
-    patchflow_panel = nullcontext() if debug  else logger.panel(f"Patchflow {patchflow} inputs")
+
+    patchflow_panel = nullcontext() if debug else logger.panel(f"Patchflow {patchflow} inputs")
 
     with patchflow_panel as _:
-            if debug is True:
-                logger.info("DEBUGGING ENABLED. INPUTS WILL BE SHOWN BEFORE EACH STEP BEFORE PROCEEDING TO RUN IT.")
-            try:
-                patched = PatchedClient(inputs.get("patched_api_key"))
-                if not disable_telemetry:
-                    patched.send_public_telemetry(patchflow_name, inputs)
+        if debug is True:
+            logger.info("DEBUGGING ENABLED. INPUTS WILL BE SHOWN BEFORE EACH STEP BEFORE PROCEEDING TO RUN IT.")
+        try:
+            patched = PatchedClient(inputs.get("patched_api_key"))
+            if not disable_telemetry:
+                patched.send_public_telemetry(patchflow_name, inputs)
 
-                with patched.patched_telemetry(patchflow_name, {}):
-                    patchflow_instance = patchflow_class(inputs)
-                    patchflow_instance.run()
-            except Exception as e:
-                logger.debug(traceback.format_exc())
-                logger.error(f"Error running patchflow {patchflow}: {e}")
-                exit(1)
+            with patched.patched_telemetry(patchflow_name, {}):
+                patchflow_instance = patchflow_class(inputs)
+                patchflow_instance.run()
+        except Exception as e:
+            logger.debug(traceback.format_exc())
+            logger.error(f"Error running patchflow {patchflow}: {e}")
+            exit(1)
 
     if output is not None:
         serialize = _DATA_FORMAT_MAPPING.get(data_format, json.dumps)

@@ -82,18 +82,7 @@ def extract_code_instance_with_fix(tmp_path):
                 {
                     "results": [
                         {
-                            "fixes": [
-                                {
-                                    "description": {
-                                        "text": "Fix here"
-                                    }
-                                },
-                                {
-                                    "description": {
-                                        "text": "Fix there"
-                                    }
-                                }
-                            ],
+                            "fixes": [{"description": {"text": "Fix here"}}, {"description": {"text": "Fix there"}}],
                             "message": {"text": "Error message"},
                             "ruleId": "1",
                             "locations": [
@@ -129,8 +118,11 @@ def test_extract_code_run_with_fix(extract_code_instance_with_fix, tmp_path):
         assert output_data[0]["startLine"] == 0
         assert output_data[0]["endLine"] == 1
         assert output_data[0]["affectedCode"] == "print('Hello, world!')"
-        assert output_data[0]["messageText"] == """\
+        assert (
+            output_data[0]["messageText"]
+            == """\
 Issue Description: Error message
 Suggested fixes:
 - Fix here
 - Fix there"""
+        )
