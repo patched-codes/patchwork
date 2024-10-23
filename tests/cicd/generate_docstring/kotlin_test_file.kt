@@ -65,6 +65,13 @@ fun <T, R : Comparable<R>> compare(keyMap: (T) -> R, item1: T, item2: T): Int {
  * @return A string containing random alphabets (both uppercase and lowercase) of the specified length
  */
 
+/**
+ * Generates a random string of alphabetic characters with specified length.
+ * The string consists of both uppercase and lowercase letters.
+ * 
+ * @param length The number of characters in the resulting string.
+ * @return A random string composed of alphabetic characters with the specified length.
+ */
 fun randomAlphabets(length: Int): String {
     val charPool = ('a'..'z') + ('A'..'Z')
     return (1..length)
