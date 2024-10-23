@@ -1,11 +1,11 @@
-from patchwork.common.context_strategy.langugues import CppLanguage
+from patchwork.common.context_strategy.languages import CppLanguage
 from patchwork.common.context_strategy.protocol import TreeSitterStrategy
 
 
 class CppStrategy(TreeSitterStrategy):
     def __init__(self, query: str):
         """
-        Initialize the JavaSearcher instance.
+        Initialize the Cpp searcher instance.
 
         Args:
         query (str): The search query string to be used for Java file search.

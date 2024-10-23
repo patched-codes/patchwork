@@ -1,11 +1,11 @@
-from patchwork.common.context_strategy.langugues import JavaLanguage
+from patchwork.common.context_strategy.languages import JavaLanguage
 from patchwork.common.context_strategy.protocol import TreeSitterStrategy
 
 
 class KotlinStrategy(TreeSitterStrategy):
     def __init__(self, query: str):
         """
-        Initialize the JavaSearcher instance.
+        Initialize the kotlin searcher instance.
 
         Args:
         query (str): The search query string to be used for Java file search.

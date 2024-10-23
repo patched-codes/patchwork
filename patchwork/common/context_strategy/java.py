@@ -1,4 +1,4 @@
-from patchwork.common.context_strategy.langugues import JavaLanguage
+from patchwork.common.context_strategy.languages import JavaLanguage
 from patchwork.common.context_strategy.protocol import TreeSitterStrategy
 
 

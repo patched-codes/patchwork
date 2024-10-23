@@ -1,4 +1,4 @@
-from patchwork.common.context_strategy.langugues import JavascriptLanguage
+from patchwork.common.context_strategy.languages import JavascriptLanguage
 from patchwork.common.context_strategy.protocol import TreeSitterStrategy
 
 _javascript_language = "typescript"

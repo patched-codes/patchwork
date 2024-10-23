@@ -16,7 +16,7 @@ from typing_extensions import Callable, Optional, Sequence
 
 from patchwork.common.context_strategy.position import Position
 
-from .langugues import PythonLanguage
+from .languages import PythonLanguage
 from .protocol import ContextStrategyProtocol
 
 
