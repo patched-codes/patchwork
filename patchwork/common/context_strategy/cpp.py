@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from patchwork.common.context_strategy.langugues import CppLanguage
 from patchwork.common.context_strategy.protocol import TreeSitterStrategy
 

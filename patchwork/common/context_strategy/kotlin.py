@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from patchwork.common.context_strategy.langugues import JavaLanguage
 from patchwork.common.context_strategy.protocol import TreeSitterStrategy
 
@@ -49,4 +47,3 @@ class KotlinMethodStrategy(KotlinStrategy):
         ]
         """.strip()
         )
-
