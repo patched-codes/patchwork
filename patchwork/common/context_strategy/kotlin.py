@@ -14,7 +14,7 @@ class KotlinStrategy(TreeSitterStrategy):
         self.query = query
 
 
-class KotlinClassStrategy(TreeSitterStrategy):
+class KotlinClassStrategy(KotlinStrategy):
     def __init__(self):
         """
         Initialize the current class by calling the parent class's __init__ method.
@@ -27,7 +27,7 @@ class KotlinClassStrategy(TreeSitterStrategy):
         )
 
 
-class KotlinMethodStrategy(TreeSitterStrategy):
+class KotlinMethodStrategy(KotlinStrategy):
     def __init__(self):
         """
         Initialize the newly created object by inheriting properties and
@@ -49,7 +49,7 @@ class KotlinMethodStrategy(TreeSitterStrategy):
         )
 
 
-class KotlinBlockStrategy(TreeSitterStrategy):
+class KotlinBlockStrategy(KotlinStrategy):
     def __init__(self):
         """
         Initialize the class by calling the parent class's constructor.
