@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from patchwork.common.context_strategy.langugues import JavaLanguage
 from patchwork.common.context_strategy.protocol import TreeSitterStrategy
 
@@ -10,7 +12,7 @@ class KotlinStrategy(TreeSitterStrategy):
         Args:
         query (str): The search query string to be used for Java file search.
         """
-        super().__init__("cpp", query, ["kt"], JavaLanguage())
+        super().__init__("kotlin", query, ["kt"], JavaLanguage())
         self.query = query
 
 
@@ -42,23 +44,9 @@ class KotlinMethodStrategy(KotlinStrategy):
         super().__init__(
             """
         [
-            (block_comment) @comment
-            (method_declaration) @node
+            (multiline_comment) @comment
+            (function_declaration) @node
         ]
         """.strip()
         )
 
-
-class KotlinBlockStrategy(KotlinStrategy):
-    def __init__(self):
-        """
-        Initialize the class by calling the parent class's constructor.
-
-        Parameters:
-        - self: The object instance.
-        """
-        super().__init__(
-            """
-            (block) @node
-        """.strip()
-        )

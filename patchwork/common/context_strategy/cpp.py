@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from patchwork.common.context_strategy.langugues import CppLanguage
 from patchwork.common.context_strategy.protocol import TreeSitterStrategy
 
@@ -22,13 +24,13 @@ class CppStrategy(TreeSitterStrategy):
             ".CPP",
             ".c++",
             ".C",
-            "hh",
-            "H",
-            "hp",
-            "hxx",
-            "hpp",
-            "HPP",
-            "h++",
+            ".hh",
+            ".H",
+            ".hp",
+            ".hxx",
+            ".hpp",
+            ".HPP",
+            ".h++",
             ".tcc",
         ]
         super().__init__("cpp", query, exts, CppLanguage())
@@ -43,7 +45,7 @@ class CppClassStrategy(CppStrategy):
         """
         super().__init__(
             """
-            (class_declaration) @node
+            (class_specifier) @node
             """.strip()
         )
 
@@ -63,8 +65,8 @@ class CppMethodStrategy(CppStrategy):
         super().__init__(
             """
         [
-            (block_comment) @comment
-            (method_declaration) @node
+            (comment) @comment
+            (function_definition) @node
         ]
         """.strip()
         )
@@ -80,6 +82,6 @@ class CppBlockStrategy(CppStrategy):
         """
         super().__init__(
             """
-            (block) @node
+            (compound_statement) @node
         """.strip()
         )

@@ -11,7 +11,7 @@ from .javascript import (
     JsxClassStrategy,
     JsxFunctionStrategy,
 )
-from .kotlin import KotlinBlockStrategy, KotlinClassStrategy, KotlinMethodStrategy
+from .kotlin import KotlinClassStrategy, KotlinMethodStrategy
 from .protocol import ContextStrategyProtocol
 from .python import PythonBlockStrategy, PythonFunctionStrategy
 
@@ -76,7 +76,6 @@ class ContextStrategies:
         CPP_BLOCK: CppBlockStrategy(),
         KOTLIN_CLASS: KotlinClassStrategy(),
         KOTLIN_METHOD: KotlinMethodStrategy(),
-        KOTLIN_BLOCK: KotlinBlockStrategy(),
         JAVASCRIPT_CLASS: JavascriptClassStrategy(),
         JAVASCRIPT_FUNCTION: JavascriptFunctionStrategy(),
         JAVASCRIPT_BLOCK: JavascriptBlockStrategy(),
