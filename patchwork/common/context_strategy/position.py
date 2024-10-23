@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from attrs import Factory, define
 
-from patchwork.common.context_strategy.langugues import LanguageProtocol
+from patchwork.common.context_strategy.languages import LanguageProtocol
 
 
 @define

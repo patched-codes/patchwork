@@ -1,20 +1,41 @@
-from patchwork.common.context_strategy.languages import JavaLanguage
+from patchwork.common.context_strategy.languages import CppLanguage
 from patchwork.common.context_strategy.protocol import TreeSitterStrategy
 
 
-class JavaStrategy(TreeSitterStrategy):
+class CppStrategy(TreeSitterStrategy):
     def __init__(self, query: str):
         """
-        Initialize the JavaSearcher instance.
+        Initialize the Cpp searcher instance.
 
         Args:
         query (str): The search query string to be used for Java file search.
         """
-        super().__init__("java", query, [".java"], JavaLanguage())
+
+        # exts from https://gcc.gnu.org/onlinedocs/gcc-4.4.1/gcc/Overall-Options.html#index-file-name-suffix-71
+        exts = [
+            ".ii",
+            ".h",
+            ".cc",
+            ".cp",
+            ".cxx",
+            ".cpp",
+            ".CPP",
+            ".c++",
+            ".C",
+            ".hh",
+            ".H",
+            ".hp",
+            ".hxx",
+            ".hpp",
+            ".HPP",
+            ".h++",
+            ".tcc",
+        ]
+        super().__init__("cpp", query, exts, CppLanguage())
         self.query = query
 
 
-class JavaClassStrategy(JavaStrategy):
+class CppClassStrategy(CppStrategy):
     def __init__(self):
         """
         Initialize the current class by calling the parent class's __init__ method.
@@ -22,12 +43,12 @@ class JavaClassStrategy(JavaStrategy):
         """
         super().__init__(
             """
-            (class_declaration) @node
+            (class_specifier) @node
             """.strip()
         )
 
 
-class JavaMethodStrategy(JavaStrategy):
+class CppMethodStrategy(CppStrategy):
     def __init__(self):
         """
         Initialize the newly created object by inheriting properties and
@@ -42,14 +63,14 @@ class JavaMethodStrategy(JavaStrategy):
         super().__init__(
             """
         [
-            (block_comment) @comment
-            (method_declaration) @node
+            (comment) @comment
+            (function_definition) @node
         ]
         """.strip()
         )
 
 
-class JavaBlockStrategy(JavaStrategy):
+class CppBlockStrategy(CppStrategy):
     def __init__(self):
         """
         Initialize the class by calling the parent class's constructor.
@@ -59,6 +80,6 @@ class JavaBlockStrategy(JavaStrategy):
         """
         super().__init__(
             """
-            (block) @node
+            (compound_statement) @node
         """.strip()
         )

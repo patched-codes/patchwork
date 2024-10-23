@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-from patchwork.common.context_strategy.langugues import PythonLanguage
+from patchwork.common.context_strategy.languages import PythonLanguage
 from patchwork.step import Step
 from patchwork.steps.ExtractCodeContexts.ExtractCodeContexts import ExtractCodeContexts
 

@@ -3,7 +3,7 @@ from __future__ import annotations
 from tree_sitter_languages.core import get_language, get_parser
 from typing_extensions import Protocol
 
-from patchwork.common.context_strategy.langugues import LanguageProtocol
+from patchwork.common.context_strategy.languages import LanguageProtocol
 from patchwork.common.context_strategy.position import Position
 
 
@@ -87,7 +87,7 @@ class TreeSitterStrategy(ContextStrategyProtocol):
         """
         language = get_language(self.tree_sitter_language)
         parser = get_parser(self.tree_sitter_language)
-        tree = parser.parse("".join(src).encode("utf-8-sig"))
+        tree = parser.parse("".join(src).encode())
         return language.query(self.query).captures(tree.root_node)
 
     def get_contexts(self, src: list[str]) -> list[Position]:

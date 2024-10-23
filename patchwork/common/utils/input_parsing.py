@@ -1,8 +1,11 @@
 from __future__ import annotations
-from typing_extensions import Union, AnyStr
+
 from collections.abc import Iterable, Mapping
 
+from typing_extensions import AnyStr, Union
+
 __ITEM_TYPE = Union[AnyStr, Mapping]
+
 
 def __parse_to_list_handle_str(input_value: AnyStr, possible_delimiters: Iterable[AnyStr | None]) -> list[str]:
     for possible_delimiter in possible_delimiters:
@@ -14,6 +17,7 @@ def __parse_to_list_handle_str(input_value: AnyStr, possible_delimiters: Iterabl
 
     return []
 
+
 def __parse_to_list_handle_dict(input_value: Mapping, possible_keys: Iterable[AnyStr | None]) -> list[str]:
     for possible_key in possible_keys:
         if input_value.get(possible_key) is not None:
@@ -21,7 +25,10 @@ def __parse_to_list_handle_dict(input_value: Mapping, possible_keys: Iterable[An
 
     return []
 
-def __parse_to_list_handle_iterable(input_value: Iterable[__ITEM_TYPE], possible_keys: Iterable[AnyStr | None]) -> list[str]:
+
+def __parse_to_list_handle_iterable(
+    input_value: Iterable[__ITEM_TYPE], possible_keys: Iterable[AnyStr | None]
+) -> list[str]:
     rv = []
     for item in input_value:
         if isinstance(item, dict):
@@ -33,10 +40,11 @@ def __parse_to_list_handle_iterable(input_value: Iterable[__ITEM_TYPE], possible
 
     return rv
 
+
 def parse_to_list(
-        input_value: __ITEM_TYPE | Iterable[__ITEM_TYPE],
-        possible_delimiters: Iterable[AnyStr | None] | None = None ,
-        possible_keys: Iterable[AnyStr | None] | None = None
+    input_value: __ITEM_TYPE | Iterable[__ITEM_TYPE],
+    possible_delimiters: Iterable[AnyStr | None] | None = None,
+    possible_keys: Iterable[AnyStr | None] | None = None,
 ) -> list[str]:
     if len(input_value) < 1:
         return []

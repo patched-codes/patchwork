@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from .cpp import CppBlockStrategy, CppClassStrategy, CppMethodStrategy
 from .generic import FullFileStrategy, NoopStrategy
 from .java import JavaBlockStrategy, JavaClassStrategy, JavaMethodStrategy
 from .javascript import (
@@ -10,6 +11,7 @@ from .javascript import (
     JsxClassStrategy,
     JsxFunctionStrategy,
 )
+from .kotlin import KotlinClassStrategy, KotlinMethodStrategy
 from .protocol import ContextStrategyProtocol
 from .python import PythonBlockStrategy, PythonFunctionStrategy
 
@@ -24,6 +26,14 @@ class ContextStrategies:
     JAVA_CLASS = "JAVA_CLASS"
     JAVA_METHOD = "JAVA_METHOD"
     JAVA_BLOCK = "JAVA_BLOCK"
+    # Cpp strategies
+    CPP_CLASS = "CPP_CLASS"
+    CPP_METHOD = "CPP_METHOD"
+    CPP_BLOCK = "CPP_BLOCK"
+    # Java strategies
+    KOTLIN_CLASS = "KOTLIN_CLASS"
+    KOTLIN_METHOD = "KOTLIN_METHOD"
+    KOTLIN_BLOCK = "KOTLIN_BLOCK"
     # JavaScript strategies
     JAVASCRIPT_CLASS = "JAVASCRIPT_CLASS"
     JAVASCRIPT_FUNCTION = "JAVASCRIPT_FUNCTION"
@@ -35,6 +45,8 @@ class ContextStrategies:
 
     PYTHON_PARTIAL_STRATEGIES = [PYTHON_FUNCTION, PYTHON_BLOCK]
     JAVA_PARTIAL_STRATEGIES = [JAVA_CLASS, JAVA_METHOD, JAVA_BLOCK]
+    CPP_PARTIAL_STRATEGIES = [CPP_CLASS, CPP_METHOD, CPP_BLOCK]
+    KOTLIN_PARTIAL_STRATEGIES = [KOTLIN_CLASS, KOTLIN_METHOD, KOTLIN_BLOCK]
     JAVASCRIPT_PARTIAL_STRATEGIES = [JAVASCRIPT_CLASS, JAVASCRIPT_FUNCTION, JAVASCRIPT_BLOCK]
     JSX_PARTIAL_STRATEGIES = [JSX_CLASS, JSX_FUNCTION, JSX_BLOCK]
 
@@ -42,12 +54,14 @@ class ContextStrategies:
         FULL_FILE,
         *PYTHON_PARTIAL_STRATEGIES,
         *JAVA_PARTIAL_STRATEGIES,
+        *CPP_PARTIAL_STRATEGIES,
+        *KOTLIN_PARTIAL_STRATEGIES,
         *JAVASCRIPT_PARTIAL_STRATEGIES,
         *JSX_PARTIAL_STRATEGIES,
         NOOP,
     ]
 
-    FUNCTION = [PYTHON_FUNCTION, JAVA_METHOD, JAVASCRIPT_FUNCTION, JSX_FUNCTION]
+    FUNCTION = [PYTHON_FUNCTION, JAVA_METHOD, CPP_METHOD, KOTLIN_METHOD, JAVASCRIPT_FUNCTION, JSX_FUNCTION]
 
     __MAPPING: dict[str, ContextStrategyProtocol] = {
         FULL_FILE: FullFileStrategy(),
@@ -57,6 +71,11 @@ class ContextStrategies:
         JAVA_CLASS: JavaClassStrategy(),
         JAVA_METHOD: JavaMethodStrategy(),
         JAVA_BLOCK: JavaBlockStrategy(),
+        CPP_CLASS: CppClassStrategy(),
+        CPP_METHOD: CppMethodStrategy(),
+        CPP_BLOCK: CppBlockStrategy(),
+        KOTLIN_CLASS: KotlinClassStrategy(),
+        KOTLIN_METHOD: KotlinMethodStrategy(),
         JAVASCRIPT_CLASS: JavascriptClassStrategy(),
         JAVASCRIPT_FUNCTION: JavascriptFunctionStrategy(),
         JAVASCRIPT_BLOCK: JavascriptBlockStrategy(),

@@ -2,19 +2,19 @@ from patchwork.common.context_strategy.languages import JavaLanguage
 from patchwork.common.context_strategy.protocol import TreeSitterStrategy
 
 
-class JavaStrategy(TreeSitterStrategy):
+class KotlinStrategy(TreeSitterStrategy):
     def __init__(self, query: str):
         """
-        Initialize the JavaSearcher instance.
+        Initialize the kotlin searcher instance.
 
         Args:
         query (str): The search query string to be used for Java file search.
         """
-        super().__init__("java", query, [".java"], JavaLanguage())
+        super().__init__("kotlin", query, ["kt"], JavaLanguage())
         self.query = query
 
 
-class JavaClassStrategy(JavaStrategy):
+class KotlinClassStrategy(KotlinStrategy):
     def __init__(self):
         """
         Initialize the current class by calling the parent class's __init__ method.
@@ -27,7 +27,7 @@ class JavaClassStrategy(JavaStrategy):
         )
 
 
-class JavaMethodStrategy(JavaStrategy):
+class KotlinMethodStrategy(KotlinStrategy):
     def __init__(self):
         """
         Initialize the newly created object by inheriting properties and
@@ -42,23 +42,8 @@ class JavaMethodStrategy(JavaStrategy):
         super().__init__(
             """
         [
-            (block_comment) @comment
-            (method_declaration) @node
+            (multiline_comment) @comment
+            (function_declaration) @node
         ]
-        """.strip()
-        )
-
-
-class JavaBlockStrategy(JavaStrategy):
-    def __init__(self):
-        """
-        Initialize the class by calling the parent class's constructor.
-
-        Parameters:
-        - self: The object instance.
-        """
-        super().__init__(
-            """
-            (block) @node
         """.strip()
         )

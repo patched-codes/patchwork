@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from patchwork.common.context_strategy.langugues import GenericLanguage
+from patchwork.common.context_strategy.languages import GenericLanguage
 from patchwork.common.context_strategy.position import Position
 from patchwork.common.context_strategy.protocol import ContextStrategyProtocol
 

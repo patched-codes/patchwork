@@ -6,7 +6,7 @@ from patchwork.common.utils.dependency import import_with_dependency_group
 from patchwork.common.utils.input_parsing import parse_to_list
 from patchwork.logger import logger
 from patchwork.step import Step, StepStatus
-from patchwork.steps.ScanSemgrep.typed import ScanSemgrepOutputs, ScanSemgrepInputs
+from patchwork.steps.ScanSemgrep.typed import ScanSemgrepInputs, ScanSemgrepOutputs
 
 
 class ScanSemgrep(Step, input_class=ScanSemgrepInputs, output_class=ScanSemgrepOutputs):

@@ -260,10 +260,7 @@ def transform_sarif_results(
                 end = context_end if context_end is not None else end_line
                 msg = f"Issue Description: {result.get('message', {}).get('text', '')}"
                 if fix_messages.strip() != "":
-                    msg = (
-                        f"{msg}\n"
-                        f"Suggested fixes:{fix_messages}"
-                    )
+                    msg = f"{msg}\n" f"Suggested fixes:{fix_messages}"
                 grouped_messages[(file_path, start, end, source_code_context)].append(msg)
 
                 vulnerability_count = vulnerability_count + 1

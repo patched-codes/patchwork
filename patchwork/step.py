@@ -1,12 +1,11 @@
 import abc
-from enum import Flag, auto
-import sys
 import os
+import sys
 
 # modules required for keyboard input
-if os.name == 'nt':  # in case of windows
+if os.name == "nt":  # in case of windows
     import msvcrt
-else: # for unix based systems
+else:  # for unix based systems
     import termios
     import tty
 
@@ -50,7 +49,7 @@ class Step(abc.ABC):
             missing_keys = self.__input_class.__required_keys__.difference(inputs.keys())
             if len(missing_keys) > 0:
                 raise ValueError(f"Missing required data: {list(missing_keys)}")
-            
+
         # store the inputs
         self.inputs = inputs
 
@@ -111,8 +110,8 @@ class Step(abc.ABC):
             self.__status_msg = msg
 
     def get_key(self):
-        if os.name == 'nt':  # Windows
-            return msvcrt.getch().decode('utf-8')
+        if os.name == "nt":  # Windows
+            return msvcrt.getch().decode("utf-8")
         else:  # Linux / macOS
             fd = sys.stdin.fileno()
             old_settings = termios.tcgetattr(fd)
@@ -122,16 +121,16 @@ class Step(abc.ABC):
             finally:
                 termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
             return key
-        
+
     def debug(self, inputs):
-        if inputs.get("debug") is None or inputs.get("debug") is False: 
+        if inputs.get("debug") is None or inputs.get("debug") is False:
             return
         logger.info("\nInputs:")
-        MAX_LENGTH = 1000 # Max limit to print inputs
+        MAX_LENGTH = 1000  # Max limit to print inputs
         printed_chars = 0
         for key, value in inputs.items():
             if "api_key" in key.lower():
-               value = "<masked api key>"
+                value = "<masked api key>"
             input_val = f"{key}: {value}"
             if printed_chars + len(input_val) > MAX_LENGTH:
                 continue
@@ -146,7 +145,7 @@ class Step(abc.ABC):
         else:
             logger.info("Exiting...\n")
             exit()
-        
+
     @property
     def status(self) -> StepStatus:
         return self.__status
