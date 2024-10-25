@@ -6,12 +6,12 @@ class __ModifyCodePBRequiredInputs(TypedDict):
     new_code: str
 
 
-class ModifyCodePBInputs(__ModifyCodePBRequiredInputs, total=False):
+class ModifyCodeOnceInputs(__ModifyCodePBRequiredInputs, total=False):
     start_line: int
     end_line: int
 
 
-class ModifyCodePBOutputs(TypedDict):
+class ModifyCodeOnceOutputs(TypedDict):
     path: str
     start_line: int
     end_line: int

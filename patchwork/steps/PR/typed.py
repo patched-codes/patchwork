@@ -1,4 +1,4 @@
-from typing_extensions import Annotated, List, TypedDict
+from typing_extensions import Annotated, List, TypedDict, Dict
 
 from patchwork.common.utils.step_typing import StepTypeConfig
 
@@ -9,12 +9,14 @@ class ModifiedCodeFile(TypedDict):
     patch_message: str
 
 
-class __PRInputsRequired(TypedDict):
+class PRInputs(TypedDict, total=False):
     # CommitChangesInputs & PreparePRInputs
     modified_code_files: List["ModifiedCodeFile"]
-
-
-class PRInputs(__PRInputsRequired, total=False):
+    # modified_code_files alternative
+    modified_files: List[Dict]
+    path_key: str
+    comment_title_key: str
+    comment_message_key: str
     # CommitChangesInputs
     disable_branch: Annotated[bool, StepTypeConfig(is_config=True)]
     force_branch_creation: Annotated[bool, StepTypeConfig(is_config=True)]
