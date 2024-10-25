@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from patchwork.step import Step, StepStatus
 from patchwork.steps import ModifyCode
-from patchwork.steps.ModifyCodePB.typed import ModifyCodePBInputs, ModifyCodePBOutputs
+from patchwork.steps.ModifyCodeOnce.typed import ModifyCodeOnceInputs, ModifyCodeOnceOutputs
 
 
-class ModifyCodePB(Step, input_class=ModifyCodePBInputs, output_class=ModifyCodePBOutputs):
+class ModifyCodeOnce(Step, input_class=ModifyCodeOnceInputs, output_class=ModifyCodeOnceOutputs):
     def __init__(self, inputs: dict):
         super().__init__(inputs)
         self.file_path = inputs["file_path"]

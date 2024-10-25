@@ -1,5 +1,6 @@
 from typing_extensions import Annotated, List, TypedDict
 
+from patchwork.common.client.scm import PullRequestComment
 from patchwork.common.utils.step_typing import StepTypeConfig
 
 
@@ -14,7 +15,10 @@ class ReadPRDiffsInputs(__ReadPRDiffsRequiredInputs, total=False):
 
 
 class ReadPRDiffsOutputs(TypedDict):
-    prompt_values: List["Diff"]
+    title: str
+    body: str
+    comments: List[PullRequestComment]
+    diffs: List["Diff"]
 
 
 class Diff(TypedDict):

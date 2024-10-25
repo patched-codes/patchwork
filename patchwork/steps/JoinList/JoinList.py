@@ -1,16 +1,18 @@
+import json
+
 from patchwork.step import Step, StepStatus
-from patchwork.steps.JoinList.typed import JoinListInputs
+from patchwork.steps.JoinList.typed import JoinListInputs, JoinListOutputs
 
 
-class JoinList(Step):
+class JoinList(Step, input_class=JoinListInputs, output_class=JoinListOutputs):
     def __init__(self, inputs):
         super().__init__(inputs)
-        missing_keys = JoinListInputs.__required_keys__.difference(inputs.keys())
-        if len(missing_keys) > 0:
-            raise ValueError(f"Missing required data: {missing_keys}")
 
         self.list = inputs["list"]
         self.delimiter = inputs["delimiter"]
+        self.possible_keys = ["body", "text"]
+        if inputs.get("keys") is not None:
+            self.possible_keys.insert(0, inputs.get("key"))
 
     def run(self):
         if len(self.list) == 0:
@@ -22,12 +24,11 @@ class JoinList(Step):
             if isinstance(item, str):
                 items.append(item)
             elif isinstance(item, dict):
-                if "body" in item.keys() or len(item.keys()) < 1:
-                    items.append(item.get("body"))
-                elif "text" in item.keys():
-                    items.append(item.get("text"))
-                else:
-                    items.append(str(item))
+                for possible_key in self.possible_keys:
+                    if possible_key in item.keys():
+                        items.append(item.get(possible_key))
+                    else:
+                        items.append(json.dumps(item))
             else:
                 items.append(str(item))
 
