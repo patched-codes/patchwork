@@ -48,12 +48,7 @@ def list_option_callback(ctx: click.Context, param: click.Parameter, value: str 
     if not value or ctx.resilient_parsing:
         return
 
-    patchflows = []
-    default_path = Path(__file__).parent / "patchflows"
-    patchflows.extend(_get_patchflow_names(default_path))
-
-    config_path = ctx.params.get("config")
-    patchflows.extend(_get_patchflow_names(config_path))
+    get_patchflow_names(config_path))
 
     echo("\n".join(patchflows), color=ctx.color)
     ctx.exit()
