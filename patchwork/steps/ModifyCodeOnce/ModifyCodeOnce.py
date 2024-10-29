@@ -2,7 +2,10 @@ from __future__ import annotations
 
 from patchwork.step import Step, StepStatus
 from patchwork.steps import ModifyCode
-from patchwork.steps.ModifyCodeOnce.typed import ModifyCodeOnceInputs, ModifyCodeOnceOutputs
+from patchwork.steps.ModifyCodeOnce.typed import (
+    ModifyCodeOnceInputs,
+    ModifyCodeOnceOutputs,
+)
 
 
 class ModifyCodeOnce(Step, input_class=ModifyCodeOnceInputs, output_class=ModifyCodeOnceOutputs):

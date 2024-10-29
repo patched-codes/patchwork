@@ -7,12 +7,10 @@ from patchwork.steps.PreparePR.PreparePR import PreparePR
 
 
 class PR(Step, input_class=PRInputs, output_class=PROutputs):
-
     def __init__(self, inputs):
         super().__init__(inputs)
         self.inputs = inputs
         self.__handle_modified_code_files()
-
 
     def __handle_modified_code_files(self):
         if self.inputs.get("modified_code_files") is not None:
@@ -45,7 +43,6 @@ class PR(Step, input_class=PRInputs, output_class=PROutputs):
             modified_files.append(converted_modified_file)
 
         self.inputs["modified_code_files"] = modified_files
-
 
     def run(self):
         commit_changes = CommitChanges(self.inputs)

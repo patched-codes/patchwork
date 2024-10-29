@@ -1,4 +1,5 @@
 from typing_extensions import List
+
 from patchwork.common.client.scm import GithubClient, GitlabClient
 from patchwork.step import Step
 from patchwork.steps.ReadPRDiffs.typed import ReadPRDiffsInputs, ReadPRDiffsOutputs
