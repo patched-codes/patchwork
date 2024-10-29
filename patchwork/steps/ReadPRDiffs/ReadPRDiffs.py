@@ -1,5 +1,8 @@
+from typing_extensions import List
+
 from patchwork.common.client.scm import GithubClient, GitlabClient
 from patchwork.step import Step
+from patchwork.steps.ReadPRDiffs.typed import ReadPRDiffsInputs, ReadPRDiffsOutputs
 
 _IGNORED_EXTENSIONS = [
     ".png",
@@ -22,7 +25,7 @@ def filter_by_extension(file, extensions):
     return any(file.endswith(ext) for ext in extensions)
 
 
-class ReadPRDiffs(Step):
+class ReadPRDiffs(Step, input_class=ReadPRDiffsInputs, output_class=ReadPRDiffsOutputs):
     required_keys = {"pr_url"}
 
     def __init__(self, inputs: dict):
@@ -46,10 +49,11 @@ class ReadPRDiffs(Step):
         pr_texts = self.pr.texts()
         title = pr_texts.get("title", "")
         body = pr_texts.get("body", "")
-        prompt_values = []
-        for path, diffs in pr_texts.get("diffs", {}).items():
+        comments = pr_texts.get("comments", [])
+        diffs: List[dict] = []
+        for path, diff_text in pr_texts.get("diffs", {}).items():
             if filter_by_extension(path, _IGNORED_EXTENSIONS):
                 continue
-            prompt_values.append(dict(title=title, body=body, path=path, diff=diffs))
+            diffs.append(dict(path=path, diff=diff_text))
 
-        return dict(prompt_values=prompt_values)
+        return dict(title=title, body=body, comments=comments, diffs=diffs)

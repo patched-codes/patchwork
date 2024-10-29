@@ -2,21 +2,47 @@ from patchwork.common.utils.utils import exclude_none_dict
 from patchwork.step import Step
 from patchwork.steps.CommitChanges.CommitChanges import CommitChanges
 from patchwork.steps.CreatePR.CreatePR import CreatePR
-from patchwork.steps.PR.typed import PRInputs
+from patchwork.steps.PR.typed import PRInputs, PROutputs
 from patchwork.steps.PreparePR.PreparePR import PreparePR
 
 
-class PR(Step):
-    required_keys = PRInputs.__required_keys__
-
+class PR(Step, input_class=PRInputs, output_class=PROutputs):
     def __init__(self, inputs):
         super().__init__(inputs)
-        missing_keys = self.required_keys.difference(set(inputs.keys()))
-        if len(missing_keys) > 0:
-            raise ValueError(f'Missing required data: "{missing_keys}"')
-
         self.inputs = inputs
-        return
+        self.__handle_modified_code_files()
+
+    def __handle_modified_code_files(self):
+        if self.inputs.get("modified_code_files") is not None:
+            return
+
+        input_modified_files = self.inputs.get("modified_files")
+        if input_modified_files is None or len(input_modified_files) < 1:
+            return
+
+        key_map = dict()
+        if self.inputs.get("path_key"):
+            key_map[self.inputs["path"]] = self.inputs["path_key"]
+        if self.inputs.get("comment_title_key") is not None:
+            key_map["commit_message"] = self.inputs["comment_title_key"]
+        if self.inputs.get("comment_message_key") is not None:
+            key_map["patch_message"] = self.inputs["comment_message_key"]
+
+        modified_files = []
+        if isinstance(input_modified_files, list):
+            for modified_file in input_modified_files:
+                converted_modified_file = {key: modified_file.get(mapped_key) for key, mapped_key in key_map.items()}
+                if converted_modified_file.get("path") is None:
+                    continue
+                modified_files.append(converted_modified_file)
+        elif isinstance(input_modified_files, dict):
+            converted_modified_file = {key: input_modified_files.get(mapped_key) for key, mapped_key in key_map.items()}
+            modified_files.append(converted_modified_file)
+        elif isinstance(input_modified_files, str):
+            converted_modified_file = {"path": input_modified_files}
+            modified_files.append(converted_modified_file)
+
+        self.inputs["modified_code_files"] = modified_files
 
     def run(self):
         commit_changes = CommitChanges(self.inputs)
