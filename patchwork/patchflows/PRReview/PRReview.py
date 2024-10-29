@@ -75,7 +75,7 @@ class PRReview(Step):
             return dict()
 
         outputs = ReadPRDiffs(self.inputs).run()
-        self.inputs.update(outputs)
+        self.inputs["prompt_values"] = outputs
 
         outputs = LLM(
             dict(
