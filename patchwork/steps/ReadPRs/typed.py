@@ -1,7 +1,7 @@
 from typing_extensions import Annotated, List, TypedDict
 
 from patchwork.common.utils.step_typing import StepTypeConfig
-from patchwork.steps.ReadPRDiffsPB.typed import ReadPRDiffsPBOutputs
+from patchwork.steps.ReadPRDiffs.typed import ReadPRDiffsOutputs
 
 
 class __ReadPRsRequiredInputs(TypedDict):
@@ -16,4 +16,4 @@ class ReadPRsInputs(__ReadPRsRequiredInputs, total=False):
 
 
 class ReadPRsOutputs(TypedDict):
-    pr_texts: List[ReadPRDiffsPBOutputs]
+    pr_texts: List[ReadPRDiffsOutputs]
