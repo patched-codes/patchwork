@@ -1,0 +1,5 @@
+openai_api_key: #
+client_base_url: https://api-inference.huggingface.co/models/microsoft/Phi-3-mini-4k-instruct/v1
+model: Phi-3-mini-4k-instruct
+
+file_path : patchwork/patchflows/GenerateUnitTests/GenerateUnitTests.py

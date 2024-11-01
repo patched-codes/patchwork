@@ -4,5 +4,6 @@ from .GenerateDocstring.GenerateDocstring import GenerateDocstring
 from .GenerateREADME.GenerateREADME import GenerateREADME
 from .PRReview.PRReview import PRReview
 from .ResolveIssue.ResolveIssue import ResolveIssue
+from .GenerateUnitTests.GenerateUnitTests import GenerateUnitTests
 
-__all__ = ["AutoFix", "DependencyUpgrade", "GenerateREADME", "PRReview", "ResolveIssue", "GenerateDocstring"]
+__all__ = ["AutoFix", "DependencyUpgrade", "GenerateREADME", "PRReview", "ResolveIssue", "GenerateDocstring", "GenerateUnitTests"]
