@@ -11,7 +11,7 @@ class JoinList(Step, input_class=JoinListInputs, output_class=JoinListOutputs):
         self.list = inputs["list"]
         self.delimiter = inputs["delimiter"]
         self.possible_keys = ["body", "text"]
-        if inputs.get("keys") is not None:
+        if inputs.get("key") is not None:
             self.possible_keys.insert(0, inputs.get("key"))
 
     def run(self):

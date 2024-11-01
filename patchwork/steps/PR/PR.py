@@ -21,8 +21,7 @@ class PR(Step, input_class=PRInputs, output_class=PROutputs):
             return
 
         key_map = dict()
-        if self.inputs.get("path_key"):
-            key_map[self.inputs["path"]] = self.inputs["path_key"]
+        key_map["path"] = self.inputs.get("path_key", "path")
         if self.inputs.get("comment_title_key") is not None:
             key_map["commit_message"] = self.inputs["comment_title_key"]
         if self.inputs.get("comment_message_key") is not None:
