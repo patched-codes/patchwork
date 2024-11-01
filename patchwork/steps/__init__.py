@@ -51,7 +51,7 @@ JoinListPB = JoinList
 ModifyCodePB = ModifyCodeOnce
 PRPB = PR
 ReadPRDiffsPB = ReadPRDiffs
-SimplifiedLLMOncePB = SimplifiedLLM
+SimplifiedLLMOncePB = SimplifiedLLMOnce
 
 __all__ = [
     "AnalyzeImpact",
