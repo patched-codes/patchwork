@@ -24,11 +24,14 @@ class JoinList(Step, input_class=JoinListInputs, output_class=JoinListOutputs):
             if isinstance(item, str):
                 items.append(item)
             elif isinstance(item, dict):
+                is_added = False
                 for possible_key in self.possible_keys:
                     if possible_key in item.keys():
                         items.append(item.get(possible_key))
-                    else:
-                        items.append(json.dumps(item))
+                        is_added = True
+                        break
+                if not is_added:
+                    items.append(json.dumps(item))
             else:
                 items.append(str(item))
 

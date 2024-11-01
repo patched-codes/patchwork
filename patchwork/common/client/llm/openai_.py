@@ -62,6 +62,10 @@ class OpenAiLlmClient(LlmClient):
         return self.__MODEL_LIMITS.get(model, 128_000)
 
     def is_prompt_supported(self, messages: Iterable[ChatCompletionMessageParam], model: str) -> int:
+        # might not implement model endpoint
+        if self.__is_not_openai_url():
+            return 1
+
         model_limit = self.__get_model_limits(model)
         token_count = 0
         encoding = tiktoken.encoding_for_model(model)
