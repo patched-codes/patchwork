@@ -3,6 +3,7 @@ from functools import partial
 
 from patchwork.common.client.llm.utils import example_json_to_schema
 from patchwork.common.utils.utils import RetryData, exclude_none_dict, retry
+from patchwork.logger import logger
 from patchwork.step import Step, StepStatus
 from patchwork.steps.CallLLM.CallLLM import CallLLM
 from patchwork.steps.ExtractModelResponse.ExtractModelResponse import (
@@ -50,7 +51,8 @@ class SimplifiedLLM(Step):
                 try:
                     json_response = json.loads(response, strict=False)
                     json_responses.append(json_response)
-                except json.JSONDecodeError:
+                except json.JSONDecodeError as e:
+                    logger.error(f"Json to decode: \n{response}\nError: \n{e}")
                     call_llm.set_status(StepStatus.FAILED, "Failed to decode JSON response")
                     self.__record_status_or_raise(retry_data, call_llm)
                     continue
