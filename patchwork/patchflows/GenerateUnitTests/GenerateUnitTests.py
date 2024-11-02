@@ -6,7 +6,9 @@ from patchwork.common.utils.step_typing import validate_steps_with_inputs
 from patchwork.step import Step
 from patchwork.steps import (
     LLM, 
-    ReadFile
+    CallCode2Prompt,
+    ModifyCode,
+    PR
 )
 
 _DEFAULT_INPUT_FILE = Path(__file__).parent / "defaults.yml"
@@ -23,20 +25,37 @@ class GenerateUnitTests(Step):
         final_inputs.update(inputs)
 
         final_inputs["prompt_id"] = "GenerateUnitTests"
+        if "folder_path" not in final_inputs.keys():
+            final_inputs["folder_path"] = Path.cwd()
+        else:
+            final_inputs["folder_path"] = Path(final_inputs["folder_path"])
+
         if "prompt_template_file" not in final_inputs:
             final_inputs["prompt_template_file"] = _DEFAULT_PROMPT_JSON
 
+        final_inputs["pr_title"] = f"PatchWork {self.__class__.__name__}"
+        final_inputs["branch_prefix"] = f"{self.__class__.__name__.lower()}-"
+
         validate_steps_with_inputs(
-            set(final_inputs.keys()).union({"prompt_values"}), LLM, ReadFile
+            set(final_inputs.keys()).union({"prompt_values","files_to_patch"}), LLM, CallCode2Prompt,ModifyCode,PR
         )
         self.inputs = final_inputs
 
     def run(self):
-        output = ReadFile(self.inputs).run()
-        
-        # Update inputs with the prompt values, replacing {{code}}
-        self.inputs.update(output)
-        self.inputs["prompt_values"] = [{"code": output['file_content']}]
-        
+        outputs = CallCode2Prompt(self.inputs).run()
+
+        new_file_name = f"test_{self.__class__.__name__}.py"
+        new_file_path = Path(outputs['uri']).with_name(new_file_name)
+        Path(outputs['uri']).rename(new_file_path)
+        outputs['uri'] = str(new_file_path)
+        self.inputs["files_to_patch"] = self.inputs["prompt_values"] = [outputs]
+
         outputs = LLM(self.inputs).run()
-        return outputs['openai_responses']
+        self.inputs.update(outputs)
+        outputs = ModifyCode(self.inputs).run()
+        self.inputs.update(outputs)
+        self.inputs["pr_header"] = f"This pull request from patchwork adds tests."
+        outputs = PR(self.inputs).run()
+        self.inputs.update(outputs)
+
+        return self.inputs
