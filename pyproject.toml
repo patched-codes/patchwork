@@ -48,7 +48,7 @@ giturlparse = "~0.12.0"
 scikit-learn = "^1.3.2"
 json-repair = "~0.30.0"
 # pinning transitive dependencies
-onnxruntime = { version = "1.14.1", optional = true}
+onnxruntime = { version = "1.19.2", optional = true }
 tree-sitter = "~0.21.3"
 numpy = [
     { version = "^1.26", python = "^3.12", optional = true},
