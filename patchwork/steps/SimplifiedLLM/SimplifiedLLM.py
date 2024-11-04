@@ -13,19 +13,6 @@ from patchwork.steps.PreparePrompt.PreparePrompt import PreparePrompt
 from patchwork.steps.SimplifiedLLM.typed import SimplifiedLLMInputs
 
 
-def json_loads(json_str: str) -> dict:
-    try:
-        return json.loads(json_str, strict=False)
-    except json.JSONDecodeError as e:
-        logger.debug(f"Json to decode: \n{json_str}\nError: \n{e}")
-
-    try:
-        json_str = repair_json(json_str, skip_json_loads=True)
-        return json.loads(json_str, strict=False)
-    except json.JSONDecodeError as e:
-        logger.debug(f"Json to decode: \n{json_str}\nError: \n{e}")
-        raise e
-
 
 class SimplifiedLLM(Step):
     def __init__(self, inputs):
@@ -47,6 +34,20 @@ class SimplifiedLLM(Step):
         else:
             raise ValueError(step.status_message)
 
+    @staticmethod
+    def __json_loads(json_str: str) -> dict:
+        try:
+            return json.loads(json_str, strict=False)
+        except json.JSONDecodeError as e:
+            logger.debug(f"Json to decode: \n{json_str}\nError: \n{e}")
+
+        try:
+            json_str = repair_json(json_str, skip_json_loads=True)
+            return json.loads(json_str, strict=False)
+        except json.JSONDecodeError as e:
+            logger.debug(f"Json to decode: \n{json_str}\nError: \n{e}")
+            raise e
+
     def __retry_unit(self, prepare_prompt_outputs, call_llm_inputs, retry_data: RetryData):
         call_llm = CallLLM(call_llm_inputs)
         call_llm_outputs = call_llm.run()
@@ -56,7 +57,7 @@ class SimplifiedLLM(Step):
             json_responses = []
             for response in call_llm_outputs.get("openai_responses"):
                 try:
-                    json_response = json_loads(response)
+                    json_response = self.__json_loads(response)
                     json_responses.append(json_response)
                 except json.JSONDecodeError as e:
                     logger.error(f"Json to decode: \n{response}\nError: \n{e}")
