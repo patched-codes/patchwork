@@ -1,6 +1,8 @@
 import json
 from functools import partial
+
 from json_repair import repair_json
+
 from patchwork.common.client.llm.utils import example_json_to_schema
 from patchwork.common.utils.utils import RetryData, exclude_none_dict, retry
 from patchwork.logger import logger
@@ -11,7 +13,6 @@ from patchwork.steps.ExtractModelResponse.ExtractModelResponse import (
 )
 from patchwork.steps.PreparePrompt.PreparePrompt import PreparePrompt
 from patchwork.steps.SimplifiedLLM.typed import SimplifiedLLMInputs
-
 
 
 class SimplifiedLLM(Step):
