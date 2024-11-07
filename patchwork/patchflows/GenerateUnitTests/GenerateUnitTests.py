@@ -43,7 +43,7 @@ class GenerateUnitTests(Step):
 
     def run(self):
         outputs = CallCode2Prompt(self.inputs).run()
-        new_file_name = f"test_.{self.inputs['test_file_extension']}"
+        new_file_name = f"test_file.{self.inputs['test_file_extension']}"
         new_file_path = Path(outputs['uri']).with_name(new_file_name)
         Path(outputs['uri']).rename(new_file_path)
         outputs['uri'] = str(new_file_path)
@@ -53,7 +53,6 @@ class GenerateUnitTests(Step):
         self.inputs.update(outputs)
         outputs = ModifyCode(self.inputs).run()
         self.inputs.update(outputs)
-
         number = len(self.inputs["modified_code_files"])
         self.inputs["pr_header"] = f"This pull request from patchwork adds tests."
         outputs = PR(self.inputs).run()
