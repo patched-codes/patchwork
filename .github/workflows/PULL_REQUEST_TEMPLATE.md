@@ -4,6 +4,8 @@
 - [ ] The commit message follows our guidelines: [Code of conduct](https://github.com/patched-codes/patchwork/blob/main/CODE_OF_CONDUCT.md)
 - [ ] Tests for the changes have been added (for bug fixes / features)
 - [ ] Docs have been added / updated (for bug fixes / features)
+- [ ] Does this PR introduce a breaking change?
+- [ ] Include PR in release notes?
 
 
 ## PR Type
@@ -27,23 +29,8 @@ Issue Number: N/A
 
 ## What is the new behavior?
 
-
-## Does this PR introduce a breaking change?
-
-- [ ] Yes
-- [ ] No
-
-
 <!-- If this PR contains a breaking change, please describe the impact and migration path for existing applications below. -->
 
-### Add Screenshots / Videos if applicable
 
-<Insert gif and/or summary>
-
-
-### Include PR in release notes?
-
-- [ ] `Yes`
-- [ ] `No`
 
 ## Other information
