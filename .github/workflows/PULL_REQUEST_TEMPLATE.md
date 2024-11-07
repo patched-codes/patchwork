@@ -14,7 +14,6 @@
 
 - [ ] Bugfix
 - [ ] Feature
-- [ ] Code style update (formatting, local variables)
 - [ ] Refactoring
 - [ ] Build /CI
 - [ ] Documentation
