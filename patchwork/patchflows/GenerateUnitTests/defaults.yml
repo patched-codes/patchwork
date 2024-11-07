@@ -12,6 +12,9 @@
 
 # folder_path : path/to/folder/with/class
 
+# language : python/c++/..
+# test_file_extension : py/cpp/..
+
 
 # CommitChanges Inputs
 disable_branch: false

@@ -87,15 +87,9 @@ class ModifyCode(Step):
             end_line = code_snippet.get("endLine")
             new_code = extracted_response.get("patch")
 
-            if new_code.startswith("```") and new_code.endswith("```"):
-                new_code = re.sub(r'```[a-zA-Z]*\n', '', new_code)
-                new_code = re.sub(r'```', '', new_code)
-                new_code = new_code.strip()
-
             if new_code is None:
                 continue
             
-            print(extracted_response)
             replace_code_in_file(uri, start_line, end_line, new_code)
             modified_code_file = dict(path=uri, start_line=start_line, end_line=end_line, **extracted_response)
             modified_code_files.append(modified_code_file)
