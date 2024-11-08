@@ -3,7 +3,6 @@ from __future__ import annotations
 from pathlib import Path
 
 from patchwork.step import Step, StepStatus
-import re
 
 
 def save_file_contents(file_path, content):

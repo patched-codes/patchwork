@@ -47,7 +47,7 @@ class GenerateUnitTests(Step):
         new_file_path = Path(outputs['uri']).with_name(new_file_name)
         Path(outputs['uri']).rename(new_file_path)
         outputs['uri'] = str(new_file_path)
-        self.inputs["response_partitions"] = {"patch": [f"```{self.inputs['language']}\n",  "```"]}
+        self.inputs["response_partitions"] = {"patch": ["```", "\n", "```"]}
         self.inputs["files_to_patch"] = self.inputs["prompt_values"] = [outputs]
         outputs = LLM(self.inputs).run()
         self.inputs.update(outputs)
