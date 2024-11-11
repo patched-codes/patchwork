@@ -50,6 +50,7 @@ AutoFix
 DependencyUpgrade
 GenerateDocstring
 GenerateREADME
+GenerateUnitTests
 PRReview
 ResolveIssue"""
     )
@@ -67,6 +68,7 @@ AutoFix
 DependencyUpgrade
 GenerateDocstring
 GenerateREADME
+GenerateUnitTests
 PRReview
 ResolveIssue
 {name_without_ext}"""
