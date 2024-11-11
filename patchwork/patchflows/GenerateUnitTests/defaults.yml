@@ -12,7 +12,8 @@
 
 # folder_path : path/to/folder/with/class
 
-# test_file_extension : py/cpp/..
+# Default value
+test_file_extension : py
 
 # CommitChanges Inputs
 disable_branch: false
