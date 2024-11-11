@@ -8,6 +8,7 @@ on:
       - dependencyupgrade-*
       - generatereadme-*
       - generatedocstring-*
+      - generateunittests-*
       - demo*
 
 jobs:
@@ -199,6 +200,14 @@ jobs:
           --patched_api_key=${{ secrets.PATCHED_API_KEY }} \
           --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
           --base_path=tests/cicd/generate_docstring \
+          --disable_telemetry
+
+      - name: Generate UnitTests
+        run: |
+          poetry run patchwork GenerateUnitTests --log debug \
+          --patched_api_key=${{ secrets.PATCHED_API_KEY }} \
+          --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
+          --folder_path=tests/cicd/generate_docstring \
           --disable_telemetry
 
       - name: Generate README
