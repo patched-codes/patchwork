@@ -16,6 +16,8 @@ class PR(Step, input_class=PRInputs, output_class=PROutputs):
         if self.inputs.get("modified_code_files") is not None:
             return
 
+        self.inputs["modified_code_files"] = []
+
         input_modified_files = self.inputs.get("modified_files")
         if input_modified_files is None or len(input_modified_files) < 1:
             return

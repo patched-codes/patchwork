@@ -12,7 +12,7 @@
 [![Build](https://github.com/patched-codes/patchwork/actions/workflows/release.yml/badge.svg)](https://github.com/patched-codes/patchwork/actions/workflows/release.yml)
 [![Discord](https://dcbadge.limes.pink/api/server/XDxA3mJyhE?style=flat&theme=clean-inverted)](https://discord.gg/XDxA3mJyhE)
 [![Downloads](https://img.shields.io/pypi/v/patchwork-cli)](https://pypi.org/project/patchwork-cli/)
-[![Downloads](https://static.pepy.tech/badge/patchwork-cli)](https://pepy.tech/project/patchwork-cli)
+[![Downloads](https://static.pepy.tech/badge/patchwork-cli)](https://pepy.tech/projects/patchwork-cli)
 
 [Demo](https://youtu.be/MLyn6B3bFMU) |
 [Docs](https://docs.patched.codes/)
