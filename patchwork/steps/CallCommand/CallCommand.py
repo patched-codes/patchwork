@@ -3,8 +3,6 @@ import shlex
 import subprocess
 from pathlib import Path
 
-from mypy.state import state
-
 from patchwork.logger import logger
 from patchwork.step import Step, StepStatus
 from patchwork.steps.CallCommand.typed import CallCommandInputs, CallCommandOutputs
