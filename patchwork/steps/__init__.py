@@ -42,6 +42,7 @@ from patchwork.steps.ReadIssues.ReadIssues import ReadIssues
 from patchwork.steps.ReadPRDiffs.ReadPRDiffs import ReadPRDiffs
 from patchwork.steps.ReadPRs.ReadPRs import ReadPRs
 from patchwork.steps.ScanDepscan.ScanDepscan import ScanDepscan
+from patchwork.steps.ScanPSFuzz.ScanPSFuzz import ScanPSFuzz
 from patchwork.steps.ScanSemgrep.ScanSemgrep import ScanSemgrep
 from patchwork.steps.SimplifiedLLM.SimplifiedLLM import SimplifiedLLM
 from patchwork.steps.SimplifiedLLMOnce.SimplifiedLLMOnce import SimplifiedLLMOnce
@@ -90,6 +91,7 @@ __all__ = [
     "ReadPRDiffsPB",
     "ReadPRs",
     "ScanDepscan",
+    "ScanPSFuzz"
     "ScanSemgrep",
     "SimplifiedLLM",
     "SimplifiedLLMOnce",

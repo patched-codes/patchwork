@@ -45,10 +45,7 @@ class Step(abc.ABC):
         """
 
         # check if the inputs have the required keys
-        if self.__input_class is not None:
-            missing_keys = self.__input_class.__required_keys__.difference(inputs.keys())
-            if len(missing_keys) > 0:
-                raise ValueError(f"Missing required data: {list(missing_keys)}")
+        self.test_inputs(inputs)
 
         # store the inputs
         self.inputs = inputs
@@ -77,6 +74,12 @@ class Step(abc.ABC):
             cls.__output_class = output_class
         else:
             cls.__output_class = None
+    @classmethod
+    def test_inputs(cls, inputs: DataPoint):
+        if cls.__input_class is not None:
+            missing_keys = cls.__input_class.__required_keys__.difference(inputs.keys())
+            if len(missing_keys) > 0:
+                raise ValueError(f"Missing required data: {list(missing_keys)}")
 
     def __managed_run(self, *args, **kwargs) -> Any:
         self.debug(self.inputs)

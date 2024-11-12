@@ -1,4 +1,5 @@
-import json
+from __future__ import annotations
+
 import shlex
 import subprocess
 from pathlib import Path
@@ -17,12 +18,12 @@ class CallCommand(Step, input_class=CallCommandInputs, output_class=CallCommandO
         self.env = self.__parse_env_text(inputs.get("env", ""))
 
     @staticmethod
-    def __parse_env_text(env_text):
+    def __parse_env_text(env_text: str) -> dict[str, str]:
         env_spliter = shlex.shlex(env_text, posix=True)
         env_spliter.whitespace_split = True
         env_spliter.whitespace += ";"
 
-        env = dict()
+        env: dict[str, str] = dict()
         for env_assign in env_spliter:
             env_assign_spliter = shlex.shlex(env_assign, posix=True)
             env_assign_spliter.whitespace_split = True
