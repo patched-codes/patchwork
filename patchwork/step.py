@@ -43,7 +43,6 @@ class Step(abc.ABC):
         Initializes the step.
         :param inputs: a dictionary of inputs
         """
-
         # check if the inputs have the required keys
         self.test_inputs(inputs)
 
@@ -74,6 +73,7 @@ class Step(abc.ABC):
             cls.__output_class = output_class
         else:
             cls.__output_class = None
+
     @classmethod
     def test_inputs(cls, inputs: DataPoint):
         if cls.__input_class is not None:

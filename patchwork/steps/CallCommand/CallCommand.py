@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import shlex
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -12,8 +13,10 @@ from patchwork.steps.CallCommand.typed import CallCommandInputs, CallCommandOutp
 class CallCommand(Step, input_class=CallCommandInputs, output_class=CallCommandOutputs):
     def __init__(self, inputs: dict):
         super().__init__(inputs)
-        self.command = inputs["command"]
-        self.command_args = inputs.get("command_args", "")
+        self.command = shutil.which(inputs["command"])
+        if self.command is None:
+            raise ValueError(f"Command `{inputs['command']}` not found in PATH")
+        self.command_args = shlex.split(inputs.get("command_args", ""))
         self.working_dir = inputs.get("working_dir", Path.cwd())
         self.env = self.__parse_env_text(inputs.get("env", ""))
 
@@ -44,7 +47,7 @@ class CallCommand(Step, input_class=CallCommandInputs, output_class=CallCommandO
         return env
 
     def run(self) -> dict:
-        cmd = [self.command, *shlex.split(self.command_args)]
+        cmd = [self.command, *self.command_args]
         p = subprocess.run(cmd, capture_output=True, text=True, cwd=self.working_dir, env=self.env)
         try:
             p.check_returncode()
