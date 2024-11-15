@@ -115,36 +115,42 @@ class OpenAiLlmClient(LlmClient):
             top_p=top_p,
         )
 
-        is_json_output_required = response_format is not NOT_GIVEN and response_format.get("type") in ['json_object', 'json_schema']
+        is_json_output_required = response_format is not NOT_GIVEN and response_format.get("type") in [
+            "json_object",
+            "json_schema",
+        ]
         if model.startswith("o1") and is_json_output_required:
             return self.__o1_chat_completion(**input_kwargs)
 
         return self.client.chat.completions.create(**NotGiven.remove_not_given(input_kwargs))
 
     def __o1_chat_completion(
-            self,
-            messages: Iterable[ChatCompletionMessageParam],
-            model: str,
-            frequency_penalty: Optional[float] | NotGiven = NOT_GIVEN,
-            logit_bias: Optional[Dict[str, int]] | NotGiven = NOT_GIVEN,
-            logprobs: Optional[bool] | NotGiven = NOT_GIVEN,
-            max_tokens: Optional[int] | NotGiven = NOT_GIVEN,
-            n: Optional[int] | NotGiven = NOT_GIVEN,
-            presence_penalty: Optional[float] | NotGiven = NOT_GIVEN,
-            response_format: dict | completion_create_params.ResponseFormat | NotGiven = NOT_GIVEN,
-            stop: Union[Optional[str], List[str]] | NotGiven = NOT_GIVEN,
-            temperature: Optional[float] | NotGiven = NOT_GIVEN,
-            top_logprobs: Optional[int] | NotGiven = NOT_GIVEN,
-            top_p: Optional[float] | NotGiven = NOT_GIVEN,
+        self,
+        messages: Iterable[ChatCompletionMessageParam],
+        model: str,
+        frequency_penalty: Optional[float] | NotGiven = NOT_GIVEN,
+        logit_bias: Optional[Dict[str, int]] | NotGiven = NOT_GIVEN,
+        logprobs: Optional[bool] | NotGiven = NOT_GIVEN,
+        max_tokens: Optional[int] | NotGiven = NOT_GIVEN,
+        n: Optional[int] | NotGiven = NOT_GIVEN,
+        presence_penalty: Optional[float] | NotGiven = NOT_GIVEN,
+        response_format: dict | completion_create_params.ResponseFormat | NotGiven = NOT_GIVEN,
+        stop: Union[Optional[str], List[str]] | NotGiven = NOT_GIVEN,
+        temperature: Optional[float] | NotGiven = NOT_GIVEN,
+        top_logprobs: Optional[int] | NotGiven = NOT_GIVEN,
+        top_p: Optional[float] | NotGiven = NOT_GIVEN,
     ):
         o1_messages = list(messages)
-        if response_format.get("type") == 'json_schema':
+        if response_format.get("type") == "json_schema":
             last_msg_idx = len(o1_messages) - 1
             last_msg = o1_messages[last_msg_idx]
-            last_msg["content"] = last_msg["content"] + f"""
-Response with the following json schema in mind:
+            last_msg["content"] = (
+                last_msg["content"]
+                + f"""
+Respond with the following json schema in mind:
 {response_format.get('json_schema')}
 """
+            )
         o1_input_kwargs = dict(
             messages=o1_messages,
             model=model,
@@ -168,7 +174,7 @@ Response with the following json schema in mind:
                 messages=[
                     {
                         "role": "user",
-                        "content": f"Given the following data, format it with the given response format: {o1_choice.message.content}"
+                        "content": f"Given the following data, format it with the given response format: {o1_choice.message.content}",
                     }
                 ],
                 model="gpt-4o-mini",
