@@ -201,6 +201,13 @@ jobs:
           --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
           --base_path=tests/cicd/generate_docstring \
           --disable_telemetry
+      
+      - name : Generate Diagrams
+        run: |
+          poetry run patchwork GenerateDiagrams --log debug \
+          --patched_api_key=${{ secrets.PATCHED_API_KEY }} \
+          --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
+          --disable_telemetry
 
       - name: Generate UnitTests
         run: |
