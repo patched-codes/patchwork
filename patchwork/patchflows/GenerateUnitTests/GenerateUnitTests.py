@@ -1,18 +1,14 @@
-import json
 from pathlib import Path
+
 import yaml
 
 from patchwork.common.utils.step_typing import validate_steps_with_inputs
 from patchwork.step import Step
-from patchwork.steps import (
-    LLM, 
-    CallCode2Prompt,
-    ModifyCode,
-    PR
-)
+from patchwork.steps import LLM, PR, CallCode2Prompt, ModifyCode
 
 _DEFAULT_INPUT_FILE = Path(__file__).parent / "defaults.yml"
 _DEFAULT_PROMPT_JSON = Path(__file__).parent / "default_prompt.json"
+
 
 class GenerateUnitTests(Step):
     def __init__(self, inputs):
@@ -21,7 +17,7 @@ class GenerateUnitTests(Step):
         final_inputs = yaml.safe_load(_DEFAULT_INPUT_FILE.read_text())
         if final_inputs is None:
             final_inputs = {}
-        
+
         final_inputs.update(inputs)
 
         final_inputs["prompt_id"] = "GenerateUnitTests"
@@ -37,16 +33,16 @@ class GenerateUnitTests(Step):
         final_inputs["branch_prefix"] = f"{self.__class__.__name__.lower()}-"
 
         validate_steps_with_inputs(
-            set(final_inputs.keys()).union({"prompt_values","files_to_patch"}), LLM, CallCode2Prompt,ModifyCode,PR
+            set(final_inputs.keys()).union({"prompt_values", "files_to_patch"}), LLM, CallCode2Prompt, ModifyCode, PR
         )
         self.inputs = final_inputs
 
     def run(self):
         outputs = CallCode2Prompt(self.inputs).run()
         new_file_name = f"test_file.{self.inputs['test_file_extension']}"
-        new_file_path = Path(outputs['uri']).with_name(new_file_name)
-        Path(outputs['uri']).rename(new_file_path)
-        outputs['uri'] = str(new_file_path)
+        new_file_path = Path(outputs["uri"]).with_name(new_file_name)
+        Path(outputs["uri"]).rename(new_file_path)
+        outputs["uri"] = str(new_file_path)
         self.inputs["response_partitions"] = {"patch": ["```", "\n", "```"]}
         self.inputs["files_to_patch"] = self.inputs["prompt_values"] = [outputs]
         outputs = LLM(self.inputs).run()
