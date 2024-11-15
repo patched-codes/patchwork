@@ -2,8 +2,16 @@ from .AutoFix.AutoFix import AutoFix
 from .DependencyUpgrade.DependencyUpgrade import DependencyUpgrade
 from .GenerateDocstring.GenerateDocstring import GenerateDocstring
 from .GenerateREADME.GenerateREADME import GenerateREADME
+from .GenerateUnitTests.GenerateUnitTests import GenerateUnitTests
 from .PRReview.PRReview import PRReview
 from .ResolveIssue.ResolveIssue import ResolveIssue
-from .GenerateUnitTests.GenerateUnitTests import GenerateUnitTests
 
-__all__ = ["AutoFix", "DependencyUpgrade", "GenerateREADME", "PRReview", "ResolveIssue", "GenerateDocstring", "GenerateUnitTests"]
+__all__ = [
+    "AutoFix",
+    "DependencyUpgrade",
+    "GenerateREADME",
+    "PRReview",
+    "ResolveIssue",
+    "GenerateDocstring",
+    "GenerateUnitTests",
+]
