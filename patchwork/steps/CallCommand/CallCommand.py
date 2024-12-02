@@ -49,8 +49,8 @@ class CallCommand(Step, input_class=CallCommandInputs, output_class=CallCommandO
     def run(self) -> dict:
         cmd = [self.command, *self.command_args]
         p = subprocess.run(cmd, capture_output=True, text=True, cwd=self.working_dir, env=self.env)
-        try:
-            p.check_returncode()
+        cmd = [self.command] + shlex.split(self.command_args)
+        p = subprocess.run(cmd, capture_output=True, text=True, cwd=self.working_dir, env=self.env)
             return dict(stdout_output=p.stdout)
         except subprocess.CalledProcessError as e:
             self.set_status(StepStatus.FAILED, f"`{self.command} {self.command_args}` failed with stdout:\n{p.stdout}\nstderr:\n{e.stderr}")
