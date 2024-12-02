@@ -10,6 +10,7 @@ from itertools import chain
 import gitlab.const
 from attrs import define
 from github import Auth, Consts, Github, GithubException, PullRequest
+from github.GithubException import UnknownObjectException
 from gitlab import Gitlab, GitlabAuthenticationError, GitlabError
 from gitlab.v4.objects import ProjectMergeRequest
 from giturlparse import GitUrlParsed, parse
@@ -333,13 +334,20 @@ class GithubPullRequest(PullRequestProtocol):
                 comment.delete()
 
     def texts(self) -> PullRequestTexts:
+        comments = []
+        for comment in chain(self._pr.get_review_comments(), self._pr.get_issue_comments()):
+            try:
+                # Copilot user throws here
+                user = comment.user.name
+            except UnknownObjectException:
+                user = comment.user.login
+
+            comments.append(dict(user=user, body=comment.body))
+
         return dict(
             title=self._pr.title or "",
             body=self._pr.body or "",
-            comments=[
-                dict(user=comment.user.name, body=comment.body)
-                for comment in itertools.chain(self._pr.get_comments(), self._pr.get_issue_comments())
-            ],
+            comments=comments,
             # None checks for binary files
             diffs={file.filename: file.patch for file in self._pr.get_files() if file.patch is not None},
         )
