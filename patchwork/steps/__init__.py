@@ -1,6 +1,7 @@
 from patchwork.steps.AnalyzeImpact.AnalyzeImpact import AnalyzeImpact
 from patchwork.steps.CallAPI.CallAPI import CallAPI
 from patchwork.steps.CallCode2Prompt.CallCode2Prompt import CallCode2Prompt
+from patchwork.steps.CallCommand.CallCommand import CallCommand
 from patchwork.steps.CallLLM.CallLLM import CallLLM
 from patchwork.steps.Combine.Combine import Combine
 from patchwork.steps.CommitChanges.CommitChanges import CommitChanges
@@ -41,6 +42,7 @@ from patchwork.steps.ReadIssues.ReadIssues import ReadIssues
 from patchwork.steps.ReadPRDiffs.ReadPRDiffs import ReadPRDiffs
 from patchwork.steps.ReadPRs.ReadPRs import ReadPRs
 from patchwork.steps.ScanDepscan.ScanDepscan import ScanDepscan
+from patchwork.steps.ScanPSFuzz.ScanPSFuzz import ScanPSFuzz
 from patchwork.steps.ScanSemgrep.ScanSemgrep import ScanSemgrep
 from patchwork.steps.SimplifiedLLM.SimplifiedLLM import SimplifiedLLM
 from patchwork.steps.SimplifiedLLMOnce.SimplifiedLLMOnce import SimplifiedLLMOnce
@@ -57,6 +59,7 @@ __all__ = [
     "AnalyzeImpact",
     "CallAPI",
     "CallCode2Prompt",
+    "CallCommand",
     "CallLLM",
     "Combine",
     "CommitChanges",
@@ -88,6 +91,7 @@ __all__ = [
     "ReadPRDiffsPB",
     "ReadPRs",
     "ScanDepscan",
+    "ScanPSFuzz"
     "ScanSemgrep",
     "SimplifiedLLM",
     "SimplifiedLLMOnce",
