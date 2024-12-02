@@ -25,10 +25,6 @@ class GenerateDiagram(Step):
         final_inputs.update(inputs)
 
         final_inputs["prompt_id"] = "GenerateDiagram"
-        if "folder_path" not in final_inputs.keys():
-            final_inputs["folder_path"] = Path.cwd()
-        else:
-            final_inputs["folder_path"] = Path(final_inputs["folder_path"])
 
         if "prompt_template_file" not in final_inputs:
             final_inputs["prompt_template_file"] = _DEFAULT_PROMPT_JSON

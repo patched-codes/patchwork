@@ -207,6 +207,7 @@ jobs:
           poetry run patchwork GenerateDiagram --log debug \
           --patched_api_key=${{ secrets.PATCHED_API_KEY }} \
           --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
+          --folder_path=patchwork \
           --disable_telemetry
 
       - name: Generate UnitTests
