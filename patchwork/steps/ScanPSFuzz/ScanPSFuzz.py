@@ -23,7 +23,13 @@ class ScanPSFuzz(Step, input_class=ScanPSFuzzInputs, output_class=ScanPSFuzzOutp
             command_args=f'-b {inputs["prompt_file_path"]}',
             env=f'OPENAI_API_KEY={inputs["openai_api_key"]}'
         )
+import os
 
+wrapped_input = dict(
+    command="prompt-security-fuzzer",
+    command_args=f'-b {inputs["prompt_file_path"]}',
+    env=f'OPENAI_API_KEY={os.getenv("OPENAI_API_KEY")}'
+)
         working_dir = inputs.get("working_dir")
         if working_dir is not None:
             wrapped_input["working_dir"] = working_dir
