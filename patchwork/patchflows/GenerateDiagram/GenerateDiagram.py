@@ -29,7 +29,7 @@ class GenerateDiagram(Step):
         if "prompt_template_file" not in final_inputs:
             final_inputs["prompt_template_file"] = _DEFAULT_PROMPT_JSON
 
-        final_inputs["pr_title"] = f"PatchWork System Architecture Diagram generated"
+        final_inputs["pr_title"] = f"PatchWork System Architecture Diagram"
         final_inputs["branch_prefix"] = f"{self.__class__.__name__.lower()}-"
 
         validate_steps_with_inputs(
