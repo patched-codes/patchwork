@@ -81,12 +81,15 @@ class Step(abc.ABC):
             if len(missing_keys) > 0:
                 raise ValueError(f"Missing required data: {list(missing_keys)}")
 
-    def __managed_run(self, *args, **kwargs) -> Any:
-        self.debug(self.inputs)
-        logger.info(f"Run started {self.__step_name}")
-        exc = None
         try:
             output = self.original_run(*args, **kwargs)
+        except SpecificException as e:
+            exc = e
+        except AnotherSpecificException as e:
+            exc = e
+
+        if self.__status_msg is not None:
+            self.__status._logger(f"Step {self.__step_name} message: {self.__status_msg}")
         except Exception as e:
             exc = e
 
