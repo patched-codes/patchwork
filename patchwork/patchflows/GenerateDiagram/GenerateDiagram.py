@@ -30,8 +30,6 @@ class GenerateDiagram(Step):
         else:
             final_inputs["folder_path"] = Path(final_inputs["folder_path"])
 
-        print(final_inputs["folder_path"])
-
         if "prompt_template_file" not in final_inputs:
             final_inputs["prompt_template_file"] = _DEFAULT_PROMPT_JSON
 
@@ -41,14 +39,13 @@ class GenerateDiagram(Step):
         validate_steps_with_inputs(
             set(final_inputs.keys()).union({"prompt_values","files_to_patch"}), LLM, CallCode2Prompt,ModifyCode,PR
         )
+
+        self.base_path = final_inputs["base_path"]
         self.inputs = final_inputs
 
     def run(self):
         outputs = CallCode2Prompt(self.inputs).run()
-        new_file_name = f"diagram.md"
-        new_file_path = Path(outputs['uri']).with_name(new_file_name)
-        Path(outputs['uri']).rename(new_file_path)
-        outputs['uri'] = str(new_file_path)
+        outputs['uri'] = self.base_path
         self.inputs["response_partitions"] = {"patch": ["```", "\n", "```"]}
         self.inputs["files_to_patch"] = self.inputs["prompt_values"] = [outputs]
         outputs = LLM(self.inputs).run()

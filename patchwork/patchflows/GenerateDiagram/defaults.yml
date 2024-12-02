@@ -10,7 +10,7 @@
 # model_top_p: 0.95
 # model_max_tokens: 2000
 
-# folder_path : path/to/folder/with/class
+base_path : diagram.md
 
 # CommitChanges Inputs
 disable_branch: false
