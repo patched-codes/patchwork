@@ -21,8 +21,8 @@ from openai.types.chat import (
 from openai.types.chat.chat_completion import ChatCompletion, Choice
 from typing_extensions import Any, Dict, Iterable, List, Optional, Union
 
-from patchwork.common.client.llm.protocol import NOT_GIVEN, LlmClient, NotGiven
-from patchwork.common.client.llm.utils import json_schema_to_model
+from .protocol import NOT_GIVEN, LlmClient, NotGiven
+from .utils import json_schema_to_model
 
 
 @functools.lru_cache

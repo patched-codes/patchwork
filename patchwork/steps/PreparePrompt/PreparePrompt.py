@@ -6,13 +6,10 @@ import string
 from pathlib import Path
 
 import chevron
-from chevron import render
 
 from patchwork.common.constants import PROMPT_TEMPLATE_FILE_KEY
 from patchwork.logger import logger
 from patchwork.step import Step, StepStatus
-
-chevron.render.__globals__["_html_escape"] = lambda string: string
 
 
 def _find_by_prompt_template_file(prompt_template_file: str | None, prompt_id: str | None) -> list[dict] | None:
@@ -79,6 +76,7 @@ class PreparePrompt(Step):
             return dict(prompts=[])
 
         prompts = []
+        chevron.render.__globals__["_html_escape"] = lambda string: string
         for prompt_value in self.prompt_values:
             dict_value = prompt_value
             if not isinstance(dict_value, dict):
@@ -88,7 +86,7 @@ class PreparePrompt(Step):
             for prompt_part in self.prompt_template:
                 prompt_instance = {}
                 for key, value in prompt_part.items():
-                    new_value = render(
+                    new_value = chevron.render(
                         template=value,
                         data=dict_value,
                         partials_path=None,

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "patchwork-cli"
-version = "0.0.78"
+version = "0.0.79"
 description = ""
 authors = ["patched.codes"]
 license = "AGPL"
@@ -48,6 +48,7 @@ giturlparse = "~0.12.0"
 scikit-learn = "^1.3.2"
 json-repair = "~0.30.0"
 # pinning transitive dependencies
+httpx = "<0.28.0"
 tree-sitter = "~0.21.3"
 numpy = [
     { version = "^1.26", python = "^3.12", optional = true},
