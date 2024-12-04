@@ -70,7 +70,7 @@ jobs:
         id: setup-python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.8'
+          python-version: '3.9'
 
       - name: Install Poetry
         uses: snok/install-poetry@v1
@@ -123,7 +123,7 @@ jobs:
         id: setup-python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.8'
+          python-version: '3.9'
 
       - name: Install Poetry
         uses: snok/install-poetry@v1
@@ -166,7 +166,7 @@ jobs:
         id: setup-python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.8'
+          python-version: '3.9'
 
       - name: Install Poetry
         uses: snok/install-poetry@v1
@@ -201,12 +201,13 @@ jobs:
           --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
           --base_path=tests/cicd/generate_docstring \
           --disable_telemetry
-      
+
       - name : Generate Diagram
         run: |
           poetry run patchwork GenerateDiagram --log debug \
           --patched_api_key=${{ secrets.PATCHED_API_KEY }} \
           --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
+          --folder_path=patchwork/steps \
           --disable_telemetry
 
       - name: Generate UnitTests
