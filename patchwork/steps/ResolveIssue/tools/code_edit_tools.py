@@ -7,10 +7,10 @@ from typing import Literal
 from patchwork.steps.ResolveIssue.tools.tool import Tool
 
 
-class CodeEditTool(Tool):
-    def __init__(self, repo_path: Path):
+class CodeEditTool(Tool, tool_name="code_edit_tool"):
+    def __init__(self, path: str):
         super().__init__()
-        self.repo_path = repo_path
+        self.repo_path = Path(path)
         self.modified_files = []
 
     @property

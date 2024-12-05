@@ -6,7 +6,7 @@ class Tool(ABC):
     __internal_map: dict[str, Type["Tool"]] = dict()
 
     def __init_subclass__(cls, **kwargs):
-        cls_name = kwargs.get("name", cls.__name__)
+        cls_name = kwargs.get("tool_name", cls.__name__)
         if cls_name in cls.__internal_map.keys():
             raise ValueError(f"Duplicate subclass name for class {cls.__name__}: {cls_name}")
         cls.name = cls_name
@@ -24,7 +24,7 @@ class Tool(ABC):
     @staticmethod
     def get_tools(**kwargs) -> dict[str, "Tool"]:
         rv = dict()
-        for k, v in kwargs.items():
+        for k, v in Tool.__internal_map.items():
             try:
                 rv[k] = v(**kwargs)
             except Exception as e:

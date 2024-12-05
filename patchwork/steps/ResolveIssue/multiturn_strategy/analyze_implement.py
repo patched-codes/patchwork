@@ -31,7 +31,7 @@ class AnalyzeImplementStrategy(MultiturnStrategy):
         implementation_prompt_template: str,
         **kwargs,
     ):
-        super().__init__(tool_set, **kwargs)
+        super().__init__(tool_set=tool_set, **kwargs)
         self.llm_client = llm_client
         self.template_data = initial_template_data
         self.analysis_prompt_template = analysis_prompt_template
@@ -54,7 +54,8 @@ class AnalyzeImplementStrategy(MultiturnStrategy):
         if is_prompt_safe < 0:
             raise ValueError("The subsequent prompt is not supported, due to large size.")
         response = self.llm_client.chat_completion(**input_kwargs)
-        messages.append(response.choices[0].message.to_dict())
+        new_messages = [choice.message.to_dict() for choice in response.choices]
+        messages.extend(new_messages)
         return messages
 
     def __render_prompt(self, prompt: str) -> str:
@@ -81,12 +82,12 @@ class AnalyzeImplementStrategy(MultiturnStrategy):
                 self.template_data["analysis_results"] = possible_analysis_message
                 implement_prompt = self.__render_prompt(self.implementation_prompt_template)
                 messages = [dict(role="user", content=implement_prompt)]
-        else:
-            if last_message.get("tool_calls") is not None:
-                tool_messages = self.execute_tools(last_message)
-                messages.extend(tool_messages)
-            messages.append(dict(role="user", content=f"Continue with the {self._stage.name.lower()} stage."))
+                return self.__run_prompt(messages)
 
+        if last_message.get("tool_calls") is not None:
+            tool_messages = self.execute_tools(last_message)
+            messages.extend(tool_messages)
+        messages.append(dict(role="user", content=f"Continue with the {self._stage.name.upper()} stage."))
         return self.__run_prompt(messages)
 
     @abstractmethod

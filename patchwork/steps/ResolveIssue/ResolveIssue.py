@@ -1,6 +1,6 @@
 import re
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 from git import Repo
 from openai.types.chat import ChatCompletionMessageParam
@@ -20,7 +20,7 @@ from patchwork.steps.ResolveIssue.typed import ResolveIssueInputs, ResolveIssueO
 
 class _ResolveIssue(AnalyzeImplementStrategy):
     def __init__(self, repo_path: str, llm_client: LlmClient, issue_description: Any, **kwargs):
-        self.tool_set = Tool.get_tools(repo_path=repo_path)
+        self.tool_set = Tool.get_tools(path=repo_path)
         super().__init__(
             llm_client=llm_client,
             initial_template_data=dict(issue=issue_description),
@@ -74,10 +74,10 @@ Let me know when you're done by outputting </DONE>.""",
             **kwargs,
         )
 
-    def extract_analysis_message(self, message: ChatCompletionMessageParam) -> dict[str, str]:
+    def extract_analysis_message(self, message: ChatCompletionMessageParam) -> Optional[dict[str, str]]:
         analysis_match = re.search(r"<analysis>(.*?)</analysis>", message.get("content"), re.DOTALL)
         if not analysis_match:
-            return dict()
+            return None
 
         content = analysis_match.group(1)
         sections = dict()
@@ -112,12 +112,11 @@ class ResolveIssue(Step, input_class=ResolveIssueInputs, output_class=ResolveIss
                 "\n"
                 "If you are using an OpenAI API Key, please set `--openai_api_key=<token>`.\n"
             )
-        issue_description = inputs.get("issue_description")
 
         self.multiturn_llm_call = _ResolveIssue(
             repo_path=self.base_path,
             llm_client=llm_client,
-            issue_description=issue_description,
+            issue_description=inputs["issue_description"],
         )
 
     def run(self):
