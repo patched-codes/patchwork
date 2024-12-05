@@ -131,7 +131,7 @@ Notes for using the `str_replace` command:
         elif abs_path.is_dir():
             result = []
             for root, dirs, files in os.walk(abs_path):
-                level = root[len(abs_path) :].count(os.sep)
+                level = root[len(str(abs_path)) :].count(os.sep)
                 if level <= 2:
                     for d in dirs:
                         result.append(d)
