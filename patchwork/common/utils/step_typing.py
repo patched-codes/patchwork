@@ -106,7 +106,12 @@ def validate_step_type_config_with_inputs(
 
 
 def validate_step_with_inputs(input_keys: Set[str], step: Type[Step]) -> Tuple[Set[str], Dict[str, str]]:
+    module_whitelist = {"trusted.module1", "trusted.module2", "trusted.module3"}
+    
     module_path, _, _ = step.__module__.rpartition(".")
+    if module_path not in module_whitelist:
+        raise ValueError(f"Module {module_path} is not in the whitelist")
+        
     step_name = step.__name__
     type_module = importlib.import_module(f"{module_path}.typed")
     step_input_model = getattr(type_module, f"{step_name}Inputs", __NOT_GIVEN)
