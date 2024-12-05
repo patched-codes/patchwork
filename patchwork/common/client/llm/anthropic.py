@@ -22,7 +22,7 @@ from openai.types.chat.chat_completion_message_tool_call import (
 from openai.types.completion_usage import CompletionUsage
 from typing_extensions import Dict, Iterable, List, Optional, Union
 
-from .protocol import NOT_GIVEN, LlmClient, NotGiven
+from patchwork.common.client.llm.protocol import NOT_GIVEN, LlmClient, NotGiven
 
 
 def _anthropic_to_openai_response(model: str, anthropic_response: Message) -> ChatCompletion:

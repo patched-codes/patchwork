@@ -12,13 +12,12 @@ from openai.types.chat import (
 )
 from typing_extensions import Dict, Iterable, List, Optional, Union
 
-from ...constants import DEFAULT_PATCH_URL
-from .anthropic import AnthropicLlmClient
-from .google import GoogleLlmClient
-from .openai_ import OpenAiLlmClient
-from .protocol import NOT_GIVEN, LlmClient, NotGiven
-
-logger = getLogger(__name__)
+from patchwork.common.client.llm.anthropic import AnthropicLlmClient
+from patchwork.common.client.llm.google import GoogleLlmClient
+from patchwork.common.client.llm.openai_ import OpenAiLlmClient
+from patchwork.common.client.llm.protocol import NOT_GIVEN, LlmClient, NotGiven
+from patchwork.common.constants import DEFAULT_PATCH_URL
+from patchwork.logger import logger
 
 
 class AioLlmClient(LlmClient):

@@ -13,7 +13,7 @@ from openai.types.chat import (
 )
 from typing_extensions import Dict, Iterable, List, Optional, Union
 
-from .protocol import NOT_GIVEN, LlmClient, NotGiven
+from patchwork.common.client.llm.protocol import NOT_GIVEN, LlmClient, NotGiven
 
 
 @functools.lru_cache
