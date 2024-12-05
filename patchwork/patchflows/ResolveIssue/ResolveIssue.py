@@ -5,8 +5,7 @@ import yaml
 from patchwork.common.utils.progress_bar import PatchflowProgressBar
 from patchwork.common.utils.step_typing import validate_steps_with_inputs
 from patchwork.step import Step
-from patchwork.steps import PR, ReadIssues
-from patchwork.steps import FixIssue
+from patchwork.steps import PR, FixIssue, ReadIssues
 
 _DEFAULT_INPUT_FILE = Path(__file__).parent / "defaults.yml"
 

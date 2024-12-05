@@ -12,8 +12,6 @@ from openai.types.chat.chat_completion_tool_param import ChatCompletionToolParam
 
 from patchwork.common.tools import Tool
 
-logger = logging.getLogger("patched")
-
 
 class MultiturnStrategy(ABC):
     def __init__(self, tool_set: dict[str, Tool], limit: int | None = None, *args, **kwargs):

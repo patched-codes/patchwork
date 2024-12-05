@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-from logging import getLogger
 
 from openai.types.chat import (
     ChatCompletion,

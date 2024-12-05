@@ -58,22 +58,22 @@ class GoogleLlmClient(LlmClient):
         return model in self.get_models()
 
     def is_prompt_supported(
-            self,
-            messages: Iterable[ChatCompletionMessageParam],
-            model: str,
-            frequency_penalty: Optional[float] | NotGiven = NOT_GIVEN,
-            logit_bias: Optional[Dict[str, int]] | NotGiven = NOT_GIVEN,
-            logprobs: Optional[bool] | NotGiven = NOT_GIVEN,
-            max_tokens: Optional[int] | NotGiven = NOT_GIVEN,
-            n: Optional[int] | NotGiven = NOT_GIVEN,
-            presence_penalty: Optional[float] | NotGiven = NOT_GIVEN,
-            response_format: dict | completion_create_params.ResponseFormat | NotGiven = NOT_GIVEN,
-            stop: Union[Optional[str], List[str]] | NotGiven = NOT_GIVEN,
-            temperature: Optional[float] | NotGiven = NOT_GIVEN,
-            tools: Iterable[ChatCompletionToolParam] | NotGiven = NOT_GIVEN,
-            tool_choice: ChatCompletionToolChoiceOptionParam | NotGiven = NOT_GIVEN,
-            top_logprobs: Optional[int] | NotGiven = NOT_GIVEN,
-            top_p: Optional[float] | NotGiven = NOT_GIVEN,
+        self,
+        messages: Iterable[ChatCompletionMessageParam],
+        model: str,
+        frequency_penalty: Optional[float] | NotGiven = NOT_GIVEN,
+        logit_bias: Optional[Dict[str, int]] | NotGiven = NOT_GIVEN,
+        logprobs: Optional[bool] | NotGiven = NOT_GIVEN,
+        max_tokens: Optional[int] | NotGiven = NOT_GIVEN,
+        n: Optional[int] | NotGiven = NOT_GIVEN,
+        presence_penalty: Optional[float] | NotGiven = NOT_GIVEN,
+        response_format: dict | completion_create_params.ResponseFormat | NotGiven = NOT_GIVEN,
+        stop: Union[Optional[str], List[str]] | NotGiven = NOT_GIVEN,
+        temperature: Optional[float] | NotGiven = NOT_GIVEN,
+        tools: Iterable[ChatCompletionToolParam] | NotGiven = NOT_GIVEN,
+        tool_choice: ChatCompletionToolChoiceOptionParam | NotGiven = NOT_GIVEN,
+        top_logprobs: Optional[int] | NotGiven = NOT_GIVEN,
+        top_p: Optional[float] | NotGiven = NOT_GIVEN,
     ) -> int:
         system, chat = self.__openai_messages_to_google_messages(messages)
         gen_model = generativeai.GenerativeModel(model_name=model, system_instruction=system)
