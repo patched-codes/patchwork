@@ -1,4 +1,4 @@
-from typing_extensions import Annotated, Dict, TypedDict
+from typing_extensions import Annotated, Dict, TypedDict, List
 
 from patchwork.common.constants import TOKEN_URL
 from patchwork.common.utils.step_typing import StepTypeConfig
@@ -36,6 +36,4 @@ If you are using a OpenAI API Key, please set `--openai_api_key=<token>`.""",
 
 
 class FixIssueOutputs(TypedDict):
-    status_code: int
-    headers: Dict[str, str]
-    body: str
+    modified_files: List[Dict]
