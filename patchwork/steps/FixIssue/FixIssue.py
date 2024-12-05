@@ -8,14 +8,13 @@ from openai.types.chat import ChatCompletionMessageParam
 from patchwork.common.client.llm.aio import AioLlmClient
 from patchwork.common.client.llm.protocol import LlmClient
 from patchwork.common.constants import TOKEN_URL
-from patchwork.step import Step
-from patchwork.steps.ResolveIssue.multiturn_strategy.analyze_implement import (
+from patchwork.common.multiturn_strategy.analyze_implement import (
     STAGE,
     AnalyzeImplementStrategy,
 )
-from patchwork.steps.ResolveIssue.tools.code_edit_tools import CodeEditTool
-from patchwork.steps.ResolveIssue.tools.tool import Tool
-from patchwork.steps.ResolveIssue.typed import ResolveIssueInputs, ResolveIssueOutputs
+from patchwork.common.tools import CodeEditTool, Tool
+from patchwork.step import Step
+from patchwork.steps.FixIssue.typed import FixIssueInputs, FixIssueOutputs
 
 
 class _ResolveIssue(AnalyzeImplementStrategy):
@@ -93,7 +92,7 @@ Let me know when you're done by outputting </DONE>.""",
         return "</DONE>" in last_message.get("content")
 
 
-class ResolveIssue(Step, input_class=ResolveIssueInputs, output_class=ResolveIssueOutputs):
+class FixIssue(Step, input_class=FixIssueInputs, output_class=FixIssueOutputs):
     def __init__(self, inputs):
         super().__init__(inputs)
         self.base_path = inputs.get("base_path")

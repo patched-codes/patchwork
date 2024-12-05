@@ -3,7 +3,7 @@ from __future__ import annotations
 import subprocess
 from pathlib import Path
 
-from patchwork.steps.ResolveIssue.tools.tool import Tool
+from patchwork.common.tools import Tool
 
 
 class BashTool(Tool, tool_name="bash"):

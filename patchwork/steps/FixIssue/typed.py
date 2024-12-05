@@ -4,11 +4,11 @@ from patchwork.common.constants import TOKEN_URL
 from patchwork.common.utils.step_typing import StepTypeConfig
 
 
-class __CallAPIRequiredInputs(TypedDict):
+class __FixIssueRequiredInputs(TypedDict):
     issue_description: str
 
 
-class ResolveIssueInputs(__CallAPIRequiredInputs, total=False):
+class FixIssueInputs(__FixIssueRequiredInputs, total=False):
     base_path: Annotated[str, StepTypeConfig(is_path=True)]
     openai_api_key: Annotated[
         str, StepTypeConfig(is_config=True, or_op=["patched_api_key", "google_api_key", "anthropic_api_key"])
@@ -35,7 +35,7 @@ If you are using a OpenAI API Key, please set `--openai_api_key=<token>`.""",
     ]
 
 
-class ResolveIssueOutputs(TypedDict):
+class FixIssueOutputs(TypedDict):
     status_code: int
     headers: Dict[str, str]
     body: str

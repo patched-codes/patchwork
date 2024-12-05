@@ -21,6 +21,7 @@ from patchwork.steps.ExtractPackageManagerFile.ExtractPackageManagerFile import 
     ExtractPackageManagerFile,
 )
 from patchwork.steps.FilterBySimilarity.FilterBySimilarity import FilterBySimilarity
+from patchwork.steps.FixIssue.FixIssue import FixIssue
 from patchwork.steps.GenerateCodeRepositoryEmbeddings.GenerateCodeRepositoryEmbeddings import (
     GenerateCodeRepositoryEmbeddings,
 )
@@ -40,7 +41,6 @@ from patchwork.steps.ReadFile.ReadFile import ReadFile
 from patchwork.steps.ReadIssues.ReadIssues import ReadIssues
 from patchwork.steps.ReadPRDiffs.ReadPRDiffs import ReadPRDiffs
 from patchwork.steps.ReadPRs.ReadPRs import ReadPRs
-from patchwork.steps.ResolveIssue.ResolveIssue import ResolveIssue
 from patchwork.steps.ScanDepscan.ScanDepscan import ScanDepscan
 from patchwork.steps.ScanSemgrep.ScanSemgrep import ScanSemgrep
 from patchwork.steps.SimplifiedLLM.SimplifiedLLM import SimplifiedLLM

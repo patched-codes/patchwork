@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 from typing import Literal
 
-from patchwork.steps.ResolveIssue.tools.tool import Tool
+from patchwork.common.tools import Tool
 
 
 class CodeEditTool(Tool, tool_name="code_edit_tool"):

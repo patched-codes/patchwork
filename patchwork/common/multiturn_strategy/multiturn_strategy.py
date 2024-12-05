@@ -10,7 +10,7 @@ from openai.types.chat.chat_completion_message import ChatCompletionMessage
 from openai.types.chat.chat_completion_message_param import ChatCompletionMessageParam
 from openai.types.chat.chat_completion_tool_param import ChatCompletionToolParam
 
-from patchwork.steps.ResolveIssue.tools.tool import Tool
+from patchwork.common.tools import Tool
 
 logger = logging.getLogger("patched")
 

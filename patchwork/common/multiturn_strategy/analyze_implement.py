@@ -10,10 +10,8 @@ import chevron
 from openai.types.chat import ChatCompletionMessageParam
 
 from patchwork.common.client.llm.protocol import LlmClient
-from patchwork.steps.ResolveIssue.multiturn_strategy.multiturn_strategy import (
-    MultiturnStrategy,
-)
-from patchwork.steps.ResolveIssue.tools.tool import Tool
+from patchwork.common.multiturn_strategy.multiturn_strategy import MultiturnStrategy
+from patchwork.common.tools import Tool
 
 
 class STAGE(Enum):
