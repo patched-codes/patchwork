@@ -7,7 +7,7 @@ from patchwork.step import Step, StepStatus
 
 def save_file_contents(file_path, content):
     """Utility function to save content to a file."""
-    with open(file_path, "w") as file:
+    with open(file_path, "w", newline="") as file:  # Add newline="" parameter
         file.write(content)
 
 
@@ -39,23 +39,43 @@ def replace_code_in_file(
     new_code: str,
 ) -> None:
     path = Path(file_path)
-    new_code_lines = new_code.splitlines(keepends=True)
-    if len(new_code_lines) > 0 and not new_code_lines[-1].endswith("\n"):
-        new_code_lines[-1] += "\n"
+    
+    # Read file in binary mode to preserve line endings
+    if path.exists():
+        with open(file_path, 'rb') as f:
+            text = f.read().decode('utf-8')
+    else:
+        text = ""
+
+    # Detect original line ending style
+    if '\r\n' in text:
+        line_ending = '\r\n'
+    elif '\r' in text:
+        line_ending = '\r'
+    else:
+        line_ending = '\n'
+
+    # Split lines while preserving line endings
+    if text:
+        lines = text.splitlines(keepends=True)
+    else:
+        lines = []
+
+    # Convert new code to match original line endings
+    new_code_lines = [
+        line + line_ending if not line.endswith(('\r\n', '\r', '\n')) else line
+        for line in new_code.splitlines(keepends=True)
+    ]
 
     if path.exists() and start_line is not None and end_line is not None:
-        """Replaces specified lines in a file with new code."""
-        text = path.read_text()
-
-        lines = text.splitlines(keepends=True)
-
         # Insert the new code at the start line after converting it into a list of lines
         lines[start_line:end_line] = handle_indent(lines, new_code_lines, start_line, end_line)
     else:
         lines = new_code_lines
 
-    # Save the modified contents back to the file
-    save_file_contents(file_path, "".join(lines))
+    # Save with preserved line endings
+    with open(file_path, 'w', newline='') as f:
+        f.write(''.join(lines))
 
 
 class ModifyCode(Step):
