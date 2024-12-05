@@ -87,18 +87,20 @@ Notes for using the `str_replace` command:
 
         try:
             if command == "view":
-                return self.__view(path, view_range)
+                result = self.__view(path, view_range)
             elif command == "create":
-                return self.__create(file_text, path)
+                result = self.__create(file_text, path)
             elif command == "str_replace":
-                return self.__str_replace(new_str, old_str, path)
+                result = self.__str_replace(new_str, old_str, path)
             elif command == "insert":
-                return self.__insert(insert_line, new_str, path)
+                result = self.__insert(insert_line, new_str, path)
+            else:
+                return f"Error: Unknown action {command}"
 
             if command in {"create", "str_replace", "insert"}:
                 self.modified_files.append(path.lstrip("/"))
 
-            return f"Error: Unknown action {command}"
+            return result
 
         except Exception as e:
             return f"Error: {str(e)}"
