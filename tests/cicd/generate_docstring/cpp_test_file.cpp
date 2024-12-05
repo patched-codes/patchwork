@@ -6,11 +6,25 @@
 
 
 template<typename T>
+/**
+ * Adds two elements of type T.
+ * 
+ * @param a The first element to be added.
+ * @param b The second element to be added.
+ * @return The sum of the two elements.
+ */
 T a_plus_b(T a, T b) {
     return a + b;
 }
 
 
+/**
+ * Executes a given SQL query on a provided SQLite database connection and returns the results.
+ * 
+ * @param db A pointer to the SQLite database connection.
+ * @param query A string containing the SQL query to be executed.
+ * @return A 2D vector of strings where each inner vector represents a row and each string represents a column value in the result set.
+ */
 std::vector<std::vector<std::string>> sqlite(sqlite3* db, const std::string& query) {
     std::vector<std::vector<std::string>> results;
     sqlite3_stmt* stmt;
@@ -38,6 +52,17 @@ std::vector<std::vector<std::string>> sqlite(sqlite3* db, const std::string& que
 
 
 template<typename T, typename F>
+/**
+ * Compares two items using a specified key mapping function.
+ * The comparison is performed based on the values obtained by applying the key mapping function to each item.
+ * 
+ * @param key_map A function or functor that takes an item of type T and returns a comparable value.
+ * @param item1 The first item to be compared.
+ * @param item2 The second item to be compared.
+ * @return An integer result of the comparison: -1 if the value from item1 is less than the value from item2,
+ *         1 if the value from item1 is greater than the value from item2, and
+ *         0 if both values are equal.
+ */
 int compare(F key_map, const T& item1, const T& item2) {
     auto val1 = key_map(item1);
     auto val2 = key_map(item2);
@@ -48,6 +73,12 @@ int compare(F key_map, const T& item1, const T& item2) {
 }
 
 
+/**
+ * Generates a random string composed of uppercase and lowercase alphabets.
+ * 
+ * @param length The desired length of the generated string.
+ * @return A random string of the specified length containing only alphabetic characters.
+ */
 std::string random_alphabets(int length) {
     static const std::string chars =
         "abcdefghijklmnopqrstuvwxyz"
