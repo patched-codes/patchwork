@@ -6,7 +6,7 @@ from patchwork.common.utils.progress_bar import PatchflowProgressBar
 from patchwork.common.utils.step_typing import validate_steps_with_inputs
 from patchwork.step import Step
 from patchwork.steps import PR, ReadIssues
-from patchwork.steps import ResolveIssue as _ResolveIssue
+from patchwork.steps import FixIssue
 
 _DEFAULT_INPUT_FILE = Path(__file__).parent / "defaults.yml"
 
@@ -15,7 +15,7 @@ class ResolveIssue(Step):
     def __init__(self, inputs: dict):
         PatchflowProgressBar(self).register_steps(
             ReadIssues,
-            _ResolveIssue,
+            FixIssue,
             PR,
         )
         final_inputs = yaml.safe_load(_DEFAULT_INPUT_FILE.read_text()) or dict()
@@ -27,7 +27,7 @@ class ResolveIssue(Step):
         validate_steps_with_inputs(
             {"issue_description"}.union(final_inputs.keys()),
             ReadIssues,
-            _ResolveIssue,
+            FixIssue,
             PR,
         )
 
@@ -36,7 +36,7 @@ class ResolveIssue(Step):
     def run(self) -> dict:
         outputs = ReadIssues(self.inputs).run()
         self.inputs["issue_description"] = outputs
-        outputs = _ResolveIssue(self.inputs).run()
+        outputs = FixIssue(self.inputs).run()
         self.inputs.update(outputs)
         self.inputs["pr_header"] = f'This pull request from patchwork fixes {self.inputs["issue_url"]}.'
         outputs = PR(self.inputs).run()
