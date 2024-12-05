@@ -11,7 +11,7 @@ class CodeEditTool(Tool, tool_name="code_edit_tool"):
     def __init__(self, path: str):
         super().__init__()
         self.repo_path = Path(path)
-        self.modified_files = []
+        self.modified_files = set()
 
     @property
     def json_schema(self) -> dict:
@@ -98,7 +98,7 @@ Notes for using the `str_replace` command:
                 return f"Error: Unknown action {command}"
 
             if command in {"create", "str_replace", "insert"}:
-                self.modified_files.append(path.lstrip("/"))
+                self.modified_files.update(path.lstrip("/"))
 
             return result
 
