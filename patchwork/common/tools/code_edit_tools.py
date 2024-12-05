@@ -111,7 +111,7 @@ Notes for using the `str_replace` command:
 
     def __get_abs_path(self, path: str):
         abs_path = (self.repo_path / path.lstrip("/")).resolve()
-        if not abs_path.is_relative_to(self.repo_path):
+        if not abs_path.is_relative_to(self.repo_path.resolve()):
             raise ValueError(f"Path {path} contains illegal path traversal")
 
         return abs_path
