@@ -98,7 +98,7 @@ Notes for using the `str_replace` command:
                 return f"Error: Unknown action {command}"
 
             if command in {"create", "str_replace", "insert"}:
-                self.modified_files.update(path.lstrip("/"))
+                self.modified_files.update({path.lstrip("/")})
 
             return result
 

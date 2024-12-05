@@ -17,3 +17,4 @@ class ReadIssuesOutputs(TypedDict):
     issue_title: str
     issue_body: str
     issue_comments: List[str]
+    issue_description: str
