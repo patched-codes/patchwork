@@ -5,11 +5,13 @@ import time
 from functools import lru_cache
 
 from anthropic import Anthropic
-from anthropic.types import Message, TextBlockParam
+from anthropic.types import Message, MessageParam, TextBlockParam
 from openai.types.chat import (
     ChatCompletion,
     ChatCompletionMessage,
     ChatCompletionMessageParam,
+    ChatCompletionToolChoiceOptionParam,
+    ChatCompletionToolParam,
     completion_create_params,
 )
 from openai.types.chat.chat_completion import Choice, CompletionUsage
@@ -81,6 +83,119 @@ class AnthropicLlmClient(LlmClient):
             return 100_000 - safety_margin
         return 200_000 - safety_margin
 
+    def __adapt_input_messages(self, messages: Iterable[ChatCompletionMessageParam]) -> list[MessageParam]:
+        new_messages = []
+        for message in messages:
+            if message.get("role") == "system":
+                if system is NOT_GIVEN:
+                    system = list()
+                system.append(TextBlockParam(text=message.get("content"), type="text"))
+            elif message.get("role") == "tool":
+                new_messages.append(
+                    dict(
+                        role="user",
+                        content=[
+                            dict(
+                                type="tool_result",
+                                tool_use_id=message.get("tool_call_id"),
+                                content=message.get("content"),
+                            )
+                        ],
+                    )
+                )
+            elif message.get("role") == "assistant" and len(message.get("tool_calls", [])) > 0:
+                tool_calls = message["tool_calls"]
+                tool_calls_as_content = [
+                    dict(
+                        type="tool_use",
+                        id=tool_call["id"],
+                        name=tool_call["function"]["name"],
+                        input=json.loads(tool_call["function"]["arguments"]),
+                    )
+                    for tool_call in tool_calls
+                ]
+                new_messages.append(
+                    dict(
+                        role="assistant",
+                        content=[
+                            *tool_calls_as_content,
+                        ],
+                    )
+                )
+            else:
+                new_messages.append(message)
+
+        return new_messages
+
+    def __adapt_chat_completion_request(
+        self,
+        messages: Iterable[ChatCompletionMessageParam],
+        model: str,
+        frequency_penalty: Optional[float] | NotGiven = NOT_GIVEN,
+        logit_bias: Optional[Dict[str, int]] | NotGiven = NOT_GIVEN,
+        logprobs: Optional[bool] | NotGiven = NOT_GIVEN,
+        max_tokens: Optional[int] | NotGiven = NOT_GIVEN,
+        n: Optional[int] | NotGiven = NOT_GIVEN,
+        presence_penalty: Optional[float] | NotGiven = NOT_GIVEN,
+        response_format: completion_create_params.ResponseFormat | NotGiven = NOT_GIVEN,
+        stop: Union[Optional[str], List[str]] | NotGiven = NOT_GIVEN,
+        temperature: Optional[float] | NotGiven = NOT_GIVEN,
+        tools: Iterable[ChatCompletionToolParam] | NotGiven = NOT_GIVEN,
+        tool_choice: ChatCompletionToolChoiceOptionParam | NotGiven = NOT_GIVEN,
+        top_logprobs: Optional[int] | NotGiven = NOT_GIVEN,
+        top_p: Optional[float] | NotGiven = NOT_GIVEN,
+    ):
+        system: Union[str, Iterable[TextBlockParam]] | NotGiven = NOT_GIVEN
+        adapted_messages = self.__adapt_input_messages(messages)
+        default_max_token = 1000
+
+        if tool_choice is not NOT_GIVEN:
+            # openai tool choice to anthropic tool choice mapping:
+            # openai   : none, auto, required , required
+            # anthropic: NA  , auto, any      , tool
+            if isinstance(tool_choice, str):
+                if tool_choice == "required":
+                    tool_choice = dict(type="any")
+                elif tool_choice == "none":
+                    tool_choice = NOT_GIVEN
+                else:
+                    tool_choice = dict(type=tool_choice)
+            else:
+                tool_choice_type = tool_choice.get("type")
+                if tool_choice_type == "required":
+                    if tool_choice.get("function") is not None:
+                        tool_choice["type"] = "tool"
+                        tool_choice["name"] = tool_choice["function"]["name"]
+                    else:
+                        tool_choice["type"] = "any"
+                elif tool_choice_type == "none":
+                    tool_choice = NOT_GIVEN
+
+        input_kwargs = dict(
+            messages=adapted_messages,
+            system=system,
+            max_tokens=default_max_token if max_tokens is None or max_tokens is NOT_GIVEN else max_tokens,
+            model=model,
+            stop_sequences=[stop] if isinstance(stop, str) else stop,
+            temperature=temperature,
+            tools=[tool.get("function") for tool in tools if tool.get("function") is not None],
+            tool_choice=tool_choice,
+            top_p=top_p,
+        )
+
+        if response_format is not NOT_GIVEN and response_format.get("type") == "json_schema":
+            input_kwargs["tool_choice"] = dict(type="tool", name="response_format")
+            if input_kwargs.get("tools") is NOT_GIVEN:
+                input_kwargs["tools"] = list()
+            response_format_tool = dict(
+                name="response_format",
+                description="The response format to use",
+                input_schema=response_format["json_schema"]["schema"],
+            )
+            input_kwargs["tools"] = [*input_kwargs["tools"], response_format_tool]
+
+        return NotGiven.remove_not_given(input_kwargs)
+
     @lru_cache(maxsize=None)
     def get_models(self) -> set[str]:
         return self.__definitely_allowed_models.union(set(f"{self.__allowed_model_prefix}*"))
@@ -88,16 +203,49 @@ class AnthropicLlmClient(LlmClient):
     def is_model_supported(self, model: str) -> bool:
         return model in self.__definitely_allowed_models or model.startswith(self.__allowed_model_prefix)
 
-    def is_prompt_supported(self, messages: Iterable[ChatCompletionMessageParam], model: str) -> int:
+    def is_prompt_supported(
+        self,
+        messages: Iterable[ChatCompletionMessageParam],
+        model: str,
+        frequency_penalty: Optional[float] | NotGiven = NOT_GIVEN,
+        logit_bias: Optional[Dict[str, int]] | NotGiven = NOT_GIVEN,
+        logprobs: Optional[bool] | NotGiven = NOT_GIVEN,
+        max_tokens: Optional[int] | NotGiven = NOT_GIVEN,
+        n: Optional[int] | NotGiven = NOT_GIVEN,
+        presence_penalty: Optional[float] | NotGiven = NOT_GIVEN,
+        response_format: completion_create_params.ResponseFormat | NotGiven = NOT_GIVEN,
+        stop: Union[Optional[str], List[str]] | NotGiven = NOT_GIVEN,
+        temperature: Optional[float] | NotGiven = NOT_GIVEN,
+        tools: Iterable[ChatCompletionToolParam] | NotGiven = NOT_GIVEN,
+        tool_choice: ChatCompletionToolChoiceOptionParam | NotGiven = NOT_GIVEN,
+        top_logprobs: Optional[int] | NotGiven = NOT_GIVEN,
+        top_p: Optional[float] | NotGiven = NOT_GIVEN,
+    ) -> int:
         model_limit = self.__get_model_limit(model)
-        token_count = 0
-        for message in messages:
-            message_token_count = self.client.count_tokens(message.get("content"))
-            token_count = token_count + message_token_count
-            if token_count > model_limit:
-                return -1
-
-        return model_limit - token_count
+        input_kwargs = self.__adapt_chat_completion_request(
+            messages=messages,
+            model=model,
+            frequency_penalty=frequency_penalty,
+            logit_bias=logit_bias,
+            logprobs=logprobs,
+            max_tokens=max_tokens,
+            n=n,
+            presence_penalty=presence_penalty,
+            response_format=response_format,
+            stop=stop,
+            temperature=temperature,
+            tools=tools,
+            tool_choice=tool_choice,
+            top_logprobs=top_logprobs,
+            top_p=top_p,
+        )
+        count_token_input_kwargs = {
+            k: v
+            for k, v in input_kwargs.items()
+            if k in {"messages", "model", "system", "tool_choice", "tools", "beta"}
+        }
+        message_token_count = self.client.beta.messages.count_tokens(**count_token_input_kwargs)
+        return model_limit - message_token_count.input_tokens
 
     def truncate_messages(
         self, messages: Iterable[ChatCompletionMessageParam], model: str
@@ -117,38 +265,28 @@ class AnthropicLlmClient(LlmClient):
         response_format: completion_create_params.ResponseFormat | NotGiven = NOT_GIVEN,
         stop: Union[Optional[str], List[str]] | NotGiven = NOT_GIVEN,
         temperature: Optional[float] | NotGiven = NOT_GIVEN,
+        tools: Iterable[ChatCompletionToolParam] | NotGiven = NOT_GIVEN,
+        tool_choice: ChatCompletionToolChoiceOptionParam | NotGiven = NOT_GIVEN,
         top_logprobs: Optional[int] | NotGiven = NOT_GIVEN,
         top_p: Optional[float] | NotGiven = NOT_GIVEN,
     ) -> ChatCompletion:
-        system: Union[str, Iterable[TextBlockParam]] | NotGiven = NOT_GIVEN
-        other_messages = []
-        for message in messages:
-            if message.get("role") == "system":
-                if system is NOT_GIVEN:
-                    system = list()
-                system.append(TextBlockParam(text=message.get("content"), type="text"))
-            else:
-                other_messages.append(message)
-
-        default_max_token = 1000
-        input_kwargs = dict(
-            messages=other_messages,
-            system=system,
-            max_tokens=default_max_token if max_tokens is None or max_tokens is NOT_GIVEN else max_tokens,
+        input_kwargs = self.__adapt_chat_completion_request(
+            messages=messages,
             model=model,
-            stop_sequences=[stop] if isinstance(stop, str) else stop,
+            frequency_penalty=frequency_penalty,
+            logit_bias=logit_bias,
+            logprobs=logprobs,
+            max_tokens=max_tokens,
+            n=n,
+            presence_penalty=presence_penalty,
+            response_format=response_format,
+            stop=stop,
             temperature=temperature,
+            tools=tools,
+            tool_choice=tool_choice,
+            top_logprobs=top_logprobs,
             top_p=top_p,
         )
-        if response_format is not NOT_GIVEN and response_format.get("type") == "json_schema":
-            input_kwargs["tool_choice"] = dict(type="tool", name="response_format")
-            input_kwargs["tools"] = [
-                dict(
-                    name="response_format",
-                    description="The response format to use",
-                    input_schema=response_format["json_schema"]["schema"],
-                )
-            ]
 
-        response = self.client.messages.create(**NotGiven.remove_not_given(input_kwargs))
+        response = self.client.messages.create(**input_kwargs)
         return _anthropic_to_openai_response(model, response)

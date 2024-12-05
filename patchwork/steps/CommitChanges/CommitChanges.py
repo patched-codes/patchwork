@@ -126,7 +126,7 @@ class CommitChanges(Step):
 
     def __get_repo_tracked_modified_files(self, repo: Repo) -> set[Path]:
         repo_dir_path = Path(repo.working_tree_dir)
-        path_filter = PathFilter(repo.working_tree_dir)
+        path_filter = PathFilter(base_path=repo.working_tree_dir)
 
         repo_changed_files = set()
         for item in repo.index.diff(None):
@@ -167,7 +167,7 @@ class CommitChanges(Step):
         ):
             for modified_file in true_modified_files:
                 repo.git.add(modified_file)
-                commit_with_msg(repo, f"Patched {modified_file}")
+                commit_with_msg(repo, f"Patched {modified_file.relative_to(repo_dir_path)}")
 
             return dict(
                 base_branch=from_branch,

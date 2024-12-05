@@ -3,6 +3,8 @@ from __future__ import annotations
 from openai.types.chat import (
     ChatCompletion,
     ChatCompletionMessageParam,
+    ChatCompletionToolChoiceOptionParam,
+    ChatCompletionToolParam,
     completion_create_params,
 )
 from typing_extensions import Any, Dict, Iterable, List, Optional, Protocol, Union
@@ -32,7 +34,24 @@ class LlmClient(Protocol):
     def is_model_supported(self, model: str) -> bool:
         ...
 
-    def is_prompt_supported(self, messages: Iterable[ChatCompletionMessageParam], model: str) -> int:
+    def is_prompt_supported(
+        self,
+        messages: Iterable[ChatCompletionMessageParam],
+        model: str,
+        frequency_penalty: Optional[float] | NotGiven = NOT_GIVEN,
+        logit_bias: Optional[Dict[str, int]] | NotGiven = NOT_GIVEN,
+        logprobs: Optional[bool] | NotGiven = NOT_GIVEN,
+        max_tokens: Optional[int] | NotGiven = NOT_GIVEN,
+        n: Optional[int] | NotGiven = NOT_GIVEN,
+        presence_penalty: Optional[float] | NotGiven = NOT_GIVEN,
+        response_format: dict | completion_create_params.ResponseFormat | NotGiven = NOT_GIVEN,
+        stop: Union[Optional[str], List[str]] | NotGiven = NOT_GIVEN,
+        temperature: Optional[float] | NotGiven = NOT_GIVEN,
+        tools: Iterable[ChatCompletionToolParam] | NotGiven = NOT_GIVEN,
+        tool_choice: ChatCompletionToolChoiceOptionParam | NotGiven = NOT_GIVEN,
+        top_logprobs: Optional[int] | NotGiven = NOT_GIVEN,
+        top_p: Optional[float] | NotGiven = NOT_GIVEN,
+    ) -> int:
         ...
 
     def truncate_messages(
@@ -112,6 +131,8 @@ class LlmClient(Protocol):
         response_format: str | completion_create_params.ResponseFormat | NotGiven = NOT_GIVEN,
         stop: Union[Optional[str], List[str]] | NotGiven = NOT_GIVEN,
         temperature: Optional[float] | NotGiven = NOT_GIVEN,
+        tools: Iterable[ChatCompletionToolParam] | NotGiven = NOT_GIVEN,
+        tool_choice: ChatCompletionToolChoiceOptionParam | NotGiven = NOT_GIVEN,
         top_logprobs: Optional[int] | NotGiven = NOT_GIVEN,
         top_p: Optional[float] | NotGiven = NOT_GIVEN,
     ) -> ChatCompletion:

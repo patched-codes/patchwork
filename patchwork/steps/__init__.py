@@ -21,6 +21,7 @@ from patchwork.steps.ExtractPackageManagerFile.ExtractPackageManagerFile import 
     ExtractPackageManagerFile,
 )
 from patchwork.steps.FilterBySimilarity.FilterBySimilarity import FilterBySimilarity
+from patchwork.steps.FixIssue.FixIssue import FixIssue
 from patchwork.steps.GenerateCodeRepositoryEmbeddings.GenerateCodeRepositoryEmbeddings import (
     GenerateCodeRepositoryEmbeddings,
 )
@@ -87,6 +88,7 @@ __all__ = [
     "ReadPRDiffs",
     "ReadPRDiffsPB",
     "ReadPRs",
+    "ResolveIssue",
     "ScanDepscan",
     "ScanSemgrep",
     "SimplifiedLLM",
