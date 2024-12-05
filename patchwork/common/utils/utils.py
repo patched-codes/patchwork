@@ -57,32 +57,66 @@ def defered_temp_file(
     return tempfile_fp
 
 
+class FileWithEncoding:
+    """A file-like class that preserves line endings and handles encoding."""
+    def __init__(self, file, mode, encoding, errors=None):
+        # Default to 'strict' error handling if None provided
+        self.binary_file = open(file, mode='rb')
+        self.encoding = encoding
+        self.errors = 'strict' if errors is None else errors
+        self.mode = mode
+        self.name = self.binary_file.name
+        
+    def read(self, size=None):
+        data = self.binary_file.read() if size is None else self.binary_file.read(size)
+        return data.decode(self.encoding, errors=self.errors)
+    
+    def write(self, data):
+        if isinstance(data, str):
+            data = data.encode(self.encoding, errors=self.errors)
+        return self.binary_file.write(data)
+    
+    def close(self):
+        self.binary_file.close()
+        
+    def __enter__(self):
+        return self
+        
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.close()
+
 def open_with_chardet(file, mode="r", buffering=-1, errors=None, newline=None, closefd=True, opener=None):
+    """Opens a file with automatically detected encoding using chardet while preserving line endings.
+    
+    Args:
+        file: Path to file to open
+        mode: Mode to open file in ("r" by default)
+        buffering: Buffering policy (-1 by default)
+        errors: How to handle encoding errors (None by default)
+        newline: How to handle newlines (None by default, which preserves the original line endings)
+        closefd: Whether to close the descriptor (True by default)
+        opener: Optional opener function (None by default)
+    
+    Returns:
+        A file-like object with the detected encoding that preserves line endings
+    """
     detector = UniversalDetector()
-    with open(
-        file=file, mode="rb", buffering=buffering, errors=errors, newline=newline, closefd=closefd, opener=opener
-    ) as f:
+    encoding = "utf-8"  # Default encoding if file is empty or detection fails
+    
+    with open(file, 'rb') as f:
         while True:
-            line = f.read(1024)
-            if not line:
+            chunk = f.read(1024)
+            if not chunk:
                 break
-            detector.feed(line)
+            detector.feed(chunk)
             if detector.done:
                 break
 
     detector.close()
-
-    encoding = detector.result.get("encoding", "utf-8")
-    return open(
-        file=file,
-        mode=mode,
-        buffering=buffering,
-        encoding=encoding,
-        errors=errors,
-        newline=newline,
-        closefd=closefd,
-        opener=opener,
-    )
+    if detector.result['encoding'] is not None:
+        encoding = detector.result['encoding']
+    
+    return FileWithEncoding(file, mode, encoding, errors)
 
 
 _ENCODING = tiktoken.get_encoding("cl100k_base")
