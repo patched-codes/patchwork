@@ -6,11 +6,27 @@
 
 
 template<typename T>
+/**
+ * Computes the sum of two values.
+ * 
+ * @param a The first value to be added.
+ * @param b The second value to be added.
+ * @return The sum of the two input values.
+ */
 T a_plus_b(T a, T b) {
     return a + b;
 }
 
 
+/**
+ * Executes a SQL query on the given SQLite database and returns the resulting data as a vector of string vectors,
+ * where each inner vector represents a row in the result set.
+ * 
+ * @param db A pointer to the SQLite database connection object.
+ * @param query A string containing the SQL query to be executed.
+ * @return A vector of vectors of strings, where each vector represents a row of the query result. 
+ *         An empty vector is returned if the query preparation fails.
+ */
 std::vector<std::vector<std::string>> sqlite(sqlite3* db, const std::string& query) {
     std::vector<std::vector<std::string>> results;
     sqlite3_stmt* stmt;
@@ -38,6 +54,18 @@ std::vector<std::vector<std::string>> sqlite(sqlite3* db, const std::string& que
 
 
 template<typename T, typename F>
+/**
+ * Compares two items using a key mapping function and returns an
+ * integer indicating their relative order.
+ *
+ * @param key_map A function or callable that accepts an item and
+ *                returns a value to be used for comparison.
+ * @param item1 The first item to compare.
+ * @param item2 The second item to compare.
+ * @return -1 if the mapped value of item1 is less than the mapped
+ *         value of item2, 1 if it is greater, and 0 if they are equal.
+ */
+
 int compare(F key_map, const T& item1, const T& item2) {
     auto val1 = key_map(item1);
     auto val2 = key_map(item2);
@@ -48,6 +76,13 @@ int compare(F key_map, const T& item1, const T& item2) {
 }
 
 
+/**
+ * Generates a random string of alphabets of a specified length.
+ * The string includes both uppercase and lowercase letters.
+ * 
+ * @param length The length of the random string to be generated.
+ * @return A random string consisting of lowercase and uppercase alphabets with the specified length.
+ */
 std::string random_alphabets(int length) {
     static const std::string chars =
         "abcdefghijklmnopqrstuvwxyz"
