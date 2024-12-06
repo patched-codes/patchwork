@@ -7,9 +7,17 @@ __DEPENDENCY_GROUPS = {
     "notification": ["slack_sdk"],
 }
 
+__ALLOWED_MODULES = {
+    "chromadb",
+    "slack_sdk",
+    "semgrep",
+    "depscan",
+}
 
 @lru_cache(maxsize=None)
 def import_with_dependency_group(name):
+    if name not in __ALLOWED_MODULES:
+        raise ImportError(f"Import of module '{name}' is not allowed.")
     try:
         return importlib.import_module(name)
     except ImportError:
@@ -21,10 +29,8 @@ def import_with_dependency_group(name):
             error_msg = f"Please `pip install patchwork-cli[{dependency_group}]` to use this step"
         raise ImportError(error_msg)
 
-
 def chromadb():
     return import_with_dependency_group("chromadb")
-
 
 def slack_sdk():
     return import_with_dependency_group("slack_sdk")
