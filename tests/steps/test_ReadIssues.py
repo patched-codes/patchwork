@@ -20,6 +20,20 @@ from patchwork.steps import ReadIssues
 )
 def test_read_issues(mocker, inputs_extra, method_path, issue_texts):
     # Set up
+    """Test the read_issues method of the ReadIssues class.
+    
+    Args:
+        mocker (MagicMock): A pytest mocker object for patching dependencies.
+        inputs_extra (dict): Additional input parameters to be merged with base inputs.
+        method_path (str): The path to the method to be mocked.
+        issue_texts (dict): A dictionary containing issue texts to be returned by the mocked method.
+    
+    Returns:
+        None: This method doesn't return anything explicitly, but uses assertions to verify the behavior.
+    
+    Raises:
+        AssertionError: If the results from read_issues.run() do not match the expected output.
+    """
     base_inputs = {"issue_url": "https://example.com/issue"}
     inputs = {**base_inputs, **inputs_extra}
 
