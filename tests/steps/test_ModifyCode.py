@@ -34,6 +34,17 @@ def test_handle_indent(src, target, expected):
 
 
 def test_replace_code_in_file(tmp_path):
+    """Test the replace_code_in_file function.
+    
+    Args:
+        tmp_path (pathlib.Path): A temporary directory path fixture provided by pytest.
+    
+    Returns:
+        None: This function doesn't return anything explicitly.
+    
+    Raises:
+        AssertionError: If the file content after replacement doesn't match the expected output.
+    """
     file_path = tmp_path / "test.txt"
     file_path.write_text("line 1\nline 2\nline 3")
     start_line = 1
@@ -56,6 +67,20 @@ def test_modify_code_init():
 
 
 def test_modify_code_run(tmp_path):
+    """Test the modify_code_run functionality
+    
+    This function tests the ModifyCode class's run method by creating a temporary file,
+    modifying its content, and verifying the result.
+    
+    Args:
+        tmp_path (pathlib.Path): A pytest fixture that provides a temporary directory unique to the test invocation.
+    
+    Returns:
+        None
+    
+    Raises:
+        AssertionError: If the result doesn't contain the expected 'modified_code_files' key or if the number of modified files is not 1.
+    """
     file_path = tmp_path / "test.txt"
     file_path.write_text("line 1\nline 2\nline 3")
 
@@ -74,6 +99,21 @@ def test_modify_code_run(tmp_path):
 
 
 def test_modify_code_none_edit(tmp_path):
+    """Test the modify_code method with no edits
+    
+    This function tests the behavior of the ModifyCode class when no edits are provided.
+    It creates a test file, sets up input data with no patch, and verifies that the
+    ModifyCode.run() method returns an empty list of modified code files.
+    
+    Args:
+        tmp_path (pathlib.Path): A temporary directory path provided by pytest for testing
+    
+    Returns:
+        None: This test function doesn't return anything, it uses assertions to verify behavior
+    
+    Raises:
+        AssertionError: If the assertions in the test fail
+    """
     file_path = tmp_path / "test.txt"
     file_path.write_text("line 1\nline 2\nline 3")
 
