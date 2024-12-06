@@ -1,8 +1,24 @@
 class Test {
+    /**
+     * Adds two integers and returns the result.
+     * 
+     * @param a The first integer to be added.
+     * @param b The second integer to be added.
+     * @return The sum of the two integers a and b.
+     */
     public static int a_plus_b(Integer a, Integer b) {
         return a + b;
     }
 
+    /**
+     * Compares two objects using a specified key mapping function. 
+     * Returns -1, 0, or 1 depending on whether the first object is less than, equal to, or greater than the second object.
+     * 
+     * @param keymap A function that maps objects to a comparable key.
+     * @param a The first object to be compared.
+     * @param b The second object to be compared.
+     * @return An integer value: -1 if `a` is less than `b`, 1 if `a` is greater than `b`, or 0 if they are equal based on the mapped keys.
+     */
     public static int a_plus_b(Function<Object, Comparable> keymap, object a, Object b) {
         if (keymap(a) < keymap(b)) {
             return -1;
