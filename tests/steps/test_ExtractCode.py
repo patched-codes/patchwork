@@ -55,6 +55,19 @@ def test_extract_code_init(extract_code_instance):
 
 def test_extract_code_run(extract_code_instance, tmp_path):
     # Run the extract code step
+    """Test the extract_code method of an ExtractCode instance.
+    
+    Args:
+        extract_code_instance (ExtractCode): An instance of the ExtractCode class to be tested.
+        tmp_path (Path): A temporary directory path provided by pytest for the test.
+    
+    Returns:
+        None: This method doesn't return anything explicitly, but uses assertions to verify the behavior.
+    
+    Raises:
+        AssertionError: If any of the assertions fail, indicating that the extract_code method
+                        didn't produce the expected output.
+    """
     result = extract_code_instance.run()
 
     assert result.keys() == {"files_to_patch"}
@@ -69,6 +82,17 @@ def test_extract_code_run(extract_code_instance, tmp_path):
 
 @pytest.fixture
 def extract_code_instance_with_fix(tmp_path):
+    """Extracts code instances with fixes from a test file based on SARIF data.
+    
+    Args:
+        tmp_path (pathlib.Path): Temporary directory path for creating and manipulating test files.
+    
+    Returns:
+        generator: Yields an ExtractCode object containing the extracted code instances and fixes.
+    
+    Raises:
+        OSError: If there are issues with file operations or directory changes.
+    """
     original_dir = Path.cwd()
 
     os.chdir(tmp_path)
