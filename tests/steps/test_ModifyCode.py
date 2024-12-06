@@ -34,6 +34,23 @@ def test_handle_indent(src, target, expected):
 
 
 def test_replace_code_in_file(tmp_path):
+    """Test the replace_code_in_file function.
+    
+    This method creates a temporary file, writes some content to it, then uses the
+    replace_code_in_file function to replace a portion of the content. Finally, it
+    asserts that the file's content has been correctly modified.
+    
+    Args:
+        tmp_path (py.path.local): A pytest fixture that provides a temporary
+            directory unique to the test invocation.
+    
+    Returns:
+        None: This test method doesn't return anything explicitly.
+    
+    Raises:
+        AssertionError: If the file content after replacement doesn't match the
+            expected content.
+    """
     file_path = tmp_path / "test.txt"
     file_path.write_text("line 1\nline 2\nline 3")
     start_line = 1
@@ -56,6 +73,17 @@ def test_modify_code_init():
 
 
 def test_modify_code_run(tmp_path):
+    """Test the modification of code using the ModifyCode class.
+    
+    Args:
+        tmp_path (pathlib.Path): A temporary directory path for creating test files.
+    
+    Returns:
+        None: This function doesn't return anything explicitly, but uses assertions to verify the behavior.
+    
+    Raises:
+        AssertionError: If the result doesn't contain the expected 'modified_code_files' or if the number of modified files is not 1.
+    """
     file_path = tmp_path / "test.txt"
     file_path.write_text("line 1\nline 2\nline 3")
 
@@ -74,6 +102,17 @@ def test_modify_code_run(tmp_path):
 
 
 def test_modify_code_none_edit(tmp_path):
+    """Test function to verify the behavior of ModifyCode when no edits are made.
+    
+    Args:
+        tmp_path (pathlib.Path): Temporary directory path for creating test files.
+    
+    Returns:
+        None: This function doesn't return anything explicitly.
+    
+    Raises:
+        AssertionError: If the assertions about the result fail.
+    """
     file_path = tmp_path / "test.txt"
     file_path.write_text("line 1\nline 2\nline 3")
 
