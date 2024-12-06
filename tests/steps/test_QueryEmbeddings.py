@@ -9,6 +9,26 @@ from patchwork.steps.QueryEmbeddings.QueryEmbeddings import QueryEmbeddings
 
 @pytest.fixture
 def setup_collection():
+    """Sets up a test collection in a ChromaDB persistent client for testing purposes.
+    
+    Args:
+        None
+    
+    Returns:
+        chromadb.api.models.Collection.Collection: A ChromaDB collection object for testing.
+    
+    Yields:
+        chromadb.api.models.Collection.Collection: A ChromaDB collection object for testing.
+    
+    Raises:
+        chromadb.errors.ChromaError: If there's an issue with creating or accessing the ChromaDB client or collection.
+    
+    Notes:
+        - This function is a generator that yields a test collection.
+        - The collection is created with a fixed name "test".
+        - Three documents are inserted into the collection with UUIDs as ids.
+        - After yielding the collection, it deletes the test collection from the client.
+    """
     _TEST_COLLECTION = "test"
 
     client = chromadb.PersistentClient(path=get_vector_db_path())
@@ -28,6 +48,23 @@ def setup_collection():
 
 def test_required_keys(setup_collection):
     # Test that the required keys are checked
+    """Test the required keys validation for QueryEmbeddings.
+    
+    This method tests whether the QueryEmbeddings class correctly checks for the
+    presence of required keys in the input dictionary.
+    
+    Args:
+        setup_collection (object): A fixture providing a pre-configured collection
+            for testing purposes.
+    
+    Returns:
+        None: This test method doesn't return a value, but raises an assertion
+        if the test fails.
+    
+    Raises:
+        AssertionError: If the required keys are not properly validated by the
+        QueryEmbeddings class.
+    """
     inputs = {"embedding_name": setup_collection.name, "texts": ["text1", "text2"]}
     query_embeddings = QueryEmbeddings(inputs)
 
@@ -52,6 +89,22 @@ def test_query_results(setup_collection):
 @pytest.mark.parametrize("top_k", [1, 2, 3])
 def test_top_k(setup_collection, top_k):
     # Test that the token limit is enforced
+    """Test the top-k functionality of QueryEmbeddings
+    
+    This method tests whether the token limit (top_k) is correctly enforced in the QueryEmbeddings class.
+    It creates a QueryEmbeddings instance with a single input text and a specified top_k value,
+    then verifies that the number of embedding results matches the top_k parameter.
+    
+    Args:
+        setup_collection: The collection object used for setting up the test environment.
+        top_k (int): The maximum number of results to return.
+    
+    Returns:
+        None: This method doesn't return a value, but uses assertions to validate the behavior.
+    
+    Raises:
+        AssertionError: If the number of embedding results does not match the specified top_k value.
+    """
     inputs = {"embedding_name": setup_collection.name, "texts": ["text1"], "top_k": top_k}
     query_embeddings = QueryEmbeddings(inputs)
     results = query_embeddings.run()
