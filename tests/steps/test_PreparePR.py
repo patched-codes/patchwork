@@ -5,6 +5,16 @@ from patchwork.steps import PreparePR
 
 @pytest.fixture
 def prepare_pr_instance():
+    """Prepares a PreparePR instance with modified code file information.
+    
+    Args:
+        None
+    
+    Returns:
+        PreparePR: An instance of PreparePR initialized with a dictionary containing
+                   information about modified code files.
+    
+    """
     inputs = {
         "modified_code_files": [
             {"path": "file1", "start_line": 1, "end_line": 2, "commit_message": "commit msg"},
