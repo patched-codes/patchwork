@@ -26,6 +26,23 @@ def test_invalid(inputs):
 
 
 def test_non_json_run(mocker):
+    """Tests the non-JSON run functionality of the SimplifiedLLM class.
+    
+    This test function mocks the behavior of PreparePrompt, CallLLM, and ExtractModelResponse
+    classes to simulate a complete run of the SimplifiedLLM without actually calling external services.
+    It verifies that the SimplifiedLLM correctly processes inputs, calls the necessary methods,
+    and passes the right parameters between steps.
+    
+    Args:
+        mocker (pytest.MockFixture): Pytest fixture for mocking.
+    
+    Returns:
+        None: This test function doesn't return anything. It uses assertions to verify the behavior.
+    
+    Raises:
+        AssertionError: If any of the assertions fail, indicating that the SimplifiedLLM
+                        is not behaving as expected.
+    """
     inputs = dict(
         prompt_user="user",
         prompt_system="system",
@@ -75,6 +92,19 @@ def test_non_json_run(mocker):
 
 
 def test_json_run(mocker):
+    """Test the JSON run functionality of SimplifiedLLM
+    
+    This method tests the SimplifiedLLM class's run method when JSON output is requested. It mocks the PreparePrompt, CallLLM, and ExtractModelResponse classes to simulate their behavior and verifies that the SimplifiedLLM correctly processes inputs and calls the necessary methods.
+    
+    Args:
+        mocker (pytest.MockFixture): A pytest fixture for mocking objects and functions.
+    
+    Returns:
+        None: This method doesn't return anything explicitly. It uses assertions to verify the correct behavior.
+    
+    Raises:
+        AssertionError: If any of the assertions fail, indicating that the SimplifiedLLM class is not behaving as expected.
+    """
     inputs = dict(
         prompt_user="user",
         prompt_system="system",
