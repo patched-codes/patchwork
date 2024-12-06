@@ -7,7 +7,7 @@ from patchwork.step import Step, StepStatus
 
 def save_file_contents(file_path, content):
     """Utility function to save content to a file."""
-    with open(file_path, "w") as file:
+    with open(file_path, "w", newline="") as file:
         file.write(content)
 
 
@@ -45,7 +45,7 @@ def replace_code_in_file(
 
     if path.exists() and start_line is not None and end_line is not None:
         """Replaces specified lines in a file with new code."""
-        text = path.read_text()
+        text = path.read_text(newline="")
 
         lines = text.splitlines(keepends=True)
 
