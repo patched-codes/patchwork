@@ -9,6 +9,21 @@ from patchwork.steps import ScanDepscan
 
 @pytest.mark.skip(reason="Seeing F in CI but not locally")
 def test_run():
+    """Test the ScanDepscan step functionality
+    
+    This method creates a temporary directory, writes a package-lock.json file with predefined content,
+    changes the current working directory to the temporary directory, instantiates and runs the
+    ScanDepscan step, and verifies the result.
+    
+    Args:
+        None
+    
+    Returns:
+        None
+    
+    Raises:
+        AssertionError: If the sbom_vdr_values is None or empty, or if any other assertion fails
+    """
     inputs = {}
     # String content to be written to the package.lock file
     package_lock_content = """{
