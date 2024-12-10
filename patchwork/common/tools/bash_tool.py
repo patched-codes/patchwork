@@ -44,8 +44,10 @@ class BashTool(Tool, tool_name="bash"):
             return f"Error: `command` parameter must be set and cannot be empty"
 
         try:
+            # Split the command into a list of arguments
+            command_args = command.split()
             result = subprocess.run(
-                command, shell=True, cwd=self.path, capture_output=True, text=True, timeout=60  # Add timeout for safety
+                command_args, shell=False, cwd=self.path, capture_output=True, text=True, timeout=60  # Add timeout for safety
             )
             return result.stdout if result.returncode == 0 else f"Error: {result.stderr}"
         except subprocess.TimeoutExpired:
