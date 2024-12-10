@@ -20,19 +20,21 @@ from patchwork.steps.FixIssue.typed import FixIssueInputs, FixIssueOutputs
 
 class _ResolveIssue(AnalyzeImplementStrategy):
     def __init__(self, repo_path: str, llm_client: LlmClient, issue_description: Any, **kwargs):
-        self.tool_set = Tool.get_tools(path=repo_path)
+        path = Path(repo_path).resolve()
+        self.tool_set = Tool.get_tools(path=path)
         super().__init__(
             llm_client=llm_client,
             initial_template_data=dict(issue=issue_description),
-            analysis_prompt_template="""<uploaded_files>
-.
+            analysis_prompt_template=f"""\
+<uploaded_files>
+{path}
 </uploaded_files>
-I've uploaded a code repository in the current working directory (not in /tmp/inputs).
+I've uploaded a code repository in the current working directory.
 
 Consider the following issue:
 
 <issue_description>
-{{issue}}
+{{{{issue}}}}
 </issue_description>
 
 Let's first explore and analyze the repository to understand where the issue is located.
@@ -49,15 +51,16 @@ Provide your findings in this format:
 <error_reproduction>The error reproduction script and its output</error_reproduction>
 <changes_needed>Description of the specific changes needed</changes_needed>
 </analysis>""",
-            implementation_prompt_template="""<uploaded_files>
-.
+            implementation_prompt_template=f"""\
+<uploaded_files>
+{path}
 </uploaded_files>
 I've uploaded a code repository in the current working directory (not in /tmp/inputs).
 
 Based on our previous analysis:
 
 <previous_analysis>
-{{analysis_results}}
+{{{{analysis_results}}}}
 </previous_analysis>
 
 Let's implement the necessary changes:

@@ -9,13 +9,31 @@ from pathlib import Path
 import tiktoken
 from chardet.universaldetector import UniversalDetector
 from git import Head, Repo
-from typing_extensions import Any, Callable
+from typing_extensions import Any, Callable, Iterable, Counter
 
 from patchwork.common.utils.dependency import chromadb
 from patchwork.logger import logger
 from patchwork.managed_files import HOME_FOLDER
 
 _CLEANUP_FILES: set[Path] = set()
+_NEWLINES = {"\n", "\r\n", "\r"}
+
+def detect_newline(path: str | Path) -> str | None:
+    with open(path, "r", newline="") as f:
+        lines = f.read().splitlines(keepends=True)
+    if len(lines) < 1:
+        return None
+
+    counter = Counter(_NEWLINES)
+    for line in lines:
+        newline_len = 0
+        newline = "\n"
+        for possible_newline in _NEWLINES:
+            if line.endswith(possible_newline) and len(possible_newline) > newline_len:
+                newline_len = len(possible_newline)
+                newline = possible_newline
+        counter[newline] += 1
+    return counter.most_common(1)[0][0]
 
 
 def _cleanup_files():
