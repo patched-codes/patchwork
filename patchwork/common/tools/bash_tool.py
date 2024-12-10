@@ -7,7 +7,7 @@ from patchwork.common.tools.tool import Tool
 
 
 class BashTool(Tool, tool_name="bash"):
-    def __init__(self, path: str):
+    def __init__(self, path: Path):
         super().__init__()
         self.path = Path(path)
         self.modified_files = []
@@ -16,7 +16,7 @@ class BashTool(Tool, tool_name="bash"):
     def json_schema(self) -> dict:
         return {
             "name": "bash",
-            "description": """Run commands in a bash shell
+            "description": f"""Run commands in a bash shell
 
 * When invoking this tool, the contents of the "command" parameter does NOT need to be XML-escaped.
 * You don't have access to the internet via this tool.
@@ -24,7 +24,8 @@ class BashTool(Tool, tool_name="bash"):
 * State is persistent across command calls and discussions with the user.
 * To inspect a particular line range of a file, e.g. lines 10-25, try 'sed -n 10,25p /path/to/the/file'.
 * Please avoid commands that may produce a very large amount of output.
-* Please run long lived commands in the background, e.g. 'sleep 10 &' or start a server in the background.""",
+* Please run long lived commands in the background, e.g. 'sleep 10 &' or start a server in the background.
+* The working directory is always {self.path}""",
             "input_schema": {
                 "type": "object",
                 "properties": {"command": {"type": "string", "description": "The bash command to run."}},
