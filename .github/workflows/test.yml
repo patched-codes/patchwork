@@ -9,6 +9,7 @@ on:
       - generatereadme-*
       - generatedocstring-*
       - generateunittests-*
+      - resolveissue-*
       - demo*
 
 jobs:
