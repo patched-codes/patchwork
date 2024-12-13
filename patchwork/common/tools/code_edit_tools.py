@@ -133,15 +133,22 @@ Notes for using the `str_replace` command:
                 content = "\n".join(lines[start - 1 : end])
             return content
         elif abs_path.is_dir():
-            result = []
-            for root, dirs, files in os.walk(abs_path):
-                level = root[len(str(abs_path)) :].count(os.sep)
-                if level <= 2:
-                    for d in dirs:
-                        result.append(d)
-                    for f in files:
-                        result.append(f)
-            return "\n".join(result)
+            directories = []
+            files = []
+            for file in abs_path.iterdir():
+                directories.append(file.name) if file.is_dir() else files.append(file.name)
+
+            rv = ""
+            if len(directories) > 0:
+                rv += "Directories: \n"
+                rv += '\n'.join(directories)
+                rv += "\n"
+
+            if len(files) > 0:
+                rv += "Files: \n"
+                rv += '\n'.join(files)
+
+            return rv
 
     def __create(self, file_text, abs_path):
         if abs_path.exists():
