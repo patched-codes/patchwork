@@ -60,7 +60,12 @@ def list_option_callback(ctx: click.Context, param: click.Parameter, value: str 
 
 
 def find_patchflow(possible_module_paths: Iterable[str], patchflow: str) -> Any | None:
+    allowed_modules = {"allowed_module_name_1", "allowed_module_name_2"} # Define allowed module names
     for module_path in possible_module_paths:
+        if module_path not in allowed_modules:
+            logger.debug(f"Module {module_path} is not whitelisted.")
+            continue
+
         try:
             spec = importlib.util.spec_from_file_location("custom_module", module_path)
             module = importlib.util.module_from_spec(spec)
