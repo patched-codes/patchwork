@@ -126,5 +126,7 @@ class FixIssue(Step, input_class=FixIssueInputs, output_class=FixIssueOutputs):
         self.multiturn_llm_call.execute(limit=100)
         for tool in self.multiturn_llm_call.tool_set.values():
             if isinstance(tool, CodeEditTool):
-                return tool.tool_records
+                cwd = Path.cwd()
+                modified_files = [file_path.relative_to(cwd) for file_path in tool.tool_records["modified_files"]]
+                return dict(modified_files=[{"path": str(file)} for file in modified_files])
         return dict()
