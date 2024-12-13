@@ -104,13 +104,13 @@ Notes for using the `str_replace` command:
             return f"Error: {str(e)}"
 
         if command in {"create", "str_replace", "insert"}:
-            self.modified_files.update({abs_path.relative_to(self.repo_path)})
+            self.modified_files.update({abs_path})
 
         return result
 
     @property
     def tool_records(self):
-        return dict(modified_files=[{"path": str(file)} for file in self.modified_files])
+        return dict(modified_files=[file for file in self.modified_files])
 
     def __get_abs_path(self, path: str):
         wanted_path = Path(path).resolve()
