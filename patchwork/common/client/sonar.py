@@ -1,4 +1,5 @@
 from collections import defaultdict
+from typing import Optional, Union
 
 import requests
 from dataclasses import dataclass
@@ -40,7 +41,7 @@ class SonarClient:
             rv[path].append(vuln)
         return rv
 
-    def _find_hotspot_details(self, hotspot_key: str) -> dict | None:
+    def _find_hotspot_details(self, hotspot_key: str) -> Optional[dict]:
         headers = {"Authorization": f"Bearer {self._access_token}"}
         # Define the parameters for Hotspot API request
         params: dict[str, str | int] = {"hotspot": hotspot_key}
@@ -58,7 +59,7 @@ class SonarClient:
 
         headers = {"Authorization": f"Bearer {self._access_token}"}
         # Define the parameters for Hotspot API request
-        params: dict[str, str | int] = {"p": page, "ps": page_size, "projectKey": project_key, "status": "TO_REVIEW"}
+        params: dict[str, Union[str, int]] = {"p": page, "ps": page_size, "projectKey": project_key, "status": "TO_REVIEW"}
 
         url = self._url + self.__hotspot_path
 
