@@ -2,6 +2,7 @@ from pathlib import Path
 
 import git
 from git.exc import GitCommandError
+from typing import Optional
 
 from patchwork.common.client.scm import (
     GithubClient,
@@ -148,7 +149,7 @@ def create_pr(
     target_branch_name: str,
     scm_client: ScmPlatformClientProtocol,
     force: bool = False,
-    issue_url: str | None = None,  # Optional GitHub Issue URL to link the PR to
+    issue_url: Optional[str] = None,  # Optional GitHub Issue URL to link the PR to
 ):
     prs = scm_client.find_prs(repo_slug, original_branch=base_branch_name, feature_branch=target_branch_name)
     pr = next(iter(prs), None)
