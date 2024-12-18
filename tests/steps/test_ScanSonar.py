@@ -7,7 +7,7 @@ from patchwork.common.client.sonar import SonarClient, SonarVuln
 def test_scan_sonar():
     inputs = {
         "sonarqube_project_key": "test-project",
-        "sonarqube_access_token": "test-token",
+        "sonarqube_api_key": "test-token",
         "sonarqube_base_url": "https://sonarcloud.io"
     }
     
