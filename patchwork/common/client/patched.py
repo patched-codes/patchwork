@@ -72,7 +72,7 @@ class KeepAliveHTTPSAdapter(HTTPAdapter):
 
 class PatchedClient(click.ParamType):
     TOKEN_URL = "https://app.patched.codes/signin"
-    DEFAULT_PATCH_URL = "http://localhost:8080"
+    DEFAULT_PATCH_URL = "https://patchwork.patched.codes"
     ALLOWED_TELEMETRY_KEYS = {
         "model",
     }
