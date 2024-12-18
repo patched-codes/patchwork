@@ -76,6 +76,10 @@ class PatchedClient(click.ParamType):
     ALLOWED_TELEMETRY_KEYS = {
         "model",
     }
+    ALLOWED_TELEMETRY_OUTPUT_KEYS = {
+        "pr_url",
+        "issue_url",
+    }
 
     def __init__(self, access_token: str, url: str = DEFAULT_PATCH_URL):
         self.access_token = access_token
@@ -140,6 +144,15 @@ class PatchedClient(click.ParamType):
 
         return inputs_copy
 
+    def __handle_telemetry_outputs(self, outputs: dict[str, Any]) -> dict:
+        diff_keys = set(outputs.keys()).difference(self.ALLOWED_TELEMETRY_KEYS)
+
+        outputs_copy = outputs.copy()
+        for key in diff_keys:
+            del outputs_copy[key]
+
+        return outputs_copy
+
     async def _public_telemetry(self, patchflow: str, inputs: dict[str, Any]):
         user_config = get_user_config()
         requests.post(
@@ -169,19 +182,21 @@ class PatchedClient(click.ParamType):
 
     @contextlib.contextmanager
     def patched_telemetry(self, patchflow: str, inputs: dict):
+        outputs = dict()
+
         if not self.access_token:
-            yield
+            yield outputs
             return
 
         try:
             is_valid_client = self.test_token()
         except Exception as e:
             logger.error(f"Access Token test failed: {e}")
-            yield
+            yield outputs
             return
 
         if not is_valid_client:
-            yield
+            yield outputs
             return
 
         try:
@@ -189,18 +204,20 @@ class PatchedClient(click.ParamType):
             patchflow_run_id = self.record_patchflow_run(patchflow, repo, self.__handle_telemetry_inputs(inputs))
         except Exception as e:
             logger.error(f"Failed to record patchflow run: {e}")
-            yield
+            yield outputs
             return
 
         if patchflow_run_id is None:
-            yield
+            yield outputs
             return
 
         try:
-            yield
+            yield outputs
         finally:
             try:
-                self.finish_record_patchflow_run(patchflow_run_id, patchflow, repo)
+                self.finish_record_patchflow_run(
+                    patchflow_run_id, patchflow, repo, self.__handle_telemetry_outputs(outputs)
+                )
             except Exception as e:
                 logger.error(f"Failed to finish patchflow run: {e}")
 
@@ -222,9 +239,9 @@ class PatchedClient(click.ParamType):
             return None
 
         logger.debug(f"Patchflow run recorded for {patchflow}")
-        return response.json()["id"]
+        return response.json().get("id")
 
-    def finish_record_patchflow_run(self, id: int, patchflow: str, repo: Repo) -> None:
+    def finish_record_patchflow_run(self, id: int, patchflow: str, repo: Repo, outputs: dict) -> None:
         response = self._post(
             url=self.url + "/v1/patchwork/",
             headers={"Authorization": f"Bearer {self.access_token}"},
@@ -232,6 +249,7 @@ class PatchedClient(click.ParamType):
                 "id": id,
                 "url": repo.remotes.origin.url,
                 "patchflow": patchflow,
+                "outputs": outputs
             },
         )
 
