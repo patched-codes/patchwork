@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 from unittest.mock import Mock, patch
 
@@ -10,12 +12,13 @@ def test_scan_sonar():
         "sonarqube_api_key": "test-token",
         "sonarqube_base_url": "https://sonarcloud.io"
     }
-    
+
+    path_to_resource_file = Path(__file__).parent.parent / "cicd" / "generate_docstring" / "python_test_file.py"
     mock_vulns = {
-        "src/file1.py": [
+        str(path_to_resource_file): [
             SonarVuln(
-                start=10,
-                end=15,
+                start=13,
+                end=14,
                 cwe="CWE-79",
                 bug_msg="Test vulnerability"
             )
@@ -31,11 +34,10 @@ def test_scan_sonar():
         assert len(vulns) == 1
         
         vuln = vulns[0]
-        assert vuln["uri"] == "src/file1.py"
-        assert vuln["startLine"] == 10
-        assert vuln["endLine"] == 15
-        assert vuln["cwe"] == "CWE-79"
-        assert vuln["description"] == "Test vulnerability"
+        assert vuln["uri"] == str(path_to_resource_file)
+        assert vuln["startLine"] == 0
+        assert vuln["endLine"] == 24
+        assert vuln["messageText"] == "Test vulnerability"
 
 def test_scan_sonar_error():
     inputs = {
