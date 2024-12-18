@@ -72,7 +72,7 @@ class KeepAliveHTTPSAdapter(HTTPAdapter):
 
 class PatchedClient(click.ParamType):
     TOKEN_URL = "https://app.patched.codes/signin"
-    DEFAULT_PATCH_URL = "https://patchwork.patched.codes"
+    DEFAULT_PATCH_URL = "http://localhost:8080"
     ALLOWED_TELEMETRY_KEYS = {
         "model",
     }
@@ -145,7 +145,7 @@ class PatchedClient(click.ParamType):
         return inputs_copy
 
     def __handle_telemetry_outputs(self, outputs: dict[str, Any]) -> dict:
-        diff_keys = set(outputs.keys()).difference(self.ALLOWED_TELEMETRY_KEYS)
+        diff_keys = set(outputs.keys()).difference(self.ALLOWED_TELEMETRY_OUTPUT_KEYS)
 
         outputs_copy = outputs.copy()
         for key in diff_keys:
