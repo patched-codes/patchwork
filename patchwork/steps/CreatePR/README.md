@@ -10,9 +10,10 @@
   - `pr_title`: Title for the pull request
   - `force_pr_creation`: Flag to force creation of the pull request
   - `base_branch`: Base branch for the pull request
+  - `issue_url`: GitHub Issue URL to link the PR to (optional). When provided, adds "Resolves #<ISSUE_NUMBER>" to PR description
 
 ## Outputs
 - `run() -> dict`: Method to run the pull request creation process with the following output:
   - `pr_url`: URL of the created pull request
 
-This module provides functionality to create a pull request on a source control management platform (Github or Gitlab) based on the input data provided. It includes methods for checking required data, handling platform-specific API keys, setting up the pull request parameters, and executing the pull request creation process. The `create_pr` method within the module helps in finding or creating a pull request with necessary details and descriptions. The module also logs information throughout the process for tracking and verification purposes.
+This module provides functionality to create a pull request on a source control management platform (Github or Gitlab) based on the input data provided. It includes methods for checking required data, handling platform-specific API keys, setting up the pull request parameters, and executing the pull request creation process. The `create_pr` method within the module helps in finding or creating a pull request with necessary details and descriptions, including the ability to link PRs to GitHub issues. The module also logs information throughout the process for tracking and verification purposes.

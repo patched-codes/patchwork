@@ -50,6 +50,7 @@ class CreatePR(Step):
         self.pr_body = inputs.get("pr_body", "")
         self.title = inputs.get("pr_title", "Patchwork PR")
         self.force = bool(inputs.get("force_pr_creation", False))
+        self.issue_url = inputs.get("issue_url")  # Optional GitHub Issue URL to link the PR to
         self.base_branch = inputs.get("base_branch")
         if self.enabled and self.base_branch is None:
             logger.warn("Base branch not provided. Skipping PR creation.")
@@ -106,6 +107,7 @@ class CreatePR(Step):
             target_branch_name=self.target_branch,
             scm_client=self.scm_client,
             force=self.force,
+            issue_url=self.issue_url,  # Add issue URL to link PR with issue
         )
 
         logger.info(f"[green]PR created at [link={url}]{url}[/link][/]", extra={"markup": True})
@@ -146,19 +148,25 @@ def create_pr(
     target_branch_name: str,
     scm_client: ScmPlatformClientProtocol,
     force: bool = False,
+    issue_url: str | None = None,  # Optional GitHub Issue URL to link the PR to
 ):
     prs = scm_client.find_prs(repo_slug, original_branch=base_branch_name, feature_branch=target_branch_name)
     pr = next(iter(prs), None)
     if pr is None:
+        final_body = body
+        if issue_url is not None:
+            issue_info = scm_client.get_slug_and_id_from_url(issue_url)
+            if issue_info is not None:
+                _, issue_number = issue_info
+                final_body = f"{body}\n\nResolves #{issue_number}"
+
         pr = scm_client.create_pr(
             repo_slug,
             title,
-            body,
+            final_body,
             base_branch_name,
             target_branch_name,
         )
-
-        pr.set_pr_description(body)
 
         return pr.url()
 
