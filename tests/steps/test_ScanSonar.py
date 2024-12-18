@@ -40,7 +40,7 @@ def test_scan_sonar():
 def test_scan_sonar_error():
     inputs = {
         "sonarqube_project_key": "test-project",
-        "sonarqube_access_token": "test-token",
+        "sonarqube_api_key": "test-token",
         "sonarqube_base_url": "https://sonarcloud.io"
     }
     

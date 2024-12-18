@@ -53,7 +53,8 @@ GenerateDocstring
 GenerateREADME
 GenerateUnitTests
 PRReview
-ResolveIssue"""
+ResolveIssue
+SonarFix"""
     )
 
 
@@ -73,6 +74,7 @@ GenerateREADME
 GenerateUnitTests
 PRReview
 ResolveIssue
+SonarFix
 {name_without_ext}"""
     )
 
