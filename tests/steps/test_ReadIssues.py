@@ -9,12 +9,22 @@ from patchwork.steps import ReadIssues
         (
             {"github_api_key": "key"},
             "patchwork.common.client.scm.GithubClient.find_issue_by_url",
-            dict(title="", body="github pr body", comments=["nothing", "there"], description="Title:\n\n\nDescription:\ngithub pr body\n"),
+            dict(
+                title="",
+                body="github pr body",
+                comments=["nothing", "there"],
+                description="Title:\n\n\nDescription:\ngithub pr body\n",
+            ),
         ),
         (
             {"gitlab_api_key": "key"},
             "patchwork.common.client.scm.GitlabClient.find_issue_by_url",
-            dict(title="gitlab pr title", body="", comments=["something", "here"], description="Title:\ngitlab pr title\n\nDescription:\n\n"),
+            dict(
+                title="gitlab pr title",
+                body="",
+                comments=["something", "here"],
+                description="Title:\ngitlab pr title\n\nDescription:\n\n",
+            ),
         ),
     ],
 )

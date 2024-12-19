@@ -18,6 +18,7 @@ class CreatePRInputs(__CreatePRRequiredInputs, total=False):
     gitlab_api_key: Annotated[str, StepTypeConfig(is_config=True)]
     github_api_key: Annotated[str, StepTypeConfig(is_config=True)]
     issue_url: Optional[str]
+    azuredevops_api_key: Annotated[str, StepTypeConfig(is_config=True)]
 
 
 class CreatePROutputs(TypedDict):

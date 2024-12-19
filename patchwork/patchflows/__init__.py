@@ -6,6 +6,7 @@ from .GenerateREADME.GenerateREADME import GenerateREADME
 from .GenerateUnitTests.GenerateUnitTests import GenerateUnitTests
 from .PRReview.PRReview import PRReview
 from .ResolveIssue.ResolveIssue import ResolveIssue
+from .SonarFix.SonarFix import SonarFix
 
 __all__ = [
     "AutoFix",
@@ -16,4 +17,5 @@ __all__ = [
     "GenerateDocstring",
     "GenerateUnitTests",
     "GenerateDiagram",
+    "SonarFix",
 ]
