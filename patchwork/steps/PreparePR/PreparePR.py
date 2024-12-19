@@ -15,7 +15,7 @@ class PreparePR(Step, input_class=PreparePRInputs, output_class=PreparePROutputs
             logger.warning("No modified files to prepare a PR for.")
 
         issue_url = inputs.get("issue_url")
-        self.header = inputs.get("header")
+        self.header = inputs.get("pr_header")
         if self.header is None and issue_url is None:
             self.header = f"This pull request from patched fixes {len(self.modified_code_files)} issues."
         elif self.header is None and issue_url is not None:
