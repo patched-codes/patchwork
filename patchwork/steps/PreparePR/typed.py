@@ -9,6 +9,7 @@ class __PreparePRRequiredInputs(TypedDict):
 
 class PreparePRInputs(__PreparePRRequiredInputs, total=False):
     pr_header: Annotated[str, StepTypeConfig(is_config=True)]
+    issue_url: Annotated[str, StepTypeConfig(is_config=True)]
 
 
 class PreparePROutputs(TypedDict):

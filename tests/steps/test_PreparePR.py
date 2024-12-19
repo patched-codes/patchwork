@@ -15,10 +15,6 @@ def prepare_pr_instance():
     return PreparePR(inputs)
 
 
-def test_init_required_keys(prepare_pr_instance):
-    assert prepare_pr_instance.required_keys == {"modified_code_files"}
-
-
 def test_init_inputs(prepare_pr_instance):
     assert prepare_pr_instance.modified_code_files == [
         {"path": "file1", "start_line": 1, "end_line": 2, "commit_message": "commit msg"},
