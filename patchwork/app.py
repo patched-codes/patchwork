@@ -238,9 +238,10 @@ def cli(
             if not disable_telemetry:
                 patched.send_public_telemetry(patchflow_name, inputs)
 
-            with patched.patched_telemetry(patchflow_name, {}):
+            with patched.patched_telemetry(patchflow_name, {}) as output_dict:
                 patchflow_instance = patchflow_class(inputs)
-                patchflow_instance.run()
+                patchflow_output = patchflow_instance.run()
+                output_dict.update(patchflow_output)
         except Exception as e:
             logger.debug(traceback.format_exc())
             logger.error(f"Error running patchflow {patchflow}: {e}")
