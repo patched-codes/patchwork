@@ -34,8 +34,8 @@ class CreatePR(Step):
                 self.scm_client = AzureDevopsClient(inputs["azuredevops_api_key"])
             else:
                 logger.warning(
-                    f'Missing required input data: "github_api_key" or "gitlab_api_key",'
-                    f" PR creation will be disabled."
+                    f'Missing required input data: "github_api_key", "gitlab_api_key" or "azuredevops_api_key". '
+                    f"PR creation will be disabled."
                 )
                 self.enabled = False
 
