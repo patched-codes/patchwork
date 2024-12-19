@@ -3,23 +3,23 @@ from textwrap import indent
 
 from patchwork.logger import logger
 from patchwork.step import Step, StepStatus
+from patchwork.steps.PreparePR.typed import PreparePRInputs, PreparePROutputs
 
 
-class PreparePR(Step):
-    required_keys = {"modified_code_files"}
+class PreparePR(Step, input_class=PreparePRInputs, output_class=PreparePROutputs):
 
     def __init__(self, inputs: dict):
         super().__init__(inputs)
-        if not all(key in inputs.keys() for key in self.required_keys):
-            raise ValueError(f'Missing required data: "{self.required_keys}"')
-
-        if len(inputs["modified_code_files"]) < 1:
-            logger.warning("No modified files to prepare a PR for.")
         self.modified_code_files = inputs["modified_code_files"]
+        if len(self.modified_code_files) < 1:
+            logger.warning("No modified files to prepare a PR for.")
 
-        self.header = f"This pull request from patched fixes {len(self.modified_code_files)} issues."
-        if "pr_header" in inputs.keys():
-            self.header = inputs["pr_header"]
+        issue_url = inputs.get("issue_url")
+        self.header = inputs.get("header")
+        if self.header is None and issue_url is None:
+            self.header = f"This pull request from patched fixes {len(self.modified_code_files)} issues."
+        elif self.header is None and issue_url is not None:
+            self.header = f"This pull request from patched fixes [issue]({issue_url})."
 
     def run(self) -> dict:
         if len(self.modified_code_files) == 0:
