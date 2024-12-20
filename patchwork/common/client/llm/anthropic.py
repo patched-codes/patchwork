@@ -84,6 +84,7 @@ class AnthropicLlmClient(LlmClient):
         return 200_000 - safety_margin
 
     def __adapt_input_messages(self, messages: Iterable[ChatCompletionMessageParam]) -> list[MessageParam]:
+        system = NOT_GIVEN
         new_messages = []
         for message in messages:
             if message.get("role") == "system":
