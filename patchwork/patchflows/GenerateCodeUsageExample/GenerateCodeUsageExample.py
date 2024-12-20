@@ -14,7 +14,7 @@ from patchwork.steps import (
 _DEFAULT_INPUT_FILE = Path(__file__).parent / "defaults.yml"
 _DEFAULT_PROMPT_JSON = Path(__file__).parent / "default_prompt.json"
 
-class GenerateUsageExample(Step):
+class GenerateCodeUsageExample(Step):
     def __init__(self, inputs):
         super().__init__(inputs)
 

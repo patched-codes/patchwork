@@ -5,6 +5,6 @@ from .GenerateREADME.GenerateREADME import GenerateREADME
 from .PRReview.PRReview import PRReview
 from .ResolveIssue.ResolveIssue import ResolveIssue
 from .GenerateUnitTests.GenerateUnitTests import GenerateUnitTests
-from .GenerateUsageExample.GenerateUsageExample import GenerateUsageExample
+from .GenerateCodeUsageExample.GenerateCodeUsageExample import GenerateCodeUsageExample
 
-__all__ = ["AutoFix", "DependencyUpgrade", "GenerateREADME", "PRReview", "ResolveIssue", "GenerateDocstring", "GenerateUnitTests","GenerateUsageExample"]
+__all__ = ["AutoFix", "DependencyUpgrade", "GenerateREADME", "PRReview", "ResolveIssue", "GenerateDocstring", "GenerateUnitTests","GenerateCodeUsageExample"]

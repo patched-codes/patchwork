@@ -9,7 +9,7 @@ on:
       - generatereadme-*
       - generatedocstring-*
       - generateunittests-*
-      - generateusageexample-*
+      - generatecodeusageexample-*
       - demo*
 
 jobs:
@@ -211,9 +211,9 @@ jobs:
           --folder_path=tests/cicd/generate_docstring \
           --disable_telemetry
       
-      - name: Generate Usage Example
+      - name: Generate Code Usage Example
         run: |
-          poetry run patchwork GenerateUsageExample --log debug \
+          poetry run patchwork GenerateCodeUsageExample --log debug \
           --patched_api_key=${{ secrets.PATCHED_API_KEY }} \
           --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
           --folder_path=tests/cicd/generate_docstring \
