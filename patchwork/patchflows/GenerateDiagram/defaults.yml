@@ -1,0 +1,22 @@
+# CallLLM Inputs
+# openai_api_key: required-for-chatgpt
+# google_api_key: required-for-gemini
+# model: gpt-4o
+# client_base_url: https://api.openai.com/v1
+# Example HF model
+# client_base_url: https://api-inference.huggingface.co/models/codellama/CodeLlama-70b-Instruct-hf/v1
+# model: codellama/CodeLlama-70b-Instruct-hf
+# model_temperature: 0.2
+# model_top_p: 0.95
+# model_max_tokens: 2000
+
+base_path: diagram.md
+folder_path: .
+# CommitChanges Inputs
+disable_branch: false
+
+# CreatePR Inputs
+disable_pr: false
+force_pr_creation: true
+# github_api_key: required-for-github-scm
+# gitlab_api_key: required-for-gitlab-scm

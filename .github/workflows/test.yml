@@ -1,6 +1,10 @@
 name: Tests
 
 on:
+  pull_request:
+    types:
+      - ready_for_review
+      - review_requested
   push:
     branches-ignore:
       - main
@@ -10,7 +14,17 @@ on:
       - generatedocstring-*
       - generateunittests-*
       - generatecodeusageexample-*
+      - resolveissue-*
+
       - demo*
+
+# Credits to https://blog.maximeheckel.com/posts/building-perfect-github-action-frontend-teams/#you-are-terminated
+concurrency:
+  # Here the group is defined by the head_ref of the PR
+  group: ${{ github.head_ref || github.ref_name }}
+  # Here we specify that we'll cancel any "in progress" workflow of the same group. Thus if we push, ammend a commit and push
+  # again the previous workflow will be cancelled, thus saving us github action build minutes and avoid any conflicts
+  cancel-in-progress: true
 
 jobs:
   all-test:
@@ -71,7 +85,7 @@ jobs:
         id: setup-python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.8'
+          python-version: '3.9'
 
       - name: Install Poetry
         uses: snok/install-poetry@v1
@@ -124,7 +138,7 @@ jobs:
         id: setup-python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.8'
+          python-version: '3.9'
 
       - name: Install Poetry
         uses: snok/install-poetry@v1
@@ -144,13 +158,14 @@ jobs:
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
         run: poetry install --no-interaction --only main --extras rag
 
-      - name: Propose relevant file to issues
-        run: |
-          poetry run patchwork ResolveIssue --log debug \
-          --patched_api_key=${{ secrets.PATCHED_API_KEY }} \
-          --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
-          --issue_url=https://github.com/patched-codes/patchwork/issues/20 \
-          --disable_telemetry
+#      disabled because this currently takes too long
+#      - name: Resolve issue
+#        run: |
+#          poetry run patchwork ResolveIssue --log debug \
+#          --patched_api_key=${{ secrets.PATCHED_API_KEY }} \
+#          --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
+#          --issue_url=https://github.com/patched-codes/patchwork/issues/1039 \
+#          --disable_telemetry
 
   main-test:
     runs-on: ubuntu-latest
@@ -167,7 +182,7 @@ jobs:
         id: setup-python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.8'
+          python-version: '3.9'
 
       - name: Install Poetry
         uses: snok/install-poetry@v1
@@ -201,6 +216,14 @@ jobs:
           --patched_api_key=${{ secrets.PATCHED_API_KEY }} \
           --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
           --base_path=tests/cicd/generate_docstring \
+          --disable_telemetry
+
+      - name : Generate Diagram
+        run: |
+          poetry run patchwork GenerateDiagram --log debug \
+          --patched_api_key=${{ secrets.PATCHED_API_KEY }} \
+          --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
+          --folder_path=patchwork/steps \
           --disable_telemetry
 
       - name: Generate UnitTests

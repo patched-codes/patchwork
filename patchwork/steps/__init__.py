@@ -21,6 +21,7 @@ from patchwork.steps.ExtractPackageManagerFile.ExtractPackageManagerFile import 
     ExtractPackageManagerFile,
 )
 from patchwork.steps.FilterBySimilarity.FilterBySimilarity import FilterBySimilarity
+from patchwork.steps.FixIssue.FixIssue import FixIssue
 from patchwork.steps.GenerateCodeRepositoryEmbeddings.GenerateCodeRepositoryEmbeddings import (
     GenerateCodeRepositoryEmbeddings,
 )
@@ -42,6 +43,7 @@ from patchwork.steps.ReadPRDiffs.ReadPRDiffs import ReadPRDiffs
 from patchwork.steps.ReadPRs.ReadPRs import ReadPRs
 from patchwork.steps.ScanDepscan.ScanDepscan import ScanDepscan
 from patchwork.steps.ScanSemgrep.ScanSemgrep import ScanSemgrep
+from patchwork.steps.ScanSonar.ScanSonar import ScanSonar
 from patchwork.steps.SimplifiedLLM.SimplifiedLLM import SimplifiedLLM
 from patchwork.steps.SimplifiedLLMOnce.SimplifiedLLMOnce import SimplifiedLLMOnce
 from patchwork.steps.SlackMessage.SlackMessage import SlackMessage
@@ -87,8 +89,10 @@ __all__ = [
     "ReadPRDiffs",
     "ReadPRDiffsPB",
     "ReadPRs",
+    "ResolveIssue",
     "ScanDepscan",
     "ScanSemgrep",
+    "ScanSonar",
     "SimplifiedLLM",
     "SimplifiedLLMOnce",
     "SimplifiedLLMOncePB",

@@ -48,11 +48,13 @@ def test_default_list_option_callback(runner):
         == """\
 AutoFix
 DependencyUpgrade
+GenerateDiagram
 GenerateDocstring
 GenerateREADME
 GenerateUnitTests
 PRReview
-ResolveIssue"""
+ResolveIssue
+SonarFix"""
     )
 
 
@@ -66,11 +68,13 @@ def test_config_list_option_callback(runner, config_dir, patchflow_file):
         == f"""\
 AutoFix
 DependencyUpgrade
+GenerateDiagram
 GenerateDocstring
 GenerateREADME
 GenerateUnitTests
 PRReview
 ResolveIssue
+SonarFix
 {name_without_ext}"""
     )
 
