@@ -18,6 +18,7 @@ from azure.devops.released.core.core_client import CoreClient
 from azure.devops.released.git.git_client import GitClient
 from azure.devops.v7_1.git.models import GitPullRequest, GitPullRequestSearchCriteria, TeamProjectReference, GitRepository
 from github import Auth, Consts, Github, GithubException, PullRequest, Issue
+from github.GithubObject import NotSet
 from github.GithubException import UnknownObjectException
 from gitlab import Gitlab, GitlabAuthenticationError, GitlabError
 from gitlab.v4.objects import ProjectMergeRequest
@@ -522,7 +523,7 @@ class GithubClient(ScmPlatformClientProtocol):
         # before creating a PR, check if one already exists
         repo = self.github.get_repo(slug)
 
-        issue_obj = None
+        issue_obj = NotSet
         if issue_url is not None:
             resource_slug_and_id = self.get_slug_and_id_from_url(issue_url)
             if resource_slug_and_id is not None:
