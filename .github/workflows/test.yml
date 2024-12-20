@@ -108,6 +108,7 @@ jobs:
           poetry run patchwork AutoFix --log debug \
           --patched_api_key=${{ secrets.PATCHED_API_KEY }} \
           --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
+          --issue_url=https://github.com/patched-codes/patchwork/issues/1039 \
           --force_pr_creation \
           --disable_telemetry
 
