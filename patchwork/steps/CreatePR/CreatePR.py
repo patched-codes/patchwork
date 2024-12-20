@@ -149,7 +149,7 @@ def create_pr(
     base_branch_name: str,
     target_branch_name: str,
     scm_client: ScmPlatformClientProtocol,
-    issue_url: str = None,
+    issue_url: str | None = None,
     force: bool = False,
 ):
     prs = scm_client.find_prs(repo_slug, original_branch=base_branch_name, feature_branch=target_branch_name)
