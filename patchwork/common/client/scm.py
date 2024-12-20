@@ -17,7 +17,7 @@ from azure.devops.released.client_factory import ClientFactory
 from azure.devops.released.core.core_client import CoreClient
 from azure.devops.released.git.git_client import GitClient
 from azure.devops.v7_1.git.models import GitPullRequest, GitPullRequestSearchCriteria, TeamProjectReference, GitRepository
-from github import Auth, Consts, Github, GithubException, PullRequest
+from github import Auth, Consts, Github, GithubException, PullRequest, Issue
 from github.GithubException import UnknownObjectException
 from gitlab import Gitlab, GitlabAuthenticationError, GitlabError
 from gitlab.v4.objects import ProjectMergeRequest
@@ -197,6 +197,7 @@ class ScmPlatformClientProtocol(Protocol):
         body: str,
         original_branch: str,
         feature_branch: str,
+        issue_url: str | None = None,
     ) -> PullRequestProtocol:
         ...
 
@@ -434,18 +435,26 @@ class GithubClient(ScmPlatformClientProtocol):
         return slug, resource_id
 
     def find_issue_by_url(self, url: str) -> IssueText | None:
-        slug, issue_id = self.get_slug_and_id_from_url(url)
+        resource_slug_and_id = self.get_slug_and_id_from_url(url)
+        if resource_slug_and_id is None:
+            return None
+        slug, issue_id = resource_slug_and_id
         return self.find_issue_by_id(slug, issue_id)
 
     def find_issue_by_id(self, slug: str, issue_id: int) -> IssueText | None:
-        repo = self.github.get_repo(slug)
+        issue = self.__find_issue_by_id(slug, issue_id)
+        if issue is None:
+            return None
+        return dict(
+            title=issue.title,
+            body=issue.body,
+            comments=[issue_comment.body for issue_comment in issue.get_comments()],
+        )
+
+    def __find_issue_by_id(self, slug: str, issue_id: int) -> Issue | None:
         try:
-            issue = repo.get_issue(issue_id)
-            return dict(
-                title=issue.title,
-                body=issue.body,
-                comments=[issue_comment.body for issue_comment in issue.get_comments()],
-            )
+            repo = self.github.get_repo(slug)
+            return repo.get_issue(issue_id)
         except GithubException as e:
             logger.warn(f"Failed to get issue: {e}")
             return None
@@ -508,10 +517,19 @@ class GithubClient(ScmPlatformClientProtocol):
         body: str,
         original_branch: str,
         feature_branch: str,
+        issue_url: str | None = None,
     ) -> PullRequestProtocol:
         # before creating a PR, check if one already exists
         repo = self.github.get_repo(slug)
-        gh_pr = repo.create_pull(title=title, body=body, base=original_branch, head=feature_branch)
+
+        issue_obj = None
+        if issue_url is not None:
+            resource_slug_and_id = self.get_slug_and_id_from_url(issue_url)
+            if resource_slug_and_id is not None:
+                slug, issue_id = resource_slug_and_id
+                issue_obj = self.__find_issue_by_id(slug, issue_id)
+
+        gh_pr = repo.create_pull(title=title, body=body, base=original_branch, head=feature_branch, issue=issue_obj)
         pr = GithubPullRequest(gh_pr)
         return pr
 
@@ -630,7 +648,9 @@ class GitlabClient(ScmPlatformClientProtocol):
         body: str,
         original_branch: str,
         feature_branch: str,
+        issue_url: str | None = None,
     ) -> PullRequestProtocol:
+        # issue_url is unused here because we usually set it in the MR body instead for gitlab.
         # before creating a PR, check if one already exists
         project = self.gitlab.projects.get(slug)
         gl_mr = project.mergerequests.create(
@@ -777,6 +797,7 @@ class AzureDevopsClient(ScmPlatformClientProtocol):
         body: str,
         original_branch: str,
         feature_branch: str,
+        issue_url: str | None = None,
     ) -> PullRequestProtocol:
         # before creating a PR, check if one already exists
         pr_body = GitPullRequest(
