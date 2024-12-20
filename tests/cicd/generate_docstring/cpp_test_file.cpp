@@ -6,6 +6,16 @@
 
 
 template<typename T>
+/**
+ * Computes the sum of two values.
+ * 
+ * @param a The first value to be added.
+ * @param b The second value to be added.
+ * @return The sum of the two values.
+ */
+T a_plus_b(T a, T b) {
+    return a + b;
+}
 T a_plus_b(T a, T b) {
     return a + b;
 }
