@@ -49,6 +49,7 @@ class CreatePR(Step):
                 )
                 self.enabled = False
 
+        self.issue_url = inputs.get("issue_url")
         self.pr_body = inputs.get("pr_body", "")
         self.title = inputs.get("pr_title", "Patchwork PR")
         self.force = bool(inputs.get("force_pr_creation", False))
@@ -107,6 +108,7 @@ class CreatePR(Step):
             base_branch_name=self.base_branch,
             target_branch_name=self.target_branch,
             scm_client=self.scm_client,
+            issue_url=self.issue_url,
             force=self.force,
         )
 
@@ -147,17 +149,19 @@ def create_pr(
     base_branch_name: str,
     target_branch_name: str,
     scm_client: ScmPlatformClientProtocol,
+    issue_url: str = None,
     force: bool = False,
 ):
     prs = scm_client.find_prs(repo_slug, original_branch=base_branch_name, feature_branch=target_branch_name)
     pr = next(iter(prs), None)
     if pr is None:
         pr = scm_client.create_pr(
-            repo_slug,
-            title,
-            body,
-            base_branch_name,
-            target_branch_name,
+            slug=repo_slug,
+            title=title,
+            body=body,
+            original_branch=base_branch_name,
+            feature_branch=target_branch_name,
+            issue_url=issue_url
         )
 
         pr.set_pr_description(body)
