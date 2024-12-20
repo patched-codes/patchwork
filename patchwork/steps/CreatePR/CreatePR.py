@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing_extensions import Optional
 
 import git
 from git.exc import GitCommandError
@@ -149,7 +150,7 @@ def create_pr(
     base_branch_name: str,
     target_branch_name: str,
     scm_client: ScmPlatformClientProtocol,
-    issue_url: str | None = None,
+    issue_url: Optional[str] = None,
     force: bool = False,
 ):
     prs = scm_client.find_prs(repo_slug, original_branch=base_branch_name, feature_branch=target_branch_name)
