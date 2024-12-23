@@ -13,7 +13,9 @@ on:
       - generatereadme-*
       - generatedocstring-*
       - generateunittests-*
+      - generatecodeusageexample-*
       - resolveissue-*
+
       - demo*
 
 # Credits to https://blog.maximeheckel.com/posts/building-perfect-github-action-frontend-teams/#you-are-terminated
@@ -227,6 +229,14 @@ jobs:
       - name: Generate UnitTests
         run: |
           poetry run patchwork GenerateUnitTests --log debug \
+          --patched_api_key=${{ secrets.PATCHED_API_KEY }} \
+          --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
+          --folder_path=tests/cicd/generate_docstring \
+          --disable_telemetry
+      
+      - name: Generate Code Usage Example
+        run: |
+          poetry run patchwork GenerateCodeUsageExample --log debug \
           --patched_api_key=${{ secrets.PATCHED_API_KEY }} \
           --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
           --folder_path=tests/cicd/generate_docstring \
