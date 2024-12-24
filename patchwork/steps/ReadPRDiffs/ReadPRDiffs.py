@@ -1,6 +1,6 @@
 from typing_extensions import List
 
-from patchwork.common.client.scm import GithubClient, GitlabClient
+from patchwork.common.client.scm import GithubClient, GitlabClient, AzureDevopsClient
 from patchwork.step import Step
 from patchwork.steps.ReadPRDiffs.typed import ReadPRDiffsInputs, ReadPRDiffsOutputs
 
@@ -26,17 +26,16 @@ def filter_by_extension(file, extensions):
 
 
 class ReadPRDiffs(Step, input_class=ReadPRDiffsInputs, output_class=ReadPRDiffsOutputs):
-    required_keys = {"pr_url"}
 
     def __init__(self, inputs: dict):
         super().__init__(inputs)
-        if not all(key in inputs.keys() for key in self.required_keys):
-            raise ValueError(f'Missing required data: "{self.required_keys}"')
 
         if "github_api_key" in inputs.keys():
             self.scm_client = GithubClient(inputs["github_api_key"])
         elif "gitlab_api_key" in inputs.keys():
             self.scm_client = GitlabClient(inputs["gitlab_api_key"])
+        elif "azuredevops_api_key" in inputs.keys():
+            self.scm_client = AzureDevopsClient(inputs["azuredevops_api_key"])
         else:
             raise ValueError(f'Missing required input data: "github_api_key" or "gitlab_api_key"')
 

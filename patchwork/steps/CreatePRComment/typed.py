@@ -11,8 +11,9 @@ class __CreatePRCommentRequiredInputs(TypedDict):
 class CreatePRCommentInputs(__CreatePRCommentRequiredInputs, total=False):
     noisy_comments: Annotated[bool, StepTypeConfig(is_config=True)]
     scm_url: Annotated[str, StepTypeConfig(is_config=True)]
-    gitlab_api_key: Annotated[str, StepTypeConfig(is_config=True, or_op=["github_api_key"])]
-    github_api_key: Annotated[str, StepTypeConfig(is_config=True, or_op=["gitlab_api_key"])]
+    gitlab_api_key: Annotated[str, StepTypeConfig(is_config=True, or_op=["github_api_key", "azuredevops_api_key"])]
+    github_api_key: Annotated[str, StepTypeConfig(is_config=True, or_op=["gitlab_api_key", "azuredevops_api_key"])]
+    azuredevops_api_key: Annotated[str, StepTypeConfig(is_config=True, or_op=["gitlab_api_key", "github_api_key"])]
 
 
 class CreatePRCommentOutputs(TypedDict):

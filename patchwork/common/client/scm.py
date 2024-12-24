@@ -409,16 +409,12 @@ class AzureDevopsPullRequest(PullRequestProtocol):
                     self.git_client.delete_comment(repository_id=self._pr.repository.id, pull_request_id=self.id, thread_id=thread.id, comment_id=comment_id, project=self._pr.repository.project.id)
 
     def texts(self) -> PullRequestTexts:
-        self.git_client.get_commit_diffs(
-            repository_id=self._pr.repository.id,
-            project=self._pr.repository.project.id
-        )
-
         target_branch = self._pr.last_merge_source_commit.commit_id
         feature_branch = self._pr.last_merge_target_commit.commit_id
 
         repo = git.Repo(path=Path.cwd(), search_parent_directories=True)
-        repo.git.fetch()
+        for remote in repo.remotes:
+            remote.fetch()
         target_commit = repo.commit(target_branch)
         feature_commit = repo.commit(feature_branch)
 
