@@ -402,7 +402,7 @@ class AzureDevopsPullRequest(PullRequestProtocol):
         for thread, comments in self.__iter_comments():
             comment_ids_to_delete = []
             for comment in comments:
-                if comment.content.startswith(_COMMENT_MARKER):
+                if comment.content is not None and comment.content.startswith(_COMMENT_MARKER):
                     comment_ids_to_delete.append(comment.id)
             if len(comment_ids_to_delete) == len(comments):
                 for comment_id in comment_ids_to_delete:
