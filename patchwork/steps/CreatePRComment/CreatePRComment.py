@@ -1,4 +1,4 @@
-from patchwork.common.client.scm import GithubClient, GitlabClient, AzureDevopsClient
+from patchwork.common.client.scm import AzureDevopsClient, GithubClient, GitlabClient
 from patchwork.logger import logger
 from patchwork.step import Step, StepStatus
 

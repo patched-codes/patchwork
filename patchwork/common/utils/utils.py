@@ -9,7 +9,7 @@ from pathlib import Path
 import tiktoken
 from chardet.universaldetector import UniversalDetector
 from git import Head, Repo
-from typing_extensions import Any, Callable, Iterable, Counter
+from typing_extensions import Any, Callable, Counter
 
 from patchwork.common.utils.dependency import chromadb
 from patchwork.logger import logger
@@ -17,6 +17,7 @@ from patchwork.managed_files import HOME_FOLDER
 
 _CLEANUP_FILES: set[Path] = set()
 _NEWLINES = {"\n", "\r\n", "\r"}
+
 
 def detect_newline(path: str | Path) -> str | None:
     with open(path, "r", newline="") as f:

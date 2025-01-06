@@ -1,13 +1,12 @@
 from .AutoFix.AutoFix import AutoFix
 from .DependencyUpgrade.DependencyUpgrade import DependencyUpgrade
+from .GenerateCodeUsageExample.GenerateCodeUsageExample import GenerateCodeUsageExample
 from .GenerateDiagram.GenerateDiagram import GenerateDiagram
 from .GenerateDocstring.GenerateDocstring import GenerateDocstring
 from .GenerateREADME.GenerateREADME import GenerateREADME
 from .GenerateUnitTests.GenerateUnitTests import GenerateUnitTests
 from .PRReview.PRReview import PRReview
 from .ResolveIssue.ResolveIssue import ResolveIssue
-from .GenerateUnitTests.GenerateUnitTests import GenerateUnitTests
-from .GenerateCodeUsageExample.GenerateCodeUsageExample import GenerateCodeUsageExample
 from .SonarFix.SonarFix import SonarFix
 
 __all__ = [
@@ -22,4 +21,3 @@ __all__ = [
     "GenerateCodeUsageExample",
     "SonarFix",
 ]
-

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 from pathlib import Path
 from typing import Literal
 
@@ -9,9 +8,9 @@ from patchwork.common.utils.utils import detect_newline
 
 
 class CodeEditTool(Tool, tool_name="code_edit_tool"):
-    def __init__(self, path: Path):
+    def __init__(self, path: Path | str):
         super().__init__()
-        self.repo_path = path
+        self.repo_path = Path(path)
         self.modified_files = set()
 
     @property
@@ -141,12 +140,12 @@ Notes for using the `str_replace` command:
             rv = ""
             if len(directories) > 0:
                 rv += "Directories: \n"
-                rv += '\n'.join(directories)
+                rv += "\n".join(directories)
                 rv += "\n"
 
             if len(files) > 0:
                 rv += "Files: \n"
-                rv += '\n'.join(files)
+                rv += "\n".join(files)
 
             return rv
 

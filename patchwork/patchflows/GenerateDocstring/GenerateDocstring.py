@@ -63,7 +63,7 @@ class GenerateDocstring(Step):
         outputs = ExtractCodeMethodForCommentContexts(self.inputs).run()
         self.inputs.update(outputs)
 
-        self.inputs["prompt_values"] = self.inputs.get("files_to_patch", [])
+        self.inputs["prompt_values"] = [self.inputs.get("files_to_patch", [])[0]]
         self.inputs["response_partitions"] = {
             "patch": ["Documentation:", "```", "\n", "```"],
         }
@@ -74,10 +74,6 @@ class GenerateDocstring(Step):
         outputs = ModifyCode(self.inputs).run()
         self.inputs.update(outputs)
 
-        # Commit changes and create PR
-        self.inputs[
-            "pr_header"
-        ] = f'This pull request from patchwork fixes {len(self.inputs["prompt_values"])} docstrings.'
         outputs = PR(self.inputs).run()
         self.inputs.update(outputs)
 

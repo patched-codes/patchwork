@@ -1,6 +1,6 @@
 from typing_extensions import List
 
-from patchwork.common.client.scm import GithubClient, GitlabClient, AzureDevopsClient
+from patchwork.common.client.scm import AzureDevopsClient, GithubClient, GitlabClient
 from patchwork.step import Step
 from patchwork.steps.ReadPRDiffs.typed import ReadPRDiffsInputs, ReadPRDiffsOutputs
 
@@ -26,7 +26,6 @@ def filter_by_extension(file, extensions):
 
 
 class ReadPRDiffs(Step, input_class=ReadPRDiffsInputs, output_class=ReadPRDiffsOutputs):
-
     def __init__(self, inputs: dict):
         super().__init__(inputs)
 

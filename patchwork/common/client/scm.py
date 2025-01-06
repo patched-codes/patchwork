@@ -15,15 +15,21 @@ from azure.devops.connection import Connection
 from azure.devops.released.client_factory import ClientFactory
 from azure.devops.released.core.core_client import CoreClient
 from azure.devops.released.git.git_client import GitClient
-from azure.devops.v7_1.git.models import GitPullRequest, GitPullRequestSearchCriteria, TeamProjectReference, \
-    GitRepository, Comment, GitPullRequestCommentThread, GitTargetVersionDescriptor, GitBaseVersionDescriptor
+from azure.devops.v7_1.git.models import (
+    Comment,
+    GitPullRequest,
+    GitPullRequestCommentThread,
+    GitPullRequestSearchCriteria,
+    GitRepository,
+    TeamProjectReference,
+)
 from github import Auth, Consts, Github, GithubException, PullRequest
 from github.GithubException import UnknownObjectException
 from gitlab import Gitlab, GitlabAuthenticationError, GitlabError
 from gitlab.v4.objects import ProjectMergeRequest
 from giturlparse import GitUrlParsed, parse
 from msrest.authentication import BasicAuthentication
-from typing_extensions import Protocol, TypedDict, Iterator
+from typing_extensions import Iterator, Protocol, TypedDict
 
 from patchwork.logger import logger
 
@@ -359,6 +365,7 @@ class GithubPullRequest(PullRequestProtocol):
             diffs={file.filename: file.patch for file in self._pr.get_files() if file.patch is not None},
         )
 
+
 class AzureDevopsPullRequest(PullRequestProtocol):
     def __init__(self, pr: GitPullRequest, git_client: GitClient, pr_base_url: str):
         self._pr: GitPullRequest = pr
@@ -378,24 +385,41 @@ class AzureDevopsPullRequest(PullRequestProtocol):
     def set_pr_description(self, body: str) -> None:
         final_body = PullRequestProtocol._apply_pr_template(self, body)
         body = GitPullRequest(description=final_body)
-        self._pr = self.git_client.update_pull_request(body, repository_id=self._pr.repository.id, pull_request_id=self._pr.pull_request_id, project=self._pr.repository.project.id)
+        self._pr = self.git_client.update_pull_request(
+            body,
+            repository_id=self._pr.repository.id,
+            pull_request_id=self._pr.pull_request_id,
+            project=self._pr.repository.project.id,
+        )
 
     def create_comment(
-            self, body: str, path: str | None = None, start_line: int | None = None, end_line: int | None = None
+        self, body: str, path: str | None = None, start_line: int | None = None, end_line: int | None = None
     ) -> str | None:
         try:
             comment_body = Comment(content=body)
             comment_thread_body = GitPullRequestCommentThread(comments=[comment_body])
-            comment_thread = self.git_client.create_thread(comment_thread_body, repository_id=self._pr.repository.id, pull_request_id=self.id, project=self._pr.repository.project.id)
+            comment_thread = self.git_client.create_thread(
+                comment_thread_body,
+                repository_id=self._pr.repository.id,
+                pull_request_id=self.id,
+                project=self._pr.repository.project.id,
+            )
             return body
         except Exception as e:
             logger.error(e)
             return None
 
     def __iter_comments(self) -> Iterator[tuple[GitPullRequestCommentThread, list[Comment]]]:
-        threads = self.git_client.get_threads(repository_id=self._pr.repository.id, pull_request_id=self.id, project=self._pr.repository.project.id)
+        threads = self.git_client.get_threads(
+            repository_id=self._pr.repository.id, pull_request_id=self.id, project=self._pr.repository.project.id
+        )
         for thread in threads:
-            comments = self.git_client.get_comments(repository_id=self._pr.repository.id, pull_request_id=self.id, thread_id=thread.id, project=self._pr.repository.project.id)
+            comments = self.git_client.get_comments(
+                repository_id=self._pr.repository.id,
+                pull_request_id=self.id,
+                thread_id=thread.id,
+                project=self._pr.repository.project.id,
+            )
             yield thread, comments
 
     def reset_comments(self) -> None:
@@ -406,7 +430,13 @@ class AzureDevopsPullRequest(PullRequestProtocol):
                     comment_ids_to_delete.append(comment.id)
             if len(comment_ids_to_delete) == len(comments):
                 for comment_id in comment_ids_to_delete:
-                    self.git_client.delete_comment(repository_id=self._pr.repository.id, pull_request_id=self.id, thread_id=thread.id, comment_id=comment_id, project=self._pr.repository.project.id)
+                    self.git_client.delete_comment(
+                        repository_id=self._pr.repository.id,
+                        pull_request_id=self.id,
+                        thread_id=thread.id,
+                        comment_id=comment_id,
+                        project=self._pr.repository.project.id,
+                    )
 
     def texts(self) -> PullRequestTexts:
         target_branch = self._pr.last_merge_source_commit.commit_id
@@ -425,7 +455,9 @@ class AzureDevopsPullRequest(PullRequestProtocol):
             b_path = diff.b_path
             a_blob = diff.a_blob.data_stream.read().decode("utf-8")
             b_blob = diff.b_blob.data_stream.read().decode("utf-8")
-            diff_lines = unified_diff(a_blob.splitlines(keepends=True), b_blob.splitlines(keepends=True), a_path, b_path)
+            diff_lines = unified_diff(
+                a_blob.splitlines(keepends=True), b_blob.splitlines(keepends=True), a_path, b_path
+            )
             diff_content = "".join(diff_lines)
             diffs[a_path] = diff_content
 
@@ -439,6 +471,7 @@ class AzureDevopsPullRequest(PullRequestProtocol):
             comments=comments,
             diffs=diffs,
         )
+
 
 class GithubClient(ScmPlatformClientProtocol):
     DEFAULT_URL = Consts.DEFAULT_BASE_URL
@@ -701,7 +734,7 @@ class AzureDevopsClient(ScmPlatformClientProtocol):
     DEFAULT_URL = "https://dev.azure.com/"
 
     def __init__(self, access_token: str, url: str = DEFAULT_URL, remote: str = "origin"):
-        self.credentials = BasicAuthentication('', access_token)
+        self.credentials = BasicAuthentication("", access_token)
         self.__url = url
         self.__remote = remote
         git_repo = git.Repo(Path.cwd(), search_parent_directories=True)
@@ -716,7 +749,6 @@ class AzureDevopsClient(ScmPlatformClientProtocol):
         if not url.endswith("/"):
             url += "/"
         return f"{url}{self.__org_name}/{self.__project_name}/_git/{self.__repo_name}/pullrequest/"
-
 
     @functools.cached_property
     def clients(self) -> ClientFactory:
@@ -740,7 +772,9 @@ class AzureDevopsClient(ScmPlatformClientProtocol):
         projs = self.core_client.get_projects()
         proj = next((proj for proj in projs if proj.name == self.__project_name), None)
         if proj is None:
-            raise ValueError(f"Unable to determine project name from remote {self.__remote} url. Parsed project name: {self.__project_name}")
+            raise ValueError(
+                f"Unable to determine project name from remote {self.__remote} url. Parsed project name: {self.__project_name}"
+            )
         return proj
 
     @functools.cached_property
@@ -748,7 +782,9 @@ class AzureDevopsClient(ScmPlatformClientProtocol):
         repos = self.git_client.get_repositories(project=self.project.id)
         git_repo = next((r for r in repos if r.name == self.__repo_name), None)
         if git_repo is None:
-            raise ValueError(f"Unable to determine repository name from remote {self.__remote} url. Parsed repository name: {self.__repo_name}")
+            raise ValueError(
+                f"Unable to determine repository name from remote {self.__remote} url. Parsed repository name: {self.__repo_name}"
+            )
         return git_repo
 
     def set_url(self, url: str) -> None:
@@ -788,7 +824,9 @@ class AzureDevopsClient(ScmPlatformClientProtocol):
         return self.find_pr_by_id(slug, resource_id)
 
     def find_pr_by_id(self, slug: str, pr_id: int) -> AzureDevopsPullRequest | None:
-        pr = self.git_client.get_pull_request(repository_id=self.repo.id, pull_request_id=pr_id, project=self.project.id)
+        pr = self.git_client.get_pull_request(
+            repository_id=self.repo.id, pull_request_id=pr_id, project=self.project.id
+        )
         return AzureDevopsPullRequest(pr, self.git_client, self.__pr_resource_html_url())
 
     def find_prs(
@@ -817,9 +855,7 @@ class AzureDevopsClient(ScmPlatformClientProtocol):
                 **kwargs,
             )
             pr_instances = self.git_client.get_pull_requests(
-                project=self.project.id,
-                repository_id=self.repo.id,
-                search_criteria=git_pr_search
+                project=self.project.id, repository_id=self.repo.id, search_criteria=git_pr_search
             )
             page_list.append(pr_instances)
 
@@ -854,4 +890,3 @@ class AzureDevopsClient(ScmPlatformClientProtocol):
         self, slug: str, issue_text: str, title: str | None = None, issue_id: int | None = None
     ) -> str:
         ...
-

@@ -1,8 +1,9 @@
 from collections import defaultdict
+from dataclasses import dataclass
 from typing import Optional, Union
 
 import requests
-from dataclasses import dataclass
+
 
 @dataclass
 class SonarVuln:
@@ -65,7 +66,12 @@ class SonarClient:
 
         headers = {"Authorization": f"Bearer {self._access_token}"}
         # Define the parameters for Hotspot API request
-        params: dict[str, Union[str, int]] = {"p": page, "ps": page_size, "projectKey": project_key, "status": "TO_REVIEW"}
+        params: dict[str, Union[str, int]] = {
+            "p": page,
+            "ps": page_size,
+            "projectKey": project_key,
+            "status": "TO_REVIEW",
+        }
 
         url = self._url + self.__hotspot_path
 

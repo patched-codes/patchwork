@@ -1,4 +1,3 @@
-import json
 from enum import IntEnum
 from pathlib import Path
 
@@ -19,7 +18,8 @@ from patchwork.steps import (
     ModifyCode,
     PreparePR,
     PreparePrompt,
-    ScanSemgrep, ScanSonar,
+    ScanSemgrep,
+    ScanSonar,
 )
 
 _DEFAULT_PROMPT_JSON = Path(__file__).parent / "default_prompt.json"
@@ -89,9 +89,7 @@ class SonarFix(Step):
         self.inputs.update(outputs)
 
         for extracted_response in self.inputs["extracted_responses"]:
-            response_compatibility = Compatibility.from_str(
-                extracted_response.get("compatibility", "UNKNOWN").strip()
-            )
+            response_compatibility = Compatibility.from_str(extracted_response.get("compatibility", "UNKNOWN").strip())
             if response_compatibility < self.compatibility_threshold:
                 extracted_response.pop("patch", None)
 
