@@ -8,14 +8,12 @@ import string
 import sys
 from json import JSONDecodeError
 from pathlib import Path
-from typing import Any
 
 import chevron
 from openai.types.chat import ChatCompletionMessageParam
 from openai.types.chat.chat_completion_tool_param import ChatCompletionToolParam
 
 from patchwork.common.client.llm.protocol import LlmClient
-from patchwork.common.multiturn_strategy.multiturn_strategy import MultiturnStrategy
 from patchwork.common.tools import CodeEditTool, Tool
 from patchwork.common.tools.agentic_tools import EndTool
 
@@ -108,7 +106,7 @@ class Assistant(Role):
             self.history.append(dict(role="system", content=system_prompt))
 
 
-class AgenticStrategy(MultiturnStrategy):
+class AgenticStrategy:
     def __init__(
         self,
         llm_client: LlmClient,
@@ -116,19 +114,14 @@ class AgenticStrategy(MultiturnStrategy):
         template_data: dict[str, str],
         system_prompt_template: str,
         user_prompt_template: str,
+        *args,
         **kwargs,
     ):
-        super().__init__(tool_set=dict(end=EndTool(), **tool_set), **kwargs)
+        self.tool_set = dict(end=EndTool(), **tool_set)
         self.__template_data = template_data
         self.__user_prompt_template = user_prompt_template
         self.__assistant_role = Assistant(llm_client, self.tool_set, self.__render_prompt(system_prompt_template))
         self.__user_role = UserProxy(llm_client, dict())
-
-    def run_initial_prompt(self) -> Any:
-        ...
-
-    def run_subsequent_prompt(self, messages: list[ChatCompletionMessageParam]) -> list[ChatCompletionMessageParam]:
-        ...
 
     def __render_prompt(self, prompt_template: str) -> str:
         chevron.render.__globals__["_html_escape"] = lambda x: x
