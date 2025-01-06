@@ -5,9 +5,15 @@ from pathlib import Path
 from patchwork.step import Step, StepStatus
 
 
-def save_file_contents(file_path, content):
-    """Utility function to save content to a file."""
-    with open(file_path, "w") as file:
+def save_file_contents(file_path, content, newline=None):
+    """Utility function to save content to a file while preserving line endings.
+    
+    Args:
+        file_path: Path to file to save
+        content: Content to write to file
+        newline: Line ending to use (if None, will not transform line endings)
+    """
+    with open(file_path, "w", newline=newline) as file:
         file.write(content)
 
 
@@ -38,24 +44,33 @@ def replace_code_in_file(
     end_line: int | None,
     new_code: str,
 ) -> None:
+    from patchwork.common.utils.utils import detect_newline
+
     path = Path(file_path)
     new_code_lines = new_code.splitlines(keepends=True)
     if len(new_code_lines) > 0 and not new_code_lines[-1].endswith("\n"):
         new_code_lines[-1] += "\n"
 
-    if path.exists() and start_line is not None and end_line is not None:
-        """Replaces specified lines in a file with new code."""
-        text = path.read_text()
+    detected_newline = None
+    if path.exists():
+        # Detect the original file's line endings
+        detected_newline = detect_newline(path)
+        
+        if start_line is not None and end_line is not None:
+            """Replaces specified lines in a file with new code."""
+            with open(path, "r", newline="") as f:  # Use newline="" to keep line endings
+                text = f.read()
+            lines = text.splitlines(keepends=True)
 
-        lines = text.splitlines(keepends=True)
-
-        # Insert the new code at the start line after converting it into a list of lines
-        lines[start_line:end_line] = handle_indent(lines, new_code_lines, start_line, end_line)
+            # Insert the new code at the start line after converting it into a list of lines
+            lines[start_line:end_line] = handle_indent(lines, new_code_lines, start_line, end_line)
+        else:
+            lines = new_code_lines
     else:
         lines = new_code_lines
 
-    # Save the modified contents back to the file
-    save_file_contents(file_path, "".join(lines))
+    # Save the modified contents back to the file, preserving original line endings
+    save_file_contents(file_path, "".join(lines), newline=detected_newline)
 
 
 class ModifyCode(Step):
