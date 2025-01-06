@@ -4,14 +4,9 @@ from patchwork.common.utils.step_typing import StepTypeConfig
 from patchwork.steps.CallLLM.CallLLM import TOKEN_URL
 
 
-class __AgenticLLMInputsRequired(TypedDict):
-    # PreparePromptInputs
-    prompt_template_file: Annotated[str, StepTypeConfig(is_config=True)]
-    prompt_id: Annotated[str, StepTypeConfig(is_config=True)]
 
-
-class AgenticLLMInputs(__AgenticLLMInputsRequired, total=False):
-    prompt_values: Annotated[List[Dict[str, Any]], StepTypeConfig(or_op=["prompt_value_file"])]
+class AgenticLLMInputs(TypedDict, total=False):
+    prompt_value: Dict[str, Any]
     system_prompt: str
     user_prompt: str
     max_llm_calls: Annotated[int, StepTypeConfig(is_config=True)]

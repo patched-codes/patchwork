@@ -17,7 +17,7 @@ class AgenticLLM(Step, input_class=AgenticLLMInputs, output_class=AgenticLLMOutp
         self.agentic_strategy = AgenticStrategy(
             llm_client=AioLlmClient.create_aio_client(inputs),
             tool_set=Tool.get_tools(path=base_path),
-            template_data=inputs.get("prompt_values"),
+            template_data=inputs.get("prompt_value"),
             system_prompt_template=inputs.get("system_prompt"),
             user_prompt_template=inputs.get("user_prompt"),
         )
