@@ -37,7 +37,6 @@ class ResolveIssue(Step):
         self.inputs["issue_description"] = outputs
         outputs = FixIssue(self.inputs).run()
         self.inputs.update(outputs)
-        self.inputs["pr_header"] = f'This pull request from patchwork fixes {self.inputs["issue_url"]}.'
         outputs = PR(self.inputs).run()
         self.inputs.update(outputs)
 
