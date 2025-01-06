@@ -9,7 +9,7 @@ from patchwork.common.client.llm.aio import AioLlmClient
 from patchwork.common.client.llm.protocol import LlmClient
 from patchwork.common.constants import TOKEN_URL
 from patchwork.common.multiturn_strategy.analyze_implement import (
-    _STAGE,
+    STAGE,
     AnalyzeImplementStrategy,
 )
 from patchwork.common.tools import CodeEditTool, Tool
@@ -89,13 +89,10 @@ Let me know when you're done by outputting </DONE>.""",
         return sections
 
     def is_stop(self, messages: list[ChatCompletionMessageParam]) -> bool:
-        if self._stage != _STAGE.IMPLEMENT:
+        if self._stage != STAGE.IMPLEMENT:
             return False
         last_message = messages[-1]
-        is_end = "</DONE>" in last_message.get("content")
-        if is_end:
-            self.stage_messages.append(messages)
-        return is_end
+        return "</DONE>" in last_message.get("content")
 
 
 class FixIssue(Step, input_class=FixIssueInputs, output_class=FixIssueOutputs):

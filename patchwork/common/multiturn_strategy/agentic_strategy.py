@@ -122,7 +122,7 @@ class AgenticStrategy(MultiturnStrategy):
         self.__template_data = template_data
         self.__user_prompt_template = user_prompt_template
         self.__assistant_role = Assistant(llm_client, self.tool_set, self.__render_prompt(system_prompt_template))
-        self.__user_role = UserProxy(llm_client, self.tool_set)
+        self.__user_role = UserProxy(llm_client, dict())
 
     def run_initial_prompt(self) -> Any:
         ...

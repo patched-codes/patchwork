@@ -4,7 +4,6 @@ from patchwork.common.utils.step_typing import StepTypeConfig
 from patchwork.steps.CallLLM.CallLLM import TOKEN_URL
 
 
-
 class AgenticLLMInputs(TypedDict, total=False):
     prompt_value: Dict[str, Any]
     system_prompt: str
