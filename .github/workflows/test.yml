@@ -158,14 +158,14 @@ jobs:
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
         run: poetry install --no-interaction --only main --extras rag
 
-#      disabled because this currently takes too long
-#      - name: Resolve issue
-#        run: |
-#          poetry run patchwork ResolveIssue --log debug \
-#          --patched_api_key=${{ secrets.PATCHED_API_KEY }} \
-#          --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
-#          --issue_url=https://github.com/patched-codes/patchwork/issues/1039 \
-#          --disable_telemetry
+      - name: Resolve issue
+        run: |
+          poetry run patchwork ResolveIssue --log debug \
+          --patched_api_key=${{ secrets.PATCHED_API_KEY }} \
+          --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
+          --issue_url=https://github.com/patched-codes/patchwork/issues/1039 \
+          --disable_telemetry
+          --max_llm_calls=10
 
   main-test:
     runs-on: ubuntu-latest
