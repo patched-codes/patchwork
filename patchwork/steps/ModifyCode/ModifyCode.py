@@ -5,10 +5,63 @@ from pathlib import Path
 from patchwork.step import Step, StepStatus
 
 
+def normalize_line_endings(content: str, target_ending: str) -> str:
+    """Normalize all line endings in content to the target ending.
+    
+    Rules:
+    1. Normalize any existing line endings to the target ending
+    2. Preserve intentional lack of line endings:
+       - If original content had no line endings, don't add them
+       - If original content had line endings, ensure they're present
+    3. Handle mixed line endings by converting all to the target
+    """
+    # Detect if original content had any line endings
+    had_line_endings = ('\r\n' in content) or ('\n' in content) or ('\r' in content)
+    ends_with_line_ending = content.endswith('\r\n') or content.endswith('\n') or content.endswith('\r')
+
+    # First standardize all line endings to \n
+    tmp = content.replace('\r\n', '\n')  # Convert CRLF to LF
+    tmp = tmp.replace('\r', '\n')        # Convert CR to LF
+    
+    # Then convert all \n to target ending (if not already \n)
+    if target_ending != '\n':
+        tmp = tmp.replace('\n', target_ending)
+    
+    # Handle final line ending
+    if had_line_endings:
+        # If original had line endings, ensure all lines have them
+        if not tmp.endswith(target_ending):
+            tmp += target_ending
+    else:
+        # If original had no line endings, remove any we might have added
+        if tmp.endswith(target_ending):
+            tmp = tmp[:-len(target_ending)]
+    
+    return tmp
+
 def save_file_contents(file_path, content):
-    """Utility function to save content to a file."""
-    with open(file_path, "w") as file:
-        file.write(content)
+    """Utility function to save content to a file while preserving line endings."""
+    # Detect the target line ending from existing file if it exists
+    target_ending = '\n'
+    if Path(file_path).exists():
+        try:
+            with open(file_path, 'rb') as f:
+                target_ending = detect_line_ending(f.read())
+        except Exception:
+            pass
+
+    # Normalize line endings in content
+    content = normalize_line_endings(content, target_ending)
+    
+    try:
+        # Try UTF-8 first
+        content_bytes = content.encode('utf-8')
+        with open(file_path, "wb") as file:
+            file.write(content_bytes)
+    except UnicodeEncodeError:
+        # Fallback to system default encoding if UTF-8 fails
+        with open(file_path, "w", newline='') as file:
+            file.write(content)
 
 
 def handle_indent(src: list[str], target: list[str], start: int, end: int) -> list[str]:
@@ -32,6 +85,40 @@ def handle_indent(src: list[str], target: list[str], start: int, end: int) -> li
     return [indent + line for line in target]
 
 
+def detect_line_ending(content: bytes) -> str:
+    """Detect the dominant line ending in a file.
+    
+    Rules:
+    1. If the file has line endings, use the most common one (with CRLF taking precedence if tied)
+    2. If the file has no line endings:
+       - For empty files or files with no line endings, return '\n' (Unix style)
+       - The caller will handle whether to add line endings or not
+    """
+    if not content:
+        return '\n'  # default for empty files
+        
+    # Count all occurrences first
+    crlf_count = content.count(b'\r\n')
+    total_lf = content.count(b'\n')
+    total_cr = content.count(b'\r')
+    
+    # Calculate individual counts
+    lf_count = total_lf - crlf_count  # Lone \n
+    cr_count = total_cr - crlf_count  # Lone \r
+    
+    # If there are no line endings at all, default to Unix style
+    if crlf_count == 0 and lf_count == 0 and cr_count == 0:
+        return '\n'
+    
+    # Return dominant ending with slight bias towards CRLF if it exists
+    if crlf_count >= max(lf_count, cr_count):  # Use >= to prefer CRLF when tied
+        return '\r\n'
+    elif lf_count > cr_count:
+        return '\n'
+    elif cr_count > 0:
+        return '\r'
+    return '\n'  # default if no clear winner
+
 def replace_code_in_file(
     file_path: str,
     start_line: int | None,
@@ -39,14 +126,36 @@ def replace_code_in_file(
     new_code: str,
 ) -> None:
     path = Path(file_path)
+    content = b""
+    text = ""
+    line_ending = "\n"  # default
+
+    # Read existing file and detect line endings
+    if path.exists():
+        try:
+            with open(file_path, 'rb') as f:
+                content = f.read()
+            line_ending = detect_line_ending(content)
+            
+            # Try decoding with UTF-8 first, then fallback
+            try:
+                text = content.decode('utf-8')
+            except UnicodeDecodeError:
+                try:
+                    text = content.decode('latin1')
+                except Exception:
+                    # If all decodings fail, treat as empty
+                    text = ""
+        except Exception:
+            # If file can't be read, use defaults
+            pass
+
+    # Normalize the new code to match the file's line endings
+    new_code = normalize_line_endings(new_code, line_ending)
     new_code_lines = new_code.splitlines(keepends=True)
-    if len(new_code_lines) > 0 and not new_code_lines[-1].endswith("\n"):
-        new_code_lines[-1] += "\n"
 
     if path.exists() and start_line is not None and end_line is not None:
         """Replaces specified lines in a file with new code."""
-        text = path.read_text()
-
         lines = text.splitlines(keepends=True)
 
         # Insert the new code at the start line after converting it into a list of lines
