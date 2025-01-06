@@ -1,13 +1,14 @@
 from typing import List
 
-from patchwork.step import Step, StepStatus
 from patchwork.common.client.sonar import SonarClient
+from patchwork.step import Step, StepStatus
 from patchwork.steps.ExtractCode.ExtractCode import read_and_get_source_code_context
 from patchwork.steps.ScanSonar.typed import (
-    ScanSonarInputs, 
+    ScanSonarInputs,
     ScanSonarOutputs,
-    SonarVulnerability
+    SonarVulnerability,
 )
+
 
 class ScanSonar(Step, input_class=ScanSonarInputs, output_class=ScanSonarOutputs):
     def __init__(self, inputs: dict):
@@ -25,9 +26,9 @@ class ScanSonar(Step, input_class=ScanSonarInputs, output_class=ScanSonarOutputs
     def run(self) -> dict:
         try:
             vulns_by_path = self.client.find_vulns(self.project_key)
-            
+
             files_to_patch: List[SonarVulnerability] = []
-            
+
             for file_path, vulns in vulns_by_path.items():
                 for vuln in vulns:
                     data = read_and_get_source_code_context(file_path, vuln.start, vuln.end, self.context_length)
@@ -43,10 +44,10 @@ class ScanSonar(Step, input_class=ScanSonarInputs, output_class=ScanSonarOutputs
                         messageText=vuln.bug_msg,
                     )
                     files_to_patch.append(vulnerability)
-            
+
             self.set_status(StepStatus.COMPLETED, "Successfully collected SonarQube results")
             return dict(files_to_patch=files_to_patch)
-            
+
         except Exception as e:
             self.set_status(StepStatus.FAILED, f"Failed to collect SonarQube results: {str(e)}")
             raise

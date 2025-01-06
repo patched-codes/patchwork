@@ -1,5 +1,7 @@
-from typing_extensions import Annotated, TypedDict, List
+from typing_extensions import Annotated, List, TypedDict
+
 from patchwork.common.utils.step_typing import StepTypeConfig
+
 
 class __ScanSonarRequiredInputs(TypedDict):
     sonarqube_api_key: Annotated[
@@ -20,6 +22,7 @@ You can find this in your SonarQube project settings.""",
         ),
     ]
 
+
 class ScanSonarInputs(__ScanSonarRequiredInputs, total=False):
     sonarqube_base_url: Annotated[
         str,
@@ -38,6 +41,7 @@ class SonarVulnerability(TypedDict):
     endLine: int
     affectedCode: str
     messageText: str
+
 
 class ScanSonarOutputs(TypedDict):
     files_to_patch: List[SonarVulnerability]

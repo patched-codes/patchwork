@@ -107,7 +107,8 @@ jobs:
 
       - name: AutoFix Patchwork
         run: |
-          poetry run patchwork AutoFix --log debug \
+          source .venv/bin/activate
+          patchwork AutoFix --log debug \
           --patched_api_key=${{ secrets.PATCHED_API_KEY }} \
           --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
           --force_pr_creation \
@@ -115,7 +116,8 @@ jobs:
 
       - name: Dependency Upgrade
         run: |
-          poetry run patchwork DependencyUpgrade --log debug \
+          source .venv/bin/activate
+          patchwork DependencyUpgrade --log debug \
           --libraries_api_key=${{ secrets.LIBRARIES_KEY }} \
           --patched_api_key=${{ secrets.PATCHED_API_KEY }} \
           --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
@@ -124,6 +126,8 @@ jobs:
           --disable_telemetry
 
   rag-test:
+    # disabled because this currently takes too long
+    if: false
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -158,14 +162,15 @@ jobs:
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
         run: poetry install --no-interaction --only main --extras rag
 
-#      disabled because this currently takes too long
-#      - name: Resolve issue
-#        run: |
-#          poetry run patchwork ResolveIssue --log debug \
-#          --patched_api_key=${{ secrets.PATCHED_API_KEY }} \
-#          --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
-#          --issue_url=https://github.com/patched-codes/patchwork/issues/1039 \
-#          --disable_telemetry
+      - name: Resolve issue
+        run: |
+          source .venv/bin/activate
+          patchwork ResolveIssue --log debug \
+          --patched_api_key=${{ secrets.PATCHED_API_KEY }} \
+          --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
+          --issue_url=https://github.com/patched-codes/patchwork/issues/1129 \
+          --disable_telemetry
+          --max_llm_calls=10
 
   main-test:
     runs-on: ubuntu-latest
@@ -204,7 +209,8 @@ jobs:
 
       - name: PR Review
         run: |
-          poetry run patchwork PRReview --log debug \
+          source .venv/bin/activate
+          patchwork PRReview --log debug \
           --patched_api_key=${{ secrets.PATCHED_API_KEY }} \
           --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
           --pr_url=https://github.com/patched-codes/patchwork/pull/${{ steps.findPr.outputs.number }} \
@@ -212,7 +218,8 @@ jobs:
 
       - name: Generate Docstring
         run: |
-          poetry run patchwork GenerateDocstring --log debug \
+          source .venv/bin/activate
+          patchwork GenerateDocstring --log debug \
           --patched_api_key=${{ secrets.PATCHED_API_KEY }} \
           --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
           --base_path=tests/cicd/generate_docstring \
@@ -220,7 +227,8 @@ jobs:
 
       - name : Generate Diagram
         run: |
-          poetry run patchwork GenerateDiagram --log debug \
+          source .venv/bin/activate
+          patchwork GenerateDiagram --log debug \
           --patched_api_key=${{ secrets.PATCHED_API_KEY }} \
           --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
           --folder_path=patchwork/steps \
@@ -228,7 +236,8 @@ jobs:
 
       - name: Generate UnitTests
         run: |
-          poetry run patchwork GenerateUnitTests --log debug \
+          source .venv/bin/activate
+          patchwork GenerateUnitTests --log debug \
           --patched_api_key=${{ secrets.PATCHED_API_KEY }} \
           --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
           --folder_path=tests/cicd/generate_docstring \
@@ -236,7 +245,8 @@ jobs:
       
       - name: Generate Code Usage Example
         run: |
-          poetry run patchwork GenerateCodeUsageExample --log debug \
+          source .venv/bin/activate
+          patchwork GenerateCodeUsageExample --log debug \
           --patched_api_key=${{ secrets.PATCHED_API_KEY }} \
           --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
           --folder_path=tests/cicd/generate_docstring \
@@ -244,6 +254,7 @@ jobs:
 
       - name: Generate README
         run: |
+          source .venv/bin/activate
           # Specify the parent folder you want to check
           PARENT_FOLDER="./patchwork/steps"
           # Command to run if README.md is not found
@@ -256,7 +267,7 @@ jobs:
               # Convert to a Git-friendly branch name: replace spaces with underscores, remove slashes, etc.
               branch_name=$(echo "$base_name" | sed -e 's/[^a-zA-Z0-9]/_/g' -e 's/__*/_/g' -e 's/^_//g' -e 's/_$//g')
           
-              poetry run patchwork GenerateREADME --log debug \
+              patchwork GenerateREADME --log debug \
               --patched_api_key=${{ secrets.PATCHED_API_KEY }} \
               --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
               --filter=*.py \

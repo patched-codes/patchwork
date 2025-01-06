@@ -7,7 +7,6 @@ from patchwork.steps.PreparePR.typed import PreparePRInputs, PreparePROutputs
 
 
 class PreparePR(Step, input_class=PreparePRInputs, output_class=PreparePROutputs):
-
     def __init__(self, inputs: dict):
         super().__init__(inputs)
         self.modified_code_files = inputs["modified_code_files"]

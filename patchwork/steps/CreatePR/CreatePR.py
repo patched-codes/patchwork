@@ -4,10 +4,11 @@ import git
 from git.exc import GitCommandError
 
 from patchwork.common.client.scm import (
+    AzureDevopsClient,
     GithubClient,
     GitlabClient,
     ScmPlatformClientProtocol,
-    get_slug_from_remote_url, AzureDevopsClient,
+    get_slug_from_remote_url,
 )
 from patchwork.logger import logger
 from patchwork.step import Step, StepStatus

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 from pathlib import Path
 from typing import Literal
 
@@ -9,9 +8,9 @@ from patchwork.common.utils.utils import detect_newline
 
 
 class CodeEditTool(Tool, tool_name="code_edit_tool"):
-    def __init__(self, path: Path):
+    def __init__(self, path: Path | str):
         super().__init__()
-        self.repo_path = path
+        self.repo_path = Path(path)
         self.modified_files = set()
 
     @property
@@ -25,7 +24,6 @@ Custom editing tool for viewing, creating and editing files
 * If `path` is a file, `view` displays the result of applying `cat -n`. If `path` is a directory, `view` lists non-hidden files and directories up to 2 levels deep
 * The `create` command cannot be used if the specified `path` already exists as a file
 * If a `command` generates a long output, it will be truncated and marked with `<response clipped>`
-* The `undo_edit` command will revert the last edit made to the file at `path`
 * The working directory is always {self.repo_path}
 
 Notes for using the `str_replace` command:
@@ -37,8 +35,8 @@ Notes for using the `str_replace` command:
                 "properties": {
                     "command": {
                         "type": "string",
-                        "enum": ["view", "create", "str_replace", "insert", "undo_edit"],
-                        "description": "The commands to run. Allowed options are: `view`, `create`, `str_replace`, `insert`, `undo_edit`.",
+                        "enum": ["view", "create", "str_replace", "insert"],
+                        "description": "The commands to run. Allowed options are: `view`, `create`, `str_replace`, `insert`.",
                     },
                     "file_text": {
                         "description": "Required parameter of `create` command, with the content of the file to be created.",
@@ -141,12 +139,12 @@ Notes for using the `str_replace` command:
             rv = ""
             if len(directories) > 0:
                 rv += "Directories: \n"
-                rv += '\n'.join(directories)
+                rv += "\n".join(directories)
                 rv += "\n"
 
             if len(files) > 0:
                 rv += "Files: \n"
-                rv += '\n'.join(files)
+                rv += "\n".join(files)
 
             return rv
 

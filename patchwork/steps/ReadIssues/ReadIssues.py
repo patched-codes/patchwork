@@ -40,5 +40,5 @@ Title:
 
 Description:
 {self.issue.get("body")}
-"""
+""",
         )

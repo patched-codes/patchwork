@@ -1,15 +1,16 @@
-from typing_extensions import Annotated, Dict, List, TypedDict
+from typing_extensions import Annotated, Any, Dict, List, TypedDict
 
-from patchwork.common.constants import TOKEN_URL
 from patchwork.common.utils.step_typing import StepTypeConfig
+from patchwork.steps.CallLLM.CallLLM import TOKEN_URL
 
 
-class __FixIssueRequiredInputs(TypedDict):
-    issue_description: str
-
-
-class FixIssueInputs(__FixIssueRequiredInputs, total=False):
-    base_path: Annotated[str, StepTypeConfig(is_path=True)]
+class AgenticLLMInputs(TypedDict, total=False):
+    prompt_value: Dict[str, Any]
+    system_prompt: str
+    user_prompt: str
+    max_llm_calls: Annotated[int, StepTypeConfig(is_config=True)]
+    model_args: Annotated[str, StepTypeConfig(is_config=True)]
+    client_args: Annotated[str, StepTypeConfig(is_config=True)]
     openai_api_key: Annotated[
         str, StepTypeConfig(is_config=True, or_op=["patched_api_key", "google_api_key", "anthropic_api_key"])
     ]
@@ -35,5 +36,8 @@ If you are using a OpenAI API Key, please set `--openai_api_key=<token>`.""",
     ]
 
 
-class FixIssueOutputs(TypedDict):
-    modified_files: List[Dict]
+class AgenticLLMOutputs(TypedDict):
+    conversation_history: List[Dict]
+    tool_records: List[Dict]
+    # request_tokens: int
+    # response_tokens: int

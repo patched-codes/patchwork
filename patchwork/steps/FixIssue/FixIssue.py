@@ -13,7 +13,6 @@ from patchwork.common.multiturn_strategy.analyze_implement import (
     AnalyzeImplementStrategy,
 )
 from patchwork.common.tools import CodeEditTool, Tool
-from patchwork.logger import logger
 from patchwork.step import Step
 from patchwork.steps.FixIssue.typed import FixIssueInputs, FixIssueOutputs
 

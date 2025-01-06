@@ -5,7 +5,10 @@ from typing import Type
 class Tool(ABC):
     __internal_map: dict[str, Type["Tool"]] = dict()
 
-    def __init_subclass__(cls, tool_name=None, **kwargs):
+    def __init_subclass__(cls, tool_name=None, abc_register=True, **kwargs):
+        if not abc_register:
+            return
+
         cls_name = tool_name or cls.__name__
         if cls_name in cls.__internal_map.keys():
             raise ValueError(f"Duplicate subclass name for class {cls.__name__}: {cls_name}")

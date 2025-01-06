@@ -4,7 +4,6 @@ import os
 import sys
 from collections import defaultdict
 from enum import IntEnum
-from logging import LogRecord
 from pathlib import Path
 from urllib.parse import urlparse
 

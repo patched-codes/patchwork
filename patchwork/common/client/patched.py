@@ -245,12 +245,7 @@ class PatchedClient(click.ParamType):
         response = self._post(
             url=self.url + "/v1/patchwork/",
             headers={"Authorization": f"Bearer {self.access_token}"},
-            json={
-                "id": id,
-                "url": repo.remotes.origin.url,
-                "patchflow": patchflow,
-                "outputs": outputs
-            },
+            json={"id": id, "url": repo.remotes.origin.url, "patchflow": patchflow, "outputs": outputs},
         )
 
         if response is None:
