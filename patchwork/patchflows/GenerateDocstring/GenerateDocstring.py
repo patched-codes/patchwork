@@ -63,7 +63,7 @@ class GenerateDocstring(Step):
         outputs = ExtractCodeMethodForCommentContexts(self.inputs).run()
         self.inputs.update(outputs)
 
-        self.inputs["prompt_values"] = [self.inputs.get("files_to_patch", [])]
+        self.inputs["prompt_values"] = self.inputs.get("files_to_patch", [])
         self.inputs["response_partitions"] = {
             "patch": ["Documentation:", "```", "\n", "```"],
         }
