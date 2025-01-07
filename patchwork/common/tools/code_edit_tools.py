@@ -10,7 +10,7 @@ from patchwork.common.utils.utils import detect_newline
 class CodeEditTool(Tool, tool_name="code_edit_tool"):
     def __init__(self, path: Path | str):
         super().__init__()
-        self.repo_path = Path(path)
+        self.repo_path = Path(path).resolve()
         self.modified_files = set()
 
     @property

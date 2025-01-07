@@ -5,12 +5,11 @@ from patchwork.steps.CallLLM.CallLLM import TOKEN_URL
 
 
 class AgenticLLMInputs(TypedDict, total=False):
+    base_path: str
     prompt_value: Dict[str, Any]
     system_prompt: str
     user_prompt: str
     max_llm_calls: Annotated[int, StepTypeConfig(is_config=True)]
-    model_args: Annotated[str, StepTypeConfig(is_config=True)]
-    client_args: Annotated[str, StepTypeConfig(is_config=True)]
     openai_api_key: Annotated[
         str, StepTypeConfig(is_config=True, or_op=["patched_api_key", "google_api_key", "anthropic_api_key"])
     ]
