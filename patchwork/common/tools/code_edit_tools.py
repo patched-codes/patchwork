@@ -152,7 +152,9 @@ Notes for using the `str_replace` command:
         if abs_path.exists():
             return f"Error: File {abs_path} already exists"
         abs_path.parent.mkdir(parents=True, exist_ok=True)
-        abs_path.write_text(file_text)
+        # When creating a new file, use newline='' to retain original line endings from file_text
+        with abs_path.open("w", newline="") as fp:
+            fp.write(file_text)
         return f"File created successfully at: {abs_path}"
 
     def __str_replace(self, new_str, old_str, abs_path):
