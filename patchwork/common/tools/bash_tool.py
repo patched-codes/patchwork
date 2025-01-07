@@ -5,7 +5,6 @@ from pathlib import Path
 
 from patchwork.common.tools.tool import Tool
 
-
 class BashTool(Tool, tool_name="bash"):
     def __init__(self, path: Path):
         super().__init__()
@@ -44,8 +43,10 @@ class BashTool(Tool, tool_name="bash"):
             return f"Error: `command` parameter must be set and cannot be empty"
 
         try:
+            # Split command string into a list for subprocess without using a shell
+            command_list = command.split()
             result = subprocess.run(
-                command, shell=True, cwd=self.path, capture_output=True, text=True, timeout=60  # Add timeout for safety
+                command_list, shell=False, cwd=self.path, capture_output=True, text=True, timeout=60  # Add timeout for safety
             )
             return result.stdout if result.returncode == 0 else f"Error: {result.stderr}"
         except subprocess.TimeoutExpired:
