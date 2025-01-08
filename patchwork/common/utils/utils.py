@@ -76,7 +76,7 @@ def defered_temp_file(
     return tempfile_fp
 
 
-def open_with_chardet(file, mode="r", buffering=-1, errors=None, newline=None, closefd=True, opener=None):
+def open_with_chardet(file, mode="r", buffering=-1, errors=None, newline="", closefd=True, opener=None):
     detector = UniversalDetector()
     with open(
         file=file, mode="rb", buffering=buffering, errors=errors, newline=newline, closefd=closefd, opener=opener
