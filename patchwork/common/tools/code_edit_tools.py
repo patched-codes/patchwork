@@ -13,7 +13,6 @@ class CodeEditTool(Tool, tool_name="code_edit_tool"):
         self.repo_path = Path(path).resolve()
         self.modified_files = set()
 
-    @property
     def json_schema(self) -> dict:
         return {
             "name": "code_edit_tool",
@@ -122,13 +121,13 @@ Notes for using the `str_replace` command:
             return f"Error: Path {abs_path} does not exist"
 
         if abs_path.is_file():
-            with open(abs_path, "r") as f:
+            with open(abs_path, "r", newline='') as f:
                 content = f.read()
 
             if view_range:
-                lines = content.splitlines()
+                lines = content.splitlines(keepends=True)
                 start, end = view_range
-                content = "\n".join(lines[start - 1 : end])
+                content = "".join(lines[start - 1 : end])
             return content
         elif abs_path.is_dir():
             directories = []
@@ -152,7 +151,8 @@ Notes for using the `str_replace` command:
         if abs_path.exists():
             return f"Error: File {abs_path} already exists"
         abs_path.parent.mkdir(parents=True, exist_ok=True)
-        abs_path.write_text(file_text)
+        with open(abs_path, 'w', newline='') as f:
+            f.write(file_text)
         return f"File created successfully at: {abs_path}"
 
     def __str_replace(self, new_str, old_str, abs_path):
@@ -160,26 +160,30 @@ Notes for using the `str_replace` command:
             return f"Error: File {abs_path} does not exist"
         if not abs_path.is_file():
             return f"Error: File {abs_path} is not a file"
-        content = abs_path.read_text()
+        with open(abs_path, 'r', newline='') as f:
+            content = f.read()
         occurrences = content.count(old_str)
         if occurrences != 1:
             return f"Error: Found {occurrences} occurrences of old_str, expected exactly 1"
         new_content = content.replace(old_str, new_str)
-        newline = detect_newline(abs_path)
-        with abs_path.open("w", newline=newline) as fp:
-            fp.write(new_content)
+        with open(abs_path, 'w', newline='') as f:
+            f.write(new_content)
         return "Replacement successful"
 
     def __insert(self, insert_line, new_str, abs_path):
         if not abs_path.is_file():
             return f"Error: File {abs_path} does not exist or is not a file"
 
-        lines = abs_path.read_text().splitlines(keepends=True)
+        with open(abs_path, 'r', newline='') as f:
+            lines = f.readlines()
+
         if insert_line is None or insert_line < 1 or insert_line > len(lines):
             return f"Error: Invalid insert line {insert_line}"
 
-        lines.insert(insert_line, new_str + "\n")
-        newline = detect_newline(abs_path)
-        with abs_path.open("w", newline=newline) as fp:
-            fp.write("".join(lines))
+        # Get the line ending from the file by checking for the first line with ending
+        newline = next((line[len(line.rstrip('\r\n')):] for line in lines if line.rstrip('\r\n') != line), '\n')
+        lines.insert(insert_line, new_str + newline)
+
+        with open(abs_path, 'w', newline='') as f:
+            f.write("".join(lines))
         return "Insert successful"
