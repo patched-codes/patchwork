@@ -15,6 +15,7 @@ class CallSQLInputs(__RequiredCallSQLInputs, total=False):
     host: str
     port: int
     database: str
+    query_template_values: dict[str, Any]
 
 
 class CallSQLOutputs(TypedDict):

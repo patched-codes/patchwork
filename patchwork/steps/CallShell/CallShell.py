@@ -1,22 +1,20 @@
 from __future__ import annotations
 
 import shlex
-import shutil
 import subprocess
 from pathlib import Path
 
+from patchwork.common.utils.utils import mustache_render
 from patchwork.logger import logger
 from patchwork.step import Step, StepStatus
-from patchwork.steps.CallCommand.typed import CallCommandInputs, CallCommandOutputs
+from patchwork.steps.CallShell.typed import CallShellInputs, CallShellOutputs
 
 
-class CallCommand(Step, input_class=CallCommandInputs, output_class=CallCommandOutputs):
+class CallShell(Step, input_class=CallShellInputs, output_class=CallShellOutputs):
     def __init__(self, inputs: dict):
         super().__init__(inputs)
-        self.command = shutil.which(inputs["command"])
-        if self.command is None:
-            raise ValueError(f"Command `{inputs['command']}` not found in PATH")
-        self.command_args = shlex.split(inputs.get("command_args", ""))
+        script_template_values = inputs.get("script_template_values", {})
+        self.script = mustache_render(inputs["script"], script_template_values)
         self.working_dir = inputs.get("working_dir", Path.cwd())
         self.env = self.__parse_env_text(inputs.get("env", ""))
 
@@ -47,14 +45,12 @@ class CallCommand(Step, input_class=CallCommandInputs, output_class=CallCommandO
         return env
 
     def run(self) -> dict:
-        cmd = [self.command, *self.command_args]
-        p = subprocess.run(cmd, capture_output=True, text=True, cwd=self.working_dir, env=self.env)
+        p = subprocess.run(self.script, shell=True, capture_output=True, text=True, cwd=self.working_dir, env=self.env)
         try:
             p.check_returncode()
-            return dict(stdout_output=p.stdout)
         except subprocess.CalledProcessError as e:
             self.set_status(
                 StepStatus.FAILED,
-                f"`{self.command} {self.command_args}` failed with stdout:\n{p.stdout}\nstderr:\n{e.stderr}",
+                f"script failed with stdout:\n{p.stdout}\nstderr:\n{e.stderr}",
             )
-            return dict(stdout_output="")
+        return dict(stdout_output=p.stdout, stderr_output=p.stderr)

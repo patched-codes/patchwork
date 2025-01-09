@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from sqlalchemy import URL, create_engine, exc, text
 
+from patchwork.common.utils.utils import mustache_render
 from patchwork.step import Step, StepStatus
 from patchwork.steps.CallSQL.typed import CallSQLInputs, CallSQLOutputs
 
@@ -9,7 +10,8 @@ from patchwork.steps.CallSQL.typed import CallSQLInputs, CallSQLOutputs
 class CallSQL(Step, input_class=CallSQLInputs, output_class=CallSQLOutputs):
     def __init__(self, inputs: dict):
         super().__init__(inputs)
-        self.query = inputs["query"]
+        query_template_data = inputs.get("query_template_values", {})
+        self.query = mustache_render(inputs["query"], query_template_data)
         self.__build_engine(inputs)
 
     def __build_engine(self, inputs: dict):
