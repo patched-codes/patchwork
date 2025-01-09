@@ -48,6 +48,8 @@ from patchwork.steps.ScanSonar.ScanSonar import ScanSonar
 from patchwork.steps.SimplifiedLLM.SimplifiedLLM import SimplifiedLLM
 from patchwork.steps.SimplifiedLLMOnce.SimplifiedLLMOnce import SimplifiedLLMOnce
 from patchwork.steps.SlackMessage.SlackMessage import SlackMessage
+from patchwork.steps.CallCommand.CallCommand import CallCommand
+from patchwork.steps.CallSQL.CallSQL import CallSQL
 
 # Compatibility Aliases
 JoinListPB = JoinList
@@ -61,6 +63,8 @@ __all__ = [
     "AnalyzeImpact",
     "CallAPI",
     "CallCode2Prompt",
+    "CallCommand",
+    "CallSQL",
     "CallLLM",
     "Combine",
     "CommitChanges",
