@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import difflib
+import shutil
+import tempfile
 from pathlib import Path
 
 from patchwork.step import Step, StepStatus
@@ -89,20 +92,34 @@ class ModifyCode(Step):
             if new_code is None:
                 continue
 
-            # Store the original content before replacement
-            original_content = ""
-            if Path(uri).exists():
-                with open(uri, 'r') as f:
-                    original_lines = f.readlines()
-                    if start_line is not None and end_line is not None:
-                        original_content = ''.join(original_lines[start_line:end_line])
-                    else:
-                        original_content = ''.join(original_lines)
-
-            replace_code_in_file(uri, start_line, end_line, new_code)
+            # Get the original content for diffing
+            file_path = Path(uri)
+            original_path = None
+            diff = ""
             
-            # Create a basic diff format showing the changes
-            diff = f"--- Original\n+++ Modified\n-{original_content}\n+{new_code}"
+            if file_path.exists():
+                # Create a temporary copy of the original file
+                with tempfile.NamedTemporaryFile(mode='w', delete=False) as tmp_file:
+                    shutil.copy2(uri, tmp_file.name)
+                    original_path = tmp_file.name
+
+                # Apply the changes
+                replace_code_in_file(uri, start_line, end_line, new_code)
+                
+                # Generate a proper unified diff
+                with open(original_path, 'r') as f1, open(uri, 'r') as f2:
+                    diff = ''.join(difflib.unified_diff(
+                        f1.readlines(),
+                        f2.readlines(),
+                        fromfile='a/' + str(file_path),
+                        tofile='b/' + str(file_path)
+                    ))
+                
+                # Clean up temporary file
+                Path(original_path).unlink()
+            else:
+                # If file doesn't exist, just store the new code as the diff
+                diff = f"+++ {file_path}\n{new_code}"
             
             modified_code_file = dict(
                 path=uri,
