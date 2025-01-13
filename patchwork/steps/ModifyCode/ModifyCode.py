@@ -89,8 +89,28 @@ class ModifyCode(Step):
             if new_code is None:
                 continue
 
+            # Store the original content before replacement
+            original_content = ""
+            if Path(uri).exists():
+                with open(uri, 'r') as f:
+                    original_lines = f.readlines()
+                    if start_line is not None and end_line is not None:
+                        original_content = ''.join(original_lines[start_line:end_line])
+                    else:
+                        original_content = ''.join(original_lines)
+
             replace_code_in_file(uri, start_line, end_line, new_code)
-            modified_code_file = dict(path=uri, start_line=start_line, end_line=end_line, **extracted_response)
+            
+            # Create a basic diff format showing the changes
+            diff = f"--- Original\n+++ Modified\n-{original_content}\n+{new_code}"
+            
+            modified_code_file = dict(
+                path=uri,
+                start_line=start_line,
+                end_line=end_line,
+                diff=diff,
+                **extracted_response
+            )
             modified_code_files.append(modified_code_file)
 
         return dict(modified_code_files=modified_code_files)

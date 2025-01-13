@@ -127,5 +127,18 @@ class FixIssue(Step, input_class=FixIssueInputs, output_class=FixIssueOutputs):
             if isinstance(tool, CodeEditTool):
                 cwd = Path.cwd()
                 modified_files = [file_path.relative_to(cwd) for file_path in tool.tool_records["modified_files"]]
-                return dict(modified_files=[{"path": str(file)} for file in modified_files])
+                # Get the diff for each modified file
+                modified_files_with_diffs = []
+                for file in modified_files:
+                    # Read the current content of the file
+                    file_path = Path(file)
+                    if file_path.exists():
+                        current_content = file_path.read_text()
+                        # For now, we'll use the entire content as the diff since we don't have the original
+                        # In a future enhancement, we could store the original content and generate a proper diff
+                        modified_files_with_diffs.append({
+                            "path": str(file),
+                            "diff": current_content
+                        })
+                return dict(modified_files=modified_files_with_diffs)
         return dict()

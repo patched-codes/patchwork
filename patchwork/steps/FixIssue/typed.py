@@ -35,5 +35,9 @@ If you are using a OpenAI API Key, please set `--openai_api_key=<token>`.""",
     ]
 
 
+class ModifiedFile(TypedDict):
+    path: str
+    diff: str
+
 class FixIssueOutputs(TypedDict):
-    modified_files: List[Dict]
+    modified_files: List[ModifiedFile]

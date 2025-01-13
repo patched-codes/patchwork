@@ -14,3 +14,4 @@ class ModifiedCodeFile(TypedDict, total=False):
     path: str
     start_line: int
     end_line: int
+    diff: str
