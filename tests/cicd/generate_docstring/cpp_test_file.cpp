@@ -6,11 +6,27 @@
 
 
 template<typename T>
+/**
+ * Adds two values of the same type and returns the result.
+ * 
+ * @param a The first value to be added
+ * @param b The second value to be added
+ * @return The result of adding the two values
+ */
 T a_plus_b(T a, T b) {
     return a + b;
 }
 
 
+/**
+ * Executes a given SQL query on the provided SQLite database and retrieves the results as a vector of string vectors,
+ * where each inner vector represents a row in the result set.
+ * 
+ * @param db Pointer to an SQLite database connection (sqlite3*).
+ * @param query The SQL query to be executed as a string.
+ * @return A std::vector containing rows of results, where each row is represented as a std::vector<std::string>.
+ *         Returns an empty vector if the query fails or there are no results.
+ */
 std::vector<std::vector<std::string>> sqlite(sqlite3* db, const std::string& query) {
     std::vector<std::vector<std::string>> results;
     sqlite3_stmt* stmt;
@@ -38,6 +54,16 @@ std::vector<std::vector<std::string>> sqlite(sqlite3* db, const std::string& que
 
 
 template<typename T, typename F>
+/**
+ * Compare two items using a key mapping function.
+ * 
+ * @param key_map A function that maps an item of type T to a comparable value.
+ * @param item1 The first item to compare.
+ * @param item2 The second item to compare.
+ * @return -1 if the key of item1 is less than the key of item2, 
+ *          1 if the key of item1 is greater than the key of item2,
+ *          0 if the keys are equal.
+ */
 int compare(F key_map, const T& item1, const T& item2) {
     auto val1 = key_map(item1);
     auto val2 = key_map(item2);
@@ -48,6 +74,12 @@ int compare(F key_map, const T& item1, const T& item2) {
 }
 
 
+/**
+ * Generates a random string consisting of uppercase and lowercase alphabets.
+ * 
+ * @param length The desired length of the generated string.
+ * @return A random string composed of alphabetic characters with the specified length.
+ */
 std::string random_alphabets(int length) {
     static const std::string chars =
         "abcdefghijklmnopqrstuvwxyz"
