@@ -3,6 +3,7 @@ import re
 from pathlib import Path
 from typing import Any, Optional
 
+from git import Repo, InvalidGitRepositoryError
 from openai.types.chat import ChatCompletionMessageParam
 
 from patchwork.common.client.llm.aio import AioLlmClient
@@ -111,6 +112,14 @@ class FixIssue(Step, input_class=FixIssueInputs, output_class=FixIssueOutputs):
             self.base_path = str(Path(str(base_path)).resolve())
         else:
             self.base_path = str(Path.cwd())
+            
+        # Check if we're in a git repository
+        try:
+            self.repo = Repo(self.base_path, search_parent_directories=True)
+            self.is_git_repo = True
+        except (InvalidGitRepositoryError, Exception):
+            self.repo = None
+            self.is_git_repo = False
 
         llm_client = AioLlmClient.create_aio_client(inputs)
         if llm_client is None:
@@ -146,51 +155,34 @@ class FixIssue(Step, input_class=FixIssueInputs, output_class=FixIssueOutputs):
             if isinstance(tool, CodeEditTool):
                 cwd = Path.cwd()
                 modified_files = [file_path.relative_to(cwd) for file_path in tool.tool_records["modified_files"]]
-                # Generate diffs for modified files using in-memory comparison
+                # Generate diffs for modified files
                 modified_files_with_diffs = []
-                file_contents = {}  # Store original contents before modifications
                 
-                # First pass: store original contents
                 for file in modified_files:
                     file_path = Path(file)
-                    try:
-                        if file_path.exists():
-                            file_contents[str(file)] = file_path.read_text()
-                        else:
-                            file_contents[str(file)] = ""
-                    except (OSError, IOError) as e:
-                        print(f"Warning: Failed to read original content for {file}: {str(e)}")
-                        file_contents[str(file)] = ""
-                
-                # Apply modifications through CodeEditTool (happens in the background)
-                
-                # Second pass: generate diffs
-                for file in modified_files:
-                    file_path = Path(file)
-                    try:
-                        # Get current content after modifications
-                        current_content = file_path.read_text() if file_path.exists() else ""
-                        original_content = file_contents.get(str(file), "")
-                        
-                        # Generate unified diff
-                        fromfile = f"a/{file}"
-                        tofile = f"b/{file}"
-                        diff = "".join(difflib.unified_diff(
-                            original_content.splitlines(keepends=True),
-                            current_content.splitlines(keepends=True),
-                            fromfile=fromfile,
-                            tofile=tofile
-                        ))
-                        
-                        if diff:  # Only add if there are actual changes
-                            modified_file = {
-                                "path": str(file),
-                                "diff": diff
-                            }
-                            modified_files_with_diffs.append(modified_file)
-                    except (OSError, IOError) as e:
-                        print(f"Warning: Failed to generate diff for {file}: {str(e)}")
-                        continue
+                    modified_file = {
+                        "path": str(file),
+                        "diff": ""  # Default to empty string as requested
+                    }
+                    
+                    # Only try to generate git diff if we're in a git repository
+                    if self.is_git_repo and self.repo is not None:
+                        try:
+                            # Check if file exists and is tracked by git
+                            if file_path.exists():
+                                try:
+                                    # Try to get the diff using git
+                                    diff = self.repo.git.diff('HEAD', str(file))
+                                    if diff:  # Only update if we got a diff
+                                        modified_file["diff"] = diff
+                                except Exception as e:
+                                    # Git-specific errors (untracked files, etc) - keep empty diff
+                                    print(f"Note: Could not get git diff for {file}: {str(e)}")
+                        except Exception as e:
+                            # General file processing errors
+                            print(f"Warning: Failed to process file {file}: {str(e)}")
+                            
+                    modified_files_with_diffs.append(modified_file)
                 
                 return dict(modified_files=modified_files_with_diffs)
         return dict()
