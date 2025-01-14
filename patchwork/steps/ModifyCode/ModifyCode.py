@@ -8,9 +8,15 @@ from pathlib import Path
 from patchwork.step import Step, StepStatus
 
 
-def save_file_contents(file_path, content):
-    """Utility function to save content to a file."""
-    with open(file_path, "w") as file:
+def save_file_contents(file_path: str | Path, content: str) -> None:
+    """Utility function to save content to a file.
+    
+    Args:
+        file_path: Path to the file to save content to (str or Path)
+        content: Content to write to the file
+    """
+    path = Path(file_path)
+    with path.open("w") as file:
         file.write(content)
 
 
@@ -36,20 +42,26 @@ def handle_indent(src: list[str], target: list[str], start: int, end: int) -> li
 
 
 def replace_code_in_file(
-    file_path: str,
+    file_path: str | Path,
     start_line: int | None,
     end_line: int | None,
     new_code: str,
 ) -> None:
+    """Replace code in a file at the specified line range.
+    
+    Args:
+        file_path: Path to the file to modify (str or Path)
+        start_line: Starting line number (1-based)
+        end_line: Ending line number (1-based)
+        new_code: New code to insert
+    """
     path = Path(file_path)
     new_code_lines = new_code.splitlines(keepends=True)
     if len(new_code_lines) > 0 and not new_code_lines[-1].endswith("\n"):
         new_code_lines[-1] += "\n"
 
     if path.exists() and start_line is not None and end_line is not None:
-        """Replaces specified lines in a file with new code."""
         text = path.read_text()
-
         lines = text.splitlines(keepends=True)
 
         # Insert the new code at the start line after converting it into a list of lines
@@ -58,7 +70,7 @@ def replace_code_in_file(
         lines = new_code_lines
 
     # Save the modified contents back to the file
-    save_file_contents(file_path, "".join(lines))
+    save_file_contents(path, "".join(lines))
 
 
 class ModifyCode(Step):
@@ -84,7 +96,8 @@ class ModifyCode(Step):
             return dict(modified_code_files=[])
 
         for code_snippet, extracted_response in sorted_list:
-            uri = code_snippet.get("uri")
+            # Use Path for consistent path handling
+            file_path = Path(code_snippet.get("uri", ""))
             start_line = code_snippet.get("startLine")
             end_line = code_snippet.get("endLine")
             new_code = extracted_response.get("patch")
@@ -93,41 +106,68 @@ class ModifyCode(Step):
                 continue
 
             # Get the original content for diffing
-            file_path = Path(uri)
-            original_path = None
             diff = ""
             
             if file_path.exists():
-                # Create a temporary copy of the original file
-                with tempfile.NamedTemporaryFile(mode='w', delete=False) as tmp_file:
-                    shutil.copy2(uri, tmp_file.name)
-                    original_path = tmp_file.name
-
-                # Apply the changes
-                replace_code_in_file(uri, start_line, end_line, new_code)
-                
-                # Generate a proper unified diff
-                with open(original_path, 'r') as f1, open(uri, 'r') as f2:
-                    diff = ''.join(difflib.unified_diff(
-                        f1.readlines(),
-                        f2.readlines(),
-                        fromfile='a/' + str(file_path),
-                        tofile='b/' + str(file_path)
-                    ))
-                
-                # Clean up temporary file
-                Path(original_path).unlink()
+                try:
+                    # Create a temporary directory with restricted permissions
+                    with tempfile.TemporaryDirectory(prefix='modifycode_') as temp_dir:
+                        # Create temporary file path within the secure directory
+                        temp_path = Path(temp_dir) / 'original_file'
+                        
+                        # Copy original file with same permissions
+                        shutil.copy2(file_path, temp_path)
+                        
+                        # Store original content
+                        with temp_path.open('r') as f1:
+                            original_lines = f1.readlines()
+                        
+                        # Apply the changes
+                        replace_code_in_file(file_path, start_line, end_line, new_code)
+                        
+                        # Read modified content
+                        with file_path.open('r') as f2:
+                            modified_lines = f2.readlines()
+                        
+                        # Generate a proper unified diff
+                        # Use Path for consistent path handling
+                        relative_path = str(file_path)
+                        diff = ''.join(difflib.unified_diff(
+                            original_lines,
+                            modified_lines,
+                            fromfile=str(Path('a') / relative_path),
+                            tofile=str(Path('b') / relative_path)
+                        ))
+                        
+                        # temp_dir and its contents are automatically cleaned up
+                except (OSError, IOError) as e:
+                    print(f"Warning: Failed to generate diff for {file_path}: {str(e)}")
+                    # Still proceed with the modification even if diff generation fails
+                    replace_code_in_file(file_path, start_line, end_line, new_code)
             else:
                 # If file doesn't exist, just store the new code as the diff
-                diff = f"+++ {file_path}\n{new_code}"
+                # Use Path for consistent path handling
+                relative_path = str(file_path)
+                diff = f"+++ {Path(relative_path)}\n{new_code}"
             
+            # Create and validate the modified code file dictionary
             modified_code_file = dict(
-                path=uri,
+                path=str(file_path),
                 start_line=start_line,
                 end_line=end_line,
                 diff=diff,
                 **extracted_response
             )
+            
+            # Ensure all required fields are present with correct types
+            if not isinstance(modified_code_file["path"], str):
+                raise TypeError(f"path must be str, got {type(modified_code_file['path'])}")
+            if not isinstance(modified_code_file["start_line"], (int, type(None))):
+                raise TypeError(f"start_line must be int or None, got {type(modified_code_file['start_line'])}")
+            if not isinstance(modified_code_file["end_line"], (int, type(None))):
+                raise TypeError(f"end_line must be int or None, got {type(modified_code_file['end_line'])}")
+            if not isinstance(modified_code_file["diff"], str):
+                raise TypeError(f"diff must be str, got {type(modified_code_file['diff'])}")
             modified_code_files.append(modified_code_file)
 
         return dict(modified_code_files=modified_code_files)

@@ -36,6 +36,14 @@ If you are using a OpenAI API Key, please set `--openai_api_key=<token>`.""",
 
 
 class ModifiedFile(TypedDict):
+    """Represents a file that has been modified by the FixIssue step.
+    
+    Attributes:
+        path: The relative path to the modified file from the repository root
+        diff: A unified diff string showing the changes made to the file.
+              The diff includes both staged and unstaged changes, and is
+              generated using git diff commands with proper path sanitization.
+    """
     path: str
     diff: str
 

@@ -1,8 +1,10 @@
 import re
+import shlex
 from pathlib import Path
 from typing import Any, Optional
 
 from git import Repo
+from git.exc import GitCommandError
 from openai.types.chat import ChatCompletionMessageParam
 
 from patchwork.common.client.llm.aio import AioLlmClient
@@ -131,13 +133,38 @@ class FixIssue(Step, input_class=FixIssueInputs, output_class=FixIssueOutputs):
                 modified_files_with_diffs = []
                 repo = Repo(cwd, search_parent_directories=True)
                 for file in modified_files:
-                    file_path = Path(file)
-                    if file_path.exists():
-                        # Get the diff using git
-                        diff = repo.git.diff('HEAD', str(file))
-                        modified_files_with_diffs.append({
-                            "path": str(file),
-                            "diff": diff
-                        })
+                    # Sanitize the file path to prevent command injection
+                    safe_file = shlex.quote(str(file))
+                    try:
+                        # Check if file is tracked by git, even if deleted
+                        is_tracked = str(file) in repo.git.ls_files('--', safe_file).splitlines()
+                        is_staged = str(file) in repo.git.diff('--cached', '--name-only', safe_file).splitlines()
+                        is_unstaged = str(file) in repo.git.diff('--name-only', safe_file).splitlines()
+                        
+                        if is_tracked or is_staged or is_unstaged:
+                            # Get both staged and unstaged changes
+                            staged_diff = repo.git.diff('--cached', safe_file) if is_staged else ""
+                            unstaged_diff = repo.git.diff(safe_file) if is_unstaged else ""
+                            
+                            # Combine both diffs
+                            combined_diff = staged_diff + ('\n' + unstaged_diff if unstaged_diff else '')
+                            
+                            if combined_diff.strip():
+                                # Validate dictionary structure before adding
+                                modified_file = {
+                                    "path": str(file),
+                                    "diff": combined_diff
+                                }
+                                # Ensure all required fields are present with correct types
+                                if not isinstance(modified_file["path"], str):
+                                    raise TypeError(f"path must be str, got {type(modified_file['path'])}")
+                                if not isinstance(modified_file["diff"], str):
+                                    raise TypeError(f"diff must be str, got {type(modified_file['diff'])}")
+                                modified_files_with_diffs.append(modified_file)
+                    except GitCommandError as e:
+                        # Log the error but continue processing other files
+                        print(f"Warning: Failed to generate diff for {safe_file}: {str(e)}")
+                        continue
+                        
                 return dict(modified_files=modified_files_with_diffs)
         return dict()
