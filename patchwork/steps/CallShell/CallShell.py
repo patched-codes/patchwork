@@ -51,6 +51,8 @@ class CallShell(Step, input_class=CallShellInputs, output_class=CallShellOutputs
         except subprocess.CalledProcessError as e:
             self.set_status(
                 StepStatus.FAILED,
-                f"script failed with stdout:\n{p.stdout}\nstderr:\n{e.stderr}",
+                f"Script failed.",
             )
+        logger.info(f"stdout: \n{p.stdout}")
+        logger.info(f"stderr:\n{p.stderr}")
         return dict(stdout_output=p.stdout, stderr_output=p.stderr)

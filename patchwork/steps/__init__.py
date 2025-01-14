@@ -95,7 +95,6 @@ __all__ = [
     "ReadPRDiffs",
     "ReadPRDiffsPB",
     "ReadPRs",
-    "ResolveIssue",
     "ScanDepscan",
     "ScanSemgrep",
     "ScanSonar",

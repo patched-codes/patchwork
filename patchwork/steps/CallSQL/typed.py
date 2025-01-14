@@ -4,19 +4,19 @@ from typing_extensions import Any, TypedDict
 
 
 class __RequiredCallSQLInputs(TypedDict):
-    dialect: str
-    username: str
-    query: str
+    db_dialect: str
+    db_username: str
+    db_query: str
 
 
 class CallSQLInputs(__RequiredCallSQLInputs, total=False):
-    driver: str
-    password: str
-    host: str
-    port: int
-    database: str
-    query_template_values: dict[str, Any]
+    db_driver: str
+    db_password: str
+    db_host: str
+    db_port: int
+    db_name: str
+    db_query_template_values: dict[str, Any]
 
 
 class CallSQLOutputs(TypedDict):
-    result: list[dict[str, Any]]
+    results: list[dict[str, Any]]
