@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 from git import Repo, InvalidGitRepositoryError
+from patchwork.logger import logger
 from openai.types.chat import ChatCompletionMessageParam
 
 from patchwork.common.client.llm.aio import AioLlmClient
@@ -177,10 +178,10 @@ class FixIssue(Step, input_class=FixIssueInputs, output_class=FixIssueOutputs):
                                         modified_file["diff"] = diff
                                 except Exception as e:
                                     # Git-specific errors (untracked files, etc) - keep empty diff
-                                    print(f"Note: Could not get git diff for {file}: {str(e)}")
+                                    logger.warning(f"Could not get git diff for {file}: {str(e)}")
                         except Exception as e:
                             # General file processing errors
-                            print(f"Warning: Failed to process file {file}: {str(e)}")
+                            logger.warning(f"Failed to process file {file}: {str(e)}")
                             
                     modified_files_with_diffs.append(modified_file)
                 

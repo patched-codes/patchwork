@@ -3,6 +3,7 @@ from __future__ import annotations
 import difflib
 from pathlib import Path
 
+from patchwork.logger import logger
 from patchwork.step import Step, StepStatus
 
 
@@ -128,7 +129,7 @@ class ModifyCode(Step):
                 if not diff and new_code:  # If no diff but we have new code (new file)
                     diff = f"+++ {file_path}\n{new_code}"
             except (OSError, IOError) as e:
-                print(f"Warning: Failed to generate diff for {file_path}: {str(e)}")
+                logger.warning(f"Failed to generate diff for {file_path}: {str(e)}")
                 # Still proceed with the modification even if diff generation fails
                 replace_code_in_file(file_path, start_line, end_line, new_code)
                 diff = f"+++ {file_path}\n{new_code}"  # Use new code as diff on error
