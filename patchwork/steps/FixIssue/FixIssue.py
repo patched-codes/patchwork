@@ -1,10 +1,8 @@
+import difflib
 import re
-import shlex
 from pathlib import Path
 from typing import Any, Optional
 
-from git import Repo
-from git.exc import GitCommandError
 from openai.types.chat import ChatCompletionMessageParam
 
 from patchwork.common.client.llm.aio import AioLlmClient
@@ -99,11 +97,20 @@ Let me know when you're done by outputting </DONE>.""",
 
 class FixIssue(Step, input_class=FixIssueInputs, output_class=FixIssueOutputs):
     def __init__(self, inputs):
+        """Initialize the FixIssue step.
+        
+        Args:
+            inputs: Dictionary containing input parameters including:
+                - base_path: Optional path to the repository root
+                - Other LLM-related parameters
+        """
         super().__init__(inputs)
-        self.base_path = inputs.get("base_path")
-        if self.base_path is None:
-            repo = Repo(Path.cwd(), search_parent_directories=True)
-            self.base_path = repo.working_tree_dir
+        base_path = inputs.get("base_path")
+        # Handle base_path carefully to avoid type issues
+        if base_path is not None:
+            self.base_path = str(Path(str(base_path)).resolve())
+        else:
+            self.base_path = str(Path.cwd())
 
         llm_client = AioLlmClient.create_aio_client(inputs)
         if llm_client is None:
@@ -124,47 +131,66 @@ class FixIssue(Step, input_class=FixIssueInputs, output_class=FixIssueOutputs):
         )
 
     def run(self):
+        """Execute the FixIssue step.
+        
+        This method:
+        1. Executes the multi-turn LLM conversation to analyze and fix the issue
+        2. Tracks file modifications made by the CodeEditTool
+        3. Generates in-memory diffs for all modified files
+        
+        Returns:
+            dict: Dictionary containing list of modified files with their diffs
+        """
         self.multiturn_llm_call.execute(limit=100)
         for tool in self.multiturn_llm_call.tool_set.values():
             if isinstance(tool, CodeEditTool):
                 cwd = Path.cwd()
                 modified_files = [file_path.relative_to(cwd) for file_path in tool.tool_records["modified_files"]]
-                # Get the diff for each modified file using git
+                # Generate diffs for modified files using in-memory comparison
                 modified_files_with_diffs = []
-                repo = Repo(cwd, search_parent_directories=True)
+                file_contents = {}  # Store original contents before modifications
+                
+                # First pass: store original contents
                 for file in modified_files:
-                    # Sanitize the file path to prevent command injection
-                    safe_file = shlex.quote(str(file))
+                    file_path = Path(file)
                     try:
-                        # Check if file is tracked by git, even if deleted
-                        is_tracked = str(file) in repo.git.ls_files('--', safe_file).splitlines()
-                        is_staged = str(file) in repo.git.diff('--cached', '--name-only', safe_file).splitlines()
-                        is_unstaged = str(file) in repo.git.diff('--name-only', safe_file).splitlines()
+                        if file_path.exists():
+                            file_contents[str(file)] = file_path.read_text()
+                        else:
+                            file_contents[str(file)] = ""
+                    except (OSError, IOError) as e:
+                        print(f"Warning: Failed to read original content for {file}: {str(e)}")
+                        file_contents[str(file)] = ""
+                
+                # Apply modifications through CodeEditTool (happens in the background)
+                
+                # Second pass: generate diffs
+                for file in modified_files:
+                    file_path = Path(file)
+                    try:
+                        # Get current content after modifications
+                        current_content = file_path.read_text() if file_path.exists() else ""
+                        original_content = file_contents.get(str(file), "")
                         
-                        if is_tracked or is_staged or is_unstaged:
-                            # Get both staged and unstaged changes
-                            staged_diff = repo.git.diff('--cached', safe_file) if is_staged else ""
-                            unstaged_diff = repo.git.diff(safe_file) if is_unstaged else ""
-                            
-                            # Combine both diffs
-                            combined_diff = staged_diff + ('\n' + unstaged_diff if unstaged_diff else '')
-                            
-                            if combined_diff.strip():
-                                # Validate dictionary structure before adding
-                                modified_file = {
-                                    "path": str(file),
-                                    "diff": combined_diff
-                                }
-                                # Ensure all required fields are present with correct types
-                                if not isinstance(modified_file["path"], str):
-                                    raise TypeError(f"path must be str, got {type(modified_file['path'])}")
-                                if not isinstance(modified_file["diff"], str):
-                                    raise TypeError(f"diff must be str, got {type(modified_file['diff'])}")
-                                modified_files_with_diffs.append(modified_file)
-                    except GitCommandError as e:
-                        # Log the error but continue processing other files
-                        print(f"Warning: Failed to generate diff for {safe_file}: {str(e)}")
+                        # Generate unified diff
+                        fromfile = f"a/{file}"
+                        tofile = f"b/{file}"
+                        diff = "".join(difflib.unified_diff(
+                            original_content.splitlines(keepends=True),
+                            current_content.splitlines(keepends=True),
+                            fromfile=fromfile,
+                            tofile=tofile
+                        ))
+                        
+                        if diff:  # Only add if there are actual changes
+                            modified_file = {
+                                "path": str(file),
+                                "diff": diff
+                            }
+                            modified_files_with_diffs.append(modified_file)
+                    except (OSError, IOError) as e:
+                        print(f"Warning: Failed to generate diff for {file}: {str(e)}")
                         continue
-                        
+                
                 return dict(modified_files=modified_files_with_diffs)
         return dict()

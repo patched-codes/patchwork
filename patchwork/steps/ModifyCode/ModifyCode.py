@@ -1,8 +1,6 @@
 from __future__ import annotations
 
 import difflib
-import shutil
-import tempfile
 from pathlib import Path
 
 from patchwork.step import Step, StepStatus
@@ -107,50 +105,35 @@ class ModifyCode(Step):
 
             # Get the original content for diffing
             diff = ""
+            try:
+                # Store original content in memory
+                original_content = file_path.read_text() if file_path.exists() else ""
+                
+                # Apply the changes
+                replace_code_in_file(file_path, start_line, end_line, new_code)
+                
+                # Read modified content
+                current_content = file_path.read_text() if file_path.exists() else ""
+                
+                # Generate unified diff
+                fromfile = f"a/{file_path}"
+                tofile = f"b/{file_path}"
+                diff = "".join(difflib.unified_diff(
+                    original_content.splitlines(keepends=True),
+                    current_content.splitlines(keepends=True),
+                    fromfile=fromfile,
+                    tofile=tofile
+                ))
+                
+                if not diff and new_code:  # If no diff but we have new code (new file)
+                    diff = f"+++ {file_path}\n{new_code}"
+            except (OSError, IOError) as e:
+                print(f"Warning: Failed to generate diff for {file_path}: {str(e)}")
+                # Still proceed with the modification even if diff generation fails
+                replace_code_in_file(file_path, start_line, end_line, new_code)
+                diff = f"+++ {file_path}\n{new_code}"  # Use new code as diff on error
             
-            if file_path.exists():
-                try:
-                    # Create a temporary directory with restricted permissions
-                    with tempfile.TemporaryDirectory(prefix='modifycode_') as temp_dir:
-                        # Create temporary file path within the secure directory
-                        temp_path = Path(temp_dir) / 'original_file'
-                        
-                        # Copy original file with same permissions
-                        shutil.copy2(file_path, temp_path)
-                        
-                        # Store original content
-                        with temp_path.open('r') as f1:
-                            original_lines = f1.readlines()
-                        
-                        # Apply the changes
-                        replace_code_in_file(file_path, start_line, end_line, new_code)
-                        
-                        # Read modified content
-                        with file_path.open('r') as f2:
-                            modified_lines = f2.readlines()
-                        
-                        # Generate a proper unified diff
-                        # Use Path for consistent path handling
-                        relative_path = str(file_path)
-                        diff = ''.join(difflib.unified_diff(
-                            original_lines,
-                            modified_lines,
-                            fromfile=str(Path('a') / relative_path),
-                            tofile=str(Path('b') / relative_path)
-                        ))
-                        
-                        # temp_dir and its contents are automatically cleaned up
-                except (OSError, IOError) as e:
-                    print(f"Warning: Failed to generate diff for {file_path}: {str(e)}")
-                    # Still proceed with the modification even if diff generation fails
-                    replace_code_in_file(file_path, start_line, end_line, new_code)
-            else:
-                # If file doesn't exist, just store the new code as the diff
-                # Use Path for consistent path handling
-                relative_path = str(file_path)
-                diff = f"+++ {Path(relative_path)}\n{new_code}"
-            
-            # Create and validate the modified code file dictionary
+            # Create the modified code file dictionary
             modified_code_file = dict(
                 path=str(file_path),
                 start_line=start_line,
@@ -158,16 +141,6 @@ class ModifyCode(Step):
                 diff=diff,
                 **extracted_response
             )
-            
-            # Ensure all required fields are present with correct types
-            if not isinstance(modified_code_file["path"], str):
-                raise TypeError(f"path must be str, got {type(modified_code_file['path'])}")
-            if not isinstance(modified_code_file["start_line"], (int, type(None))):
-                raise TypeError(f"start_line must be int or None, got {type(modified_code_file['start_line'])}")
-            if not isinstance(modified_code_file["end_line"], (int, type(None))):
-                raise TypeError(f"end_line must be int or None, got {type(modified_code_file['end_line'])}")
-            if not isinstance(modified_code_file["diff"], str):
-                raise TypeError(f"diff must be str, got {type(modified_code_file['diff'])}")
             modified_code_files.append(modified_code_file)
 
         return dict(modified_code_files=modified_code_files)
