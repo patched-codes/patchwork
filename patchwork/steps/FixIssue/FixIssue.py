@@ -107,20 +107,23 @@ class FixIssue(Step, input_class=FixIssueInputs, output_class=FixIssueOutputs):
                 - Other LLM-related parameters
         """
         super().__init__(inputs)
-        base_path = inputs.get("base_path")
-        # Handle base_path carefully to avoid type issues
-        if base_path is not None:
-            self.base_path = str(Path(str(base_path)).resolve())
-        else:
-            self.base_path = str(Path.cwd())
-            
+        cwd = str(Path.cwd())
+        original_base_path = inputs.get("base_path")
+
+        if original_base_path is not None:
+            original_base_path = str(Path(str(original_base_path)).resolve())
+
         # Check if we're in a git repository
         try:
-            self.repo = Repo(self.base_path, search_parent_directories=True)
-            self.is_git_repo = True
+            self.repo = Repo(original_base_path or cwd, search_parent_directories=True)
         except (InvalidGitRepositoryError, Exception):
             self.repo = None
-            self.is_git_repo = False
+
+        repo_working_dir = None
+        if self.repo is not None:
+            repo_working_dir = self.repo.working_dir
+
+        self.base_path = original_base_path or repo_working_dir or cwd
 
         llm_client = AioLlmClient.create_aio_client(inputs)
         if llm_client is None:
@@ -152,38 +155,29 @@ class FixIssue(Step, input_class=FixIssueInputs, output_class=FixIssueOutputs):
             dict: Dictionary containing list of modified files with their diffs
         """
         self.multiturn_llm_call.execute(limit=100)
+
+        modified_files = []
+        cwd = Path.cwd()
         for tool in self.multiturn_llm_call.tool_set.values():
-            if isinstance(tool, CodeEditTool):
-                cwd = Path.cwd()
-                modified_files = [file_path.relative_to(cwd) for file_path in tool.tool_records["modified_files"]]
-                # Generate diffs for modified files
-                modified_files_with_diffs = []
-                
-                for file in modified_files:
-                    file_path = Path(file)
-                    modified_file = {
-                        "path": str(file),
-                        "diff": ""  # Default to empty string as requested
-                    }
-                    
-                    # Only try to generate git diff if we're in a git repository
-                    if self.is_git_repo and self.repo is not None:
-                        try:
-                            # Check if file exists and is tracked by git
-                            if file_path.exists():
-                                try:
-                                    # Try to get the diff using git
-                                    diff = self.repo.git.diff('HEAD', str(file))
-                                    if diff:  # Only update if we got a diff
-                                        modified_file["diff"] = diff
-                                except Exception as e:
-                                    # Git-specific errors (untracked files, etc) - keep empty diff
-                                    logger.warning(f"Could not get git diff for {file}: {str(e)}")
-                        except Exception as e:
-                            # General file processing errors
-                            logger.warning(f"Failed to process file {file}: {str(e)}")
-                            
-                    modified_files_with_diffs.append(modified_file)
-                
-                return dict(modified_files=modified_files_with_diffs)
-        return dict()
+            if not isinstance(tool, CodeEditTool):
+                continue
+            tool_modified_files = [
+                dict(path=str(file_path.relative_to(cwd)), diff="")
+                for file_path in tool.tool_records["modified_files"]
+            ]
+            modified_files.extend(tool_modified_files)
+
+        # Generate diffs for modified files
+        # Only try to generate git diff if we're in a git repository
+        if self.repo is not None:
+            for modified_file in modified_files:
+                file = modified_file["path"]
+                try:
+                    # Try to get the diff using git
+                    diff = self.repo.git.diff('HEAD', file)
+                    modified_file["diff"] = diff or ""
+                except Exception as e:
+                    # Git-specific errors (untracked files, etc) - keep empty diff
+                    logger.warning(f"Could not get git diff for {file}: {str(e)}")
+
+        return dict(modified_files=modified_files)
