@@ -1,13 +1,21 @@
 from __future__ import annotations
 
+import difflib
 from pathlib import Path
 
+from patchwork.logger import logger
 from patchwork.step import Step, StepStatus
 
 
-def save_file_contents(file_path, content):
-    """Utility function to save content to a file."""
-    with open(file_path, "w") as file:
+def save_file_contents(file_path: str | Path, content: str) -> None:
+    """Utility function to save content to a file.
+    
+    Args:
+        file_path: Path to the file to save content to (str or Path)
+        content: Content to write to the file
+    """
+    path = Path(file_path)
+    with path.open("w") as file:
         file.write(content)
 
 
@@ -33,20 +41,26 @@ def handle_indent(src: list[str], target: list[str], start: int, end: int) -> li
 
 
 def replace_code_in_file(
-    file_path: str,
+    file_path: str | Path,
     start_line: int | None,
     end_line: int | None,
     new_code: str,
 ) -> None:
+    """Replace code in a file at the specified line range.
+    
+    Args:
+        file_path: Path to the file to modify (str or Path)
+        start_line: Starting line number (1-based)
+        end_line: Ending line number (1-based)
+        new_code: New code to insert
+    """
     path = Path(file_path)
     new_code_lines = new_code.splitlines(keepends=True)
     if len(new_code_lines) > 0 and not new_code_lines[-1].endswith("\n"):
         new_code_lines[-1] += "\n"
 
     if path.exists() and start_line is not None and end_line is not None:
-        """Replaces specified lines in a file with new code."""
         text = path.read_text()
-
         lines = text.splitlines(keepends=True)
 
         # Insert the new code at the start line after converting it into a list of lines
@@ -55,7 +69,7 @@ def replace_code_in_file(
         lines = new_code_lines
 
     # Save the modified contents back to the file
-    save_file_contents(file_path, "".join(lines))
+    save_file_contents(path, "".join(lines))
 
 
 class ModifyCode(Step):
@@ -81,7 +95,8 @@ class ModifyCode(Step):
             return dict(modified_code_files=[])
 
         for code_snippet, extracted_response in sorted_list:
-            uri = code_snippet.get("uri")
+            # Use Path for consistent path handling
+            file_path = Path(code_snippet.get("uri", ""))
             start_line = code_snippet.get("startLine")
             end_line = code_snippet.get("endLine")
             new_code = extracted_response.get("patch")
@@ -89,8 +104,44 @@ class ModifyCode(Step):
             if new_code is None:
                 continue
 
-            replace_code_in_file(uri, start_line, end_line, new_code)
-            modified_code_file = dict(path=uri, start_line=start_line, end_line=end_line, **extracted_response)
+            # Get the original content for diffing
+            diff = ""
+            try:
+                # Store original content in memory
+                original_content = file_path.read_text() if file_path.exists() else ""
+                
+                # Apply the changes
+                replace_code_in_file(file_path, start_line, end_line, new_code)
+                
+                # Read modified content
+                current_content = file_path.read_text() if file_path.exists() else ""
+                
+                # Generate unified diff
+                fromfile = f"a/{file_path}"
+                tofile = f"b/{file_path}"
+                diff = "".join(difflib.unified_diff(
+                    original_content.splitlines(keepends=True),
+                    current_content.splitlines(keepends=True),
+                    fromfile=fromfile,
+                    tofile=tofile
+                ))
+                
+                if not diff and new_code:  # If no diff but we have new code (new file)
+                    diff = f"+++ {file_path}\n{new_code}"
+            except (OSError, IOError) as e:
+                logger.warning(f"Failed to generate diff for {file_path}: {str(e)}")
+                # Still proceed with the modification even if diff generation fails
+                replace_code_in_file(file_path, start_line, end_line, new_code)
+                diff = f"+++ {file_path}\n{new_code}"  # Use new code as diff on error
+            
+            # Create the modified code file dictionary
+            modified_code_file = dict(
+                path=str(file_path),
+                start_line=start_line,
+                end_line=end_line,
+                diff=diff,
+                **extracted_response
+            )
             modified_code_files.append(modified_code_file)
 
         return dict(modified_code_files=modified_code_files)

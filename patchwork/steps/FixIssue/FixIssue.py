@@ -1,8 +1,10 @@
+import difflib
 import re
 from pathlib import Path
 from typing import Any, Optional
 
-from git import Repo
+from git import Repo, InvalidGitRepositoryError
+from patchwork.logger import logger
 from openai.types.chat import ChatCompletionMessageParam
 
 from patchwork.common.client.llm.aio import AioLlmClient
@@ -97,11 +99,31 @@ Let me know when you're done by outputting </DONE>.""",
 
 class FixIssue(Step, input_class=FixIssueInputs, output_class=FixIssueOutputs):
     def __init__(self, inputs):
+        """Initialize the FixIssue step.
+        
+        Args:
+            inputs: Dictionary containing input parameters including:
+                - base_path: Optional path to the repository root
+                - Other LLM-related parameters
+        """
         super().__init__(inputs)
-        self.base_path = inputs.get("base_path")
-        if self.base_path is None:
-            repo = Repo(Path.cwd(), search_parent_directories=True)
-            self.base_path = repo.working_tree_dir
+        cwd = str(Path.cwd())
+        original_base_path = inputs.get("base_path")
+
+        if original_base_path is not None:
+            original_base_path = str(Path(str(original_base_path)).resolve())
+
+        # Check if we're in a git repository
+        try:
+            self.repo = Repo(original_base_path or cwd, search_parent_directories=True)
+        except (InvalidGitRepositoryError, Exception):
+            self.repo = None
+
+        repo_working_dir = None
+        if self.repo is not None:
+            repo_working_dir = self.repo.working_dir
+
+        self.base_path = original_base_path or repo_working_dir or cwd
 
         llm_client = AioLlmClient.create_aio_client(inputs)
         if llm_client is None:
@@ -122,10 +144,40 @@ class FixIssue(Step, input_class=FixIssueInputs, output_class=FixIssueOutputs):
         )
 
     def run(self):
+        """Execute the FixIssue step.
+        
+        This method:
+        1. Executes the multi-turn LLM conversation to analyze and fix the issue
+        2. Tracks file modifications made by the CodeEditTool
+        3. Generates in-memory diffs for all modified files
+        
+        Returns:
+            dict: Dictionary containing list of modified files with their diffs
+        """
         self.multiturn_llm_call.execute(limit=100)
+
+        modified_files = []
+        cwd = Path.cwd()
         for tool in self.multiturn_llm_call.tool_set.values():
-            if isinstance(tool, CodeEditTool):
-                cwd = Path.cwd()
-                modified_files = [file_path.relative_to(cwd) for file_path in tool.tool_records["modified_files"]]
-                return dict(modified_files=[{"path": str(file)} for file in modified_files])
-        return dict()
+            if not isinstance(tool, CodeEditTool):
+                continue
+            tool_modified_files = [
+                dict(path=str(file_path.relative_to(cwd)), diff="")
+                for file_path in tool.tool_records["modified_files"]
+            ]
+            modified_files.extend(tool_modified_files)
+
+        # Generate diffs for modified files
+        # Only try to generate git diff if we're in a git repository
+        if self.repo is not None:
+            for modified_file in modified_files:
+                file = modified_file["path"]
+                try:
+                    # Try to get the diff using git
+                    diff = self.repo.git.diff('HEAD', file)
+                    modified_file["diff"] = diff or ""
+                except Exception as e:
+                    # Git-specific errors (untracked files, etc) - keep empty diff
+                    logger.warning(f"Could not get git diff for {file}: {str(e)}")
+
+        return dict(modified_files=modified_files)
