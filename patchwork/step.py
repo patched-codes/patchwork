@@ -73,6 +73,8 @@ class Step(abc.ABC):
         self.run = self.__managed_run
 
     def __init_subclass__(cls, input_class: Optional[Type] = None, output_class: Optional[Type] = None, **kwargs):
+        if cls.__name__ == "PreparePR":
+            print(1)
         input_class = input_class or getattr(cls, "input_class", None)
         if input_class is not None and not is_typeddict(input_class):
             input_class = None
@@ -81,14 +83,14 @@ class Step(abc.ABC):
         if output_class is not None and not is_typeddict(output_class):
             output_class = None
 
-        cls.__input_class = input_class
-        cls.__output_class = output_class
+        cls._input_class = input_class
+        cls._output_class = output_class
 
     @classmethod
     def find_missing_inputs(cls, inputs: DataPoint) -> Collection:
-        if getattr(cls, "__input_class", None) is None:
+        if getattr(cls, "_input_class", None) is None:
             return []
-        return cls.__input_class.__required_keys__.difference(inputs.keys())
+        return cls._input_class.__required_keys__.difference(inputs.keys())
 
     def __managed_run(self, *args, **kwargs) -> Any:
         self.debug(self.inputs)

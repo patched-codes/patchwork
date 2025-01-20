@@ -20,19 +20,16 @@ class CallSQL(Step, input_class=CallSQLInputs, output_class=CallSQLOutputs):
         driver = inputs.get("db_driver")
         dialect_plus_driver = f"{dialect}+{driver}" if driver is not None else dialect
         kwargs = dict(
-            username=inputs["db_username"],
+            username=inputs.get("db_username"),
             host=inputs.get("db_host", "localhost"),
             port=inputs.get("db_port", 5432),
+            password=inputs.get("db_password"),
+            database=inputs.get("db_database"),
+            query=inputs.get("db_params"),
         )
-        if inputs.get("db_password") is not None:
-            kwargs["password"] = inputs.get("db_password")
-        if inputs.get("db_name") is not None:
-            kwargs["database"] = inputs.get("db_name")
-        if inputs.get("db_params") is not None:
-            kwargs["query"] = inputs.get("db_params")
         connection_url = URL.create(
             dialect_plus_driver,
-            **kwargs,
+            **{k: v for k, v in kwargs.items() if v is not None},
         )
 
         connect_args = None
