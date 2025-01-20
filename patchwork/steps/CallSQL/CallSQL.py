@@ -34,7 +34,12 @@ class CallSQL(Step, input_class=CallSQLInputs, output_class=CallSQLOutputs):
             dialect_plus_driver,
             **kwargs,
         )
-        self.engine = create_engine(connection_url)
+
+        connect_args = None
+        if inputs.get("db_driver_args") is not None:
+            connect_args = inputs.get("db_driver_args")
+
+        self.engine = create_engine(connection_url, connect_args=connect_args)
         with self.engine.connect() as conn:
             conn.execute(text("SELECT 1"))
         return self.engine

@@ -15,6 +15,8 @@ class CallSQLInputs(__RequiredCallSQLInputs, total=False):
     db_host: str
     db_port: int
     db_name: str
+    db_params: dict[str, Any]
+    db_driver_args: dict[str, Any]
     db_query_template_values: dict[str, Any]
 
 
