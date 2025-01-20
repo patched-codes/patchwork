@@ -5,12 +5,12 @@ from typing_extensions import Any, TypedDict
 
 class __RequiredCallSQLInputs(TypedDict):
     db_dialect: str
-    db_username: str
     db_query: str
 
 
 class CallSQLInputs(__RequiredCallSQLInputs, total=False):
     db_driver: str
+    db_username: str
     db_password: str
     db_host: str
     db_port: int
