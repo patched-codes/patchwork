@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from sqlalchemy import URL, create_engine, exc, text
 
+from patchwork.common.utils.input_parsing import parse_to_dict
 from patchwork.common.utils.utils import mustache_render
 from patchwork.logger import logger
 from patchwork.step import Step, StepStatus
@@ -25,7 +26,7 @@ class CallSQL(Step, input_class=CallSQLInputs, output_class=CallSQLOutputs):
             port=inputs.get("db_port", 5432),
             password=inputs.get("db_password"),
             database=inputs.get("db_database"),
-            query=inputs.get("db_params"),
+            query=parse_to_dict(inputs.get("db_params")),
         )
         connection_url = URL.create(
             dialect_plus_driver,
@@ -34,7 +35,7 @@ class CallSQL(Step, input_class=CallSQLInputs, output_class=CallSQLOutputs):
 
         connect_args = None
         if inputs.get("db_driver_args") is not None:
-            connect_args = inputs.get("db_driver_args")
+            connect_args = parse_to_dict(inputs.get("db_driver_args"))
 
         self.engine = create_engine(connection_url, connect_args=connect_args)
         with self.engine.connect() as conn:
