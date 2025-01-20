@@ -79,6 +79,7 @@ __all__ = [
     "ExtractModelResponse",
     "ExtractPackageManagerFile",
     "FilterBySimilarity",
+    "FixIssue",
     "GenerateCodeRepositoryEmbeddings",
     "GenerateEmbeddings",
     "LLM",
