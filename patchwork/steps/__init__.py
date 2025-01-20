@@ -3,6 +3,8 @@ from patchwork.steps.AnalyzeImpact.AnalyzeImpact import AnalyzeImpact
 from patchwork.steps.CallAPI.CallAPI import CallAPI
 from patchwork.steps.CallCode2Prompt.CallCode2Prompt import CallCode2Prompt
 from patchwork.steps.CallLLM.CallLLM import CallLLM
+from patchwork.steps.CallShell.CallShell import CallShell
+from patchwork.steps.CallSQL.CallSQL import CallSQL
 from patchwork.steps.Combine.Combine import Combine
 from patchwork.steps.CommitChanges.CommitChanges import CommitChanges
 from patchwork.steps.CreateIssue.CreateIssue import CreateIssue
@@ -61,6 +63,8 @@ __all__ = [
     "AnalyzeImpact",
     "CallAPI",
     "CallCode2Prompt",
+    "CallShell",
+    "CallSQL",
     "CallLLM",
     "Combine",
     "CommitChanges",

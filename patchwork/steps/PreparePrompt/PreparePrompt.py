@@ -1,13 +1,10 @@
 from __future__ import annotations
 
 import json
-import random
-import string
 from pathlib import Path
 
-import chevron
-
 from patchwork.common.constants import PROMPT_TEMPLATE_FILE_KEY
+from patchwork.common.utils.utils import mustache_render
 from patchwork.logger import logger
 from patchwork.step import Step, StepStatus
 
@@ -76,7 +73,6 @@ class PreparePrompt(Step):
             return dict(prompts=[])
 
         prompts = []
-        chevron.render.__globals__["_html_escape"] = lambda string: string
         for prompt_value in self.prompt_values:
             dict_value = prompt_value
             if not isinstance(dict_value, dict):
@@ -86,13 +82,7 @@ class PreparePrompt(Step):
             for prompt_part in self.prompt_template:
                 prompt_instance = {}
                 for key, value in prompt_part.items():
-                    new_value = chevron.render(
-                        template=value,
-                        data=dict_value,
-                        partials_path=None,
-                        partials_ext="".join(random.choices(string.ascii_uppercase + string.digits, k=32)),
-                        partials_dict=dict(),
-                    )
+                    new_value = mustache_render(value, dict_value)
                     prompt_instance[key] = new_value
                 prompt.append(prompt_instance)
             prompts.append(prompt)

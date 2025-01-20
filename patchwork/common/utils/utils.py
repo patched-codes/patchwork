@@ -2,10 +2,14 @@ from __future__ import annotations
 
 import atexit
 import dataclasses
+import random
 import signal
+import string
 import tempfile
+from collections.abc import Mapping
 from pathlib import Path
 
+import chevron
 import tiktoken
 from chardet.universaldetector import UniversalDetector
 from git import Head, Repo
@@ -17,6 +21,20 @@ from patchwork.managed_files import HOME_FOLDER
 
 _CLEANUP_FILES: set[Path] = set()
 _NEWLINES = {"\n", "\r\n", "\r"}
+
+
+def mustache_render(template: str, data: Mapping) -> str:
+    if len(data.keys()) < 1:
+        return template
+
+    chevron.render.__globals__["_html_escape"] = lambda x: x
+    return chevron.render(
+        template=template,
+        data=data,
+        partials_path=None,
+        partials_ext="".join(random.choices(string.ascii_uppercase + string.digits, k=32)),
+        partials_dict=dict(),
+    )
 
 
 def detect_newline(path: str | Path) -> str | None:

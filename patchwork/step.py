@@ -11,7 +11,16 @@ else:  # for unix based systems
 
 from enum import Enum
 
-from typing_extensions import Any, Dict, List, Optional, Union, is_typeddict
+from typing_extensions import (
+    Any,
+    Collection,
+    Dict,
+    List,
+    Optional,
+    Type,
+    Union,
+    is_typeddict,
+)
 
 from patchwork.logger import logger
 
@@ -45,10 +54,9 @@ class Step(abc.ABC):
         """
 
         # check if the inputs have the required keys
-        if self.__input_class is not None:
-            missing_keys = self.__input_class.__required_keys__.difference(inputs.keys())
-            if len(missing_keys) > 0:
-                raise ValueError(f"Missing required data: {list(missing_keys)}")
+        missing_keys = self.find_missing_inputs(inputs)
+        if len(missing_keys) > 0:
+            raise ValueError(f"Missing required data: {list(missing_keys)}")
 
         # store the inputs
         self.inputs = inputs
@@ -64,19 +72,25 @@ class Step(abc.ABC):
         self.original_run = self.run
         self.run = self.__managed_run
 
-    def __init_subclass__(cls, **kwargs):
-        input_class = kwargs.get("input_class", None) or getattr(cls, "input_class", None)
-        output_class = kwargs.get("output_class", None) or getattr(cls, "output_class", None)
+    def __init_subclass__(cls, input_class: Optional[Type] = None, output_class: Optional[Type] = None, **kwargs):
+        if cls.__name__ == "PreparePR":
+            print(1)
+        input_class = input_class or getattr(cls, "input_class", None)
+        if input_class is not None and not is_typeddict(input_class):
+            input_class = None
 
-        if input_class is not None and is_typeddict(input_class):
-            cls.__input_class = input_class
-        else:
-            cls.__input_class = None
+        output_class = output_class or getattr(cls, "output_class", None)
+        if output_class is not None and not is_typeddict(output_class):
+            output_class = None
 
-        if output_class is not None and is_typeddict(output_class):
-            cls.__output_class = output_class
-        else:
-            cls.__output_class = None
+        cls._input_class = input_class
+        cls._output_class = output_class
+
+    @classmethod
+    def find_missing_inputs(cls, inputs: DataPoint) -> Collection:
+        if getattr(cls, "_input_class", None) is None:
+            return []
+        return cls._input_class.__required_keys__.difference(inputs.keys())
 
     def __managed_run(self, *args, **kwargs) -> Any:
         self.debug(self.inputs)
