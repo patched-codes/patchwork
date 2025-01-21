@@ -9,7 +9,7 @@ from patchwork.step import Step, StepStatus
 
 def save_file_contents(file_path: str | Path, content: str) -> None:
     """Utility function to save content to a file.
-    
+
     Args:
         file_path: Path to the file to save content to (str or Path)
         content: Content to write to the file
@@ -47,7 +47,7 @@ def replace_code_in_file(
     new_code: str,
 ) -> None:
     """Replace code in a file at the specified line range.
-    
+
     Args:
         file_path: Path to the file to modify (str or Path)
         start_line: Starting line number (1-based)
@@ -109,23 +109,25 @@ class ModifyCode(Step):
             try:
                 # Store original content in memory
                 original_content = file_path.read_text() if file_path.exists() else ""
-                
+
                 # Apply the changes
                 replace_code_in_file(file_path, start_line, end_line, new_code)
-                
+
                 # Read modified content
                 current_content = file_path.read_text() if file_path.exists() else ""
-                
+
                 # Generate unified diff
                 fromfile = f"a/{file_path}"
                 tofile = f"b/{file_path}"
-                diff = "".join(difflib.unified_diff(
-                    original_content.splitlines(keepends=True),
-                    current_content.splitlines(keepends=True),
-                    fromfile=fromfile,
-                    tofile=tofile
-                ))
-                
+                diff = "".join(
+                    difflib.unified_diff(
+                        original_content.splitlines(keepends=True),
+                        current_content.splitlines(keepends=True),
+                        fromfile=fromfile,
+                        tofile=tofile,
+                    )
+                )
+
                 if not diff and new_code:  # If no diff but we have new code (new file)
                     diff = f"+++ {file_path}\n{new_code}"
             except (OSError, IOError) as e:
@@ -133,14 +135,10 @@ class ModifyCode(Step):
                 # Still proceed with the modification even if diff generation fails
                 replace_code_in_file(file_path, start_line, end_line, new_code)
                 diff = f"+++ {file_path}\n{new_code}"  # Use new code as diff on error
-            
+
             # Create the modified code file dictionary
             modified_code_file = dict(
-                path=str(file_path),
-                start_line=start_line,
-                end_line=end_line,
-                diff=diff,
-                **extracted_response
+                path=str(file_path), start_line=start_line, end_line=end_line, diff=diff, **extracted_response
             )
             modified_code_files.append(modified_code_file)
 

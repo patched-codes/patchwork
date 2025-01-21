@@ -1,10 +1,8 @@
-import difflib
 import re
 from pathlib import Path
 from typing import Any, Optional
 
-from git import Repo, InvalidGitRepositoryError
-from patchwork.logger import logger
+from git import InvalidGitRepositoryError, Repo
 from openai.types.chat import ChatCompletionMessageParam
 
 from patchwork.common.client.llm.aio import AioLlmClient
@@ -15,6 +13,7 @@ from patchwork.common.multiturn_strategy.analyze_implement import (
     AnalyzeImplementStrategy,
 )
 from patchwork.common.tools import CodeEditTool, Tool
+from patchwork.logger import logger
 from patchwork.step import Step
 from patchwork.steps.FixIssue.typed import FixIssueInputs, FixIssueOutputs
 
@@ -100,7 +99,7 @@ Let me know when you're done by outputting </DONE>.""",
 class FixIssue(Step, input_class=FixIssueInputs, output_class=FixIssueOutputs):
     def __init__(self, inputs):
         """Initialize the FixIssue step.
-        
+
         Args:
             inputs: Dictionary containing input parameters including:
                 - base_path: Optional path to the repository root
@@ -145,12 +144,12 @@ class FixIssue(Step, input_class=FixIssueInputs, output_class=FixIssueOutputs):
 
     def run(self):
         """Execute the FixIssue step.
-        
+
         This method:
         1. Executes the multi-turn LLM conversation to analyze and fix the issue
         2. Tracks file modifications made by the CodeEditTool
         3. Generates in-memory diffs for all modified files
-        
+
         Returns:
             dict: Dictionary containing list of modified files with their diffs
         """
@@ -162,8 +161,7 @@ class FixIssue(Step, input_class=FixIssueInputs, output_class=FixIssueOutputs):
             if not isinstance(tool, CodeEditTool):
                 continue
             tool_modified_files = [
-                dict(path=str(file_path.relative_to(cwd)), diff="")
-                for file_path in tool.tool_records["modified_files"]
+                dict(path=str(file_path.relative_to(cwd)), diff="") for file_path in tool.tool_records["modified_files"]
             ]
             modified_files.extend(tool_modified_files)
 
@@ -174,7 +172,7 @@ class FixIssue(Step, input_class=FixIssueInputs, output_class=FixIssueOutputs):
                 file = modified_file["path"]
                 try:
                     # Try to get the diff using git
-                    diff = self.repo.git.diff('HEAD', file)
+                    diff = self.repo.git.diff("HEAD", file)
                     modified_file["diff"] = diff or ""
                 except Exception as e:
                     # Git-specific errors (untracked files, etc) - keep empty diff
