@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 from collections.abc import Iterable, Mapping
-from shutil import posix
 
 from typing_extensions import AnyStr, Union
 
@@ -72,7 +71,8 @@ def parse_to_list(
         rv.append(stripped_value)
     return rv
 
-def parse_to_dict(possible_dict, limit = -1):
+
+def parse_to_dict(possible_dict, limit=-1):
     if possible_dict is None and limit == 0:
         return None
 
