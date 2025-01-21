@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import shlex
 import subprocess
 from pathlib import Path
@@ -7,6 +8,7 @@ from pathlib import Path
 from patchwork.common.utils.utils import mustache_render
 from patchwork.logger import logger
 from patchwork.step import Step, StepStatus
+from patchwork.steps import CallSQL
 from patchwork.steps.CallShell.typed import CallShellInputs, CallShellOutputs
 
 
@@ -24,7 +26,7 @@ class CallShell(Step, input_class=CallShellInputs, output_class=CallShellOutputs
         env_spliter.whitespace_split = True
         env_spliter.whitespace += ";"
 
-        env: dict[str, str] = dict()
+        env: dict[str, str] = os.environ.copy()
         for env_assign in env_spliter:
             env_assign_spliter = shlex.shlex(env_assign, posix=True)
             env_assign_spliter.whitespace_split = True

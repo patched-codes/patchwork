@@ -46,7 +46,7 @@ class CallSQL(Step, input_class=CallSQLInputs, output_class=CallSQLOutputs):
         try:
             rv = []
             with self.engine.begin() as conn:
-                cursor = conn.execute(text(self.query))
+                cursor = conn.exec_driver_sql(self.query)
                 for row in cursor:
                     result = row._asdict()
                     rv.append(result)
