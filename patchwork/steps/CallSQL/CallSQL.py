@@ -39,14 +39,14 @@ class CallSQL(Step, input_class=CallSQLInputs, output_class=CallSQLOutputs):
 
         self.engine = create_engine(connection_url, connect_args=connect_args)
         with self.engine.connect() as conn:
-            conn.execute(text("SELECT 1"))
+            conn.exec_driver_sql("SELECT 1")
         return self.engine
 
     def run(self) -> dict:
         try:
             rv = []
             with self.engine.begin() as conn:
-                cursor = conn.execute(text(self.query))
+                cursor = conn.exec_driver_sql(self.query)
                 for row in cursor:
                     result = row._asdict()
                     rv.append(result)
