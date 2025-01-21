@@ -96,6 +96,7 @@ def commit_with_msg(repo: Repo, msg: str):
 
     with ephemeral.context():
         repo.git.commit(
+            "--no-verify",
             "--author",
             "patched.codes[bot]<298395+patched.codes[bot]@users.noreply.github.com>",
             "-m",
