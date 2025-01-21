@@ -39,7 +39,7 @@ class CallSQL(Step, input_class=CallSQLInputs, output_class=CallSQLOutputs):
 
         self.engine = create_engine(connection_url, connect_args=connect_args)
         with self.engine.connect() as conn:
-            conn.exec_driver_sql("SELECT 1")
+            conn.execute(text("SELECT 1"))
         return self.engine
 
     def run(self) -> dict:
