@@ -1,18 +1,12 @@
 from __future__ import annotations
 
 import json
-import random
-import string
 from pathlib import Path
 
-import chevron
-from chevron import render
-
 from patchwork.common.constants import PROMPT_TEMPLATE_FILE_KEY
+from patchwork.common.utils.utils import mustache_render
 from patchwork.logger import logger
 from patchwork.step import Step, StepStatus
-
-chevron.render.__globals__["_html_escape"] = lambda string: string
 
 
 def _find_by_prompt_template_file(prompt_template_file: str | None, prompt_id: str | None) -> list[dict] | None:
@@ -88,13 +82,7 @@ class PreparePrompt(Step):
             for prompt_part in self.prompt_template:
                 prompt_instance = {}
                 for key, value in prompt_part.items():
-                    new_value = render(
-                        template=value,
-                        data=dict_value,
-                        partials_path=None,
-                        partials_ext="".join(random.choices(string.ascii_uppercase + string.digits, k=32)),
-                        partials_dict=dict(),
-                    )
+                    new_value = mustache_render(value, dict_value)
                     prompt_instance[key] = new_value
                 prompt.append(prompt_instance)
             prompts.append(prompt)

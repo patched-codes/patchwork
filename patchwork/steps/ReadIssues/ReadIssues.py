@@ -34,4 +34,11 @@ class ReadIssues(Step):
             issue_title=self.issue.get("title"),
             issue_body=self.issue.get("body"),
             issue_comments=self.issue.get("comments"),
+            issue_description=f"""\
+Title:
+{self.issue.get("title")}
+
+Description:
+{self.issue.get("body")}
+""",
         )

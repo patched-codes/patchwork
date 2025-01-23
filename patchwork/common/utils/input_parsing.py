@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from collections.abc import Iterable, Mapping
 
 from typing_extensions import AnyStr, Union
@@ -69,3 +70,23 @@ def parse_to_list(
             continue
         rv.append(stripped_value)
     return rv
+
+
+def parse_to_dict(possible_dict, limit=-1):
+    if possible_dict is None and limit == 0:
+        return None
+
+    if isinstance(possible_dict, dict):
+        new_dict = dict()
+        for k, v in possible_dict.items():
+            new_dict[k] = parse_to_dict(v, limit - 1)
+        return new_dict
+    elif isinstance(possible_dict, str):
+        try:
+            new_dict = json.loads(possible_dict, strict=False)
+        except json.JSONDecodeError:
+            return possible_dict
+
+        return parse_to_dict(new_dict, limit - 1)
+    else:
+        return possible_dict

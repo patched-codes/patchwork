@@ -1,0 +1,33 @@
+# AutoFix Inputs
+compatibility: unknown
+
+# ExtractCode Inputs
+vulnerability_limit: 10
+context_size: 1000
+severity: unknown
+# sarif_file_path should point to the generated SARIF file relative to the working directory
+# sarif_file_path: /mnt/data/sarif.json
+
+# PreparePrompt Inputs
+# prompt_template_file: your-prompt-template-here
+
+# CallLLM Inputs
+# openai_api_key: required-for-chatgpt
+# google_api_key: required-for-gemini
+# model: gpt-4o
+# client_base_url: https://api.openai.com/v1
+# Example HF model
+# client_base_url: https://api-inference.huggingface.co/models/codellama/CodeLlama-70b-Instruct-hf/v1
+# model: codellama/CodeLlama-70b-Instruct-hf
+# model_temperature: 0.2
+# model_top_p: 0.95
+# model_max_tokens: 2000
+
+# CommitChanges Inputs
+disable_branch: false
+
+# CreatePR Inputs
+disable_pr: false
+force_pr_creation: true
+# github_api_key: required-for-github-scm
+# gitlab_api_key: required-for-gitlab-scm

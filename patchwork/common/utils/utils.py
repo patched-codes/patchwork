@@ -2,20 +2,57 @@ from __future__ import annotations
 
 import atexit
 import dataclasses
+import random
 import signal
+import string
 import tempfile
+from collections.abc import Mapping
 from pathlib import Path
 
+import chevron
 import tiktoken
 from chardet.universaldetector import UniversalDetector
 from git import Head, Repo
-from typing_extensions import Any, Callable
+from typing_extensions import Any, Callable, Counter
 
 from patchwork.common.utils.dependency import chromadb
 from patchwork.logger import logger
 from patchwork.managed_files import HOME_FOLDER
 
 _CLEANUP_FILES: set[Path] = set()
+_NEWLINES = {"\n", "\r\n", "\r"}
+
+
+def mustache_render(template: str, data: Mapping) -> str:
+    if len(data.keys()) < 1:
+        return template
+
+    chevron.render.__globals__["_html_escape"] = lambda x: x
+    return chevron.render(
+        template=template,
+        data=data,
+        partials_path=None,
+        partials_ext="".join(random.choices(string.ascii_uppercase + string.digits, k=32)),
+        partials_dict=dict(),
+    )
+
+
+def detect_newline(path: str | Path) -> str | None:
+    with open(path, "r", newline="") as f:
+        lines = f.read().splitlines(keepends=True)
+    if len(lines) < 1:
+        return None
+
+    counter = Counter(_NEWLINES)
+    for line in lines:
+        newline_len = 0
+        newline = "\n"
+        for possible_newline in _NEWLINES:
+            if line.endswith(possible_newline) and len(possible_newline) > newline_len:
+                newline_len = len(possible_newline)
+                newline = possible_newline
+        counter[newline] += 1
+    return counter.most_common(1)[0][0]
 
 
 def _cleanup_files():

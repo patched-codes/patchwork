@@ -1,4 +1,4 @@
-from patchwork.common.client.scm import GithubClient, GitlabClient
+from patchwork.common.client.scm import AzureDevopsClient, GithubClient, GitlabClient
 from patchwork.logger import logger
 from patchwork.step import Step, StepStatus
 
@@ -15,6 +15,8 @@ class CreatePRComment(Step):
             self.scm_client = GithubClient(inputs["github_api_key"])
         elif "gitlab_api_key" in inputs.keys():
             self.scm_client = GitlabClient(inputs["gitlab_api_key"])
+        elif "azuredevops_api_key" in inputs.keys():
+            self.scm_client = AzureDevopsClient(inputs["azuredevops_api_key"])
         else:
             raise ValueError(f'Missing required input data: "github_api_key" or "gitlab_api_key"')
 

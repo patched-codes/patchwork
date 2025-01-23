@@ -4,6 +4,7 @@ import git
 from git.exc import GitCommandError
 
 from patchwork.common.client.scm import (
+    AzureDevopsClient,
     GithubClient,
     GitlabClient,
     ScmPlatformClientProtocol,
@@ -30,10 +31,12 @@ class CreatePR(Step):
                 self.scm_client = GithubClient(inputs["github_api_key"])
             elif "gitlab_api_key" in inputs.keys():
                 self.scm_client = GitlabClient(inputs["gitlab_api_key"])
+            elif "azuredevops_api_key" in inputs.keys():
+                self.scm_client = AzureDevopsClient(inputs["azuredevops_api_key"])
             else:
                 logger.warning(
-                    f'Missing required input data: "github_api_key" or "gitlab_api_key",'
-                    f" PR creation will be disabled."
+                    f'Missing required input data: "github_api_key", "gitlab_api_key" or "azuredevops_api_key". '
+                    f"PR creation will be disabled."
                 )
                 self.enabled = False
 

@@ -38,6 +38,42 @@ def get_source_code_context(
     return None, None
 
 
+def read_and_get_source_code_context(file_path: str, start_line: int, end_line: int, context_length: int):
+    # Extract lines from the code file
+    logger.debug(f"Extracting context for {file_path} at {start_line}:{end_line}")
+    try:
+        with open_with_chardet(file_path, "r") as file:
+            src = file.read()
+
+        source_lines = src.splitlines(keepends=True)
+        context_start, context_end = get_source_code_context(
+            file_path, source_lines, start_line, end_line, context_length
+        )
+
+        source_code_context = None
+        if context_start is not None and context_end is not None:
+            source_code_context = "".join(source_lines[context_start:context_end])
+
+    except FileNotFoundError:
+        context_start = None
+        context_end = None
+        source_code_context = None
+        logger.debug(f"File not found in the current working directory: {file_path}")
+    except Exception as e:
+        context_start = None
+        context_end = None
+        source_code_context = None
+        logger.error(f"Error reading file: {file_path}")
+
+    if source_code_context is None:
+        logger.debug(f"No context found for {file_path} at {start_line}:{end_line}")
+        return None
+
+    start = context_start if context_start is not None else start_line
+    end = context_end if context_end is not None else end_line
+    return source_code_context, start, end
+
+
 def parse_sarif_location(base_path: Path, location_str: str) -> Path | None:
     uri = urlparse(location_str)
     if uri.scheme != "file" and uri.scheme != "":
@@ -220,35 +256,10 @@ def transform_sarif_results(
                 else:
                     file_path = str(uri)
 
-                # Extract lines from the code file
-                logger.debug(f"Extracting context for {file_path} at {start_line}:{end_line}")
-                try:
-                    with open_with_chardet(file_path, "r") as file:
-                        src = file.read()
-
-                    source_lines = src.splitlines(keepends=True)
-                    context_start, context_end = get_source_code_context(
-                        file_path, source_lines, start_line, end_line, context_length
-                    )
-
-                    source_code_context = None
-                    if context_start is not None and context_end is not None:
-                        source_code_context = "".join(source_lines[context_start:context_end])
-
-                except FileNotFoundError:
-                    context_start = None
-                    context_end = None
-                    source_code_context = None
-                    logger.debug(f"File not found in the current working directory: {file_path}")
-                except Exception as e:
-                    context_start = None
-                    context_end = None
-                    source_code_context = None
-                    logger.error(f"Error reading file: {file_path}", e)
-
-                if source_code_context is None:
-                    logger.debug(f"No context found for {file_path} at {start_line}:{end_line}")
+                data = read_and_get_source_code_context(file_path, start_line, end_line, context_length)
+                if data is None:
                     continue
+                source_code_context, start, end = data
 
                 fix_messages = ""
                 fix_message_delimiter = "\n- "
@@ -256,8 +267,6 @@ def transform_sarif_results(
                     fix_msg = fix.get("description", {}).get("text", "")
                     fix_messages = fix_messages + fix_message_delimiter + fix_msg
 
-                start = context_start if context_start is not None else start_line
-                end = context_end if context_end is not None else end_line
                 msg = f"Issue Description: {result.get('message', {}).get('text', '')}"
                 if fix_messages.strip() != "":
                     msg = f"{msg}\n" f"Suggested fixes:{fix_messages}"
