@@ -57,7 +57,7 @@ class SimplifiedLLM(Step):
             raise e
 
     @staticmethod
-    def w(text: str) -> str:
+    def __extract_json_from_text(text: str) -> str:
         try:
             start = text.find("{")
             end = text.rfind("}")
@@ -79,7 +79,7 @@ class SimplifiedLLM(Step):
                 try:
                     # For models that don't support JSON mode, extract JSON from the text response first
                     if self.is_json_mode_unsupported:
-                        response = self.w(response)
+                        response = self.__extract_json_from_text(response)
 
                     json_response = self.__json_loads(response)
                     json_responses.append(json_response)
