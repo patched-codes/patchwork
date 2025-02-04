@@ -36,6 +36,7 @@ class OpenAiLlmClient(LlmClient):
         "o1-mini": 128_000,
         "gpt-4o-mini": 128_000,
         "gpt-4o": 128_000,
+        "o3-mini": 128_000,
     }
 
     def __init__(self, api_key: str, base_url=None, **kwargs):
@@ -87,7 +88,12 @@ class OpenAiLlmClient(LlmClient):
 
         model_limit = self.__get_model_limits(model)
         token_count = 0
-        encoding = tiktoken.encoding_for_model(model)
+        try:
+            encoding = tiktoken.encoding_for_model(model)
+        except KeyError:
+            # Fallback to gpt-4 tokenizer if model-specific tokenizer is not found
+            encoding = tiktoken.encoding_for_model("gpt-4")
+
         for message in messages:
             message_token_count = len(encoding.encode(message.get("content")))
             token_count = token_count + message_token_count
