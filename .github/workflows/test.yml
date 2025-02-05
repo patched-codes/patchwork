@@ -211,7 +211,7 @@ jobs:
         run: |
           source .venv/bin/activate
           patchwork PRReview --log debug \
-          --patched_api_key=${{ secrets.PATCHED_API_KEY }} \
+          --anthropic_api_key=${{ secrets.ANTHROPIC_API_KEY }} \
           --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
           --pr_url=https://github.com/patched-codes/patchwork/pull/${{ steps.findPr.outputs.number }} \
           --disable_telemetry
