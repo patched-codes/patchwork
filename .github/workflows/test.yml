@@ -1,10 +1,6 @@
 name: Tests
 
 on:
-  pull_request:
-    types:
-      - ready_for_review
-      - review_requested
   push:
     branches-ignore:
       - main
@@ -15,15 +11,12 @@ on:
       - generateunittests-*
       - generatecodeusageexample-*
       - resolveissue-*
-
       - demo*
 
 # Credits to https://blog.maximeheckel.com/posts/building-perfect-github-action-frontend-teams/#you-are-terminated
 concurrency:
   # Here the group is defined by the head_ref of the PR
   group: ${{ github.head_ref || github.ref_name }}
-  # Here we specify that we'll cancel any "in progress" workflow of the same group. Thus if we push, ammend a commit and push
-  # again the previous workflow will be cancelled, thus saving us github action build minutes and avoid any conflicts
   cancel-in-progress: true
 
 jobs:
@@ -211,7 +204,7 @@ jobs:
         run: |
           source .venv/bin/activate
           patchwork PRReview --log debug \
-          --patched_api_key=${{ secrets.PATCHED_API_KEY }} \
+          --anthropic_api_key=${{ secrets.ANTHROPIC_API_KEY }} \
           --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
           --pr_url=https://github.com/patched-codes/patchwork/pull/${{ steps.findPr.outputs.number }} \
           --disable_telemetry

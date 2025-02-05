@@ -1,7 +1,4 @@
 # PRReview Inputs
-diff_summary: long
-diff_suggestion: false
-
 
 # ReadPRDiffs Inputs
 # github_api_key: required-for-github-scm
@@ -14,7 +11,7 @@ diff_suggestion: false
 # CallLLM Inputs
 # openai_api_key: required-for-chatgpt
 # google_api_key: required-for-gemini
-# model: gpt-4o
+ model: claude-3-5-sonnet-latest
 # client_base_url: https://api.openai.com/v1
 # Example HF model
 # client_base_url: https://api-inference.huggingface.co/models/codellama/CodeLlama-70b-Instruct-hf/v1
