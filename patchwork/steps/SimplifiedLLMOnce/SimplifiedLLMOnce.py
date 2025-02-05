@@ -1,6 +1,9 @@
 from patchwork.step import Step
 from patchwork.steps.SimplifiedLLM.SimplifiedLLM import SimplifiedLLM
-from patchwork.steps.SimplifiedLLMOnce.typed import SimplifiedLLMOnceInputs, SimplifiedLLMOnceOutputs
+from patchwork.steps.SimplifiedLLMOnce.typed import (
+    SimplifiedLLMOnceInputs,
+    SimplifiedLLMOnceOutputs,
+)
 
 
 class SimplifiedLLMOnce(Step, input_class=SimplifiedLLMOnceInputs, output_class=SimplifiedLLMOnceOutputs):

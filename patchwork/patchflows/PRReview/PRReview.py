@@ -1,4 +1,3 @@
-import json
 from pathlib import Path
 
 import yaml
@@ -6,15 +5,7 @@ import yaml
 from patchwork.common.utils.progress_bar import PatchflowProgressBar
 from patchwork.common.utils.step_typing import validate_steps_with_inputs
 from patchwork.step import Step
-from patchwork.steps import (
-    LLM,
-    CallLLM,
-    CreatePRComment,
-    ExtractModelResponse,
-    PreparePR,
-    PreparePrompt,
-    ReadPRDiffs, SimplifiedLLMOnce, JoinList,
-)
+from patchwork.steps import CreatePRComment, ReadPRDiffs, SimplifiedLLMOnce
 
 _DEFAULT_PROMPT_JSON = Path(__file__).parent / "pr_review_prompt.json"
 _DEFAULT_INPUT_FILE = Path(__file__).parent / "defaults.yml"
@@ -54,7 +45,7 @@ class PRReview(Step):
             llm1_outputs = SimplifiedLLMOnce(
                 dict(
                     prompt_value=diffs,
-                    user_prompt='''\
+                    user_prompt="""\
 Analyze the following code diff against the provided rules:
 
 <CODE_DIFF>
@@ -118,16 +109,16 @@ End Line: [Ending Line number of the affected code. If no violation, write "N/A"
 </REVIEW_FORMAT>
 
 Ensure that you include all rules in your response, even if there\'s no violation. The output should directly reflect the reasoning in your thinking section.
-''',
+""",
                     json_schema={"review": "The markdown text of the reviews"},
-                    **self.inputs
+                    **self.inputs,
                 )
             ).run()
 
             llm2_outputs = SimplifiedLLMOnce(
                 dict(
                     prompt_value=llm1_outputs,
-                    user_prompt='''\
+                    user_prompt="""\
 You are a software manager compiling code reviews from all teams. You are given a list of code reviews. You have to remove code reviews that is either not actionable or useful. Do not change the accepted reviews, return the original review for the response. Do not remove the path from the review.
 
 <code_reviews>
@@ -135,9 +126,9 @@ You are a software manager compiling code reviews from all teams. You are given 
 <code_reviews>
 
 You should return an empty response if there are no code reviews that is actionable or useful.
-''',
+""",
                     json_schema={"review": "The reviews curated"},
-                    **self.inputs
+                    **self.inputs,
                 )
             ).run()
 
