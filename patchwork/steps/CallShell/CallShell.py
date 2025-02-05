@@ -8,7 +8,6 @@ from pathlib import Path
 from patchwork.common.utils.utils import mustache_render
 from patchwork.logger import logger
 from patchwork.step import Step, StepStatus
-from patchwork.steps import CallSQL
 from patchwork.steps.CallShell.typed import CallShellInputs, CallShellOutputs
 
 
