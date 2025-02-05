@@ -73,8 +73,6 @@ class Step(abc.ABC):
         self.run = self.__managed_run
 
     def __init_subclass__(cls, input_class: Optional[Type] = None, output_class: Optional[Type] = None, **kwargs):
-        if cls.__name__ == "PreparePR":
-            print(1)
         input_class = input_class or getattr(cls, "input_class", None)
         if input_class is not None and not is_typeddict(input_class):
             input_class = None

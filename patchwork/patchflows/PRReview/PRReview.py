@@ -120,7 +120,8 @@ End Line: [Ending Line number of the affected code. If no violation, write "N/A"
 Ensure that you include all rules in your response, even if there\'s no violation. The output should directly reflect the reasoning in your thinking section.
 ''',
                     json_schema={"review": "The markdown text of the reviews"},
-                    model="claude-3-5-sonnet-latest")
+                    **self.inputs
+                )
             ).run()
 
             llm2_outputs = SimplifiedLLMOnce(
@@ -136,7 +137,8 @@ You are a software manager compiling code reviews from all teams. You are given 
 You should return an empty response if there are no code reviews that is actionable or useful.
 ''',
                     json_schema={"review": "The reviews curated"},
-                    model="claude-3-5-sonnet-latest")
+                    **self.inputs
+                )
             ).run()
 
             review = llm2_outputs.get("review")
