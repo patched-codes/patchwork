@@ -33,9 +33,9 @@ class PRReview(Step):
         validate_steps_with_inputs(
             set(final_inputs.keys()).union(
                 {
-                    "prompt_id",
-                    "prompt_values",
-                    "modified_code_files",
+                    "user_prompt",
+                    "prompt_value",
+                    "json_schema",
                     "pr_comment",
                 }
             ),
