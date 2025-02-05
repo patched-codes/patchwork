@@ -23,12 +23,9 @@ _DEFAULT_INPUT_FILE = Path(__file__).parent / "defaults.yml"
 class PRReview(Step):
     def __init__(self, inputs: dict):
         PatchflowProgressBar(self).register_steps(
-            CallLLM,
-            CreatePRComment,
-            ExtractModelResponse,
-            PreparePR,
-            PreparePrompt,
             ReadPRDiffs,
+            SimplifiedLLMOnce,
+            CreatePRComment,
         )
         final_inputs = yaml.safe_load(_DEFAULT_INPUT_FILE.read_text())
         final_inputs.update(inputs)
@@ -43,8 +40,7 @@ class PRReview(Step):
                 }
             ),
             ReadPRDiffs,
-            LLM,
-            PreparePR,
+            SimplifiedLLMOnce,
             CreatePRComment,
         )
 
