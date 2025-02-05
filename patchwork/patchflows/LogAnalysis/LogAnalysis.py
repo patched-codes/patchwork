@@ -1,26 +1,11 @@
-from enum import IntEnum
 from pathlib import Path
 
 import yaml
 
 from patchwork.common.utils.progress_bar import PatchflowProgressBar
 from patchwork.common.utils.step_typing import validate_steps_with_inputs
-from patchwork.logger import logger
 from patchwork.step import Step
-from patchwork.steps import (
-    LLM,
-    PR,
-    CallLLM,
-    CommitChanges,
-    CreatePR,
-    ExtractCode,
-    ExtractModelResponse,
-    ModifyCode,
-    PreparePR,
-    PreparePrompt,
-    ScanSemgrep,
-    ScanSonar, CallSQL, AgenticLLM,
-)
+from patchwork.steps import AgenticLLM, CallSQL
 
 _DEFAULT_INPUT_FILE = Path(__file__).parent / "defaults.yml"
 

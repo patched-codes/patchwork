@@ -1,10 +1,14 @@
 from __future__ import annotations
 
+import os
 from pathlib import Path
-from typing import Literal
+from typing import Literal, Optional
 
-from patchwork.common.tools.tool import Tool
 from patchwork.common.utils.utils import detect_newline
+from pydantic import BaseModel
+from pydantic_ai import Agent, RunContext
+from pydantic_ai.models.test import TestModel
+from pydantic_ai.tools import Tool, ToolDefinition
 
 
 class CodeEditTool(Tool, tool_name="code_edit_tool"):

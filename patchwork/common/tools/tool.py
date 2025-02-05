@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Type
+from pydantic_ai.tools import ToolDefinition, Tool as PydanticTool, RunContext
 
 
 class Tool(ABC):
@@ -42,3 +43,12 @@ class Tool(ABC):
     @staticmethod
     def get_parameters(tooling: "ToolProtocol") -> str:
         return ", ".join(tooling.json_schema.get("required", []))
+
+    def to_pydantic_ai_function_tool(self) -> PydanticTool[None]:
+        async def _prep(ctx: RunContext[None], tool_def: ToolDefinition) -> ToolDefinition:
+            tool_def.name = self.name
+            tool_def.description = self.json_schema.get("description", "")
+            tool_def.parameters_json_schema = self.json_schema.get("input_schema", {})
+            return tool_def
+
+        return PydanticTool(self.execute, prepare=_prep)

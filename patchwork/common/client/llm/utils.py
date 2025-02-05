@@ -60,12 +60,7 @@ def example_json_to_schema(json_example: str | dict | None) -> ResponseFormat | 
     if json_example is None:
         return None
 
-    base_model = None
-    if isinstance(json_example, str):
-        base_model = __example_string_to_base_model(json_example)
-    elif isinstance(json_example, dict):
-        base_model = __example_dict_to_base_model(json_example)
-
+    base_model = example_json_to_base_model(json_example)
     if base_model is None:
         return None
 
@@ -76,25 +71,38 @@ def base_model_to_schema(base_model: Type[BaseModel]) -> ResponseFormat:
     return type_to_response_format_param(base_model)
 
 
-def __example_string_to_base_model(json_example: str) -> Type[BaseModel] | None:
+def example_json_to_base_model(json_example: str | dict | None) -> Type[BaseModel] | None:
+    if json_example is None:
+        return None
+
+    base_model = None
+    if isinstance(json_example, str):
+        base_model = example_string_to_base_model(json_example)
+    elif isinstance(json_example, dict):
+        base_model = example_dict_to_base_model(json_example)
+
+    return base_model
+
+
+def example_string_to_base_model(json_example: str) -> Type[BaseModel] | None:
     try:
         example_data = json.loads(json_example)
     except Exception as e:
         logger.error(f"Failed to parse example json", e)
         return None
 
-    return __example_dict_to_base_model(example_data)
+    return example_dict_to_base_model(example_data)
 
 
-def __example_dict_to_base_model(example_data: dict) -> Type[BaseModel]:
+def example_dict_to_base_model(example_data: dict) -> Type[BaseModel]:
     base_model_field_defs: dict[str, tuple[type | BaseModel, Field]] = dict()
     for example_data_key, example_data_value in example_data.items():
         if isinstance(example_data_value, dict):
-            value_typing = __example_dict_to_base_model(example_data_value)
+            value_typing = example_dict_to_base_model(example_data_value)
         elif isinstance(example_data_value, list):
             nested_value = example_data_value[0]
             if isinstance(nested_value, dict):
-                nested_typing = __example_dict_to_base_model(nested_value)
+                nested_typing = example_dict_to_base_model(nested_value)
             else:
                 nested_typing = type(nested_value)
             value_typing = List[nested_typing]
