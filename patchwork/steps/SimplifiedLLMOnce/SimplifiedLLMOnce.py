@@ -3,7 +3,7 @@ from patchwork.steps.SimplifiedLLM.SimplifiedLLM import SimplifiedLLM
 from patchwork.steps.SimplifiedLLMOnce.typed import SimplifiedLLMOnceInputs
 
 
-class SimplifiedLLMOnce(Step, input_class=SimplifiedLLMOnceInputs):
+class SimplifiedLLMOnce(Step, input_class=SimplifiedLLMOnceInputs, output_class=SimplifiedLLMOnceOutputs):
     def __init__(self, inputs):
         super().__init__(inputs)
 
