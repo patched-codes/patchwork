@@ -14,6 +14,7 @@ from openai.types.chat import (
 from typing_extensions import Dict, Iterable, List, Optional, Union
 
 from patchwork.common.client.llm.protocol import NOT_GIVEN, LlmClient, NotGiven
+from patchwork.logger import logger
 
 
 @functools.lru_cache
@@ -87,7 +88,12 @@ class OpenAiLlmClient(LlmClient):
 
         model_limit = self.__get_model_limits(model)
         token_count = 0
-        encoding = tiktoken.encoding_for_model(model)
+        encoding = None
+        try:
+            encoding = tiktoken.encoding_for_model(model)
+        except Exception as e:
+            logger.error(f"Error getting encoding for model {model}: {e}, using gpt-4o as fallback")
+            encoding = tiktoken.encoding_for_model("gpt-4o")
         for message in messages:
             message_token_count = len(encoding.encode(message.get("content")))
             token_count = token_count + message_token_count
