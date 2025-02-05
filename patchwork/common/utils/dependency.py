@@ -10,6 +10,10 @@ __DEPENDENCY_GROUPS = {
 
 @lru_cache(maxsize=None)
 def import_with_dependency_group(name):
+    allowed_modules = {mod for mods in __DEPENDENCY_GROUPS.values() for mod in mods}
+    if name not in allowed_modules:
+        raise ImportError(f"Import of module {name} is not allowed.")
+
     try:
         return importlib.import_module(name)
     except ImportError:
