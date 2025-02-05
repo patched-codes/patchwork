@@ -37,6 +37,7 @@ class OpenAiLlmClient(LlmClient):
         "o1-mini": 128_000,
         "gpt-4o-mini": 128_000,
         "gpt-4o": 128_000,
+        "o3-mini": 128_000,
     }
 
     def __init__(self, api_key: str, base_url=None, **kwargs):
