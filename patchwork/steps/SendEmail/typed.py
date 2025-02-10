@@ -18,4 +18,4 @@ class SendEmailInputs(__SendEmailRequiredInputs, total=False):
 
 
 class SendEmailOutputs(TypedDict):
-    is_slack_message_sent: bool
+    pass
