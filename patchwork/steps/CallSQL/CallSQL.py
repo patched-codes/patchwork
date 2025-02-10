@@ -33,7 +33,7 @@ class CallSQL(Step, input_class=CallSQLInputs, output_class=CallSQLOutputs):
             **{k: v for k, v in kwargs.items() if v is not None},
         )
 
-        connect_args = None
+        connect_args = dict()
         if inputs.get("db_driver_args") is not None:
             connect_args = parse_to_dict(inputs.get("db_driver_args"))
 
