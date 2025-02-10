@@ -1,12 +1,11 @@
 from __future__ import annotations
 
 import json
-from typing import Any, Dict, List, Optional, Type
 
 from openai.lib._parsing._completions import type_to_response_format_param
 from openai.types.chat.completion_create_params import ResponseFormat
 from pydantic import BaseModel, Field, create_model
-from typing_extensions import List
+from typing_extensions import Any, Dict, List, Optional, Type
 
 from patchwork.logger import logger
 

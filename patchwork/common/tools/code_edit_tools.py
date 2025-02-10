@@ -1,18 +1,17 @@
 from __future__ import annotations
 
-import os
 from pathlib import Path
-from typing import Literal, Optional
 
+from typing_extensions import Literal, Optional, Union
+
+from patchwork.common.tools.tool import Tool
 from patchwork.common.utils.utils import detect_newline
-from pydantic import BaseModel
-from pydantic_ai import Agent, RunContext
-from pydantic_ai.models.test import TestModel
-from pydantic_ai.tools import Tool, ToolDefinition
 
 
 class CodeEditTool(Tool, tool_name="code_edit_tool"):
-    def __init__(self, path: Path | str):
+    __VIEW_LIMIT = 3000
+
+    def __init__(self, path: Union[Path, str]):
         super().__init__()
         self.repo_path = Path(path).resolve()
         self.modified_files = set()
@@ -25,7 +24,7 @@ class CodeEditTool(Tool, tool_name="code_edit_tool"):
 Custom editing tool for viewing, creating and editing files
 
 * State is persistent across command calls and discussions with the user
-* If `path` is a file, `view` displays the result of applying `cat -n`. If `path` is a directory, `view` lists non-hidden files and directories up to 2 levels deep
+* If `path` is a file, `view` displays the result of applying `cat -n` up to {self.__VIEW_LIMIT} characters. If `path` is a directory, `view` lists non-hidden files and directories up to 2 levels deep
 * The `create` command cannot be used if the specified `path` already exists as a file
 * If a `command` generates a long output, it will be truncated and marked with `<response clipped>`
 * The working directory is always {self.repo_path}
@@ -74,15 +73,13 @@ Notes for using the `str_replace` command:
 
     def execute(
         self,
-        command: Literal["view", "create", "str_replace", "insert"] | None = None,
+        command: Optional[Literal["view", "create", "str_replace", "insert"]] = None,
         file_text: str = "",
-        insert_line: int | None = None,
+        insert_line: Optional[int] = None,
         new_str: str = "",
-        old_str: str | None = None,
-        path: str | None = None,
-        view_range: list[int] | None = None,
-        *args,
-        **kwargs,
+        old_str: Optional[str] = None,
+        path: Optional[str] = None,
+        view_range: Optional[list[int]] = None,
     ) -> str:
         """Execute editor commands on files in the repository."""
         required_dict = dict(command=command, path=path)
@@ -133,6 +130,9 @@ Notes for using the `str_replace` command:
                 lines = content.splitlines()
                 start, end = view_range
                 content = "\n".join(lines[start - 1 : end])
+
+            if len(content) > self.__VIEW_LIMIT:
+                content = content[: self.__VIEW_LIMIT] + "<TRUNCATED>"
             return content
         elif abs_path.is_dir():
             directories = []

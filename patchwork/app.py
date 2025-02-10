@@ -8,12 +8,11 @@ import traceback
 from collections import deque
 from contextlib import nullcontext
 from pathlib import Path
-from typing import Any
 
 import click
 import yaml
 from click import echo
-from typing_extensions import Iterable
+from typing_extensions import Any, Iterable
 
 from patchwork.common.client.patched import PatchedClient
 from patchwork.common.constants import PROMPT_TEMPLATE_FILE_KEY

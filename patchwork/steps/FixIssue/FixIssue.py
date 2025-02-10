@@ -1,9 +1,9 @@
 import re
 from pathlib import Path
-from typing import Any, Optional
 
 from git import InvalidGitRepositoryError, Repo
 from openai.types.chat import ChatCompletionMessageParam
+from typing_extensions import Any, Optional
 
 from patchwork.common.client.llm.aio import AioLlmClient
 from patchwork.common.client.llm.protocol import LlmClient

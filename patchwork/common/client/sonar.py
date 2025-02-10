@@ -1,8 +1,8 @@
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Optional, Union
 
 import requests
+from typing_extensions import Optional, Union
 
 
 @dataclass

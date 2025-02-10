@@ -5,6 +5,8 @@ import itertools
 import os
 from pathlib import Path
 
+from typing_extensions import Optional
+
 from patchwork.common.tools.tool import Tool
 
 
@@ -12,6 +14,7 @@ class FindTool(Tool, tool_name="find_files"):
     def __init__(self, path: Path | str, **kwargs):
         self.__working_dir = Path(path).resolve()
 
+    @property
     def json_schema(self) -> dict:
         return {
             "name": "find_files",
@@ -59,9 +62,7 @@ Example:
     def __is_dot(self, path: Path | str) -> bool:
         return any(part.startswith(".") for part in path.relative_to(self.__working_dir).parts)
 
-    def execute(
-        self, pattern: str | None = None, depth: int = 1, is_case_sensitive: bool = False, *args, **kwargs
-    ) -> str:
+    def execute(self, pattern: Optional[str] = None, depth: int = 1, is_case_sensitive: bool = False) -> str:
         if pattern is None:
             raise ValueError("Pattern argument is required!")
 
@@ -108,6 +109,7 @@ class FindTextTool(Tool, tool_name="find_text"):
     def __init__(self, path: Path | str, **kwargs):
         self.__working_dir = Path(path).resolve()
 
+    @property
     def json_schema(self) -> dict:
         return {
             "name": "find_text",
@@ -153,11 +155,9 @@ Example:
 
     def execute(
         self,
-        path: Path | str | None = None,
-        pattern: str | None = None,
+        path: Optional[Path] = None,
+        pattern: Optional[str] = None,
         is_case_sensitive: bool = False,
-        *args,
-        **kwargs,
     ) -> str:
         if path is None:
             raise ValueError("Path argument is required!")

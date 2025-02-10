@@ -1,4 +1,4 @@
-from typing import List
+from typing_extensions import List
 
 from patchwork.common.client.sonar import SonarClient
 from patchwork.step import Step, StepStatus
