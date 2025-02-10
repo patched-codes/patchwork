@@ -20,12 +20,11 @@ class SendEmail(Step, input_class=SendEmailInputs, output_class=SendEmailOutputs
         self.smtp_host = inputs.get("smtp_host", "smtp.gmail.com")
         self.smtp_port = int(inputs.get("smtp_port", 465))
 
-
     def run(self) -> dict:
         msg = MIMEText(mustache_render(self.body, self.email_template_value))
-        msg['Subject'] = mustache_render(self.subject, self.email_template_value)
-        msg['From'] = self.sender_email
-        msg['To'] = self.recipient_email
+        msg["Subject"] = mustache_render(self.subject, self.email_template_value)
+        msg["From"] = self.sender_email
+        msg["To"] = self.recipient_email
 
         # TODO: support smtp without ssl
         with smtplib.SMTP_SSL(self.smtp_host, self.smtp_port) as smtp_server:

@@ -47,6 +47,7 @@ from patchwork.steps.ReadPRs.ReadPRs import ReadPRs
 from patchwork.steps.ScanDepscan.ScanDepscan import ScanDepscan
 from patchwork.steps.ScanSemgrep.ScanSemgrep import ScanSemgrep
 from patchwork.steps.ScanSonar.ScanSonar import ScanSonar
+from patchwork.steps.SendEmail.SendEmail import SendEmail
 from patchwork.steps.SimplifiedLLM.SimplifiedLLM import SimplifiedLLM
 from patchwork.steps.SimplifiedLLMOnce.SimplifiedLLMOnce import SimplifiedLLMOnce
 from patchwork.steps.SlackMessage.SlackMessage import SlackMessage
@@ -99,6 +100,7 @@ __all__ = [
     "ScanDepscan",
     "ScanSemgrep",
     "ScanSonar",
+    "SendEmail",
     "SimplifiedLLM",
     "SimplifiedLLMOnce",
     "SimplifiedLLMOncePB",

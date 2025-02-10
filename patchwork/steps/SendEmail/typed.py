@@ -1,4 +1,4 @@
-from typing_extensions import Annotated, Dict, TypedDict, Any
+from typing_extensions import Annotated, Any, Dict, TypedDict
 
 from patchwork.common.utils.step_typing import StepTypeConfig
 
@@ -15,6 +15,7 @@ class SendEmailInputs(__SendEmailRequiredInputs, total=False):
     body: str
     smtp_host: str
     smtp_port: int
+
 
 class SendEmailOutputs(TypedDict):
     is_slack_message_sent: bool
