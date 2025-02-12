@@ -8,9 +8,86 @@ from patchwork.common.tools.tool import Tool
 from patchwork.common.utils.utils import detect_newline
 
 
-class CodeEditTool(Tool, tool_name="code_edit_tool"):
+class FileViewTool(Tool, tool_name="file_view"):
+    __TRUNCATION_TOKEN = "<TRUNCATED>"
     __VIEW_LIMIT = 3000
 
+    def __init__(self, path: Union[Path, str]):
+        super().__init__()
+        self.repo_path = Path(path).resolve()
+
+    @property
+    def json_schema(self) -> dict:
+        return {
+            "name": "file_view",
+            "description": f"""\
+Custom tool for viewing files
+    
+* If `path` is a file, `view` displays the result of applying `cat -n` up to {self.__VIEW_LIMIT} characters. If `path` is a directory, `view` lists non-hidden files and directories.
+* The output is too lone, it will be truncated and marked with `{self.__TRUNCATION_TOKEN}`
+* The working directory is always {self.repo_path}
+""",
+            "input_schema": {
+                "type": "object",
+                "properties": {
+                    "path": {
+                        "description": "Absolute path to file or directory, e.g. `/repo/file.py` or `/repo`.",
+                        "type": "string",
+                    },
+                    "view_range": {
+                        "description": "Optional parameter when `path` points to a file. If none is given, the full file is shown. If provided, the file will be shown in the indicated line number range, e.g. [11, 12] will show lines 11 and 12. Indexing at 1 to start. Setting `[start_line, -1]` shows all lines from `start_line` to the end of the file.",
+                        "items": {"type": "integer"},
+                        "type": "array",
+                    },
+                },
+                "required": ["path"],
+            },
+        }
+
+    def __get_abs_path(self, path: str):
+        wanted_path = Path(path).resolve()
+        if wanted_path.is_relative_to(self.repo_path):
+            return wanted_path
+        else:
+            raise ValueError(f"Path {path} contains illegal path traversal")
+
+    def execute(self, path: str, view_range: Optional[list[int]] = None) -> str:
+        abs_path = self.__get_abs_path(path)
+        if not abs_path.exists():
+            return f"Error: Path {abs_path} does not exist"
+
+        if abs_path.is_file():
+            with open(abs_path, "r") as f:
+                content = f.read()
+
+            if view_range:
+                lines = content.splitlines()
+                start, end = view_range
+                content = "\n".join(lines[start - 1 : end])
+
+            if len(content) > self.__VIEW_LIMIT:
+                content = content[: self.__VIEW_LIMIT] + self.__TRUNCATION_TOKEN
+            return content
+        elif abs_path.is_dir():
+            directories = []
+            files = []
+            for file in abs_path.iterdir():
+                directories.append(file.name) if file.is_dir() else files.append(file.name)
+
+            rv = ""
+            if len(directories) > 0:
+                rv += "Directories: \n"
+                rv += "\n".join(directories)
+                rv += "\n"
+
+            if len(files) > 0:
+                rv += "Files: \n"
+                rv += "\n".join(files)
+
+            return rv
+
+
+class CodeEditTool(Tool, tool_name="code_edit_tool"):
     def __init__(self, path: Union[Path, str]):
         super().__init__()
         self.repo_path = Path(path).resolve()
@@ -24,9 +101,7 @@ class CodeEditTool(Tool, tool_name="code_edit_tool"):
 Custom editing tool for viewing, creating and editing files
 
 * State is persistent across command calls and discussions with the user
-* If `path` is a file, `view` displays the result of applying `cat -n` up to {self.__VIEW_LIMIT} characters. If `path` is a directory, `view` lists non-hidden files and directories up to 2 levels deep
 * The `create` command cannot be used if the specified `path` already exists as a file
-* If a `command` generates a long output, it will be truncated and marked with `<response clipped>`
 * The working directory is always {self.repo_path}
 
 Notes for using the `str_replace` command:
@@ -38,8 +113,8 @@ Notes for using the `str_replace` command:
                 "properties": {
                     "command": {
                         "type": "string",
-                        "enum": ["view", "create", "str_replace", "insert"],
-                        "description": "The commands to run. Allowed options are: `view`, `create`, `str_replace`, `insert`.",
+                        "enum": ["create", "str_replace", "insert"],
+                        "description": "The commands to run. Allowed options are: `create`, `str_replace`, `insert`.",
                     },
                     "file_text": {
                         "description": "Required parameter of `create` command, with the content of the file to be created.",
@@ -61,11 +136,6 @@ Notes for using the `str_replace` command:
                         "description": "Absolute path to file or directory, e.g. `/repo/file.py` or `/repo`.",
                         "type": "string",
                     },
-                    "view_range": {
-                        "description": "Optional parameter of `view` command when `path` points to a file. If none is given, the full file is shown. If provided, the file will be shown in the indicated line number range, e.g. [11, 12] will show lines 11 and 12. Indexing at 1 to start. Setting `[start_line, -1]` shows all lines from `start_line` to the end of the file.",
-                        "items": {"type": "integer"},
-                        "type": "array",
-                    },
                 },
                 "required": ["command", "path"],
             },
@@ -73,13 +143,12 @@ Notes for using the `str_replace` command:
 
     def execute(
         self,
-        command: Optional[Literal["view", "create", "str_replace", "insert"]] = None,
+        command: Optional[Literal["create", "str_replace", "insert"]] = None,
         file_text: str = "",
         insert_line: Optional[int] = None,
         new_str: str = "",
         old_str: Optional[str] = None,
         path: Optional[str] = None,
-        view_range: Optional[list[int]] = None,
     ) -> str:
         """Execute editor commands on files in the repository."""
         required_dict = dict(command=command, path=path)
@@ -89,9 +158,7 @@ Notes for using the `str_replace` command:
 
         try:
             abs_path = self.__get_abs_path(path)
-            if command == "view":
-                result = self.__view(abs_path, view_range)
-            elif command == "create":
+            if command == "create":
                 result = self.__create(file_text, abs_path)
             elif command == "str_replace":
                 result = self.__str_replace(new_str, old_str, abs_path)
@@ -102,9 +169,8 @@ Notes for using the `str_replace` command:
         except Exception as e:
             return f"Error: {str(e)}"
 
-        if command in {"create", "str_replace", "insert"}:
-            self.modified_files.update({abs_path})
 
+        self.modified_files.update({abs_path})
         return result
 
     @property
@@ -117,40 +183,6 @@ Notes for using the `str_replace` command:
             return wanted_path
         else:
             raise ValueError(f"Path {path} contains illegal path traversal")
-
-    def __view(self, abs_path: Path, view_range):
-        if not abs_path.exists():
-            return f"Error: Path {abs_path} does not exist"
-
-        if abs_path.is_file():
-            with open(abs_path, "r") as f:
-                content = f.read()
-
-            if view_range:
-                lines = content.splitlines()
-                start, end = view_range
-                content = "\n".join(lines[start - 1 : end])
-
-            if len(content) > self.__VIEW_LIMIT:
-                content = content[: self.__VIEW_LIMIT] + "<TRUNCATED>"
-            return content
-        elif abs_path.is_dir():
-            directories = []
-            files = []
-            for file in abs_path.iterdir():
-                directories.append(file.name) if file.is_dir() else files.append(file.name)
-
-            rv = ""
-            if len(directories) > 0:
-                rv += "Directories: \n"
-                rv += "\n".join(directories)
-                rv += "\n"
-
-            if len(files) > 0:
-                rv += "Files: \n"
-                rv += "\n".join(files)
-
-            return rv
 
     def __create(self, file_text, abs_path):
         if abs_path.exists():
