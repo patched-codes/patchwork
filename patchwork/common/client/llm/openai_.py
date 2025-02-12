@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import functools
+from functools import cached_property
 
 import tiktoken
 from openai import OpenAI
@@ -11,7 +12,12 @@ from openai.types.chat import (
     ChatCompletionToolParam,
     completion_create_params,
 )
-from typing_extensions import Dict, Iterable, List, Optional, Union
+from pydantic_ai.messages import ModelMessage, ModelResponse
+from pydantic_ai.models import ModelRequestParameters, StreamedResponse, Model
+from pydantic_ai.settings import ModelSettings
+from pydantic_ai.usage import Usage
+from pydantic_ai.models.openai import OpenAIModel
+from typing_extensions import Dict, Iterable, List, Optional, Union, AsyncIterator
 
 from patchwork.common.client.llm.protocol import NOT_GIVEN, LlmClient, NotGiven
 from patchwork.logger import logger
@@ -41,20 +47,59 @@ class OpenAiLlmClient(LlmClient):
     }
 
     def __init__(self, api_key: str, base_url=None, **kwargs):
-        self.api_key = api_key
-        self.base_url = base_url
-        self.client = OpenAI(api_key=api_key, base_url=base_url, **kwargs)
+        self.__api_key = api_key
+        self.__base_url = base_url
+        self.__kwargs = kwargs
+
+    @cached_property
+    def __client(self) -> OpenAI:
+        return OpenAI(api_key=self.__api_key, base_url=self.__base_url, **self.__kwargs)
+
+    def __get_pydantic_model(self, model_settings: ModelSettings | None) -> Model:
+        if model_settings is None:
+            raise ValueError("Model settings cannot be None")
+        model_name = model_settings.get("model")
+        if model_name is None:
+            raise ValueError("Model must be set cannot be None")
+
+        return OpenAIModel(model_name, base_url=self.__base_url, api_key=self.__api_key)
+
+    async def request(
+            self,
+            messages: list[ModelMessage],
+            model_settings: ModelSettings | None,
+            model_request_parameters: ModelRequestParameters,
+    ) -> tuple[ModelResponse, Usage]:
+        model = self.__get_pydantic_model(model_settings)
+        return await model.request(messages, model_settings, model_request_parameters)
+
+    async def request_stream(
+            self,
+            messages: list[ModelMessage],
+            model_settings: ModelSettings | None,
+            model_request_parameters: ModelRequestParameters,
+    ) -> AsyncIterator[StreamedResponse]:
+        model = self.__get_pydantic_model(model_settings)
+        yield model.request_stream(messages, model_settings, model_request_parameters)
+
+    @property
+    def model_name(self) -> str:
+        return "Undetermined"
+
+    @property
+    def system(self) -> str | None:
+        return "openai"
 
     def __is_not_openai_url(self):
         # Some providers/apis only implement the chat completion endpoint.
         # We mainly use this to skip using the model endpoints.
-        return self.base_url is not None and self.base_url != "https://api.openai.com/v1"
+        return self.__base_url is not None and self.__base_url != "https://api.openai.com/v1"
 
     def get_models(self) -> set[str]:
         if self.__is_not_openai_url():
             return set()
 
-        return _cached_list_models_from_openai(self.api_key)
+        return _cached_list_models_from_openai(self.__api_key)
 
     def is_model_supported(self, model: str) -> bool:
         # might not implement model endpoint
@@ -144,4 +189,4 @@ class OpenAiLlmClient(LlmClient):
             top_p=top_p,
         )
 
-        return self.client.chat.completions.create(**NotGiven.remove_not_given(input_kwargs))
+        return self.__client.chat.completions.create(**NotGiven.remove_not_given(input_kwargs))

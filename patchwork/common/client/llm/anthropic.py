@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import time
-from functools import lru_cache
+from functools import lru_cache, cached_property
 
 from anthropic import Anthropic
 from anthropic.types import Message, MessageParam, TextBlockParam
@@ -14,13 +14,18 @@ from openai.types.chat import (
     ChatCompletionToolParam,
     completion_create_params,
 )
+from pydantic_ai.messages import ModelMessage, ModelResponse
+from pydantic_ai.models import ModelRequestParameters, StreamedResponse, Model
+from pydantic_ai.settings import ModelSettings
+from pydantic_ai.usage import Usage
+from pydantic_ai.models.anthropic import AnthropicModel
 from openai.types.chat.chat_completion import Choice, CompletionUsage
 from openai.types.chat.chat_completion_message_tool_call import (
     ChatCompletionMessageToolCall,
     Function,
 )
 from openai.types.completion_usage import CompletionUsage
-from typing_extensions import Dict, Iterable, List, Optional, Union
+from typing_extensions import Dict, Iterable, List, Optional, Union, AsyncIterator
 
 from patchwork.common.client.llm.protocol import NOT_GIVEN, LlmClient, NotGiven
 
@@ -73,7 +78,46 @@ class AnthropicLlmClient(LlmClient):
     __100k_models = {"claude-2.0", "claude-instant-1.2"}
 
     def __init__(self, api_key: str):
-        self.client = Anthropic(api_key=api_key)
+        self.__api_key = api_key
+
+    @cached_property
+    def __client(self):
+        return Anthropic(api_key=self.__api_key)
+
+    def __get_pydantic_model(self, model_settings: ModelSettings | None) -> Model:
+        if model_settings is None:
+            raise ValueError("Model settings cannot be None")
+        model_name = model_settings.get("model")
+        if model_name is None:
+            raise ValueError("Model must be set cannot be None")
+
+        return AnthropicModel(model_name, api_key=self.__api_key)
+
+    async def request(
+            self,
+            messages: list[ModelMessage],
+            model_settings: ModelSettings | None,
+            model_request_parameters: ModelRequestParameters,
+    ) -> tuple[ModelResponse, Usage]:
+        model = self.__get_pydantic_model(model_settings)
+        return await model.request(messages, model_settings, model_request_parameters)
+
+    async def request_stream(
+            self,
+            messages: list[ModelMessage],
+            model_settings: ModelSettings | None,
+            model_request_parameters: ModelRequestParameters,
+    ) -> AsyncIterator[StreamedResponse]:
+        model = self.__get_pydantic_model(model_settings)
+        yield model.request_stream(messages, model_settings, model_request_parameters)
+
+    @property
+    def model_name(self) -> str:
+        return "Undetermined"
+
+    @property
+    def system(self) -> str:
+        return "anthropic"
 
     def __get_model_limit(self, model: str) -> int:
         # it is observed that the count tokens is not accurate, so we are using a safety margin
@@ -248,7 +292,7 @@ class AnthropicLlmClient(LlmClient):
             for k, v in input_kwargs.items()
             if k in {"messages", "model", "system", "tool_choice", "tools", "beta"}
         }
-        message_token_count = self.client.beta.messages.count_tokens(**count_token_input_kwargs)
+        message_token_count = self.__client.beta.messages.count_tokens(**count_token_input_kwargs)
         return model_limit - message_token_count.input_tokens
 
     def truncate_messages(
@@ -292,5 +336,5 @@ class AnthropicLlmClient(LlmClient):
             top_p=top_p,
         )
 
-        response = self.client.messages.create(**input_kwargs)
+        response = self.__client.messages.create(**input_kwargs)
         return _anthropic_to_openai_response(model, response)
