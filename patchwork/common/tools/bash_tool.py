@@ -3,6 +3,8 @@ from __future__ import annotations
 import subprocess
 from pathlib import Path
 
+from typing_extensions import Optional
+
 from patchwork.common.tools.tool import Tool
 
 
@@ -35,9 +37,7 @@ class BashTool(Tool, tool_name="bash"):
 
     def execute(
         self,
-        command: str | None = None,
-        *args,
-        **kwargs,
+        command: Optional[str] = None,
     ) -> str:
         """Execute editor commands on files in the repository."""
         if command is None:

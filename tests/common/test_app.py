@@ -53,6 +53,7 @@ GenerateDiagram
 GenerateDocstring
 GenerateREADME
 GenerateUnitTests
+LogAnalysis
 PRReview
 ResolveIssue
 SonarFix"""
@@ -74,6 +75,7 @@ GenerateDiagram
 GenerateDocstring
 GenerateREADME
 GenerateUnitTests
+LogAnalysis
 PRReview
 ResolveIssue
 SonarFix

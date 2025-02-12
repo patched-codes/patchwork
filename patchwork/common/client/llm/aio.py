@@ -9,8 +9,11 @@ from openai.types.chat import (
     ChatCompletionToolParam,
     completion_create_params,
 )
-from typing_extensions import Dict, Iterable, List, Optional, Union
-
+from typing_extensions import Dict, Iterable, List, Optional, Union, AsyncIterator
+from pydantic_ai.messages import ModelMessage, ModelResponse
+from pydantic_ai.models import ModelRequestParameters, StreamedResponse, Model
+from pydantic_ai.settings import ModelSettings
+from pydantic_ai.usage import Usage
 from patchwork.common.client.llm.anthropic import AnthropicLlmClient
 from patchwork.common.client.llm.google import GoogleLlmClient
 from patchwork.common.client.llm.openai_ import OpenAiLlmClient
@@ -30,6 +33,64 @@ class AioLlmClient(LlmClient):
                 self.__clients.append(client)
             except Exception:
                 pass
+
+    def __get_model(self, model_settings: ModelSettings | None) -> None:
+        if model_settings is None:
+            raise ValueError("Model settings cannot be None")
+        model_name = model_settings.get("model")
+        if model_name is None:
+            raise ValueError("Model must be set cannot be None")
+
+        return model_name
+
+    async def request(
+            self,
+            messages: list[ModelMessage],
+            model_settings: ModelSettings | None,
+            model_request_parameters: ModelRequestParameters,
+    ) -> tuple[ModelResponse, Usage]:
+        model = self.__get_model(model_settings)
+        if model is None:
+            raise ValueError("Model cannot be unset")
+
+        for client in self.__clients:
+            if client.is_model_supported(model):
+                return await client.request(messages, model_settings, model_request_parameters)
+
+        client_names = [client.__class__.__name__ for client in self.__original_clients]
+        raise ValueError(
+            f"Model {model} is not supported by {client_names} clients. "
+            f"Please ensure that the respective API keys are correct."
+        )
+
+    async def request_stream(
+            self,
+            messages: list[ModelMessage],
+            model_settings: ModelSettings | None,
+            model_request_parameters: ModelRequestParameters,
+    ) -> AsyncIterator[StreamedResponse]:
+        model = self.__get_model(model_settings)
+        if model is None:
+            raise ValueError("Model cannot be unset")
+
+        for client in self.__clients:
+            if client.is_model_supported(model):
+                yield client.request(messages, model_settings, model_request_parameters)
+                return
+
+        client_names = [client.__class__.__name__ for client in self.__original_clients]
+        raise ValueError(
+            f"Model {model} is not supported by {client_names} clients. "
+            f"Please ensure that the respective API keys are correct."
+        )
+
+    @property
+    def model_name(self) -> str:
+        return "Undetermined"
+
+    @property
+    def system(self) -> str:
+        return next(iter(self.__clients)).system
 
     def get_models(self) -> set[str]:
         return self.__supported_models

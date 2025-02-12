@@ -5,6 +5,7 @@ from .GenerateDiagram.GenerateDiagram import GenerateDiagram
 from .GenerateDocstring.GenerateDocstring import GenerateDocstring
 from .GenerateREADME.GenerateREADME import GenerateREADME
 from .GenerateUnitTests.GenerateUnitTests import GenerateUnitTests
+from .LogAnalysis.LogAnalysis import LogAnalysis
 from .PRReview.PRReview import PRReview
 from .ResolveIssue.ResolveIssue import ResolveIssue
 from .SonarFix.SonarFix import SonarFix
@@ -20,4 +21,5 @@ __all__ = [
     "GenerateDiagram",
     "GenerateCodeUsageExample",
     "SonarFix",
+    "LogAnalysis",
 ]

@@ -9,13 +9,13 @@ import sys
 from importlib import metadata
 from pathlib import Path
 from threading import Thread
-from typing import Any
 
 import click
 import requests
 from git.repo.base import Repo
 from requests import Response, Session
 from requests.adapters import DEFAULT_POOLBLOCK, HTTPAdapter
+from typing_extensions import Any
 from urllib3 import HTTPConnectionPool, HTTPSConnectionPool, PoolManager
 
 from patchwork.common.utils.user_config import get_user_config
