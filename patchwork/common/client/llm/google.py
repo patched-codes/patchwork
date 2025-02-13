@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import time
 from functools import lru_cache
 from pathlib import Path
@@ -62,15 +63,16 @@ class GoogleLlmClient(LlmClient):
         if file is NotGiven:
             return None
 
+        md5_name = hashlib.md5(file.read_bytes()).hexdigest()
         try:
-            file_ref = self.client.files.get(file.name)
+            file_ref = self.client.files.get(name=md5_name)
             if file_ref.error is None:
                 return file_ref
         except Exception as e:
             pass
 
         try:
-            file_ref = self.client.files.upload(file=file)
+            file_ref = self.client.files.upload(file=file, config=dict(name=md5_name))
             if file_ref.error is None:
                 return file_ref
         except Exception as e:
@@ -97,16 +99,16 @@ class GoogleLlmClient(LlmClient):
         top_p: Optional[float] | NotGiven = NOT_GIVEN,
         file: Path | NotGiven = NOT_GIVEN,
     ) -> int:
-        system, chat = self.__openai_messages_to_google_messages(messages)
+        system, contents = self.__openai_messages_to_google_messages(messages)
 
         file_ref = self.__upload(file)
         if file_ref is not None:
-            chat.append(file_ref)
+            contents.append(file_ref)
 
         try:
             token_response = self.client.models.count_tokens(
                 model=model,
-                contents=chat,
+                contents=contents,
                 config=CountTokensConfig(
                     system_instruction=system,
                 ),
@@ -155,6 +157,7 @@ class GoogleLlmClient(LlmClient):
         tool_choice: ChatCompletionToolChoiceOptionParam | NotGiven = NOT_GIVEN,
         top_logprobs: Optional[int] | NotGiven = NOT_GIVEN,
         top_p: Optional[float] | NotGiven = NOT_GIVEN,
+        file: Path | NotGiven = NOT_GIVEN,
     ) -> ChatCompletion:
         generation_dict = dict(
             stop_sequences=[stop] if isinstance(stop, str) else stop,
@@ -174,6 +177,9 @@ class GoogleLlmClient(LlmClient):
             )
 
         system_content, contents = self.__openai_messages_to_google_messages(messages)
+        file_ref = self.__upload(file)
+        if file_ref is not None:
+            contents.append(file_ref)
 
         response = self.client.models.generate_content(
             model=model,

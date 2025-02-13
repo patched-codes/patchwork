@@ -121,14 +121,14 @@ class CallLLM(Step, input_class=CallLLMInputs, output_class=CallLLMOutputs):
             kwargs["file"] = Path(self.file)
 
         for prompt in prompts:
-            is_input_accepted = self.client.is_prompt_supported(prompt, self.model) > 0
+            is_input_accepted = self.client.is_prompt_supported(model=self.model, messages=prompt, **kwargs) > 0
             if not is_input_accepted:
                 self.set_status(StepStatus.WARNING, "Input token limit exceeded.")
                 prompt = self.client.truncate_messages(prompt, self.model)
 
             logger.trace(f"Message sent: \n{escape(indent(pformat(prompt), '  '))}")
             try:
-                completion = self.client.chat_completion(model=self.model, messages=prompt, **parsed_model_args)
+                completion = self.client.chat_completion(model=self.model, messages=prompt, **kwargs)
             except Exception as e:
                 logger.error(e)
                 completion = None
