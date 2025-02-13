@@ -12,7 +12,7 @@ from patchwork.step import Step
 
 
 class CreateIssue(Step):
-    required_keys = {"issue_title", "issue_text", "scm_url"}
+    required_keys = {"issue_title", "issue_text"}
 
     def __init__(self, inputs: dict):
         super().__init__(inputs)
@@ -27,7 +27,8 @@ class CreateIssue(Step):
         else:
             raise ValueError(f'Missing required input data: "github_api_key" or "gitlab_api_key"')
 
-        self.scm_client.set_url(inputs["scm_url"])
+        if "scm_url" in inputs.keys():
+            self.scm_client.set_url(inputs["scm_url"])
 
         self.issue_title = inputs["issue_title"]
         self.issue_text = inputs["issue_text"]

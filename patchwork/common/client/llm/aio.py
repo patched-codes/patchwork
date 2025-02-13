@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+from pathlib import Path
 
 from openai.types.chat import (
     ChatCompletion,
@@ -54,10 +55,11 @@ class AioLlmClient(LlmClient):
         tool_choice: ChatCompletionToolChoiceOptionParam | NotGiven = NOT_GIVEN,
         top_logprobs: Optional[int] | NotGiven = NOT_GIVEN,
         top_p: Optional[float] | NotGiven = NOT_GIVEN,
+        file: Path | NotGiven = NOT_GIVEN,
     ) -> int:
         for client in self.__clients:
             if client.is_model_supported(model):
-                return client.is_prompt_supported(
+                inputs = dict(
                     messages=messages,
                     model=model,
                     frequency_penalty=frequency_penalty,
@@ -74,6 +76,9 @@ class AioLlmClient(LlmClient):
                     top_logprobs=top_logprobs,
                     top_p=top_p,
                 )
+                if file is not NotGiven:
+                    inputs["file"] = file
+                return client.is_prompt_supported(**inputs)
         return -1
 
     def truncate_messages(
@@ -101,27 +106,31 @@ class AioLlmClient(LlmClient):
         tool_choice: ChatCompletionToolChoiceOptionParam | NotGiven = NOT_GIVEN,
         top_logprobs: Optional[int] | NotGiven = NOT_GIVEN,
         top_p: Optional[float] | NotGiven = NOT_GIVEN,
+        file: Path | NotGiven = NOT_GIVEN,
     ) -> ChatCompletion:
         for client in self.__clients:
             if client.is_model_supported(model):
                 logger.debug(f"Using {client.__class__.__name__} for model {model}")
-                return client.chat_completion(
-                    messages,
-                    model,
-                    frequency_penalty,
-                    logit_bias,
-                    logprobs,
-                    max_tokens,
-                    n,
-                    presence_penalty,
-                    response_format,
-                    stop,
-                    temperature,
-                    tools,
-                    tool_choice,
-                    top_logprobs,
-                    top_p,
+                inputs = dict(
+                    messages=messages,
+                    model=model,
+                    frequency_penalty=frequency_penalty,
+                    logit_bias=logit_bias,
+                    logprobs=logprobs,
+                    max_tokens=max_tokens,
+                    n=n,
+                    presence_penalty=presence_penalty,
+                    response_format=response_format,
+                    stop=stop,
+                    temperature=temperature,
+                    tools=tools,
+                    tool_choice=tool_choice,
+                    top_logprobs=top_logprobs,
+                    top_p=top_p,
                 )
+                if file is not NotGiven:
+                    inputs["file"] = file
+                return client.chat_completion(**inputs)
         client_names = [client.__class__.__name__ for client in self.__original_clients]
         raise ValueError(
             f"Model {model} is not supported by {client_names} clients. "

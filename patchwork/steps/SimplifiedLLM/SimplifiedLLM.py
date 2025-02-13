@@ -12,10 +12,13 @@ from patchwork.steps.ExtractModelResponse.ExtractModelResponse import (
     ExtractModelResponse,
 )
 from patchwork.steps.PreparePrompt.PreparePrompt import PreparePrompt
-from patchwork.steps.SimplifiedLLM.typed import SimplifiedLLMInputs
+from patchwork.steps.SimplifiedLLM.typed import (
+    SimplifiedLLMInputs,
+    SimplifiedLLMOutputs,
+)
 
 
-class SimplifiedLLM(Step):
+class SimplifiedLLM(Step, input_class=SimplifiedLLMInputs, output_class=SimplifiedLLMOutputs):
     # Models that don't support native JSON mode
     JSON_MODE_UNSUPPORTED_MODELS = {
         "gemini-2.0-flash-thinking-exp",
@@ -24,9 +27,6 @@ class SimplifiedLLM(Step):
 
     def __init__(self, inputs):
         super().__init__(inputs)
-        missing_keys = SimplifiedLLMInputs.__required_keys__.difference(set(inputs.keys()))
-        if len(missing_keys) > 0:
-            raise ValueError(f'Missing required data: "{missing_keys}"')
 
         self.user = inputs["prompt_user"]
         self.system = inputs.get("prompt_system")
@@ -150,6 +150,7 @@ class SimplifiedLLM(Step):
                     "google_api_key",
                     "anthropic_api_key",
                     "max_llm_calls",
+                    "file",
                     *model_keys,
                 ]
                 if self.inputs.get(key) is not None
