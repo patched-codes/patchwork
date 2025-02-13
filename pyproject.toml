@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "patchwork-cli"
-version = "0.0.99.dev1"
+version = "0.0.99.dev2"
 description = ""
 authors = ["patched.codes"]
 license = "AGPL"

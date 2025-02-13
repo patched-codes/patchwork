@@ -3,7 +3,8 @@ from __future__ import annotations
 import base64
 import os
 import quopri
-from datetime import datetime
+from datetime import datetime, timezone
+from functools import partial
 from pathlib import Path
 
 from eml_parser import EmlParser
@@ -16,34 +17,34 @@ class InnerParsedHeader(BaseModel):
     message_id: list[str] = Field(alias="message-id")
 
 class ParsedHeader(BaseModel):
-    subject: str
-    from_: str = Field(alias="from")
-    to: list[str]
-    date: datetime
+    subject: str = ""
+    from_: str = Field(alias="from", default_factory=str)
+    to: list[str] = []
+    date: datetime = Field(default_factory=partial(datetime.now, timezone.utc))
     header: InnerParsedHeader
 
 
 class ParsedBody(BaseModel):
-    content: str
-    content_type: str
+    content: str = ""
+    content_type: str = ""
 
 
 class AttachmentHeader(BaseModel):
-    content_disposition: list[str] = Field(alias="content-disposition")
-    content_transfer_encoding: list[str] = Field(alias="content-transfer-encoding")
-    content_type: list[str] = Field(alias="content-type")
+    content_disposition: list[str] = Field(alias="content-disposition", default_factory=list)
+    content_transfer_encoding: list[str] = Field(alias="content-transfer-encoding", default_factory=list)
+    content_type: list[str] = Field(alias="content-type", default_factory=list)
 
 
 class ParsedAttachment(BaseModel):
-    filename: str
-    raw: bytes
+    filename: str = ""
+    raw: bytes = b""
     content_header: AttachmentHeader
 
 
 class ParsedEmail(BaseModel):
     header: ParsedHeader
-    body: list[ParsedBody]
-    attachment: list[ParsedAttachment]
+    body: list[ParsedBody] = []
+    attachment: list[ParsedAttachment] = []
 
 
 class ReadEmail(Step, input_class=ReadEmailInputs, output_class=ReadEmailOutputs):
