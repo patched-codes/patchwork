@@ -21,4 +21,5 @@ class ReadEmailOutputs(TypedDict):
     datetime: str
     from_: str  # this is actually from instead of from_
     body: str
+    message_id: str
     attachments: List[Attachment]

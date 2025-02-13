@@ -12,12 +12,15 @@ from pydantic import BaseModel, Field
 from patchwork.step import Step
 from patchwork.steps.ReadEmail.typed import ReadEmailInputs, ReadEmailOutputs
 
+class InnerParsedHeader(BaseModel):
+    message_id: list[str] = Field(alias="message-id")
 
 class ParsedHeader(BaseModel):
     subject: str
     from_: str = Field(alias="from")
     to: list[str]
     date: datetime
+    header: InnerParsedHeader
 
 
 class ParsedBody(BaseModel):
@@ -73,6 +76,10 @@ class ReadEmail(Step, input_class=ReadEmailInputs, output_class=ReadEmailOutputs
             "attachments": [],
             "body": "",
         }
+
+        message_id = next(iter(email_data.header.header.message_id), None)
+        if message_id is not None:
+            rv["message_id"] = message_id
 
         base_path = Path(self.base_path)
         base_path.mkdir(parents=True, exist_ok=True)
