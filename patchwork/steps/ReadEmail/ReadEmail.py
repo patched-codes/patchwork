@@ -83,7 +83,10 @@ class ReadEmail(Step, input_class=ReadEmailInputs, output_class=ReadEmailOutputs
                 for content_transfer_encoding in attachment.content_header.content_transfer_encoding:
                     content = self.__decode(content_transfer_encoding, content)
                 f.write(content)
-            rv["attachments"].append(dict(path=file_path, content=content.decode()))
+            rv["attachments"].append(dict(
+                path=str(file_path),
+                # content=content.decode(),
+            ))
 
         for body in email_data.body:
             rv["body"] += body.content
