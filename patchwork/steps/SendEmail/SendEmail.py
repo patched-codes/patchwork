@@ -27,8 +27,8 @@ class SendEmail(Step, input_class=SendEmailInputs, output_class=SendEmailOutputs
         msg["From"] = self.sender_email
         msg["To"] = self.recipient_email
         if self.reply_message_id is not None:
-            msg.add_header('Reference', self.reply_message_id)
-            msg.add_header('In-Reply-To', self.reply_message_id)
+            msg.add_header("Reference", self.reply_message_id)
+            msg.add_header("In-Reply-To", self.reply_message_id)
 
         # TODO: support smtp without ssl
         with smtplib.SMTP_SSL(self.smtp_host, self.smtp_port) as smtp_server:

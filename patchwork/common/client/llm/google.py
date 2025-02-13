@@ -108,7 +108,7 @@ class GoogleLlmClient(LlmClient):
                 model=model,
                 contents=chat,
                 config=CountTokensConfig(
-                    system_instructions=system,
+                    system_instruction=system,
                 ),
             )
             token_count = token_response.total_tokens
@@ -181,7 +181,7 @@ class GoogleLlmClient(LlmClient):
             config=GenerateContentConfig(
                 system_instruction=system_content,
                 safety_settings=self.__SAFETY_SETTINGS,
-                **generation_dict,
+                **NotGiven.remove_not_given(generation_dict),
             ),
         )
         return self.__google_response_to_openai_response(response, model)
@@ -189,7 +189,7 @@ class GoogleLlmClient(LlmClient):
     @staticmethod
     def __google_response_to_openai_response(google_response: GenerateContentResponse, model: str) -> ChatCompletion:
         choices = []
-        for candidate in google_response.candidates:
+        for index, candidate in enumerate(google_response.candidates):
             # note that instead of system, from openai, its model, from google.
             parts = [part.text or part.inline_data for part in candidate.content.parts]
 
@@ -202,7 +202,7 @@ class GoogleLlmClient(LlmClient):
 
             choice = Choice(
                 finish_reason=finish_reason_map.get(candidate.finish_reason, "stop"),
-                index=candidate.index,
+                index=index,
                 message=ChatCompletionMessage(
                     content="\n".join(parts),
                     role="assistant",
