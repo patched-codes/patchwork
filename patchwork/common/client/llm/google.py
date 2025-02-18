@@ -1,17 +1,19 @@
 from __future__ import annotations
 
-import hashlib
 import time
 from functools import lru_cache
 from pathlib import Path
 
+import magic
 from google import genai
+from google.genai import types
 from google.genai.types import (
     CountTokensConfig,
     File,
     GenerateContentConfig,
     GenerateContentResponse,
     Model,
+    Part,
 )
 from openai.types import CompletionUsage
 from openai.types.chat import (
@@ -59,20 +61,28 @@ class GoogleLlmClient(LlmClient):
     def is_model_supported(self, model: str) -> bool:
         return model in self.get_models()
 
-    def __upload(self, file: Path | NotGiven) -> File | None:
+    def __upload(self, file: Path | NotGiven) -> Part | File | None:
         if file is NotGiven:
             return None
 
-        md5_name = hashlib.md5(file.read_bytes()).hexdigest()
+        file_bytes = file.read_bytes()
+
         try:
-            file_ref = self.client.files.get(name=md5_name)
+            mime_type = magic.Magic(mime=True, uncompress=True).from_buffer(file_bytes)
+            return types.Part.from_bytes(data=file_bytes, mime_type=mime_type)
+        except Exception as e:
+            pass
+
+        cleaned_name = "".join([char for char in file.name.lower() if char.isalnum()])
+        try:
+            file_ref = self.client.files.get(name=cleaned_name)
             if file_ref.error is None:
                 return file_ref
         except Exception as e:
             pass
 
         try:
-            file_ref = self.client.files.upload(file=file, config=dict(name=md5_name))
+            file_ref = self.client.files.upload(file=file, config=dict(name=cleaned_name))
             if file_ref.error is None:
                 return file_ref
         except Exception as e:

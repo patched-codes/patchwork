@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import imaplib
-import poplib
 import smtplib
 from email.mime.text import MIMEText
 
