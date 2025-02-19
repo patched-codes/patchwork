@@ -15,7 +15,7 @@ from openai.types.chat import (
     ChatCompletionToolParam,
     completion_create_params,
 )
-from openai.types.chat.chat_completion import Choice, CompletionUsage
+from openai.types.chat.chat_completion import Choice
 from openai.types.chat.chat_completion_message_tool_call import (
     ChatCompletionMessageToolCall,
     Function,

@@ -36,7 +36,7 @@ class AioLlmClient(LlmClient):
             except Exception:
                 pass
 
-    def __get_model(self, model_settings: ModelSettings | None) -> None:
+    def __get_model(self, model_settings: ModelSettings | None) -> Optional[str]:
         if model_settings is None:
             raise ValueError("Model settings cannot be None")
         model_name = model_settings.get("model")
