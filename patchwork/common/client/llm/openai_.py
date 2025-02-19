@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import functools
-from pathlib import Path
 from functools import cached_property
+from pathlib import Path
 
 import tiktoken
 from openai import OpenAI

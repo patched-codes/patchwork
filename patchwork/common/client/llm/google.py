@@ -24,13 +24,22 @@ from openai.types.chat import (
     completion_create_params,
 )
 from openai.types.chat.chat_completion import ChatCompletion, Choice
+from pydantic import BaseModel
 from pydantic_ai.messages import ModelMessage, ModelResponse
 from pydantic_ai.models import Model, ModelRequestParameters, StreamedResponse
 from pydantic_ai.models.gemini import GeminiModel
 from pydantic_ai.settings import ModelSettings
 from pydantic_ai.usage import Usage
-from typing_extensions import Any, AsyncIterator, Dict, Iterable, List, Optional, Union
-from pydantic import BaseModel
+from typing_extensions import (
+    Any,
+    AsyncIterator,
+    Dict,
+    Iterable,
+    List,
+    Optional,
+    Type,
+    Union,
+)
 
 from patchwork.common.client.llm.protocol import NOT_GIVEN, LlmClient, NotGiven
 from patchwork.common.client.llm.utils import json_schema_to_model
