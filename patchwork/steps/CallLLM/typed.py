@@ -35,6 +35,7 @@ If you are using a OpenAI API Key, please set `--openai_api_key=<token>`.""",
     google_api_key: Annotated[
         str, StepTypeConfig(is_config=True, or_op=["patched_api_key", "openai_api_key", "anthropic_api_key"])
     ]
+    file: Annotated[str, StepTypeConfig(is_path=True)]
 
 
 class CallLLMOutputs(TypedDict):

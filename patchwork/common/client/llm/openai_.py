@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import functools
+from pathlib import Path
 from functools import cached_property
 
 import tiktoken
@@ -127,6 +128,7 @@ class OpenAiLlmClient(LlmClient):
         tool_choice: ChatCompletionToolChoiceOptionParam | NotGiven = NOT_GIVEN,
         top_logprobs: Optional[int] | NotGiven = NOT_GIVEN,
         top_p: Optional[float] | NotGiven = NOT_GIVEN,
+        file: Path | NotGiven = NOT_GIVEN,
     ) -> int:
         # might not implement model endpoint
         if self.__is_not_openai_url():
@@ -170,6 +172,7 @@ class OpenAiLlmClient(LlmClient):
         tool_choice: ChatCompletionToolChoiceOptionParam | NotGiven = NOT_GIVEN,
         top_logprobs: Optional[int] | NotGiven = NOT_GIVEN,
         top_p: Optional[float] | NotGiven = NOT_GIVEN,
+        file: Path | NotGiven = NOT_GIVEN,
     ) -> ChatCompletion:
         input_kwargs = dict(
             messages=messages,

@@ -4,17 +4,13 @@ from patchwork.steps.CallLLM.CallLLM import CallLLM
 from patchwork.steps.ExtractModelResponse.ExtractModelResponse import (
     ExtractModelResponse,
 )
-from patchwork.steps.LLM.typed import LLMInputs
+from patchwork.steps.LLM.typed import LLMInputs, LLMOutputs
 from patchwork.steps.PreparePrompt.PreparePrompt import PreparePrompt
 
 
-class LLM(Step):
+class LLM(Step, input_class=LLMInputs, output_class=LLMOutputs):
     def __init__(self, inputs):
         super().__init__(inputs)
-        missing_keys = LLMInputs.__required_keys__.difference(set(inputs.keys()))
-        if len(missing_keys) > 0:
-            raise ValueError(f'Missing required data: "{missing_keys}"')
-
         self.inputs = inputs
 
     def run(self) -> dict:

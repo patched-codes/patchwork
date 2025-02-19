@@ -7,7 +7,6 @@ from patchwork.steps.CreateIssue.CreateIssue import CreateIssue
     "inputs",
     [
         {"issue_title": "my issue", "issue_text": "my issue text", "scm_url": "https://github.com/my/repo"},
-        {"issue_title": "my issue", "issue_text": "my issue text", "github_api_key": "my api key"},
         {"issue_title": "my issue", "scm_url": "https://github.com/my/repo", "github_api_key": "my api key"},
         {"issue_text": "my issue text", "scm_url": "https://github.com/my/repo", "github_api_key": "my api key"},
     ],

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import Any, Dict, List
+from pathlib import Path
 
 from openai.types.chat import (
     ChatCompletion,
@@ -58,6 +58,7 @@ class LlmClient(Model):
         tool_choice: ChatCompletionToolChoiceOptionParam | NotGiven = NOT_GIVEN,
         top_logprobs: Optional[int] | NotGiven = NOT_GIVEN,
         top_p: Optional[float] | NotGiven = NOT_GIVEN,
+        file: Path | NotGiven = NOT_GIVEN,
     ) -> int:
         ...
 
@@ -144,5 +145,6 @@ class LlmClient(Model):
         tool_choice: ChatCompletionToolChoiceOptionParam | NotGiven = NOT_GIVEN,
         top_logprobs: Optional[int] | NotGiven = NOT_GIVEN,
         top_p: Optional[float] | NotGiven = NOT_GIVEN,
+        file: Path | NotGiven = NOT_GIVEN,
     ) -> ChatCompletion:
         ...

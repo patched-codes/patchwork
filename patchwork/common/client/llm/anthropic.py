@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import time
 from functools import cached_property, lru_cache
+from pathlib import Path
 
 from anthropic import Anthropic
 from anthropic.types import Message, MessageParam, TextBlockParam
@@ -268,6 +269,7 @@ class AnthropicLlmClient(LlmClient):
         tool_choice: ChatCompletionToolChoiceOptionParam | NotGiven = NOT_GIVEN,
         top_logprobs: Optional[int] | NotGiven = NOT_GIVEN,
         top_p: Optional[float] | NotGiven = NOT_GIVEN,
+        file: Path | NotGiven = NOT_GIVEN,
     ) -> int:
         model_limit = self.__get_model_limit(model)
         input_kwargs = self.__adapt_chat_completion_request(
@@ -317,6 +319,7 @@ class AnthropicLlmClient(LlmClient):
         tool_choice: ChatCompletionToolChoiceOptionParam | NotGiven = NOT_GIVEN,
         top_logprobs: Optional[int] | NotGiven = NOT_GIVEN,
         top_p: Optional[float] | NotGiven = NOT_GIVEN,
+        file: Path | NotGiven = NOT_GIVEN,
     ) -> ChatCompletion:
         input_kwargs = self.__adapt_chat_completion_request(
             messages=messages,
