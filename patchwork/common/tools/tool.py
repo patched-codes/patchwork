@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Type
+
+from typing_extensions import Type
 
 
 class Tool(ABC):
@@ -36,9 +37,9 @@ class Tool(ABC):
         return rv
 
     @staticmethod
-    def get_description(tooling: "ToolProtocol") -> str:
+    def get_description(tooling: "Tool") -> str:
         return tooling.json_schema.get("description", "")
 
     @staticmethod
-    def get_parameters(tooling: "ToolProtocol") -> str:
+    def get_parameters(tooling: "Tool") -> str:
         return ", ".join(tooling.json_schema.get("required", []))
