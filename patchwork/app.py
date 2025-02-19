@@ -59,7 +59,13 @@ def list_option_callback(ctx: click.Context, param: click.Parameter, value: str 
 
 
 def find_patchflow(possible_module_paths: Iterable[str], patchflow: str) -> Any | None:
+    trusted_paths = {'trusted_module1', 'trusted_module2'}  # Define trusted modules here
+
     for module_path in possible_module_paths:
+        if module_path not in trusted_paths:
+            logger.debug(f"Module path {module_path} is not in the trusted paths")
+            continue
+
         try:
             spec = importlib.util.spec_from_file_location("custom_module", module_path)
             module = importlib.util.module_from_spec(spec)
@@ -81,6 +87,7 @@ def find_patchflow(possible_module_paths: Iterable[str], patchflow: str) -> Any 
             logger.debug(f"Patchflow {patchflow} not found in {module_path}")
 
     return None
+
 
 
 def setup_cli():
