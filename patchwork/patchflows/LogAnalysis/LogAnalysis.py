@@ -7,7 +7,7 @@ from patchwork.common.utils.progress_bar import PatchflowProgressBar
 from patchwork.common.utils.step_typing import validate_steps_with_inputs
 from patchwork.logger import logger
 from patchwork.step import Step
-from patchwork.steps import AgenticLLM
+from patchwork.steps import AgenticLLMV2
 
 _DEFAULT_INPUT_FILE = Path(__file__).parent / "defaults.yml"
 
@@ -16,7 +16,7 @@ class LogAnalysis(Step):
     def __init__(self, inputs: dict):
         PatchflowProgressBar(self).register_steps(
             # CallSQL,
-            AgenticLLM,
+            AgenticLLMV2,
         )
         final_inputs = yaml.safe_load(_DEFAULT_INPUT_FILE.read_text()) or dict()
         final_inputs.update(inputs)
@@ -37,7 +37,7 @@ class LogAnalysis(Step):
         sentry_filename = "sentry_issues.json"
         for i in range(self.inputs.get("analysis_limit") or 5):
             # for i in range(self.inputs.get("log_finding_limit") or sys.maxsize):
-            logs_detection_output = AgenticLLM(
+            logs_detection_output = AgenticLLMV2(
                 dict(
                     max_agent_calls=5,
                     agent_system_prompt="""\
@@ -67,7 +67,7 @@ Repository Id: 456
                 )
             ).run()
 
-            analysis_output = AgenticLLM(
+            analysis_output = AgenticLLMV2(
                 dict(
                     max_agent_calls=5,
                     prompt_value=logs_detection_output,
