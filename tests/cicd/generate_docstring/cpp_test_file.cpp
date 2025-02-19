@@ -6,11 +6,25 @@
 
 
 template<typename T>
+/**
+ * Adds two values of the same type together.
+ * 
+ * @param a The first value of type T.
+ * @param b The second value of type T.
+ * @return The sum of the two values of type T.
+ */
 T a_plus_b(T a, T b) {
     return a + b;
 }
 
 
+/**
+ * Executes an SQL query on the given SQLite database and returns the results as a vector of string vectors. Each inner vector represents a row and contains the row's column values as strings.
+ * 
+ * @param db The SQLite database connection object.
+ * @param query The SQL query string to be executed.
+ * @return A vector of string vectors, where each vector represents a row from the query result, and each element in the vector is a string representation of a column value. If the query execution fails, an empty vector is returned.
+ */
 std::vector<std::vector<std::string>> sqlite(sqlite3* db, const std::string& query) {
     std::vector<std::vector<std::string>> results;
     sqlite3_stmt* stmt;
@@ -38,6 +52,21 @@ std::vector<std::vector<std::string>> sqlite(sqlite3* db, const std::string& que
 
 
 template<typename T, typename F>
+/**
+ * Compares two items based on their mapped values through a key mapping function.
+ * 
+ * This function utilizes a provided key mapping function to obtain comparable 
+ * values from two items and determines their order. It returns -1 if the first 
+ * item should precede the second, 1 if it should follow, or 0 if they are equal.
+ *
+ * @param key_map A function or callable object that extracts a comparable value 
+ *                from an item of type T.
+ * @param item1   The first item of type T to compare.
+ * @param item2   The second item of type T to compare.
+ * @return        An integer indicating the order: -1 if item1 < item2, 
+ *                1 if item1 > item2, and 0 if item1 == item2.
+ */
+
 int compare(F key_map, const T& item1, const T& item2) {
     auto val1 = key_map(item1);
     auto val2 = key_map(item2);
@@ -48,6 +77,13 @@ int compare(F key_map, const T& item1, const T& item2) {
 }
 
 
+/**
+ * Generates a random string of specified length using alphabetic characters.
+ * The generated string contains only upper and lowercase alphabetic characters.
+ * 
+ * @param length The desired length of the random string.
+ * @return A random string consisting of alphabetic characters with the specified length.
+ */
 std::string random_alphabets(int length) {
     static const std::string chars =
         "abcdefghijklmnopqrstuvwxyz"
