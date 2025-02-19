@@ -40,6 +40,7 @@ If you are using a OpenAI API Key, please set `--openai_api_key=<token>`.""",
     ]
     json: Annotated[bool, StepTypeConfig(is_config=True)]
     json_example_schema: Annotated[str, StepTypeConfig(is_config=True)]
+    file: Annotated[str, StepTypeConfig(is_path=True)]
     # ExtractModelResponseInputs
     response_partitions: Annotated[Dict[str, List[str]], StepTypeConfig(is_config=True)]
 

@@ -11,10 +11,7 @@ from textwrap import indent
 from rich.markup import escape
 
 from patchwork.common.client.llm.aio import AioLlmClient
-from patchwork.common.client.llm.anthropic import AnthropicLlmClient
-from patchwork.common.client.llm.google import GoogleLlmClient
-from patchwork.common.client.llm.openai_ import OpenAiLlmClient
-from patchwork.common.constants import DEFAULT_PATCH_URL, TOKEN_URL
+from patchwork.common.constants import TOKEN_URL
 from patchwork.logger import logger
 from patchwork.step import Step, StepStatus
 from patchwork.steps.CallLLM.typed import CallLLMInputs, CallLLMOutputs
@@ -54,31 +51,9 @@ class CallLLM(Step, input_class=CallLLMInputs, output_class=CallLLMOutputs):
         self.save_responses_to_file = inputs.get("save_responses_to_file", None)
         self.model = inputs.get("model", "gpt-4o-mini")
         self.allow_truncated = inputs.get("allow_truncated", False)
-
-        clients = []
-
-        patched_key = inputs.get("patched_api_key")
-        if patched_key is not None:
-            client = OpenAiLlmClient(patched_key, DEFAULT_PATCH_URL)
-            clients.append(client)
-
-        openai_key = inputs.get("openai_api_key") or os.environ.get("OPENAI_API_KEY")
-        if openai_key is not None:
-            client_args = {key[len("client_") :]: value for key, value in inputs.items() if key.startswith("client_")}
-            client = OpenAiLlmClient(openai_key, **client_args)
-            clients.append(client)
-
-        google_key = inputs.get("google_api_key")
-        if google_key is not None:
-            client = GoogleLlmClient(google_key)
-            clients.append(client)
-
-        anthropic_key = inputs.get("anthropic_api_key")
-        if anthropic_key is not None:
-            client = AnthropicLlmClient(anthropic_key)
-            clients.append(client)
-
-        if len(clients) == 0:
+        self.file = inputs.get("file", None)
+        self.client = AioLlmClient.create_aio_client(inputs)
+        if self.client is None:
             raise ValueError(
                 f"Model API key not found.\n"
                 f'Please login at: "{TOKEN_URL}",\n'
@@ -88,8 +63,6 @@ class CallLLM(Step, input_class=CallLLMInputs, output_class=CallLLMOutputs):
                 "\n"
                 "If you are using an OpenAI API Key, please set `--openai_api_key=<token>`.\n"
             )
-
-        self.client = AioLlmClient(*clients)
 
     def __persist_to_file(self, contents):
         # Convert relative path to absolute path
@@ -143,15 +116,19 @@ class CallLLM(Step, input_class=CallLLMInputs, output_class=CallLLMOutputs):
         # Parse model arguments
         parsed_model_args = self.__parse_model_args()
 
+        kwargs = dict(parsed_model_args)
+        if self.file is not None:
+            kwargs["file"] = Path(self.file)
+
         for prompt in prompts:
-            is_input_accepted = self.client.is_prompt_supported(prompt, self.model) > 0
+            is_input_accepted = self.client.is_prompt_supported(model=self.model, messages=prompt, **kwargs) > 0
             if not is_input_accepted:
                 self.set_status(StepStatus.WARNING, "Input token limit exceeded.")
                 prompt = self.client.truncate_messages(prompt, self.model)
 
             logger.trace(f"Message sent: \n{escape(indent(pformat(prompt), '  '))}")
             try:
-                completion = self.client.chat_completion(model=self.model, messages=prompt, **parsed_model_args)
+                completion = self.client.chat_completion(model=self.model, messages=prompt, **kwargs)
             except Exception as e:
                 logger.error(e)
                 completion = None

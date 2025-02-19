@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 from openai.types.chat import (
     ChatCompletion,
     ChatCompletionMessageParam,
@@ -51,6 +53,7 @@ class LlmClient(Protocol):
         tool_choice: ChatCompletionToolChoiceOptionParam | NotGiven = NOT_GIVEN,
         top_logprobs: Optional[int] | NotGiven = NOT_GIVEN,
         top_p: Optional[float] | NotGiven = NOT_GIVEN,
+        file: Path | NotGiven = NOT_GIVEN,
     ) -> int:
         ...
 
@@ -135,5 +138,6 @@ class LlmClient(Protocol):
         tool_choice: ChatCompletionToolChoiceOptionParam | NotGiven = NOT_GIVEN,
         top_logprobs: Optional[int] | NotGiven = NOT_GIVEN,
         top_p: Optional[float] | NotGiven = NOT_GIVEN,
+        file: Path | NotGiven = NOT_GIVEN,
     ) -> ChatCompletion:
         ...
