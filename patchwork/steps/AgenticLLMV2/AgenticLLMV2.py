@@ -1,10 +1,9 @@
 from pathlib import Path
 
-from patchwork.common.multiturn_strategy.agentic_strategy import (
+from patchwork.common.multiturn_strategy.agentic_strategy_v2 import (
     AgentConfig,
-    AgenticStrategy,
+    AgenticStrategyV2,
 )
-from patchwork.common.multiturn_strategy.agentic_strategy_v2 import AgenticStrategyV2
 from patchwork.common.tools import Tool
 from patchwork.step import Step
 from patchwork.steps.AgenticLLMV2.typed import AgenticLLMV2Inputs, AgenticLLMV2Outputs

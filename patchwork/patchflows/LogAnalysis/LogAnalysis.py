@@ -24,7 +24,7 @@ class LogAnalysis(Step):
         validate_steps_with_inputs(
             set(final_inputs.keys()).union({""}),
             # CallSQL,
-            AgenticLLM,
+            AgenticLLMV2,
         )
 
         self.inputs = final_inputs

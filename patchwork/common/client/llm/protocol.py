@@ -1,9 +1,7 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import Dict, Any, List
-
-from pydantic_ai.models import Model
+from typing import Any, Dict, List
 
 from openai.types.chat import (
     ChatCompletion,
@@ -12,6 +10,7 @@ from openai.types.chat import (
     ChatCompletionToolParam,
     completion_create_params,
 )
+from pydantic_ai.models import Model
 from typing_extensions import Any, Dict, Iterable, List, Optional, Union
 
 
@@ -147,4 +146,3 @@ class LlmClient(Model):
         top_p: Optional[float] | NotGiven = NOT_GIVEN,
     ) -> ChatCompletion:
         ...
-

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import time
-from functools import lru_cache, cached_property
+from functools import cached_property, lru_cache
 
 from anthropic import Anthropic
 from anthropic.types import Message, MessageParam, TextBlockParam
@@ -14,18 +14,18 @@ from openai.types.chat import (
     ChatCompletionToolParam,
     completion_create_params,
 )
-from pydantic_ai.messages import ModelMessage, ModelResponse
-from pydantic_ai.models import ModelRequestParameters, StreamedResponse, Model
-from pydantic_ai.settings import ModelSettings
-from pydantic_ai.usage import Usage
-from pydantic_ai.models.anthropic import AnthropicModel
 from openai.types.chat.chat_completion import Choice, CompletionUsage
 from openai.types.chat.chat_completion_message_tool_call import (
     ChatCompletionMessageToolCall,
     Function,
 )
 from openai.types.completion_usage import CompletionUsage
-from typing_extensions import Dict, Iterable, List, Optional, Union, AsyncIterator
+from pydantic_ai.messages import ModelMessage, ModelResponse
+from pydantic_ai.models import Model, ModelRequestParameters, StreamedResponse
+from pydantic_ai.models.anthropic import AnthropicModel
+from pydantic_ai.settings import ModelSettings
+from pydantic_ai.usage import Usage
+from typing_extensions import AsyncIterator, Dict, Iterable, List, Optional, Union
 
 from patchwork.common.client.llm.protocol import NOT_GIVEN, LlmClient, NotGiven
 
@@ -94,19 +94,19 @@ class AnthropicLlmClient(LlmClient):
         return AnthropicModel(model_name, api_key=self.__api_key)
 
     async def request(
-            self,
-            messages: list[ModelMessage],
-            model_settings: ModelSettings | None,
-            model_request_parameters: ModelRequestParameters,
+        self,
+        messages: list[ModelMessage],
+        model_settings: ModelSettings | None,
+        model_request_parameters: ModelRequestParameters,
     ) -> tuple[ModelResponse, Usage]:
         model = self.__get_pydantic_model(model_settings)
         return await model.request(messages, model_settings, model_request_parameters)
 
     async def request_stream(
-            self,
-            messages: list[ModelMessage],
-            model_settings: ModelSettings | None,
-            model_request_parameters: ModelRequestParameters,
+        self,
+        messages: list[ModelMessage],
+        model_settings: ModelSettings | None,
+        model_request_parameters: ModelRequestParameters,
     ) -> AsyncIterator[StreamedResponse]:
         model = self.__get_pydantic_model(model_settings)
         yield model.request_stream(messages, model_settings, model_request_parameters)

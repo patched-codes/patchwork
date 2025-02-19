@@ -169,7 +169,6 @@ Notes for using the `str_replace` command:
         except Exception as e:
             return f"Error: {str(e)}"
 
-
         self.modified_files.update({abs_path})
         return result
 

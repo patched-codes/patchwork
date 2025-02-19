@@ -13,11 +13,11 @@ from openai.types.chat import (
     completion_create_params,
 )
 from pydantic_ai.messages import ModelMessage, ModelResponse
-from pydantic_ai.models import ModelRequestParameters, StreamedResponse, Model
+from pydantic_ai.models import Model, ModelRequestParameters, StreamedResponse
+from pydantic_ai.models.openai import OpenAIModel
 from pydantic_ai.settings import ModelSettings
 from pydantic_ai.usage import Usage
-from pydantic_ai.models.openai import OpenAIModel
-from typing_extensions import Dict, Iterable, List, Optional, Union, AsyncIterator
+from typing_extensions import AsyncIterator, Dict, Iterable, List, Optional, Union
 
 from patchwork.common.client.llm.protocol import NOT_GIVEN, LlmClient, NotGiven
 from patchwork.logger import logger
@@ -65,19 +65,19 @@ class OpenAiLlmClient(LlmClient):
         return OpenAIModel(model_name, base_url=self.__base_url, api_key=self.__api_key)
 
     async def request(
-            self,
-            messages: list[ModelMessage],
-            model_settings: ModelSettings | None,
-            model_request_parameters: ModelRequestParameters,
+        self,
+        messages: list[ModelMessage],
+        model_settings: ModelSettings | None,
+        model_request_parameters: ModelRequestParameters,
     ) -> tuple[ModelResponse, Usage]:
         model = self.__get_pydantic_model(model_settings)
         return await model.request(messages, model_settings, model_request_parameters)
 
     async def request_stream(
-            self,
-            messages: list[ModelMessage],
-            model_settings: ModelSettings | None,
-            model_request_parameters: ModelRequestParameters,
+        self,
+        messages: list[ModelMessage],
+        model_settings: ModelSettings | None,
+        model_request_parameters: ModelRequestParameters,
     ) -> AsyncIterator[StreamedResponse]:
         model = self.__get_pydantic_model(model_settings)
         yield model.request_stream(messages, model_settings, model_request_parameters)

@@ -1,6 +1,4 @@
-from typing_extensions import Annotated, Any, Dict, TypedDict
-
-from patchwork.common.utils.step_typing import StepTypeConfig
+from typing_extensions import Any, TypedDict
 
 
 class __SendEmailRequiredInputs(TypedDict):
