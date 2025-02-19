@@ -8,7 +8,7 @@ class AgenticLLMV2Inputs(TypedDict, total=False):
     prompt_value: Dict[str, Any]
     system_prompt: str
     user_prompt: str
-    max_llm_calls: Annotated[int, StepTypeConfig(is_config=True)]
+    max_agent_calls: Annotated[int, StepTypeConfig(is_config=True)]
     anthropic_api_key: str
     agent_system_prompt: str
     example_json: str
