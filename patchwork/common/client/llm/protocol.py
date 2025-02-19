@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from abc import abstractmethod
 from pathlib import Path
 
 from openai.types.chat import (
@@ -9,14 +10,15 @@ from openai.types.chat import (
     ChatCompletionToolParam,
     completion_create_params,
 )
-from typing_extensions import Any, Dict, Iterable, List, Optional, Protocol, Union
+from pydantic_ai.models import Model
+from typing_extensions import Any, Dict, Iterable, List, Optional, Union
 
 
 class NotGiven:
     ...
 
     @staticmethod
-    def remove_not_given(obj: Any) -> Any:
+    def remove_not_given(obj: Any) -> Union[None, dict[Any, Any], list[Any], Any]:
         if isinstance(obj, NotGiven):
             return None
         if isinstance(obj, dict):
@@ -29,13 +31,16 @@ class NotGiven:
 NOT_GIVEN = NotGiven()
 
 
-class LlmClient(Protocol):
+class LlmClient(Model):
+    @abstractmethod
     def get_models(self) -> set[str]:
         ...
 
+    @abstractmethod
     def is_model_supported(self, model: str) -> bool:
         ...
 
+    @abstractmethod
     def is_prompt_supported(
         self,
         messages: Iterable[ChatCompletionMessageParam],
@@ -57,6 +62,7 @@ class LlmClient(Protocol):
     ) -> int:
         ...
 
+    @abstractmethod
     def truncate_messages(
         self, messages: Iterable[ChatCompletionMessageParam], model: str
     ) -> Iterable[ChatCompletionMessageParam]:
@@ -121,6 +127,7 @@ class LlmClient(Protocol):
 
         return LlmClient.__truncate_message(message, direction_callback, min_guess, max_guess)
 
+    @abstractmethod
     def chat_completion(
         self,
         messages: Iterable[ChatCompletionMessageParam],

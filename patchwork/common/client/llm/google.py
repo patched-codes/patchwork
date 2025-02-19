@@ -25,7 +25,21 @@ from openai.types.chat import (
 )
 from openai.types.chat.chat_completion import ChatCompletion, Choice
 from pydantic import BaseModel
-from typing_extensions import Any, Dict, Iterable, List, Optional, Type, Union
+from pydantic_ai.messages import ModelMessage, ModelResponse
+from pydantic_ai.models import Model, ModelRequestParameters, StreamedResponse
+from pydantic_ai.models.gemini import GeminiModel
+from pydantic_ai.settings import ModelSettings
+from pydantic_ai.usage import Usage
+from typing_extensions import (
+    Any,
+    AsyncIterator,
+    Dict,
+    Iterable,
+    List,
+    Optional,
+    Type,
+    Union,
+)
 
 from patchwork.common.client.llm.protocol import NOT_GIVEN, LlmClient, NotGiven
 from patchwork.common.client.llm.utils import json_schema_to_model
@@ -47,6 +61,41 @@ class GoogleLlmClient(LlmClient):
     @lru_cache(maxsize=1)
     def __get_models_info(self) -> list[Model]:
         return list(self.client.models.list())
+
+    def __get_pydantic_model(self, model_settings: ModelSettings | None) -> Model:
+        if model_settings is None:
+            raise ValueError("Model settings cannot be None")
+        model_name = model_settings.get("model")
+        if model_name is None:
+            raise ValueError("Model must be set cannot be None")
+
+        return GeminiModel(model_name, api_key=self.__api_key)
+
+    async def request(
+        self,
+        messages: list[ModelMessage],
+        model_settings: ModelSettings | None,
+        model_request_parameters: ModelRequestParameters,
+    ) -> tuple[ModelResponse, Usage]:
+        model = self.__get_pydantic_model(model_settings)
+        return await model.request(messages, model_settings, model_request_parameters)
+
+    async def request_stream(
+        self,
+        messages: list[ModelMessage],
+        model_settings: ModelSettings | None,
+        model_request_parameters: ModelRequestParameters,
+    ) -> AsyncIterator[StreamedResponse]:
+        model = self.__get_pydantic_model(model_settings)
+        yield model.request_stream(messages, model_settings, model_request_parameters)
+
+    @property
+    def model_name(self) -> str:
+        return "Undetermined"
+
+    @property
+    def system(self) -> str:
+        return "google-gla"
 
     def __get_model_limits(self, model: str) -> int:
         for model_info in self.__get_models_info():

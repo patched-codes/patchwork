@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
 
 import yaml
+from typing_extensions import Any
 
 from patchwork.common.utils.progress_bar import PatchflowProgressBar
 from patchwork.common.utils.step_typing import validate_steps_with_inputs
