@@ -181,10 +181,12 @@ _EMBEDDING_TO_API_KEY_NAME: dict[
 def get_embedding_function(inputs: dict) -> "chromadb.api.types.EmbeddingFunction"["chromadb.api.types.Documents"]:
     embedding_function = next(
         (func(inputs) for input_key, func in _EMBEDDING_TO_API_KEY_NAME.items() if input_key in inputs.keys()),
-        chromadb().utils.embedding_functions.SentenceTransformerEmbeddingFunction(),
+        None,
     )
     if embedding_function is None:
-        raise ValueError(f"Missing required input data: one of {_EMBEDDING_TO_API_KEY_NAME.keys()}")
+        raise ValueError(
+            f"Must specify an embedding model. Available options: {list(_EMBEDDING_TO_API_KEY_NAME.keys())}"
+        )
 
     return embedding_function
 

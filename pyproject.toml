@@ -73,12 +73,10 @@ owasp-depscan = { version = "5.2.15", optional = true }
 
 # rag
 chromadb = { version = "~0.4.24", optional = true }
-sentence-transformers = { version = "~2.7.0", optional = true }
 
 # rag - pinning transitive dependencies
 opentelemetry-exporter-otlp-proto-grpc = { version = "1.25.0", optional = true }
 onnxruntime = { version = "1.19.2", optional = true }
-torch = { version = "~2.5.1", optional = true }
 orjson = { version = "~3.9.15", optional = true }
 
 # notifications
@@ -86,11 +84,9 @@ slack-sdk = { version = "~3.28.0", optional = true }
 
 [tool.poetry.extras]
 security = ["semgrep", "owasp-depscan"]
-rag = ["chromadb", "sentence-transformers", "torch", "orjson"]
 notifications = ["slack-sdk"]
 all = [
     "semgrep", "owasp-depscan",
-    "chromadb", "sentence-transformers", "torch", "orjson",
     "slack-sdk",
 ]
 
