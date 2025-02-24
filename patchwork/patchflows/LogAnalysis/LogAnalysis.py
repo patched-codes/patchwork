@@ -1,4 +1,5 @@
 import json
+import os
 from pathlib import Path
 
 import yaml
@@ -15,7 +16,6 @@ _DEFAULT_INPUT_FILE = Path(__file__).parent / "defaults.yml"
 class LogAnalysis(Step):
     def __init__(self, inputs: dict):
         PatchflowProgressBar(self).register_steps(
-            # CallSQL,
             AgenticLLMV2,
         )
         final_inputs = yaml.safe_load(_DEFAULT_INPUT_FILE.read_text()) or dict()
@@ -23,18 +23,12 @@ class LogAnalysis(Step):
 
         validate_steps_with_inputs(
             set(final_inputs.keys()).union({""}),
-            # CallSQL,
             AgenticLLMV2,
         )
 
         self.inputs = final_inputs
 
     def run(self) -> dict:
-        # output = CallSQL(self.inputs).run()
-        # self.inputs.update(output)
-
-        log_filename = "gcp_logs.log"
-        sentry_filename = "sentry_issues.json"
         for i in range(self.inputs.get("analysis_limit") or 5):
             # for i in range(self.inputs.get("log_finding_limit") or sys.maxsize):
             logs_detection_output = AgenticLLMV2(
@@ -46,12 +40,9 @@ You are provided with the relevant logs in files in the current directory.
 Explore the logs and reply with the relevant logs position, the file path and line number.  
 """,
                     user_prompt=f"""\
-The log file {log_filename} from GCP and the sentry logs can be found at {sentry_filename}.
+Logs are uploaded to the current working directory at {os.getcwd()}.
 
-Here are some relevant information:
-Custom Patchflow Id: 5826
-Organisation Id: 301
-Repository Id: 456
+{self.inputs.get('query')}
 """,
                     example_json="""
 {
@@ -94,6 +85,7 @@ Should we reevaluate the logs:
             if analysis_output.get("is_log_analysis_done", False):
                 break
 
-        logger.info(json.dumps(logs_detection_output))
-        logger.info(json.dumps(analysis_output))
+        logger.info("Log Analysis Complete")
+        logger.info("Message:")
+        logger.info(json.dumps(analysis_output.get("message")))
         return dict()
