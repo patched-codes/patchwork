@@ -32,4 +32,5 @@ class AgenticLLMV2(Step, input_class=AgenticLLMV2Inputs, output_class=AgenticLLM
         )
 
     def run(self) -> dict:
-        return self.agentic_strategy.execute(limit=self.conversation_limit)
+        result = self.agentic_strategy.execute(limit=self.conversation_limit)
+        return {**result, **self.agentic_strategy.usage()}

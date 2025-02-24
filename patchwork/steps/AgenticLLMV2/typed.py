@@ -15,4 +15,5 @@ class AgenticLLMV2Inputs(TypedDict, total=False):
 
 
 class AgenticLLMV2Outputs(TypedDict):
-    pass
+    request_tokens: int
+    response_tokens: int
