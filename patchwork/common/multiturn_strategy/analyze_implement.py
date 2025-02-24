@@ -61,7 +61,7 @@ class AnalyzeImplementStrategy(MultiturnStrategy):
             raise ValueError("The subsequent prompt is not supported, due to large size.")
         response = self.llm_client.chat_completion(**input_kwargs)
         self.__request_tokens += response.usage.prompt_tokens
-        self.__response_tokens += response.usage.response_tokens
+        self.__response_tokens += response.usage.completion_tokens
         new_messages = [choice.message.to_dict() for choice in response.choices]
         messages.extend(new_messages)
         return messages
