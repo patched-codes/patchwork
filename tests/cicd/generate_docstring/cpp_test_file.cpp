@@ -6,11 +6,27 @@
 
 
 template<typename T>
+/**
+ * Adds two values of the same type together.
+ * 
+ * @param a The first value to be added.
+ * @param b The second value to be added.
+ * @return The sum of a and b.
+ */
 T a_plus_b(T a, T b) {
     return a + b;
 }
 
 
+/**
+ * Executes a SQL query on the provided SQLite database and returns the results as a vector of string vectors.
+ *
+ * @param db A pointer to the SQLite database connection.
+ * @param query The SQL query string to be executed.
+ * @return A vector of vectors of strings where each inner vector represents a row from the query result,
+ *         and each string within an inner vector represents a column value from that row. If the query
+ *         fails or there are no results, an empty vector is returned.
+ */
 std::vector<std::vector<std::string>> sqlite(sqlite3* db, const std::string& query) {
     std::vector<std::vector<std::string>> results;
     sqlite3_stmt* stmt;
@@ -38,6 +54,18 @@ std::vector<std::vector<std::string>> sqlite(sqlite3* db, const std::string& que
 
 
 template<typename T, typename F>
+/**
+ * Compares two items based on a key mapping function.
+ * The function applies the key mapping to both items,
+ * then compares the resulting values.
+ * 
+ * @param key_map A function that takes an item of type T and returns a key value that can be compared.
+ * @param item1 The first item of type T to compare.
+ * @param item2 The second item of type T to compare.
+ * @return An integer: -1 if the key of item1 is less than the key of item2,
+ *         1 if the key of item1 is greater than the key of item2,
+ *         0 if both keys are equal.
+ */
 int compare(F key_map, const T& item1, const T& item2) {
     auto val1 = key_map(item1);
     auto val2 = key_map(item2);
@@ -48,6 +76,13 @@ int compare(F key_map, const T& item1, const T& item2) {
 }
 
 
+/**
+ * Generates a random string composed of uppercase and lowercase alphabets.
+ * 
+ * @param length The desired length of the resulting random string.
+ * @return A randomly generated string of the specified length containing 
+ *         only alphabetical characters (uppercase and lowercase).
+ */
 std::string random_alphabets(int length) {
     static const std::string chars =
         "abcdefghijklmnopqrstuvwxyz"
