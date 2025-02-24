@@ -1,7 +1,7 @@
 import abc
-from typing import Type
 
 import click
+from typing_extensions import Type
 
 _internal_map: dict[str, Type["Patchflow"]]
 

@@ -1,9 +1,9 @@
 import re
 from pathlib import Path
-from typing import Any, Optional
 
 from git import InvalidGitRepositoryError, Repo
 from openai.types.chat import ChatCompletionMessageParam
+from typing_extensions import Any, Optional
 
 from patchwork.common.client.llm.aio import AioLlmClient
 from patchwork.common.client.llm.protocol import LlmClient
@@ -178,4 +178,4 @@ class FixIssue(Step, input_class=FixIssueInputs, output_class=FixIssueOutputs):
                     # Git-specific errors (untracked files, etc) - keep empty diff
                     logger.warning(f"Could not get git diff for {file}: {str(e)}")
 
-        return dict(modified_files=modified_files)
+        return dict(modified_files=modified_files, **self.multiturn_llm_call.usage())

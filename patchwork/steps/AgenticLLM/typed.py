@@ -38,5 +38,5 @@ If you are using a OpenAI API Key, please set `--openai_api_key=<token>`.""",
 class AgenticLLMOutputs(TypedDict):
     conversation_history: List[Dict]
     tool_records: List[Dict]
-    # request_tokens: int
-    # response_tokens: int
+    request_tokens: int
+    response_tokens: int

@@ -23,6 +23,8 @@ class Role(abc.ABC):
         self.llm_client = llm_client
         self.tool_set = tool_set
         self.history: list[ChatCompletionMessageParam] = []
+        self.request_tokens = 0
+        self.response_tokens = 0
 
     def generate_reply(self, message: str) -> str:
         self.history.append(dict(role="user", content=message))
@@ -36,6 +38,9 @@ class Role(abc.ABC):
         if is_prompt_safe < 0:
             raise ValueError("The subsequent prompt is not supported, due to large size.")
         response = self.llm_client.chat_completion(**input_kwargs)
+        self.response_tokens = response.usage.completion_tokens
+        self.request_tokens = response.usage.prompt_tokens
+
         choices = response.choices or []
 
         message_content = ""
@@ -144,6 +149,17 @@ class AgenticStrategy:
                 return True
 
         return False
+
+    def usage(self):
+        request_tokens = 0
+        response_tokens = 0
+        for role in [self.__assistant_role, self.__user_role]:
+            request_tokens += role.request_tokens
+            response_tokens += role.response_tokens
+        return {
+            "request_tokens": request_tokens,
+            "response_tokens": response_tokens,
+        }
 
     def execute(self, limit: int | None = None) -> None:
         message = self.__render_prompt(self.__user_prompt_template)
