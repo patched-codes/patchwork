@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import shlex
 import subprocess
 from pathlib import Path
 
@@ -45,10 +46,11 @@ class BashTool(Tool, tool_name="bash"):
 
         try:
             result = subprocess.run(
-                command, shell=True, cwd=self.path, capture_output=True, text=True, timeout=60  # Add timeout for safety
+                shlex.split(command), shell=False, cwd=self.path, capture_output=True, text=True, timeout=60
             )
             return result.stdout if result.returncode == 0 else f"Error: {result.stderr}"
         except subprocess.TimeoutExpired:
             return "Error: Command timed out after 60 seconds"
         except Exception as e:
             return f"Error: {str(e)}"
+
