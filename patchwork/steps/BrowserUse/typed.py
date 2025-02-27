@@ -5,7 +5,7 @@ from patchwork.common.utils.step_typing import StepTypeConfig
 
 class BrowserUseInputs(TypedDict, total=False):
     task: str
-    json_example_schema: str
+    example_json: str
     openai_api_key: Annotated[
         str,
         StepTypeConfig(is_config=True, or_op=["google_api_key", "anthropic_api_key"]),
