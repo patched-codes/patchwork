@@ -27,4 +27,5 @@ class AgenticLLM(Step, input_class=AgenticLLMInputs, output_class=AgenticLLMOutp
         return dict(
             conversation_history=self.agentic_strategy.history,
             tool_records=self.agentic_strategy.tool_records,
+            **self.agentic_strategy.usage(),
         )

@@ -1,4 +1,5 @@
 from patchwork.steps.AgenticLLM.AgenticLLM import AgenticLLM
+from patchwork.steps.AgenticLLMV2.AgenticLLMV2 import AgenticLLMV2
 from patchwork.steps.AnalyzeImpact.AnalyzeImpact import AnalyzeImpact
 from patchwork.steps.CallAPI.CallAPI import CallAPI
 from patchwork.steps.CallCode2Prompt.CallCode2Prompt import CallCode2Prompt
@@ -62,6 +63,7 @@ SimplifiedLLMOncePB = SimplifiedLLMOnce
 
 __all__ = [
     "AgenticLLM",
+    "AgenticLLMV2",
     "AnalyzeImpact",
     "CallAPI",
     "CallCode2Prompt",

@@ -40,6 +40,14 @@ class AnalyzeImplementStrategy(MultiturnStrategy):
         self._stage = STAGE.ANALYSIS
         self.run_count = 0
         self.stage_run_counts = defaultdict(int)
+        self.__request_tokens = 0
+        self.__response_tokens = 0
+
+    def usage(self):
+        return dict(
+            request_tokens=self.__request_tokens,
+            response_tokens=self.__response_tokens,
+        )
 
     def __run_prompt(self, messages: list[ChatCompletionMessageParam]) -> list[ChatCompletionMessageParam]:
         input_kwargs = dict(
@@ -52,6 +60,8 @@ class AnalyzeImplementStrategy(MultiturnStrategy):
         if is_prompt_safe < 0:
             raise ValueError("The subsequent prompt is not supported, due to large size.")
         response = self.llm_client.chat_completion(**input_kwargs)
+        self.__request_tokens += response.usage.prompt_tokens
+        self.__response_tokens += response.usage.completion_tokens
         new_messages = [choice.message.to_dict() for choice in response.choices]
         messages.extend(new_messages)
         return messages

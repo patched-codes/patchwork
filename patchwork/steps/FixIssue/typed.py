@@ -55,3 +55,5 @@ class ModifiedFile(TypedDict):
 
 class FixIssueOutputs(TypedDict):
     modified_files: List[ModifiedFile]
+    request_tokens: int
+    response_tokens: int
