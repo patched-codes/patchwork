@@ -16,7 +16,6 @@ from git import Head, Repo
 from typing_extensions import Any, Callable, Counter
 
 from patchwork.logger import logger
-from patchwork.managed_files import HOME_FOLDER
 
 _CLEANUP_FILES: set[Path] = set()
 _NEWLINES = {"\n", "\r\n", "\r"}
