@@ -2,7 +2,6 @@ import importlib
 from functools import lru_cache
 
 __DEPENDENCY_GROUPS = {
-    "rag": ["chromadb"],
     "security": ["semgrep", "depscan"],
     "notification": ["slack_sdk"],
 }
@@ -20,10 +19,6 @@ def import_with_dependency_group(name):
         if dependency_group is not None:
             error_msg = f"Please `pip install patchwork-cli[{dependency_group}]` to use this step"
         raise ImportError(error_msg)
-
-
-def chromadb():
-    return import_with_dependency_group("chromadb")
 
 
 def slack_sdk():

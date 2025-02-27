@@ -26,10 +26,6 @@ from patchwork.steps.ExtractPackageManagerFile.ExtractPackageManagerFile import 
 )
 from patchwork.steps.FilterBySimilarity.FilterBySimilarity import FilterBySimilarity
 from patchwork.steps.FixIssue.FixIssue import FixIssue
-from patchwork.steps.GenerateCodeRepositoryEmbeddings.GenerateCodeRepositoryEmbeddings import (
-    GenerateCodeRepositoryEmbeddings,
-)
-from patchwork.steps.GenerateEmbeddings.GenerateEmbeddings import GenerateEmbeddings
 from patchwork.steps.GetTypescriptTypeInfo.GetTypescriptTypeInfo import (
     GetTypescriptTypeInfo,
 )
@@ -40,7 +36,6 @@ from patchwork.steps.ModifyCodeOnce.ModifyCodeOnce import ModifyCodeOnce
 from patchwork.steps.PR.PR import PR
 from patchwork.steps.PreparePR.PreparePR import PreparePR
 from patchwork.steps.PreparePrompt.PreparePrompt import PreparePrompt
-from patchwork.steps.QueryEmbeddings.QueryEmbeddings import QueryEmbeddings
 from patchwork.steps.ReadEmail.ReadEmail import ReadEmail
 from patchwork.steps.ReadFile.ReadFile import ReadFile
 from patchwork.steps.ReadIssues.ReadIssues import ReadIssues
@@ -84,8 +79,6 @@ __all__ = [
     "ExtractPackageManagerFile",
     "FilterBySimilarity",
     "FixIssue",
-    "GenerateCodeRepositoryEmbeddings",
-    "GenerateEmbeddings",
     "LLM",
     "ModifyCode",
     "ModifyCodePB",
@@ -94,7 +87,6 @@ __all__ = [
     "PreparePR",
     "PreparePrompt",
     "PRPB",
-    "QueryEmbeddings",
     "ReadEmail",
     "ReadFile",
     "ReadIssues",
