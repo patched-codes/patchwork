@@ -23,6 +23,7 @@ class BrowserUse(Step, input_class=BrowserUseInputs, output_class=BrowserUseOutp
             raise ValueError(f'Missing required data: "{self.required_keys}"')
 
         self.browser = Browser(config=config)
+
         if "google_api_key" in self.inputs:
             self.llm = ChatGoogleGenerativeAI(
                 model="gemini-2.0-flash", google_api_key=self.inputs["google_api_key"]
@@ -53,7 +54,7 @@ class BrowserUse(Step, input_class=BrowserUseInputs, output_class=BrowserUseOutp
         loop = asyncio.new_event_loop()
         self.history = loop.run_until_complete(agent.run())
 
-        if self.inputs["json_example_schema"]:
+        if "example_json" in self.inputs:
             return self.__format_history_as_json()
 
         return {
@@ -74,7 +75,7 @@ Here is the history:
 {self.history.final_result()}
 </history>
 """,
-            json_schema=self.inputs["json_example_schema"],
+            json_schema=self.inputs["example_json"],
             prompt_value=dict(),
         )
 
