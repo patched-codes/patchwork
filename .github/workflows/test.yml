@@ -40,7 +40,7 @@ jobs:
         id: setup-python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.9'
+          python-version: "3.11"
 
       - name: Install Poetry
         uses: snok/install-poetry@v1
@@ -78,7 +78,7 @@ jobs:
         id: setup-python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.9'
+          python-version: "3.11"
 
       - name: Install Poetry
         uses: snok/install-poetry@v1
@@ -133,7 +133,7 @@ jobs:
         id: setup-python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.9'
+          python-version: "3.11"
 
       - name: Install Poetry
         uses: snok/install-poetry@v1
@@ -171,7 +171,7 @@ jobs:
           --base_path=tests/cicd/generate_docstring \
           --disable_telemetry
 
-      - name : Generate Diagram
+      - name: Generate Diagram
         run: |
           source .venv/bin/activate
           patchwork GenerateDiagram --log debug \
@@ -188,7 +188,7 @@ jobs:
           --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
           --folder_path=tests/cicd/generate_docstring \
           --disable_telemetry
-      
+
       - name: Generate Code Usage Example
         run: |
           source .venv/bin/activate
@@ -204,7 +204,7 @@ jobs:
           # Specify the parent folder you want to check
           PARENT_FOLDER="./patchwork/steps"
           # Command to run if README.md is not found
-          
+
           find "$PARENT_FOLDER" -mindepth 1 -maxdepth 1 -type d | grep -vE '/\.\.?/' | grep -vE '/__' | while read -r dir; do
             if [[ ! -f "$dir/README.md" ]]; then
               echo "No README.md in $dir"
@@ -212,7 +212,7 @@ jobs:
               base_name=$(basename "$dir")
               # Convert to a Git-friendly branch name: replace spaces with underscores, remove slashes, etc.
               branch_name=$(echo "$base_name" | sed -e 's/[^a-zA-Z0-9]/_/g' -e 's/__*/_/g' -e 's/^_//g' -e 's/_$//g')
-          
+
               patchwork GenerateREADME --log debug \
               --patched_api_key=${{ secrets.PATCHED_API_KEY }} \
               --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
