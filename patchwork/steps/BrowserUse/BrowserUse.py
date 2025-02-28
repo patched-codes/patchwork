@@ -1,6 +1,10 @@
 import asyncio
+import logging
+import os
 
-from browser_use import Agent, Browser, BrowserConfig
+from browser_use import Agent, Browser, BrowserConfig, BrowserContextConfig, Controller
+from browser_use.agent.views import ActionResult
+from browser_use.browser.context import BrowserContext
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_openai import ChatOpenAI
 from langchain_anthropic import ChatAnthropic
@@ -10,7 +14,61 @@ from patchwork.step import Step
 from patchwork.steps import SimplifiedLLMOnce
 from patchwork.steps.BrowserUse.typed import BrowserUseInputs, BrowserUseOutputs
 
-config = BrowserConfig(headless=True, disable_security=True)
+downloads_path = os.path.join(os.getcwd(), "downloads")
+logger = logging.getLogger(__name__)
+context_config = BrowserContextConfig(save_downloads_path=downloads_path)
+config = BrowserConfig(
+    headless=True, disable_security=True, new_context_config=context_config
+)
+controller = Controller()
+
+if not os.path.exists(downloads_path):
+    os.makedirs(downloads_path)
+
+
+@controller.action(
+    description="Upload file to interactive element with file path",
+)
+async def upload_file(index: int, path: str, browser: BrowserContext):
+    if not os.path.exists(path):
+        return ActionResult(error=f"File {path} does not exist")
+
+    dom_el = await browser.get_dom_element_by_index(index)
+    file_upload_dom_el = dom_el.get_file_upload_element()
+
+    if file_upload_dom_el is None:
+        msg = f"No file upload element found at index {index}. The element may be hidden or not an input type file"
+        logger.info(msg)
+        return ActionResult(error=msg)
+
+    file_upload_el = await browser.get_locate_element(file_upload_dom_el)
+
+    if file_upload_el is None:
+        msg = f"No file upload element found at index {index}. The element may be hidden or not an input type file"
+        logger.info(msg)
+        return ActionResult(error=msg)
+
+    try:
+        await file_upload_el.set_input_files(path)
+        msg = f"Successfully uploaded file to index {index}"
+        logger.info(msg)
+        return ActionResult(extracted_content=msg, include_in_memory=True)
+    except Exception as e:
+        msg = f"Failed to upload file to index {index}: {str(e)}"
+        logger.info(msg)
+        return ActionResult(error=msg)
+
+
+@controller.action(description="Read the file content of a file given a path")
+async def read_file(path: str):
+    if not os.path.exists(path):
+        return ActionResult(error=f"File {path} does not exist")
+
+    with open(path, "r") as f:
+        content = f.read()
+    msg = f"File content: {content}"
+    logger.info(msg)
+    return ActionResult(extracted_content=msg, include_in_memory=True)
 
 
 class BrowserUse(Step, input_class=BrowserUseInputs, output_class=BrowserUseOutputs):
@@ -49,11 +107,11 @@ class BrowserUse(Step, input_class=BrowserUseInputs, output_class=BrowserUseOutp
             llm=self.llm,
             generate_gif=self.generate_gif,
             validate_output=True,
+            controller=controller,
         )
 
         loop = asyncio.new_event_loop()
         self.history = loop.run_until_complete(agent.run())
-
         if "example_json" in self.inputs:
             return self.__format_history_as_json()
 
