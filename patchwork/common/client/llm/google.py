@@ -111,7 +111,7 @@ class GoogleLlmClient(LlmClient):
         return model in self.get_models()
 
     def __upload(self, file: Path | NotGiven) -> Part | File | None:
-        if file is NotGiven:
+        if isinstance(file, NotGiven):
             return None
 
         file_bytes = file.read_bytes()

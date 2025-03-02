@@ -48,6 +48,7 @@ from patchwork.steps.SendEmail.SendEmail import SendEmail
 from patchwork.steps.SimplifiedLLM.SimplifiedLLM import SimplifiedLLM
 from patchwork.steps.SimplifiedLLMOnce.SimplifiedLLMOnce import SimplifiedLLMOnce
 from patchwork.steps.SlackMessage.SlackMessage import SlackMessage
+from patchwork.steps.BrowserUse.BrowserUse import BrowserUse
 
 # Compatibility Aliases
 JoinListPB = JoinList
@@ -104,4 +105,5 @@ __all__ = [
     "JoinList",
     "JoinListPB",
     "GetTypescriptTypeInfo",
+    "BrowserUse",
 ]
