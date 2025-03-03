@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "patchwork-cli"
-version = "0.0.103"
+version = "0.0.104"
 description = ""
 authors = ["patched.codes"]
 license = "AGPL"
@@ -78,10 +78,10 @@ slack-sdk = { version = "~3.28.0", optional = true }
 # browser-use
 browser-use = [{ version = "~0.1.40", python = ">=3.11", optional = true }]
 playwright = [{ version = "~1.50.0", optional = true }]
-langchain-google-genai = [{ version = "^2.0.11", optional = true }]
+langchain-google-genai = [{ version = "^2.0.10", optional = true }]
 langchain-openai = [{ version = "~0.3.1", optional = true }]
 langchain-anthropic = [{ version = "~0.3.3", optional = true }]
-Pillow = [{ version = "~11.1.0", optional = true }]
+pillow = [{ version = "~10.4.0", optional = true }]
 
 [tool.poetry.extras]
 security = ["semgrep", "owasp-depscan"]
