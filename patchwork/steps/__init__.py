@@ -1,6 +1,7 @@
 from patchwork.steps.AgenticLLM.AgenticLLM import AgenticLLM
 from patchwork.steps.AgenticLLMV2.AgenticLLMV2 import AgenticLLMV2
 from patchwork.steps.AnalyzeImpact.AnalyzeImpact import AnalyzeImpact
+from patchwork.steps.BrowserUse.BrowserUse import BrowserUse
 from patchwork.steps.CallAPI.CallAPI import CallAPI
 from patchwork.steps.CallCode2Prompt.CallCode2Prompt import CallCode2Prompt
 from patchwork.steps.CallLLM.CallLLM import CallLLM
@@ -29,6 +30,7 @@ from patchwork.steps.FixIssue.FixIssue import FixIssue
 from patchwork.steps.GetTypescriptTypeInfo.GetTypescriptTypeInfo import (
     GetTypescriptTypeInfo,
 )
+from patchwork.steps.GitHubAgent.GitHubAgent import GitHubAgent
 from patchwork.steps.JoinList.JoinList import JoinList
 from patchwork.steps.LLM.LLM import LLM
 from patchwork.steps.ModifyCode.ModifyCode import ModifyCode
@@ -48,7 +50,6 @@ from patchwork.steps.SendEmail.SendEmail import SendEmail
 from patchwork.steps.SimplifiedLLM.SimplifiedLLM import SimplifiedLLM
 from patchwork.steps.SimplifiedLLMOnce.SimplifiedLLMOnce import SimplifiedLLMOnce
 from patchwork.steps.SlackMessage.SlackMessage import SlackMessage
-from patchwork.steps.BrowserUse.BrowserUse import BrowserUse
 
 # Compatibility Aliases
 JoinListPB = JoinList
@@ -97,6 +98,7 @@ __all__ = [
     "ScanDepscan",
     "ScanSemgrep",
     "ScanSonar",
+    "GitHubAgent",
     "SendEmail",
     "SimplifiedLLM",
     "SimplifiedLLMOnce",

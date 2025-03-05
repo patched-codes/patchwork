@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from patchwork.common.client.llm.aio import AioLlmClient
 from patchwork.common.multiturn_strategy.agentic_strategy_v2 import (
     AgentConfig,
     AgenticStrategyV2,
@@ -17,7 +18,8 @@ class AgenticLLMV2(Step, input_class=AgenticLLMV2Inputs, output_class=AgenticLLM
             base_path = str(Path.cwd())
         self.conversation_limit = int(inputs.get("max_agent_calls", 1))
         self.agentic_strategy = AgenticStrategyV2(
-            api_key=inputs.get("anthropic_api_key"),
+            model="claude-3-7-sonnet-latest",
+            llm_client=AioLlmClient.create_aio_client(inputs),
             template_data=inputs.get("prompt_value", {}),
             system_prompt_template=inputs.get("system_prompt", "Summarise from our previous conversation"),
             user_prompt_template=inputs.get("user_prompt"),

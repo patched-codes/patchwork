@@ -1,3 +1,4 @@
+import functools
 from abc import ABC, abstractmethod
 
 from pydantic_ai.tools import RunContext
@@ -5,18 +6,24 @@ from pydantic_ai.tools import Tool as PydanticTool
 from pydantic_ai.tools import ToolDefinition
 from typing_extensions import Type
 
+from patchwork.logger import logger
+
 
 class Tool(ABC):
     __internal_map: dict[str, Type["Tool"]] = dict()
 
-    def __init_subclass__(cls, tool_name=None, abc_register=True, **kwargs):
+    def __init_subclass__(cls, tool_name=None, abc_register=True, tool_logging=True, **kwargs):
+        cls_name = tool_name or cls.__name__
+        cls.name = cls_name
+
+        if tool_logging:
+            setattr(cls, "execute", Tool.__execute_logging_wrapper(cls.__dict__["execute"]))
+
         if not abc_register:
             return
 
-        cls_name = tool_name or cls.__name__
         if cls_name in cls.__internal_map.keys():
             raise ValueError(f"Duplicate subclass name for class {cls.__name__}: {cls_name}")
-        cls.name = cls_name
         Tool.__internal_map[cls_name] = cls
 
     @property
@@ -55,3 +62,18 @@ class Tool(ABC):
         return PydanticTool(
             self.execute, prepare=_prep, name=self.name, description=self.json_schema.get("description", "")
         )
+
+    @staticmethod
+    def __execute_logging_wrapper(func):
+        @functools.wraps(func)
+        def execute_logging_wrapper(self, *args, **kwargs):
+            arg_text = ""
+            if len(args) > 0:
+                arg_text += f"args: {args}"
+            if len(kwargs) > 0:
+                arg_text += f"kwargs: {kwargs}"
+
+            logger.info(f"Executing Tool: {self.name} with {arg_text}")
+            return func(self, *args, **kwargs)
+
+        return execute_logging_wrapper
