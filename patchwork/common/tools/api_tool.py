@@ -15,11 +15,11 @@ class APIRequestTool(Tool, tool_name="make_api_request", abc_register=False):
 
     def __init__(
         self,
-        base_url: str | None = None,
-        headers: dict | None = None,
-        username: str | None = None,
-        password: str | None = None,
-        data_prefix: str | None = None,
+        base_url: Optional[str] = None,
+        headers: Optional[Dict[str, str]] = None,
+        username: Optional[str] = None,
+        password: Optional[str] = None,
+        data_prefix: Optional[str] = None,
         **kwargs,
     ):
         if base_url:
@@ -112,9 +112,7 @@ Authentication can be configured via:
                 status_code = e.response.status_code
                 headers = e.response.headers
 
-                header_string = "\n".join(
-                    f"{key}: {value}" for key, value in headers.items()
-                )
+                header_string = "\n".join(f"{key}: {value}" for key, value in headers.items())
 
                 return (
                     f"HTTP/{e.response.raw.version / 10:.1f} {status_code} {e.response.reason}\n"
