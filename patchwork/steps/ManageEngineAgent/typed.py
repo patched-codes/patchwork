@@ -5,7 +5,7 @@ from typing_extensions import Annotated
 from patchwork.common.utils.step_typing import StepTypeConfig
 
 
-class ManageEngineInputs(TypedDict, total=False):
+class ManageEngineAgentInputs(TypedDict, total=False):
     """
     Inputs for the ManageEngine agentic step
     """
@@ -43,7 +43,7 @@ class ManageEngineInputs(TypedDict, total=False):
     example_json: Optional[Dict]
 
 
-class ManageEngineOutputs(TypedDict, total=False):
+class ManageEngineAgentOutputs(TypedDict, total=False):
     """
     Outputs from the ManageEngine agentic step
     """

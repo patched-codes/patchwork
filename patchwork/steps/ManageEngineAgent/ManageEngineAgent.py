@@ -6,11 +6,11 @@ from patchwork.common.multiturn_strategy.agentic_strategy_v2 import (
 from patchwork.common.tools.api_tool import APIRequestTool
 from patchwork.step import Step
 
-from .typed import ManageEngineInputs, ManageEngineOutputs
+from .typed import ManageEngineAgentInputs, ManageEngineAgentOutputs
 
 
-class ManageEngineStep(Step, input_class=ManageEngineInputs, output_class=ManageEngineOutputs):
-    def __init__(self, inputs: ManageEngineInputs):
+class ManageEngineAgent(Step, input_class=ManageEngineAgentInputs, output_class=ManageEngineAgentOutputs):
+    def __init__(self, inputs: ManageEngineAgentInputs):
         super().__init__(inputs)
 
         if not inputs.get("me_access_token"):
