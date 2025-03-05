@@ -33,6 +33,7 @@ from patchwork.steps.GetTypescriptTypeInfo.GetTypescriptTypeInfo import (
 from patchwork.steps.GitHubAgent.GitHubAgent import GitHubAgent
 from patchwork.steps.JoinList.JoinList import JoinList
 from patchwork.steps.LLM.LLM import LLM
+from patchwork.steps.ManageEngine.ManageEngineStep import ManageEngineStep
 from patchwork.steps.ModifyCode.ModifyCode import ModifyCode
 from patchwork.steps.ModifyCodeOnce.ModifyCodeOnce import ModifyCodeOnce
 from patchwork.steps.PR.PR import PR
@@ -108,4 +109,5 @@ __all__ = [
     "JoinListPB",
     "GetTypescriptTypeInfo",
     "BrowserUse",
+    "ManageEngineStep",
 ]
