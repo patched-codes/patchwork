@@ -103,7 +103,7 @@ Directories:{dirs_part}
 
 
 class FindTextTool(Tool, tool_name="find_text"):
-    __CHAR_LIMIT = 200
+    __CHAR_LIMIT = 400
     __CHAR_LIMIT_TEXT = "<Too many characters>"
 
     def __init__(self, path: Path | str, **kwargs):

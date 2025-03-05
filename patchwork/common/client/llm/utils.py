@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import random
+import string
 
 from openai.lib._parsing._completions import type_to_response_format_param
 from openai.types.chat.completion_create_params import ResponseFormat
@@ -114,5 +116,5 @@ def example_dict_to_base_model(example_data: dict) -> Type[BaseModel]:
 
         field = Field(**field_kwargs)
         base_model_field_defs[example_data_key] = (value_typing, field)
-
-    return create_model("ResponseFormat", **base_model_field_defs)
+    random_suffix = "".join(random.choice(string.ascii_lowercase) for _ in range(4))
+    return create_model(f"ResponseFormat_{random_suffix}", **base_model_field_defs)

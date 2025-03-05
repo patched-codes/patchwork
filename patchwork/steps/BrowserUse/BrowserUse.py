@@ -40,9 +40,7 @@ def init_browser():
         os.makedirs(downloads_path)
 
     context_config = BrowserContextConfig(save_downloads_path=downloads_path)
-    config = BrowserConfig(
-        headless=True, disable_security=True, new_context_config=context_config
-    )
+    config = BrowserConfig(headless=True, disable_security=True, new_context_config=context_config)
     controller = Controller()
 
     # Register custom action to upload files to web elements
@@ -124,6 +122,7 @@ class BrowserUse(Step, input_class=BrowserUseInputs, output_class=BrowserUseOutp
     This class provides a high-level interface for executing browser-based tasks
     using various LLM providers (Google, OpenAI, Anthropic) to control the browser.
     """
+
     required_keys = {"task"}
 
     def __init__(self, inputs):
@@ -142,9 +141,7 @@ class BrowserUse(Step, input_class=BrowserUseInputs, output_class=BrowserUseOutp
         if "google_api_key" in self.inputs:
             from langchain_google_genai import ChatGoogleGenerativeAI
 
-            self.llm = ChatGoogleGenerativeAI(
-                model="gemini-2.0-flash", google_api_key=self.inputs["google_api_key"]
-            )
+            self.llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", google_api_key=self.inputs["google_api_key"])
         elif "openai_api_key" in self.inputs:
             from langchain_openai import ChatOpenAI
 
