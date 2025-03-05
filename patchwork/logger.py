@@ -31,6 +31,13 @@ __noop = logging.NullHandler()
 logger.addHandler(__noop)
 
 
+def evict_null_handler():
+    global logger, __noop
+
+    warnings.simplefilter("ignore")
+    logger.removeHandler(__noop)
+
+
 class TerminalHandler(RichHandler):
     def __init__(self, log_level: str):
         super().__init__(
@@ -137,10 +144,9 @@ class TerminalHandler(RichHandler):
 
 
 def init_cli_logger(log_level: str) -> logging.Logger:
-    global logger, __noop
+    global logger
 
-    warnings.simplefilter("ignore")
-    logger.removeHandler(__noop)
+    evict_null_handler()
 
     if not os.path.exists(HOME_FOLDER):  # Check if HOME_FOLDER exists at this point
         os.makedirs(HOME_FOLDER)
