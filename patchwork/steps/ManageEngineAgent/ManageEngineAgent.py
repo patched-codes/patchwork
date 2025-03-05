@@ -10,7 +10,7 @@ from .typed import ManageEngineAgentInputs, ManageEngineAgentOutputs
 
 
 class ManageEngineAgent(Step, input_class=ManageEngineAgentInputs, output_class=ManageEngineAgentOutputs):
-    def __init__(self, inputs: ManageEngineAgentInputs):
+    def __init__(self, inputs: dict):
         super().__init__(inputs)
 
         if not inputs.get("me_access_token"):
