@@ -5,17 +5,16 @@ from patchwork.common.multiturn_strategy.agentic_strategy_v2 import (
 )
 from patchwork.common.tools.api_tool import APIRequestTool
 from patchwork.step import Step
-from patchwork.steps.ManageEngine.typed import ManageEngineInputs, ManageEngineOutputs
+
+from .typed import ManageEngineInputs, ManageEngineOutputs
 
 
-class ManageEngineStep(
-    Step, input_class=ManageEngineInputs, output_class=ManageEngineOutputs
-):
+class ManageEngineStep(Step, input_class=ManageEngineInputs, output_class=ManageEngineOutputs):
     def __init__(self, inputs: ManageEngineInputs):
         super().__init__(inputs)
 
-        if not inputs.get("access_token"):
-            raise ValueError("access_token is required")
+        if not inputs.get("me_access_token"):
+            raise ValueError("me_access_token is required")
         if not inputs.get("user_prompt"):
             raise ValueError("user_prompt is required")
 
@@ -29,7 +28,7 @@ class ManageEngineStep(
         )
 
         self.headers = {
-            "Authorization": f"Zoho-oauthtoken {inputs.get('access_token')}",
+            "Authorization": f"Zoho-oauthtoken {inputs.get('me_access_token')}",
             "Content-Type": "application/x-www-form-urlencoded",
             "Accept": "application/vnd.manageengine.sdp.v3+json",
         }
@@ -47,9 +46,7 @@ class ManageEngineStep(
                 AgentConfig(
                     name="ManageEngine Assistant",
                     tool_set=dict(
-                        make_api_request=APIRequestTool(
-                            headers=self.headers, data_prefix="input_data="
-                        ),
+                        make_api_request=APIRequestTool(headers=self.headers, data_prefix="input_data="),
                     ),
                     system_prompt="""\
 You are an senior software developer helping the program manager to interact with ManageEngine ServiceDesk via the ServiceDeskPlus API.

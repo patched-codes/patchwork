@@ -11,7 +11,7 @@ class ManageEngineInputs(TypedDict, total=False):
     """
 
     # Required inputs
-    access_token: str
+    me_access_token: str
 
     # Optional configuration
     max_agent_calls: int
