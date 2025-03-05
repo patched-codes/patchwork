@@ -25,9 +25,7 @@ class ManageEngineStep(
         # Prepare system prompt with ManageEngine context
         system_prompt = inputs.get(
             "system_prompt",
-            """
-Please summarise the conversation given and provide the result in the structure that is asked of you.
-""",
+            "Please summarise the conversation given and provide the result in the structure that is asked of you.",
         )
 
         self.headers = {
@@ -60,8 +58,7 @@ Use the `make_api_request` tool to interact with the ManageEngine API.
 Skip the headers for the api requests as they are already provided.
 The base url for the ServiceDeskPlus API is https://sdpondemand.manageengine.com/app/itdesk/api/v3
 
-For modifying or creating data, the data should be a json string which is prefixed with "input_data=".
-For example, if the data is {"example_key": "example_value"}, the data should be "input_data={\"example_key\": \"example_value\"}".
+For modifying or creating data, the data should be a json string.
 When you have the result of the information user requested, return the response of the final result tool as is.
 """,
                 )
