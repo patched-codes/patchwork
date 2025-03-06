@@ -1,5 +1,5 @@
 import json
-from typing import Any, Dict, Optional
+from typing import Any, Callable, Dict, Optional
 
 import requests
 from typing_extensions import Literal
@@ -8,28 +8,17 @@ from patchwork.common.tools.tool import Tool
 
 
 class APIRequestTool(Tool, tool_name="make_api_request", abc_register=False):
-    __base_url = ""
-    __headers = dict()
-    __auth = None
-    __data_prefix = ""
-
     def __init__(
         self,
-        base_url: Optional[str] = None,
-        headers: Optional[Dict[str, str]] = None,
+        headers: Optional[Dict[str, str]] = dict(),
         username: Optional[str] = None,
         password: Optional[str] = None,
-        data_prefix: Optional[str] = None,
+        preprocess_data: Callable[[str], str] = lambda x: x,
         **kwargs,
     ):
-        if base_url:
-            self.__base_url = base_url
-        if headers:
-            self.__headers = headers
-        if username and password:
-            self.__auth = (username, password)
-        if data_prefix:
-            self.__data_prefix = data_prefix
+        self._headers = headers
+        self._auth = (username, password) if username and password else None
+        self._preprocess_data = preprocess_data
 
     @property
     def json_schema(self) -> dict:
@@ -85,16 +74,16 @@ Authentication can be configured via:
     ) -> str:
         # Combine with default headers
         request_headers = headers or {}
-        request_headers.update(self.__headers)
+        request_headers.update(self._headers)
 
         # Prepare request
         response = requests.request(
             method=method,
-            url=self.__base_url + url,
+            url=url,
             headers=request_headers,
             params=params,
-            data=(self.__data_prefix + data if data else None),
-            auth=self.__auth,
+            data=(self._preprocess_data(data) if data else None),
+            auth=self._auth,
         )
 
         if not response.ok:

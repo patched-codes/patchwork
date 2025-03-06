@@ -9,7 +9,9 @@ from patchwork.step import Step
 from .typed import ManageEngineAgentInputs, ManageEngineAgentOutputs
 
 
-class ManageEngineAgent(Step, input_class=ManageEngineAgentInputs, output_class=ManageEngineAgentOutputs):
+class ManageEngineAgent(
+    Step, input_class=ManageEngineAgentInputs, output_class=ManageEngineAgentOutputs
+):
     def __init__(self, inputs: dict):
         super().__init__(inputs)
 
@@ -46,7 +48,10 @@ class ManageEngineAgent(Step, input_class=ManageEngineAgentInputs, output_class=
                 AgentConfig(
                     name="ManageEngine Assistant",
                     tool_set=dict(
-                        make_api_request=APIRequestTool(headers=self.headers, data_prefix="input_data="),
+                        make_api_request=APIRequestTool(
+                            headers=self.headers,
+                            preprocess_data=lambda x: f"input_data={x}",
+                        )
                     ),
                     system_prompt="""\
 You are an senior software developer helping the program manager to interact with ManageEngine ServiceDesk via the ServiceDeskPlus API.
