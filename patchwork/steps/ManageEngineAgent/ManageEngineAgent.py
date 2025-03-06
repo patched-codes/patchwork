@@ -4,14 +4,13 @@ from patchwork.common.multiturn_strategy.agentic_strategy_v2 import (
     AgenticStrategyV2,
 )
 from patchwork.common.tools.api_tool import APIRequestTool
+from patchwork.common.utils.utils import mustache_render
 from patchwork.step import Step
 
 from .typed import ManageEngineAgentInputs, ManageEngineAgentOutputs
 
 
-class ManageEngineAgent(
-    Step, input_class=ManageEngineAgentInputs, output_class=ManageEngineAgentOutputs
-):
+class ManageEngineAgent(Step, input_class=ManageEngineAgentInputs, output_class=ManageEngineAgentOutputs):
     def __init__(self, inputs: dict):
         super().__init__(inputs)
 
@@ -43,7 +42,7 @@ class ManageEngineAgent(
             llm_client=llm_client,
             system_prompt_template=system_prompt,
             template_data={},
-            user_prompt_template=inputs.get("user_prompt"),
+            user_prompt_template=mustache_render(inputs.get("user_prompt"), inputs.get("prompt_value")),
             agent_configs=[
                 AgentConfig(
                     name="ManageEngine Assistant",
