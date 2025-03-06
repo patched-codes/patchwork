@@ -54,9 +54,10 @@ class GoogleLlmClient(LlmClient):
     ]
     __MODEL_PREFIX = "models/"
 
-    def __init__(self, api_key: str):
+    def __init__(self, api_key: str, location: Optional[str] = None):
         self.__api_key = api_key
-        self.client = genai.Client(api_key=api_key)
+        self.__location = location
+        self.client = genai.Client(api_key=api_key, location=location)
 
     @lru_cache(maxsize=1)
     def __get_models_info(self) -> list[Model]:
@@ -69,7 +70,11 @@ class GoogleLlmClient(LlmClient):
         if model_name is None:
             raise ValueError("Model must be set cannot be None")
 
-        return GeminiModel(model_name, api_key=self.__api_key)
+        if self.__location is None:
+            return GeminiModel(model_name, api_key=self.__api_key)
+
+        url_template = f"https://{self.__location}-generativelanguage.googleapis.com/v1beta/models/{{model}}:"
+        return GeminiModel(model_name, api_key=self.__api_key, url_template=url_template)
 
     async def request(
         self,

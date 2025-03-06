@@ -18,7 +18,7 @@ class AgenticLLMV2(Step, input_class=AgenticLLMV2Inputs, output_class=AgenticLLM
             base_path = str(Path.cwd())
         self.conversation_limit = int(inputs.get("max_agent_calls", 1))
         self.agentic_strategy = AgenticStrategyV2(
-            model="claude-3-7-sonnet-latest",
+            model="claude-3-5-sonnet-latest",
             llm_client=AioLlmClient.create_aio_client(inputs),
             template_data=inputs.get("prompt_value", {}),
             system_prompt_template=inputs.get("system_prompt", "Summarise from our previous conversation"),
@@ -26,6 +26,7 @@ class AgenticLLMV2(Step, input_class=AgenticLLMV2Inputs, output_class=AgenticLLM
             agent_configs=[
                 AgentConfig(
                     name="Assistant",
+                    model="claude-3-7-sonnet-latest",
                     tool_set=Tool.get_tools(path=base_path),
                     system_prompt=inputs.get("agent_system_prompt"),
                 )
