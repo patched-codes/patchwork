@@ -46,6 +46,7 @@ class ManageEngineAgent(Step, input_class=ManageEngineAgentInputs, output_class=
             agent_configs=[
                 AgentConfig(
                     name="ManageEngine Assistant",
+                    model="claude-3-7-sonnet-latest",
                     tool_set=dict(
                         make_api_request=APIRequestTool(
                             headers=self.headers,
