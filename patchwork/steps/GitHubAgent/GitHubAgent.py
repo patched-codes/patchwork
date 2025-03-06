@@ -6,6 +6,7 @@ from patchwork.common.multiturn_strategy.agentic_strategy_v2 import (
     AgenticStrategyV2,
 )
 from patchwork.common.tools.github_tool import GitHubTool
+from patchwork.common.utils.utils import mustache_render
 from patchwork.step import Step
 from patchwork.steps.GitHubAgent.typed import GitHubAgentInputs, GitHubAgentOutputs
 
@@ -14,7 +15,8 @@ class GitHubAgent(Step, input_class=GitHubAgentInputs, output_class=GitHubAgentO
     def __init__(self, inputs):
         super().__init__(inputs)
         base_path = inputs.get("base_path", str(Path.cwd()))
-        task = inputs["task"]
+        data = inputs.get("prompt_value", {})
+        task = mustache_render(inputs["task"], data)
         self.agentic_strategy = AgenticStrategyV2(
             model="claude-3-7-sonnet-latest",
             llm_client=AioLlmClient.create_aio_client(inputs),

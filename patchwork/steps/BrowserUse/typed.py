@@ -1,21 +1,19 @@
-from typing_extensions import Annotated, TypedDict
+from typing_extensions import Annotated, Any, Dict, Optional, TypedDict
 
 from patchwork.common.utils.step_typing import StepTypeConfig
 
 
-class BrowserUseInputs(TypedDict, total=False):
+class __BrowserUseInputsRequired(TypedDict):
     task: str
-    example_json: str
-    openai_api_key: Annotated[
-        str,
-        StepTypeConfig(is_config=True, or_op=["google_api_key", "anthropic_api_key"]),
-    ]
-    anthropic_api_key: Annotated[str, StepTypeConfig(is_config=True, or_op=["google_api_key", "openai_api_key"])]
-    google_api_key: Annotated[
-        str,
-        StepTypeConfig(is_config=True, or_op=["openai_api_key", "anthropic_api_key"]),
-    ]
-    generate_gif: Annotated[bool, StepTypeConfig(is_config=True)]
+    task_value: Dict[str, Any]
+
+
+class BrowserUseInputs(__BrowserUseInputsRequired, total=False):
+    example_json: Optional[str]
+    openai_api_key: Annotated[str, StepTypeConfig(or_op=["google_api_key", "anthropic_api_key"])]
+    anthropic_api_key: Annotated[str, StepTypeConfig(or_op=["google_api_key", "openai_api_key"])]
+    google_api_key: Annotated[str, StepTypeConfig(or_op=["openai_api_key", "anthropic_api_key"])]
+    generate_gif: Optional[bool]
 
 
 class BrowserUseOutputs(TypedDict):

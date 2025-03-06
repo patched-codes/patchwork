@@ -3,6 +3,7 @@ import logging
 import os
 from datetime import datetime
 
+from patchwork.common.utils.utils import mustache_render
 from patchwork.step import Step
 from patchwork.steps import SimplifiedLLMOnce
 from patchwork.steps.BrowserUse.typed import BrowserUseInputs, BrowserUseOutputs
@@ -178,7 +179,7 @@ class BrowserUse(Step, input_class=BrowserUseInputs, output_class=BrowserUseOutp
         agent = Agent(
             browser=browser,
             controller=controller,
-            task=self.inputs["task"],
+            task=mustache_render(self.inputs["task"], self.inputs["task_value"]),
             llm=self.llm,
             generate_gif=self.generate_gif,
             validate_output=True,
