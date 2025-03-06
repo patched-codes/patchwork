@@ -88,37 +88,33 @@ Authentication can be configured via:
         request_headers.update(self.__headers)
 
         # Prepare request
-        try:
-            response = requests.request(
-                method=method,
-                url=self.__base_url + url,
-                headers=request_headers,
-                params=params,
-                data=(self.__data_prefix + data if data else None),
-                auth=self.__auth,
+        response = requests.request(
+            method=method,
+            url=self.__base_url + url,
+            headers=request_headers,
+            params=params,
+            data=(self.__data_prefix + data if data else None),
+            auth=self.__auth,
+        )
+
+        if not response.ok:
+            response_text = response.text
+            status_code = response.status_code
+            headers = response.headers
+
+            header_string = "\n".join(
+                f"{key}: {value}" for key, value in headers.items()
             )
 
-            # Raise an exception for HTTP errors
-            response.raise_for_status()
+            return (
+                f"HTTP/{response.raw.version / 10:.1f} {status_code} {response.reason}\n"
+                f"{header_string}\n"
+                f"\n"
+                f"{response_text}"
+            )
 
-            # Try to parse JSON, fallback to text
-            try:
-                return json.dumps(response.json(), indent=2)
-            except ValueError:
-                return response.text
-        except requests.RequestException as e:
-            if e.response is not None:
-                response_text = e.response.text
-                status_code = e.response.status_code
-                headers = e.response.headers
-
-                header_string = "\n".join(f"{key}: {value}" for key, value in headers.items())
-
-                return (
-                    f"HTTP/{e.response.raw.version / 10:.1f} {status_code} {e.response.reason}\n"
-                    f"{header_string}\n"
-                    f"\n"
-                    f"{response_text}"
-                )
-            else:
-                return f"API Request Error: {str(e)}"
+        # Try to parse JSON, fallback to text
+        try:
+            return json.dumps(response.json())
+        except ValueError:
+            return response.text
