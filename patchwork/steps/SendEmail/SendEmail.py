@@ -28,7 +28,7 @@ class SendEmail(Step, input_class=SendEmailInputs, output_class=SendEmailOutputs
         msg = MIMEText(mustache_render(self.body, self.email_template_value))
         msg["Subject"] = mustache_render(self.subject, self.email_template_value)
         msg["From"] = self.sender_email
-        msg["To"] = self.recipient_email
+        msg["To"] = ",".join(self.recipient_email)
         if self.reply_message_id is not None:
             msg.add_header("Reference", self.reply_message_id)
             msg.add_header("In-Reply-To", self.reply_message_id)
