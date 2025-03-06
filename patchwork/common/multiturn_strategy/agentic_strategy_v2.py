@@ -25,6 +25,7 @@ class AgentConfig(BaseModel):
         arbitrary_types_allowed = True
 
     name: str
+    model: str
     tool_set: Dict[str, Tool]
     system_prompt: str = ""
     example_json: Union[str, Dict[str, Any]] = DEFAULT_AGENT_EXAMPLE_JSON
@@ -41,15 +42,15 @@ class AgentConfig(BaseModel):
 
 class AgenticStrategyV2:
     def __init__(
-        self,
-        model: str,
-        llm_client: LlmClient,
-        template_data: dict[str, str],
-        system_prompt_template: str,
-        user_prompt_template: str,
-        agent_configs: list[AgentConfig],
-        example_json: Union[str, dict[str, Any]] = '{"output":"output text"}',
-        limit: Optional[int] = None,
+            self,
+            model: str,
+            llm_client: LlmClient,
+            template_data: dict[str, str],
+            system_prompt_template: str,
+            user_prompt_template: str,
+            agent_configs: list[AgentConfig],
+            example_json: Union[str, dict[str, Any]] = '{"output":"output text"}',
+            limit: Optional[int] = None,
     ):
         self.__limit = limit
         self.__template_data = template_data
@@ -76,7 +77,7 @@ class AgenticStrategyV2:
                 result_type=example_json_to_base_model(agent_config.example_json),
                 model_settings=dict(
                     parallel_tool_calls=False,
-                    model=model,
+                    model=agent_config.model,
                 ),
             )
 
@@ -151,7 +152,7 @@ class AgenticStrategyV2:
                 self.__summariser.run(
                     "Please give me the result from the following summary of what the assistants have done."
                     + agent_summary_list,
-                )
+                    )
             )
         self.__request_tokens += final_result.usage().request_tokens or 0
         self.__response_tokens += final_result.usage().response_tokens or 0

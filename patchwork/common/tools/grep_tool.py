@@ -114,7 +114,7 @@ class FindTextTool(Tool, tool_name="find_text"):
         return {
             "name": "find_text",
             "description": f"""\
-Tool to find text in a file using a pattern based on the Unix shell style.
+Tool to find text in a file or files in a directory using a pattern based on the Unix shell style.
 The current working directory is always {self.__working_dir}. 
 The path provided should either be absolute or relative to the current working directory.
 
@@ -124,10 +124,6 @@ If the line contains more than {self.__CHAR_LIMIT} characters, the line content 
             "input_schema": {
                 "type": "object",
                 "properties": {
-                    "path": {
-                        "description": "The path to the file to find text in.",
-                        "type": "string",
-                    },
                     "pattern": {
                         "description": """\
 The Unix shell style pattern to match files using.
@@ -144,26 +140,34 @@ Example:
 """,
                         "type": "string",
                     },
+                    "path": {
+                        "description": """\
+The path to the file to find text in. 
+If not given, will search all file content in the current working directory.
+If the path is a directory, will search all file content in the directory.
+""",
+                        "type": "string",
+                    },
                     "is_case_sensitive": {
                         "description": "Whether the pattern should be case-sensitive.",
                         "type": "boolean",
                     },
                 },
-                "required": ["path", "pattern"],
+                "required": ["pattern"],
             },
         }
 
     def execute(
-        self,
-        path: Optional[Path] = None,
-        pattern: Optional[str] = None,
-        is_case_sensitive: bool = False,
+            self,
+            pattern: Optional[str] = None,
+            path: Optional[Path] = None,
+            is_case_sensitive: bool = False,
     ) -> str:
-        if path is None:
-            raise ValueError("Path argument is required!")
-
         if pattern is None:
             raise ValueError("pattern argument is required!")
+
+        if path is None:
+            path = Path(self.__working_dir)
 
         matcher = fnmatch.fnmatch
         if is_case_sensitive:
@@ -173,15 +177,34 @@ Example:
         if not path.is_relative_to(self.__working_dir):
             raise ValueError("Path must be relative to working dir")
 
-        matches = []
-        with path.open("r") as f:
-            for i, line in enumerate(f.readlines()):
-                if not matcher(line, pattern):
-                    continue
+        if path.is_file():
+            paths = [path]
+        else:
+            paths = [p for p in path.iterdir() if p.is_file()]
 
-                content = f"Line {i + 1}: {line}"
-                if len(line) > self.__CHAR_LIMIT:
-                    content = f"Line {i + 1}: {self.__CHAR_LIMIT_TEXT}"
+        from collections import defaultdict
+        file_matches = defaultdict(list)
+        for path in paths:
+            with path.open("r") as f:
+                for i, line in enumerate(f.readlines()):
+                    if not matcher(line, pattern):
+                        continue
 
-                matches.append(content)
-        return f"Pattern matches found in '{path}':\n" + "\n".join(matches)
+                    content = f"Line {i + 1}: {line}"
+                    if len(line) > self.__CHAR_LIMIT:
+                        content = f"Line {i + 1}: {self.__CHAR_LIMIT_TEXT}"
+
+                    file_matches[str(path)].append(content)
+
+        total_file_matches = ""
+        for path_str, matches in file_matches.items():
+            total_file_matches += f"\nPattern matches found in '{path}':\n" + "\n".join(matches)
+
+        if len(total_file_matches) <= 5000:
+            return total_file_matches
+
+        total_file_matches = ""
+        for path_str, matches in file_matches.items():
+            total_file_matches += f"\n {len(matches)} Pattern matches found in '{path}': <TRUNCATED>\n"
+        return total_file_matches
+

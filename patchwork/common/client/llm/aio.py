@@ -203,6 +203,8 @@ class AioLlmClient(LlmClient):
     def create_aio_client(inputs) -> "AioLlmClient" | None:
         clients = []
 
+        client_args = {key[len("client_") :]: value for key, value in inputs.items() if key.startswith("client_")}
+
         patched_key = inputs.get("patched_api_key")
         if patched_key is not None:
             client = OpenAiLlmClient(patched_key, DEFAULT_PATCH_URL)
@@ -210,13 +212,12 @@ class AioLlmClient(LlmClient):
 
         openai_key = inputs.get("openai_api_key") or os.environ.get("OPENAI_API_KEY")
         if openai_key is not None:
-            client_args = {key[len("client_") :]: value for key, value in inputs.items() if key.startswith("client_")}
             client = OpenAiLlmClient(openai_key, **client_args)
             clients.append(client)
 
         google_key = inputs.get("google_api_key")
         if google_key is not None:
-            client = GoogleLlmClient(google_key)
+            client = GoogleLlmClient(google_key, **client_args)
             clients.append(client)
 
         anthropic_key = inputs.get("anthropic_api_key")
