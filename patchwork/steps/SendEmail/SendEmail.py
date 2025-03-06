@@ -3,6 +3,7 @@ from __future__ import annotations
 import smtplib
 from email.mime.text import MIMEText
 
+from patchwork.common.utils.input_parsing import parse_to_list
 from patchwork.common.utils.utils import mustache_render
 from patchwork.step import Step
 from patchwork.steps.SendEmail.typed import SendEmailInputs, SendEmailOutputs
@@ -15,7 +16,7 @@ class SendEmail(Step, input_class=SendEmailInputs, output_class=SendEmailOutputs
         self.subject = inputs.get("subject", "Patchwork Execution Email")
         self.body = inputs.get("body", "Patchwork Execution Email")
         self.sender_email = inputs["sender_email"]
-        self.recipient_email = inputs["recipient_email"]
+        self.recipient_email = parse_to_list(inputs["recipient_email"], [" ", ","])
         self.smtp_host = inputs.get("smtp_host", "smtp.gmail.com")
         self.smtp_username = inputs["smtp_username"]
         self.smtp_password = inputs["smtp_password"]
