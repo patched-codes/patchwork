@@ -57,6 +57,7 @@ class AgenticStrategyV2:
         self.__user_prompt_template = user_prompt_template
         self.__summariser = Agent(
             llm_client,
+            result_retries=5,
             system_prompt=mustache_render(system_prompt_template, self.__template_data),
             result_type=example_json_to_base_model(example_json),
             model_settings=dict(
