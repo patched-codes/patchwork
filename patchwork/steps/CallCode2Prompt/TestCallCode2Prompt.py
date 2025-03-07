@@ -1,7 +1,7 @@
 import unittest
 from pathlib import Path
 
-from .CallCode2Prompt import CallCode2Prompt
+from patchwork.steps.CallCode2Prompt.CallCode2Prompt import CallCode2Prompt
 
 
 class TestCallCode2Prompt(unittest.TestCase):

@@ -7,7 +7,7 @@ from patchwork.common.tools.api_tool import APIRequestTool
 from patchwork.common.utils.utils import mustache_render
 from patchwork.step import Step
 
-from .typed import ManageEngineAgentInputs, ManageEngineAgentOutputs
+from patchwork.steps.ManageEngineAgent.typed import ManageEngineAgentInputs, ManageEngineAgentOutputs
 
 
 class ManageEngineAgent(Step, input_class=ManageEngineAgentInputs, output_class=ManageEngineAgentOutputs):
