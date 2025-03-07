@@ -2,7 +2,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from patchwork.steps import ExtractPackageManagerFile
+from .ExtractPackageManagerFile import ExtractPackageManagerFile
 
 
 class TestExtractPackageManagerFile(unittest.TestCase):
