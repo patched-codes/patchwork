@@ -5,8 +5,8 @@ from datetime import datetime
 
 from patchwork.common.utils.utils import mustache_render
 from patchwork.step import Step
-from patchwork.steps import SimplifiedLLMOnce
 from patchwork.steps.BrowserUse.typed import BrowserUseInputs, BrowserUseOutputs
+from patchwork.steps.SimplifiedLLMOnce.SimplifiedLLMOnce import SimplifiedLLMOnce
 
 logger = logging.getLogger(__name__)
 
