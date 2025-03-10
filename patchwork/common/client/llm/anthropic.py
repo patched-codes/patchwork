@@ -5,6 +5,7 @@ import time
 from functools import cached_property, lru_cache
 from pathlib import Path
 
+import boto3
 from anthropic import Anthropic, AnthropicBedrock
 from anthropic.types import Message, MessageParam, TextBlockParam
 from openai.types.chat import (
@@ -28,7 +29,7 @@ from pydantic_ai.models.bedrock import BedrockConverseModel
 from pydantic_ai.settings import ModelSettings
 from pydantic_ai.usage import Usage
 from typing_extensions import AsyncIterator, Dict, Iterable, List, Optional, Union
-import boto3
+
 from patchwork.common.client.llm.protocol import NOT_GIVEN, LlmClient, NotGiven
 
 

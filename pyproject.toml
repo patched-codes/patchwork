@@ -56,8 +56,8 @@ json-repair = "~0.30.0"
 # pinning transitive dependencies
 tree-sitter = "~0.21.3"
 numpy = [
-    { version = "^1.26", python = "^3.12", optional = true },
-    { version = "^1.24", python = "^3.9, <=3.11", optional = true }
+    { version = "~1.26", python = "^3.12", optional = true },
+    { version = "~1.24", python = "^3.9, <=3.11", optional = true }
 ]
 pandas = [
     { version = "^2.1.4", python = "^3.12", optional = true },
