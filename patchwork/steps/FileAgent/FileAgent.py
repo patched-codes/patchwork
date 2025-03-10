@@ -61,5 +61,3 @@ After that is done, then run other tools to assist me.
             agentic_strategy = AgenticStrategyV2(**kwargs)
             result = agentic_strategy.execute(limit=10)
             return {**result, **agentic_strategy.usage()}
-
-
