@@ -9,6 +9,9 @@ __DEPENDENCY_GROUPS = {
 
 @lru_cache(maxsize=None)
 def import_with_dependency_group(name):
+    if not any(name in dependencies for dependencies in __DEPENDENCY_GROUPS.values()):
+        raise ImportError(f"Unauthorized import attempt for {name}")
+
     try:
         return importlib.import_module(name)
     except ImportError:
