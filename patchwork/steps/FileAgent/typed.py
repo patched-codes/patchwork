@@ -3,11 +3,11 @@ from typing_extensions import Annotated, Any, Dict, TypedDict
 from patchwork.common.utils.step_typing import StepTypeConfig
 
 
-class __GitHubAgentRequiredInputs(TypedDict):
+class __ReconcilationAgentRequiredInputs(TypedDict):
     task: str
 
 
-class GitHubAgentInputs(__GitHubAgentRequiredInputs, total=False):
+class FileAgentInputs(__ReconcilationAgentRequiredInputs, total=False):
     base_path: str
     prompt_value: Dict[str, Any]
     max_llm_calls: Annotated[int, StepTypeConfig(is_config=True)]
@@ -22,6 +22,6 @@ class GitHubAgentInputs(__GitHubAgentRequiredInputs, total=False):
     ]
 
 
-class GitHubAgentOutputs(TypedDict):
+class FileAgentOutputs(TypedDict):
     request_tokens: int
     response_tokens: int

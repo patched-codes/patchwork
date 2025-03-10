@@ -25,6 +25,7 @@ from patchwork.steps.ExtractModelResponse.ExtractModelResponse import (
 from patchwork.steps.ExtractPackageManagerFile.ExtractPackageManagerFile import (
     ExtractPackageManagerFile,
 )
+from patchwork.steps.FileAgent.FileAgent import FileAgent
 from patchwork.steps.FilterBySimilarity.FilterBySimilarity import FilterBySimilarity
 from patchwork.steps.FixIssue.FixIssue import FixIssue
 from patchwork.steps.GetTypescriptTypeInfo.GetTypescriptTypeInfo import (
@@ -82,6 +83,7 @@ __all__ = [
     "ExtractPackageManagerFile",
     "FilterBySimilarity",
     "FixIssue",
+    "FileAgent",
     "LLM",
     "ModifyCode",
     "ModifyCodePB",
