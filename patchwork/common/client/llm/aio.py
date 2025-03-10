@@ -221,8 +221,8 @@ class AioLlmClient(LlmClient):
             clients.append(client)
 
         anthropic_key = inputs.get("anthropic_api_key")
-        if anthropic_key is not None:
-            client = AnthropicLlmClient(anthropic_key)
+        if anthropic_key is not None or "is_aws" in client_args.keys():
+            client = AnthropicLlmClient(anthropic_key, is_aws=client_args.get("is_aws", False))
             clients.append(client)
 
         if len(clients) == 0:
