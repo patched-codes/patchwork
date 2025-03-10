@@ -45,7 +45,9 @@ Custom tool for viewing files
         }
 
     def __get_abs_path(self, path: str):
-        wanted_path = Path(path).resolve()
+        wanted_path = Path(path)
+        if not Path(path).is_absolute():
+            wanted_path = self.repo_path / path
         if wanted_path.is_relative_to(self.repo_path):
             return wanted_path
         else:
@@ -57,13 +59,16 @@ Custom tool for viewing files
             return f"Error: Path {abs_path} does not exist"
 
         if abs_path.is_file():
-            with open(abs_path, "r") as f:
-                content = f.read()
+            try:
+                with open(abs_path, "r") as f:
+                    content = f.read()
 
-            if view_range:
-                lines = content.splitlines()
-                start, end = view_range
-                content = "\n".join(lines[start - 1 : end])
+                if view_range:
+                    lines = content.splitlines()
+                    start, end = view_range
+                    content = "\n".join(lines[start - 1 : end])
+            except Exception as e:
+                content = "Error: " + str(e)
 
             if len(content) > self.__VIEW_LIMIT:
                 content = content[: self.__VIEW_LIMIT] + self.__TRUNCATION_TOKEN

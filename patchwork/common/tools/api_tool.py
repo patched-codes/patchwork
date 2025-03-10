@@ -91,9 +91,7 @@ Authentication can be configured via:
             status_code = response.status_code
             headers = response.headers
 
-            header_string = "\n".join(
-                f"{key}: {value}" for key, value in headers.items()
-            )
+            header_string = "\n".join(f"{key}: {value}" for key, value in headers.items())
 
             return (
                 f"HTTP/{response.raw.version / 10:.1f} {status_code} {response.reason}\n"

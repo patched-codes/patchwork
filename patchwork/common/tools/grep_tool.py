@@ -158,10 +158,10 @@ If the path is a directory, will search all file content in the directory.
         }
 
     def execute(
-            self,
-            pattern: Optional[str] = None,
-            path: Optional[Path] = None,
-            is_case_sensitive: bool = False,
+        self,
+        pattern: Optional[str] = None,
+        path: Optional[Path] = None,
+        is_case_sensitive: bool = False,
     ) -> str:
         if pattern is None:
             raise ValueError("pattern argument is required!")
@@ -183,18 +183,22 @@ If the path is a directory, will search all file content in the directory.
             paths = [p for p in path.iterdir() if p.is_file()]
 
         from collections import defaultdict
+
         file_matches = defaultdict(list)
         for path in paths:
-            with path.open("r") as f:
-                for i, line in enumerate(f.readlines()):
-                    if not matcher(line, pattern):
-                        continue
+            try:
+                with path.open("r") as f:
+                    for i, line in enumerate(f.readlines()):
+                        if not matcher(line, pattern):
+                            continue
 
-                    content = f"Line {i + 1}: {line}"
-                    if len(line) > self.__CHAR_LIMIT:
-                        content = f"Line {i + 1}: {self.__CHAR_LIMIT_TEXT}"
+                        content = f"Line {i + 1}: {line}"
+                        if len(line) > self.__CHAR_LIMIT:
+                            content = f"Line {i + 1}: {self.__CHAR_LIMIT_TEXT}"
 
-                    file_matches[str(path)].append(content)
+                        file_matches[str(path)].append(content)
+            except Exception as e:
+                pass
 
         total_file_matches = ""
         for path_str, matches in file_matches.items():
@@ -207,4 +211,3 @@ If the path is a directory, will search all file content in the directory.
         for path_str, matches in file_matches.items():
             total_file_matches += f"\n {len(matches)} Pattern matches found in '{path}': <TRUNCATED>\n"
         return total_file_matches
-
