@@ -5,6 +5,7 @@ import requests
 from typing_extensions import Literal
 
 from patchwork.common.tools.tool import Tool
+from patchwork.logger import logger
 
 
 class APIRequestTool(Tool, tool_name="make_api_request", abc_register=False):
@@ -92,6 +93,15 @@ Authentication can be configured via:
             headers = response.headers
 
             header_string = "\n".join(f"{key}: {value}" for key, value in headers.items())
+
+            msg = (
+                f"HTTP/{response.raw.version / 10:.1f} {status_code} {response.reason}\n"
+                f"{header_string}\n"
+                f"\n"
+                f"{response_text}"
+            )
+
+            logger.debug(msg)
 
             return (
                 f"HTTP/{response.raw.version / 10:.1f} {status_code} {response.reason}\n"
