@@ -52,6 +52,7 @@ from patchwork.steps.SendEmail.SendEmail import SendEmail
 from patchwork.steps.SimplifiedLLM.SimplifiedLLM import SimplifiedLLM
 from patchwork.steps.SimplifiedLLMOnce.SimplifiedLLMOnce import SimplifiedLLMOnce
 from patchwork.steps.SlackMessage.SlackMessage import SlackMessage
+from patchwork.steps.ZohoDeskAgent.ZohoDeskAgent import ZohoDeskAgent
 
 # Compatibility Aliases
 JoinListPB = JoinList
@@ -112,4 +113,5 @@ __all__ = [
     "GetTypescriptTypeInfo",
     "BrowserUse",
     "ManageEngineAgent",
+    "ZohoDeskAgent",
 ]
