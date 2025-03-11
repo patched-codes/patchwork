@@ -76,8 +76,7 @@ def _anthropic_to_openai_response(model: str, anthropic_response: Message) -> Ch
 
 
 class AnthropicLlmClient(LlmClient):
-    __allowed_model_prefix = "claude-3-"
-    __definitely_allowed_models = {"claude-2.0", "claude-2.1", "claude-instant-1.2"}
+    __non_aws_alias = {"claude-3-7-sonnet-latest", "claude-3-5-haiku-latest", "claude-3-5-sonnet-latest", "claude-3-opus-latest"}
     __100k_models = {"claude-2.0", "claude-instant-1.2"}
 
     def __init__(self, api_key: Optional[str] = None, is_aws: bool = False):
@@ -259,6 +258,7 @@ class AnthropicLlmClient(LlmClient):
     def get_models(self) -> set[str]:
         rv = set()
         if not self.__is_aws:
+            rv.update(self.__non_aws_alias)
             for model_info in self.__client.models.list():
                 rv.add(model_info.id)
         else:

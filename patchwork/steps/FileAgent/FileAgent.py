@@ -21,7 +21,8 @@ class FileAgent(Step, input_class=FileAgentInputs, output_class=FileAgentOutputs
         task = mustache_render(inputs["task"], data)
 
         self.strat_kwargs = dict(
-            model="apac.anthropic.claude-3-5-sonnet-20241022-v2:0",
+            model="claude-3-5-sonnet-latest",
+            # model="apac.anthropic.claude-3-5-sonnet-20241022-v2:0",
             llm_client=AioLlmClient.create_aio_client(inputs),
             template_data=dict(),
             system_prompt_template=f"""\
@@ -35,8 +36,8 @@ Please help me with this task:
             agent_configs=[
                 AgentConfig(
                     name="Assistant",
-                    model="apac.anthropic.claude-3-5-sonnet-20241022-v2:0",
-                    # model="anthropic.claude-3-7-sonnet-20250219-v1:0",
+                    model="claude-3-7-sonnet-latest",
+                    # model="apac.anthropic.claude-3-5-sonnet-20241022-v2:0",
                     tool_set=dict(),
                     system_prompt="""\
 You are a assistant that is supposed to help me with a set of files. These files are commonly tabular formatted like csv, xls or xlsx.
