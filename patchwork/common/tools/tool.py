@@ -74,6 +74,9 @@ class Tool(ABC):
                 arg_text += f"kwargs: {kwargs}"
 
             logger.info(f"Executing Tool: {self.name} with {arg_text}")
-            return func(self, *args, **kwargs)
+            try:
+                return func(self, *args, **kwargs)
+            except Exception as e:
+                return f"Error: {e}"
 
         return execute_logging_wrapper

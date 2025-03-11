@@ -164,7 +164,7 @@ If the path is a directory, will search all file content in the directory.
         is_case_sensitive: bool = False,
     ) -> str:
         if pattern is None:
-            raise ValueError("pattern argument is required!")
+            return "`pattern` argument is required!"
 
         if path is None:
             path = Path(self.__working_dir)
@@ -173,9 +173,12 @@ If the path is a directory, will search all file content in the directory.
         if is_case_sensitive:
             matcher = fnmatch.fnmatchcase
 
-        path = Path(path).resolve()
+        try:
+            path = Path(path).resolve()
+        except FileNotFoundError:
+            return f"`path` does not exist"
         if not path.is_relative_to(self.__working_dir):
-            raise ValueError("Path must be relative to working dir")
+            return f"Path must be relative to working dir {self.__working_dir}"
 
         if path.is_file():
             paths = [path]
