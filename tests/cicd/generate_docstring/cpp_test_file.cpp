@@ -6,11 +6,27 @@
 
 
 template<typename T>
+/**
+ * Adds two values of the same type together.
+ * 
+ * @param a The first value to be added.
+ * @param b The second value to be added.
+ * @return The result of adding the two values together.
+ */
 T a_plus_b(T a, T b) {
     return a + b;
 }
 
 
+/**
+ * Executes a given SQL query on a provided SQLite database and returns the results.
+ * 
+ * @param db A pointer to the SQLite database object on which the query will be executed.
+ * @param query A string containing the SQL query to be executed.
+ * @return A vector of vectors of strings, where each inner vector represents a row from the result set
+ *         of the query. Each element in the inner vector corresponds to a column value represented as a string.
+ *         If the query preparation fails, an empty vector is returned.
+ */
 std::vector<std::vector<std::string>> sqlite(sqlite3* db, const std::string& query) {
     std::vector<std::vector<std::string>> results;
     sqlite3_stmt* stmt;
@@ -38,6 +54,15 @@ std::vector<std::vector<std::string>> sqlite(sqlite3* db, const std::string& que
 
 
 template<typename T, typename F>
+/**
+ * Compares two items based on a key extracted using a given key mapping function.
+ * 
+ * @param key_map Function used to extract a key from each item for comparison.
+ * @param item1 The first item to compare.
+ * @param item2 The second item to compare.
+ * @return Integer result of the comparison: -1 if item1 is less than item2, 
+ *         1 if item1 is greater than item2, and 0 if they are equal based on the extracted keys.
+ */
 int compare(F key_map, const T& item1, const T& item2) {
     auto val1 = key_map(item1);
     auto val2 = key_map(item2);
@@ -48,6 +73,12 @@ int compare(F key_map, const T& item1, const T& item2) {
 }
 
 
+/**
+ * Generates a random string composed of uppercase and lowercase alphabets.
+ * 
+ * @param length The length of the desired random string.
+ * @return A random string of specified length containing only alphabets.
+ */
 std::string random_alphabets(int length) {
     static const std::string chars =
         "abcdefghijklmnopqrstuvwxyz"
