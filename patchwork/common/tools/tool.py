@@ -77,6 +77,7 @@ class Tool(ABC):
             try:
                 return func(self, *args, **kwargs)
             except Exception as e:
+                logger.error(f"Error executing Tool: {self.name}: {e}")
                 return f"Error: {e}"
 
         return execute_logging_wrapper
