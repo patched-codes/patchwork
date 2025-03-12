@@ -1,3 +1,4 @@
+```toml
 [tool.poetry]
 name = "patchwork-cli"
 version = "0.0.114"
@@ -99,13 +100,14 @@ setuptools = "*"
 poethepoet = { version = "^0.27.0", extras = ["poetry-plugin"] }
 mypy = "^1.7.1"
 types-requests = "~2.31.0"
-black = "^23.12.0"
+black = "^24.3.0"
 isort = "^5.13.2"
 autoflake = "^2.3.1"
 pytest = "^8.1.1"
 pytest-mock = "^3.8.0"
 pytest-localserver = "^0.8.1"
 datasets = "^1.14.0"
+cryptography = "^44.0.1"
 
 [build-system]
 requires = ["poetry-core"]
@@ -142,3 +144,4 @@ in-place = true
 remove-all-unused-imports = true
 expand-star-imports = true
 ignore-init-module-imports = true
+```
