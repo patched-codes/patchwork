@@ -4,7 +4,7 @@ from patchwork.common.utils.step_typing import StepTypeConfig
 
 
 class __ManageEngineAgentInputsRequired(TypedDict):
-    me_access_token: str
+    zoho_access_token: str
     user_prompt: str
     prompt_value: Dict[str, Any]
 

@@ -14,8 +14,8 @@ class ManageEngineAgent(Step, input_class=ManageEngineAgentInputs, output_class=
     def __init__(self, inputs: dict):
         super().__init__(inputs)
 
-        if not inputs.get("me_access_token"):
-            raise ValueError("me_access_token is required")
+        if not inputs.get("zoho_access_token"):
+            raise ValueError("zoho_access_token is required")
         if not inputs.get("user_prompt"):
             raise ValueError("user_prompt is required")
 
@@ -29,7 +29,7 @@ class ManageEngineAgent(Step, input_class=ManageEngineAgentInputs, output_class=
         )
 
         self.headers = {
-            "Authorization": f"Zoho-oauthtoken {inputs.get('me_access_token')}",
+            "Authorization": f"Zoho-oauthtoken {inputs.get('zoho_access_token')}",
             "Content-Type": "application/x-www-form-urlencoded",
             "Accept": "application/vnd.manageengine.sdp.v3+json",
         }
