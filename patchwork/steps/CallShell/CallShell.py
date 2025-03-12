@@ -46,7 +46,8 @@ class CallShell(Step, input_class=CallShellInputs, output_class=CallShellOutputs
         return env
 
     def run(self) -> dict:
-        p = subprocess.run(self.script, shell=True, capture_output=True, text=True, cwd=self.working_dir, env=self.env)
+        args = shlex.split(self.script)
+        p = subprocess.run(args, shell=False, capture_output=True, text=True, cwd=self.working_dir, env=self.env)
         try:
             p.check_returncode()
         except subprocess.CalledProcessError as e:
