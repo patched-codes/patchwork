@@ -33,7 +33,7 @@ pygithub = "~2.1.1"
 azure-devops = "~7.1.0b4"
 gitpython = "~3.1.40"
 pydantic = "~2.10.6"
-pydantic-ai = "^0.0.32"
+pydantic-ai = "^0.0.36"
 libcst = "~1.1.0"
 sqlalchemy = "~2.0.36"
 patched-code2prompt = "~0.9.0.dev1"
@@ -67,6 +67,7 @@ scipy = [
     { version = "^1.7.3", python = "^3.12", optional = true },
     { version = "^1.6.1", python = "3.9, <=3.11", optional = true }
 ]
+boto3 = "~1.37.11"
 
 # extras
 # security
