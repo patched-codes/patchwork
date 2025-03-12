@@ -6,6 +6,7 @@ from pathlib import Path
 
 import magic
 from google import genai
+from google.auth.credentials import Credentials
 from google.genai import types
 from google.genai.types import (
     CountTokensConfig,
@@ -26,7 +27,8 @@ from openai.types.chat import (
 from openai.types.chat.chat_completion import ChatCompletion, Choice
 from pydantic import BaseModel
 from pydantic_ai.messages import ModelMessage, ModelResponse
-from pydantic_ai.models import Model, ModelRequestParameters, StreamedResponse
+from pydantic_ai.models import Model as PydanticAiModel
+from pydantic_ai.models import ModelRequestParameters, StreamedResponse
 from pydantic_ai.models.gemini import GeminiModel
 from pydantic_ai.settings import ModelSettings
 from pydantic_ai.usage import Usage
@@ -54,27 +56,29 @@ class GoogleLlmClient(LlmClient):
     ]
     __MODEL_PREFIX = "models/"
 
-    def __init__(self, api_key: str, location: Optional[str] = None):
+    def __init__(self, api_key: str, is_gcp: bool = False):
         self.__api_key = api_key
-        self.__location = location
-        self.client = genai.Client(api_key=api_key, location=location)
+        self.__is_gcp = is_gcp
+        if not is_gcp:
+            self.client = genai.Client(api_key=api_key)
+        else:
+            self.client = genai.Client(api_key=api_key, vertexai=True, credentials=Credentials())
 
     @lru_cache(maxsize=1)
     def __get_models_info(self) -> list[Model]:
         return list(self.client.models.list())
 
-    def __get_pydantic_model(self, model_settings: ModelSettings | None) -> Model:
+    def __get_pydantic_model(self, model_settings: ModelSettings | None) -> PydanticAiModel:
         if model_settings is None:
             raise ValueError("Model settings cannot be None")
         model_name = model_settings.get("model")
         if model_name is None:
             raise ValueError("Model must be set cannot be None")
 
-        if self.__location is None:
+        if not self.__is_gcp:
             return GeminiModel(model_name, api_key=self.__api_key)
-
-        url_template = f"https://{self.__location}-generativelanguage.googleapis.com/v1beta/models/{{model}}:"
-        return GeminiModel(model_name, api_key=self.__api_key, url_template=url_template)
+        else:
+            return GeminiModel(model_name, provider="google-vertex")
 
     async def request(
         self,

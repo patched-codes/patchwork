@@ -17,7 +17,7 @@ from pydantic_ai.usage import Usage
 from typing_extensions import AsyncIterator, Dict, Iterable, List, Optional, Union
 
 from patchwork.common.client.llm.anthropic import AnthropicLlmClient
-from patchwork.common.client.llm.google import GoogleLlmClient
+from patchwork.common.client.llm.google_ import GoogleLlmClient
 from patchwork.common.client.llm.openai_ import OpenAiLlmClient
 from patchwork.common.client.llm.protocol import NOT_GIVEN, LlmClient, NotGiven
 from patchwork.common.constants import DEFAULT_PATCH_URL
