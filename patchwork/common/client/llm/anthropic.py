@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import time
-from functools import cached_property, lru_cache
+from functools import cached_property
 from pathlib import Path
 
 from anthropic import Anthropic

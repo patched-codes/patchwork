@@ -35,7 +35,6 @@ class AioLlmClient(LlmClient):
                 self.__clients.append(client)
             except Exception as e:
                 logger.error(f"{client.__class__.__name__} Failed with exception: {e}")
-                pass
 
     def __get_model(self, model_settings: ModelSettings | None) -> Optional[str]:
         if model_settings is None:
@@ -205,8 +204,6 @@ class AioLlmClient(LlmClient):
         clients = []
 
         client_args = {key[len("client_") :]: value for key, value in inputs.items() if key.startswith("client_")}
-        if os.environ.get("GOOGLE_GENAI_USE_VERTEXAI") == "true":
-            client_args["is_gcp"] = True
 
         patched_key = inputs.get("patched_api_key")
         if patched_key is not None:
@@ -219,8 +216,9 @@ class AioLlmClient(LlmClient):
             clients.append(client)
 
         google_key = inputs.get("google_api_key")
-        if google_key is not None or "is_gcp" in client_args.keys():
-            client = GoogleLlmClient(api_key=google_key, is_gcp=bool(client_args.get("is_gcp", False)))
+        is_gcp = bool(client_args.get("is_gcp") or os.environ.get("GOOGLE_GENAI_USE_VERTEXAI") or False)
+        if google_key is not None or is_gcp:
+            client = GoogleLlmClient(api_key=google_key, is_gcp=is_gcp)
             clients.append(client)
 
         anthropic_key = inputs.get("anthropic_api_key")

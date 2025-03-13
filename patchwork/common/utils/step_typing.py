@@ -76,15 +76,15 @@ def validate_step_type_config_with_inputs(
                 or f"Missing required input data because {key_name} is set: {', '.join(missing_and_keys)}",
             )
 
-    or_keys = set(step_type_config.or_op)
-    if len(or_keys) > 0:
-        missing_or_keys = or_keys.difference(input_keys)
-        if not is_key_set and len(missing_or_keys) == len(or_keys):
-            return (
-                False,
-                step_type_config.msg
-                or f"Missing required input: At least one of {', '.join(sorted([key_name, *or_keys]))} has to be set",
-            )
+    # or_keys = set(step_type_config.or_op)
+    # if len(or_keys) > 0:
+    #     missing_or_keys = or_keys.difference(input_keys)
+    #     if not is_key_set and len(missing_or_keys) == len(or_keys):
+    #         return (
+    #             False,
+    #             step_type_config.msg
+    #             or f"Missing required input: At least one of {', '.join(sorted([key_name, *or_keys]))} has to be set",
+    #         )
 
     xor_keys = set(step_type_config.xor_op)
     if len(xor_keys) > 0:
