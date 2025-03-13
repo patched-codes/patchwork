@@ -57,10 +57,7 @@ json-repair = "~0.30.0"
 tree-sitter = "~0.21.3"
 numpy = "1.26.4"
 pandas = "2.2.3"
-scipy = [
-    { version = "^1.7.3", python = "^3.12", optional = true },
-    { version = "^1.6.1", python = "3.9, <=3.11", optional = true }
-]
+scipy = "1.13.1"
 boto3 = "~1.37.11"
 
 # extras
