@@ -33,7 +33,7 @@ NOT_GIVEN = NotGiven()
 
 class LlmClient(Model):
     @abstractmethod
-    def get_models(self) -> set[str]:
+    def test(self) -> None:
         ...
 
     @abstractmethod

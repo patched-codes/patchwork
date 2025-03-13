@@ -31,9 +31,10 @@ class AioLlmClient(LlmClient):
         self.__supported_models = set()
         for client in clients:
             try:
-                self.__supported_models.update(client.get_models())
+                client.test()
                 self.__clients.append(client)
-            except Exception:
+            except Exception as e:
+                logger.error(f"{client.__class__.__name__} Failed with exception: {e}")
                 pass
 
     def __get_model(self, model_settings: ModelSettings | None) -> Optional[str]:
@@ -44,6 +45,9 @@ class AioLlmClient(LlmClient):
             raise ValueError("Model must be set cannot be None")
 
         return model_name
+
+    def test(self) -> None:
+        pass
 
     async def request(
         self,
@@ -93,9 +97,6 @@ class AioLlmClient(LlmClient):
     @property
     def system(self) -> str:
         return next(iter(self.__clients)).system
-
-    def get_models(self) -> set[str]:
-        return self.__supported_models
 
     def is_model_supported(self, model: str) -> bool:
         return any(client.is_model_supported(model) for client in self.__clients)
@@ -204,6 +205,8 @@ class AioLlmClient(LlmClient):
         clients = []
 
         client_args = {key[len("client_") :]: value for key, value in inputs.items() if key.startswith("client_")}
+        if os.environ.get("GOOGLE_GENAI_USE_VERTEXAI") == "true":
+            client_args["is_gcp"] = True
 
         patched_key = inputs.get("patched_api_key")
         if patched_key is not None:
@@ -216,8 +219,8 @@ class AioLlmClient(LlmClient):
             clients.append(client)
 
         google_key = inputs.get("google_api_key")
-        if google_key is not None:
-            client = GoogleLlmClient(google_key, **client_args)
+        if google_key is not None or "is_gcp" in client_args.keys():
+            client = GoogleLlmClient(api_key=google_key, is_gcp=bool(client_args.get("is_gcp", False)))
             clients.append(client)
 
         anthropic_key = inputs.get("anthropic_api_key")

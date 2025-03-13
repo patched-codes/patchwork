@@ -56,17 +56,20 @@ class GoogleLlmClient(LlmClient):
     ]
     __MODEL_PREFIX = "models/"
 
-    def __init__(self, api_key: str, is_gcp: bool = False):
+    def __init__(self, api_key: Optional[str] = None, is_gcp: bool = False):
         self.__api_key = api_key
         self.__is_gcp = is_gcp
-        if not is_gcp:
+        if not self.__is_gcp:
             self.client = genai.Client(api_key=api_key)
         else:
-            self.client = genai.Client(api_key=api_key, vertexai=True, credentials=Credentials())
+            self.client = genai.Client(api_key=api_key, vertexai=True)
 
     @lru_cache(maxsize=1)
     def __get_models_info(self) -> list[Model]:
-        return list(self.client.models.list())
+        if not self.__is_gcp:
+            return list(self.client.models.list())
+        else:
+            return list()
 
     def __get_pydantic_model(self, model_settings: ModelSettings | None) -> PydanticAiModel:
         if model_settings is None:
@@ -112,12 +115,15 @@ class GoogleLlmClient(LlmClient):
                 return model_info.input_token_limit
         return 1_000_000
 
-    @lru_cache
-    def get_models(self) -> set[str]:
-        return {model_info.name.removeprefix(self.__MODEL_PREFIX) for model_info in self.__get_models_info()}
+    def test(self):
+        return
 
     def is_model_supported(self, model: str) -> bool:
-        return model in self.get_models()
+        if not self.__is_gcp:
+            model_names = {model_info.name.removeprefix(self.__MODEL_PREFIX) for model_info in self.__get_models_info()}
+            return model in model_names
+        else:
+            return True
 
     def __upload(self, file: Path | NotGiven) -> Part | File | None:
         if isinstance(file, NotGiven):
