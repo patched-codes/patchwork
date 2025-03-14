@@ -17,7 +17,7 @@ from pydantic_ai.usage import Usage
 from typing_extensions import AsyncIterator, Dict, Iterable, List, Optional, Union
 
 from patchwork.common.client.llm.anthropic import AnthropicLlmClient
-from patchwork.common.client.llm.google import GoogleLlmClient
+from patchwork.common.client.llm.google_ import GoogleLlmClient
 from patchwork.common.client.llm.openai_ import OpenAiLlmClient
 from patchwork.common.client.llm.protocol import NOT_GIVEN, LlmClient, NotGiven
 from patchwork.common.constants import DEFAULT_PATCH_URL
@@ -31,10 +31,10 @@ class AioLlmClient(LlmClient):
         self.__supported_models = set()
         for client in clients:
             try:
-                self.__supported_models.update(client.get_models())
+                client.test()
                 self.__clients.append(client)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.error(f"{client.__class__.__name__} Failed with exception: {e}")
 
     def __get_model(self, model_settings: ModelSettings | None) -> Optional[str]:
         if model_settings is None:
@@ -44,6 +44,9 @@ class AioLlmClient(LlmClient):
             raise ValueError("Model must be set cannot be None")
 
         return model_name
+
+    def test(self) -> None:
+        pass
 
     async def request(
         self,
@@ -93,9 +96,6 @@ class AioLlmClient(LlmClient):
     @property
     def system(self) -> str:
         return next(iter(self.__clients)).system
-
-    def get_models(self) -> set[str]:
-        return self.__supported_models
 
     def is_model_supported(self, model: str) -> bool:
         return any(client.is_model_supported(model) for client in self.__clients)
@@ -216,8 +216,9 @@ class AioLlmClient(LlmClient):
             clients.append(client)
 
         google_key = inputs.get("google_api_key")
-        if google_key is not None:
-            client = GoogleLlmClient(google_key, **client_args)
+        is_gcp = bool(client_args.get("is_gcp") or os.environ.get("GOOGLE_GENAI_USE_VERTEXAI") or False)
+        if google_key is not None or is_gcp:
+            client = GoogleLlmClient(api_key=google_key, is_gcp=is_gcp)
             clients.append(client)
 
         anthropic_key = inputs.get("anthropic_api_key")

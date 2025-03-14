@@ -96,17 +96,18 @@ class OpenAiLlmClient(LlmClient):
         # We mainly use this to skip using the model endpoints.
         return self.__base_url is not None and self.__base_url != "https://api.openai.com/v1"
 
-    def get_models(self) -> set[str]:
+    def test(self):
         if self.__is_not_openai_url():
-            return set()
+            return
 
-        return _cached_list_models_from_openai(self.__api_key)
+        _cached_list_models_from_openai(self.__api_key)
+        return
 
     def is_model_supported(self, model: str) -> bool:
         # might not implement model endpoint
         if self.__is_not_openai_url():
             return True
-        return model in self.get_models()
+        return model in _cached_list_models_from_openai(self.__api_key)
 
     def __get_model_limits(self, model: str) -> int:
         return self.__MODEL_LIMITS.get(model, 128_000)

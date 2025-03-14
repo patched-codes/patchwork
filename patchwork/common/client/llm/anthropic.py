@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import time
-from functools import cached_property, lru_cache
+from functools import cached_property
 from pathlib import Path
 
 from anthropic import Anthropic
@@ -245,9 +245,8 @@ class AnthropicLlmClient(LlmClient):
 
         return NotGiven.remove_not_given(input_kwargs)
 
-    @lru_cache(maxsize=None)
-    def get_models(self) -> set[str]:
-        return self.__definitely_allowed_models.union(set(f"{self.__allowed_model_prefix}*"))
+    def test(self):
+        return
 
     def is_model_supported(self, model: str) -> bool:
         return model in self.__definitely_allowed_models or model.startswith(self.__allowed_model_prefix)

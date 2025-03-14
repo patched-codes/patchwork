@@ -1,12 +1,16 @@
 from __future__ import annotations
 
+import os
 import time
-from functools import lru_cache
+from functools import lru_cache, partial
 from pathlib import Path
 
 import magic
+import vertexai
 from google import genai
+from google.auth.exceptions import GoogleAuthError
 from google.genai import types
+from google.genai.errors import APIError
 from google.genai.types import (
     CountTokensConfig,
     File,
@@ -26,7 +30,8 @@ from openai.types.chat import (
 from openai.types.chat.chat_completion import ChatCompletion, Choice
 from pydantic import BaseModel
 from pydantic_ai.messages import ModelMessage, ModelResponse
-from pydantic_ai.models import Model, ModelRequestParameters, StreamedResponse
+from pydantic_ai.models import Model as PydanticAiModel
+from pydantic_ai.models import ModelRequestParameters, StreamedResponse
 from pydantic_ai.models.gemini import GeminiModel
 from pydantic_ai.settings import ModelSettings
 from pydantic_ai.usage import Usage
@@ -40,9 +45,11 @@ from typing_extensions import (
     Type,
     Union,
 )
+from vertexai.generative_models import GenerativeModel, SafetySetting
 
 from patchwork.common.client.llm.protocol import NOT_GIVEN, LlmClient, NotGiven
 from patchwork.common.client.llm.utils import json_schema_to_model
+from patchwork.logger import logger
 
 
 class GoogleLlmClient(LlmClient):
@@ -51,30 +58,63 @@ class GoogleLlmClient(LlmClient):
         dict(category="HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold="BLOCK_NONE"),
         dict(category="HARM_CATEGORY_DANGEROUS_CONTENT", threshold="BLOCK_NONE"),
         dict(category="HARM_CATEGORY_HARASSMENT", threshold="BLOCK_NONE"),
+        dict(category="HARM_CATEGORY_CIVIC_INTEGRITY", threshold="BLOCK_NONE"),
+    ]
+    __VERTEX_SAFETY_SETTINGS = [
+        SafetySetting(
+            category=SafetySetting.HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+            threshold=SafetySetting.HarmBlockThreshold.OFF,
+        ),
+        SafetySetting(
+            category=SafetySetting.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+            threshold=SafetySetting.HarmBlockThreshold.OFF,
+        ),
+        SafetySetting(
+            category=SafetySetting.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+            threshold=SafetySetting.HarmBlockThreshold.OFF,
+        ),
+        SafetySetting(
+            category=SafetySetting.HarmCategory.HARM_CATEGORY_HARASSMENT, threshold=SafetySetting.HarmBlockThreshold.OFF
+        ),
+        SafetySetting(
+            category=SafetySetting.HarmCategory.HARM_CATEGORY_CIVIC_INTEGRITY,
+            threshold=SafetySetting.HarmBlockThreshold.OFF,
+        ),
     ]
     __MODEL_PREFIX = "models/"
 
-    def __init__(self, api_key: str, location: Optional[str] = None):
+    def __init__(self, api_key: Optional[str] = None, is_gcp: bool = False):
         self.__api_key = api_key
-        self.__location = location
-        self.client = genai.Client(api_key=api_key, location=location)
+        self.__is_gcp = is_gcp
+        if not self.__is_gcp:
+            self.client = genai.Client(api_key=api_key)
+        else:
+            self.client = genai.Client(api_key=api_key, vertexai=True)
+            location = os.environ.get("GOOGLE_CLOUD_LOCATION", "global")
+            vertexai.init(
+                project=os.environ.get("GOOGLE_CLOUD_PROJECT"),
+                location=location,
+                api_endpoint=f"{location}-aiplatform.googleapis.com",
+            )
 
     @lru_cache(maxsize=1)
     def __get_models_info(self) -> list[Model]:
-        return list(self.client.models.list())
+        if not self.__is_gcp:
+            return list(self.client.models.list())
+        else:
+            return list()
 
-    def __get_pydantic_model(self, model_settings: ModelSettings | None) -> Model:
+    def __get_pydantic_model(self, model_settings: ModelSettings | None) -> PydanticAiModel:
         if model_settings is None:
             raise ValueError("Model settings cannot be None")
         model_name = model_settings.get("model")
         if model_name is None:
             raise ValueError("Model must be set cannot be None")
 
-        if self.__location is None:
+        if not self.__is_gcp:
             return GeminiModel(model_name, api_key=self.__api_key)
-
-        url_template = f"https://{self.__location}-generativelanguage.googleapis.com/v1beta/models/{{model}}:"
-        return GeminiModel(model_name, api_key=self.__api_key, url_template=url_template)
+        else:
+            return GeminiModel(model_name, provider="google-vertex")
 
     async def request(
         self,
@@ -108,12 +148,15 @@ class GoogleLlmClient(LlmClient):
                 return model_info.input_token_limit
         return 1_000_000
 
-    @lru_cache
-    def get_models(self) -> set[str]:
-        return {model_info.name.removeprefix(self.__MODEL_PREFIX) for model_info in self.__get_models_info()}
+    def test(self):
+        return
 
     def is_model_supported(self, model: str) -> bool:
-        return model in self.get_models()
+        if not self.__is_gcp:
+            model_names = {model_info.name.removeprefix(self.__MODEL_PREFIX) for model_info in self.__get_models_info()}
+            return model in model_names
+        else:
+            return True
 
     def __upload(self, file: Path | NotGiven) -> Part | File | None:
         if isinstance(file, NotGiven):
@@ -163,6 +206,8 @@ class GoogleLlmClient(LlmClient):
         top_p: Optional[float] | NotGiven = NOT_GIVEN,
         file: Path | NotGiven = NOT_GIVEN,
     ) -> int:
+        if self.__is_gcp:
+            return 1
         system, contents = self.__openai_messages_to_google_messages(messages)
 
         file_ref = self.__upload(file)
@@ -178,7 +223,12 @@ class GoogleLlmClient(LlmClient):
                 ),
             )
             token_count = token_response.total_tokens
+        except GoogleAuthError:
+            raise
+        except APIError:
+            raise
         except Exception as e:
+            logger.debug(f"Error during token count at GoogleLlmClient: {e}")
             return -1
         model_limit = self.__get_model_limits(model)
         return model_limit - token_count
@@ -245,15 +295,25 @@ class GoogleLlmClient(LlmClient):
         if file_ref is not None:
             contents.append(file_ref)
 
-        response = self.client.models.generate_content(
-            model=model,
-            contents=contents,
-            config=GenerateContentConfig(
-                system_instruction=system_content,
-                safety_settings=self.__SAFETY_SETTINGS,
-                **NotGiven.remove_not_given(generation_dict),
-            ),
-        )
+        if not self.__is_gcp:
+            generate_content_func = partial(
+                self.client.models.generate_content,
+                model=model,
+                config=GenerateContentConfig(
+                    system_instruction=system_content,
+                    safety_settings=self.__SAFETY_SETTINGS,
+                    **NotGiven.remove_not_given(generation_dict),
+                ),
+            )
+        else:
+            vertexai_model = GenerativeModel(model, system_instruction=system_content)
+            generate_content_func = partial(
+                vertexai_model.generate_content,
+                safety_settings=self.__VERTEX_SAFETY_SETTINGS,
+                generation_config=NotGiven.remove_not_given(generation_dict),
+            )
+
+        response = generate_content_func(contents=contents)
         return self.__google_response_to_openai_response(response, model)
 
     @staticmethod
