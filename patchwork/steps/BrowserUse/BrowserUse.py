@@ -52,7 +52,7 @@ class BrowserUse(Step, input_class=BrowserUseInputs, output_class=BrowserUseOutp
 
         # Configure GIF generation for debugging/visualization
         self.generate_gif = (
-            f"agent_history_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.gif"
+            f"tmp/agent_history_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.gif"
             if ("generate_gif" in self.inputs and self.inputs["generate_gif"])
             or ("debug" in self.inputs and self.inputs["debug"])
             else False

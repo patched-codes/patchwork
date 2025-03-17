@@ -91,11 +91,11 @@ class BrowserInitializer:
         if cls._browser_context is not None:
             return cls._browser_context
 
-        downloads_path = os.path.join(os.getcwd(), "downloads")
+        downloads_path = os.path.join(os.getcwd(), "tmp", "downloads")
         if not os.path.exists(downloads_path):
             os.makedirs(downloads_path)
 
-        cookies_file = os.path.join(os.getcwd(), "cookies.json")
+        cookies_file = os.path.join(os.getcwd(), "tmp", "cookies.json")
 
         context_config = BrowserContextConfig(
             save_downloads_path=downloads_path, cookies_file=cookies_file, _force_keep_context_alive=True
