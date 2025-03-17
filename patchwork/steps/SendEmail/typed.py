@@ -1,4 +1,6 @@
-from typing_extensions import Any, TypedDict
+from typing_extensions import Any, TypedDict, Annotated
+
+from patchwork.common.utils.step_typing import StepTypeConfig
 
 
 class __SendEmailRequiredInputs(TypedDict):
@@ -16,6 +18,7 @@ class SendEmailInputs(__SendEmailRequiredInputs, total=False):
     smtp_port: int
     reply_message_id: str
     is_smtp_ssl: str
+    reply_eml_file_path: Annotated[str, StepTypeConfig(is_path=True)]
 
 
 class SendEmailOutputs(TypedDict):
