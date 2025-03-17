@@ -7,7 +7,7 @@ from email.message import EmailMessage
 
 from patchwork.common.utils.utils import mustache_render
 from patchwork.step import Step
-from patchwork.steps import ReadEmail
+from patchwork.steps.ReadEmail.ReadEmail import ReadEmail
 from patchwork.steps.SendEmail.typed import SendEmailInputs, SendEmailOutputs
 
 
