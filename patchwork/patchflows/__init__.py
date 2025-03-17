@@ -9,6 +9,7 @@ from .LogAnalysis.LogAnalysis import LogAnalysis
 from .PRReview.PRReview import PRReview
 from .ResolveIssue.ResolveIssue import ResolveIssue
 from .SonarFix.SonarFix import SonarFix
+from .Temp.Temp import Temp
 
 __all__ = [
     "AutoFix",
@@ -22,4 +23,5 @@ __all__ = [
     "GenerateCodeUsageExample",
     "SonarFix",
     "LogAnalysis",
+    "Temp",
 ]
