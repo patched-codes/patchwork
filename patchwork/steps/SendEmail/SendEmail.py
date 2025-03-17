@@ -12,7 +12,7 @@ class SendEmail(Step, input_class=SendEmailInputs, output_class=SendEmailOutputs
     def __init__(self, inputs):
         super().__init__(inputs)
         self.email_template_value = inputs.get("email_template_value", dict())
-        self.subject = inputs.get("subject")
+        self.subject = inputs.get("subject", "Patchwork Execution Email")
         self.body = inputs.get("body", "Patchwork Execution Email")
         self.sender_email = inputs["sender_email"]
         self.recipient_email = inputs["recipient_email"]
