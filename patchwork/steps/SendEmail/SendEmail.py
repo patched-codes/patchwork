@@ -26,17 +26,12 @@ class SendEmail(Step, input_class=SendEmailInputs, output_class=SendEmailOutputs
     def run(self) -> dict:
         msg = EmailMessage()
         msg.set_content(mustache_render(self.body, self.email_template_value))
+        msg["Subject"] = mustache_render(self.subject, self.email_template_value)
         msg["From"] = self.sender_email
         msg["To"] = self.recipient_email
-
         if self.reply_message_id is not None:
             msg.add_header("References", self.reply_message_id)
             msg.add_header("In-Reply-To", self.reply_message_id)
-        else:
-            if self.subject is not None:
-                msg["Subject"] = mustache_render(self.subject, self.email_template_value)
-            else:
-                msg["Subject"] = "Patchwork Execution Email"
 
         smtp_clazz = smtplib.SMTP
         if self.is_ssl:
