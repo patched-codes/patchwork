@@ -117,10 +117,10 @@ If the output is larger than 5000 characters, the remaining characters are repla
         files_to_insert = []
         if db_path.is_file():
             with sqlite3.connect(str(db_path)) as conn:
+                cursor = conn.cursor()
                 for file in files:
-                    res = conn.execute(
-                        f"SELECT 1 from {file.removesuffix('.csv')}",
-                    )
+                    table_name = file.removesuffix('.csv')
+                    res = cursor.execute("SELECT 1 FROM ?", (table_name,))
                     if res.fetchone() is None:
                         files_to_insert.append(file)
         else:
