@@ -88,7 +88,7 @@ The orgId is already included in the headers for all API calls.
 """,
                 )
             ],
-            example_json=inputs.get("example_json"),
+            example_json=inputs.get("example_json", '{"summary":"summary of actions"}'),
         )
 
     def run(self) -> dict:
