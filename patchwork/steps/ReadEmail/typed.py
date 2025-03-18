@@ -13,7 +13,6 @@ class ReadEmailInputs(__ReadEmailRequiredInputs, total=False):
 
 class Attachment(TypedDict):
     path: str
-    content: str
 
 
 class ReadEmailOutputs(TypedDict):

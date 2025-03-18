@@ -101,6 +101,7 @@ class ReadEmail(Step, input_class=ReadEmailInputs, output_class=ReadEmailOutputs
             )
 
         for body in email_data.body:
-            rv["body"] += body.content
+            rv["body"] = body.content
+            break
 
         return rv
