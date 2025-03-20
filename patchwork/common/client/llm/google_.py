@@ -229,7 +229,7 @@ class GoogleLlmClient(LlmClient):
             raise
         except Exception as e:
             logger.debug(f"Error during token count at GoogleLlmClient: {e}")
-            return -1
+            return 1
         model_limit = self.__get_model_limits(model)
         return model_limit - token_count
 
