@@ -144,12 +144,14 @@ def setup_cli():
 @click.option("patched_api_key", "--patched_api_key", help="API key to use with the patched.codes service.")
 @click.option("disable_telemetry", "--disable_telemetry", is_flag=True, help="Disable telemetry.", default=False)
 @click.option("debug", "--debug", is_flag=True, help="Enable debug mode.", default=False)
+@click.option("plain", "--plain", is_flag=True, help="Enable plain mode (no panel).", default=False)
 def cli(
     log: str,
     patchflow: str,
     opts: list[str],
     config: str | None,
     output: str | None,
+    plain: bool,
     data_format: str,
     patched_api_key: str | None,
     disable_telemetry: bool,
@@ -157,7 +159,7 @@ def cli(
 ):
     setup_cli()
 
-    init_cli_logger(log)
+    init_cli_logger(log, plain)
 
     if "::" in patchflow:
         module_path, _, patchflow_name = patchflow.partition("::")
@@ -167,7 +169,7 @@ def cli(
 
     possbile_module_paths = deque((module_path,))
 
-    panel = logger.panel("Initializing Patchwork CLI") if debug else nullcontext()
+    panel = nullcontext() if plain or not debug else logger.panel("Initializing Patchwork CLI")
 
     with panel:
         inputs = {}
@@ -227,7 +229,7 @@ def cli(
             # treat --key=value as a key-value pair
             inputs[key] = value
 
-    patchflow_panel = nullcontext() if debug else logger.panel(f"Patchflow {patchflow} inputs")
+    patchflow_panel = nullcontext() if plain or not debug else logger.panel(f"Patchflow {patchflow} inputs")
 
     with patchflow_panel as _:
         if debug is True:
