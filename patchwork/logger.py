@@ -18,7 +18,7 @@ from typing_extensions import Callable
 from patchwork.managed_files import HOME_FOLDER, LOG_FILE
 
 # Create a global console object
-console = Console()
+console = Console(force_terminal=True, no_color=False)
 
 # Add TRACE level to logging
 logging.TRACE = logging.DEBUG - 1
@@ -39,10 +39,11 @@ def evict_null_handler():
 
 
 class TerminalHandler(RichHandler):
-    def __init__(self, log_level: str):
+    def __init__(self, log_level: str, plain: bool):
+        self.plain = plain
         super().__init__(
             console=console,
-            rich_tracebacks=True,
+            rich_tracebacks=not plain,
             tracebacks_suppress=[click],
             show_time=False,
             show_path=False,
@@ -95,22 +96,25 @@ class TerminalHandler(RichHandler):
     @contextlib.contextmanager
     def panel(self, title: str):
         global console
-        self.__panel_lines = []
-        self.__panel_title = title
-        self.__panel = Panel("", title=title)
-        renderables = [self.__panel]
-        if self.__progress_bar is not None:
-            renderables.append(self.__progress_bar)
-
-        self.__live = Live(Group(*renderables), console=console, vertical_overflow="visible")
-        try:
-            self.__live.start()
+        if self.plain:
             yield
-        except Exception as e:
-            raise e
-        finally:
-            self.__reset_live()
-            self.console.print("\n")
+        else:
+            self.__panel_lines = []
+            self.__panel_title = title
+            self.__panel = Panel("", title=title)
+            renderables = [self.__panel]
+            if self.__progress_bar is not None:
+                renderables.append(self.__progress_bar)
+
+            self.__live = Live(Group(*renderables), console=console, vertical_overflow="visible")
+            try:
+                self.__live.start()
+                yield
+            except Exception as e:
+                raise e
+            finally:
+                self.__reset_live()
+                self.console.print("\n")
 
     def emit(self, record: logging.LogRecord) -> None:
         markup = getattr(record, "markup", None)
@@ -126,7 +130,8 @@ class TerminalHandler(RichHandler):
         if self.__panel is not None:
             self.__emit_panel(record)
         else:
-            setattr(record, "markup", True)
+            if not self.plain:
+                setattr(record, "markup", True)
             super().emit(record)
 
     def __emit_panel(self, record: logging.LogRecord) -> None:
@@ -143,7 +148,7 @@ class TerminalHandler(RichHandler):
         return inner
 
 
-def init_cli_logger(log_level: str) -> logging.Logger:
+def init_cli_logger(log_level: str, plain: bool) -> logging.Logger:
     global logger
 
     evict_null_handler()
@@ -158,7 +163,7 @@ def init_cli_logger(log_level: str) -> logging.Logger:
     except FileNotFoundError:
         logger.error(f"Unable to create log file: {LOG_FILE}")
 
-    th = TerminalHandler(log_level.upper())
+    th = TerminalHandler(log_level.upper(), plain)
     logger.addHandler(th)
     setattr(logger, "panel", th.panel)
     setattr(logger, "register_progress_bar", th.register_progress_bar)
