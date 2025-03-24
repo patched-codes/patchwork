@@ -8,13 +8,14 @@ class DatabaseQueryTool(Tool, tool_name="db_query_tool"):
     def __init__(self, inputs: dict[str, Any]):
         super().__init__()
         self.db_settings = inputs.copy()
+        self.db_dialect = inputs.get("db_dialect", "SQL")
 
     @property
     def json_schema(self) -> dict:
         return {
             "name": "db_query_tool",
-            "description": """\
-Run SQL Query on current database.
+            "description": f"""\
+Run SQL Query on current {self.db_dialect} database.
 """,
             "input_schema": {
                 "type": "object",

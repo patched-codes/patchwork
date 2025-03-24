@@ -137,13 +137,15 @@ Please summarise the conversation given and provide the result in the structure 
         }
 
     def __agent_run(self, agent: Agent, prompt: str, **kwargs) -> AgentRunResult[Any]:
-        planner_response = agent.run_sync(prompt, **kwargs)
+        loop = asyncio.new_event_loop()
+        planner_response = loop.run_until_complete(agent.run(prompt, **kwargs))
+        loop.close()
         self.__request_tokens += planner_response.usage().request_tokens
         self.__response_tokens += planner_response.usage().response_tokens
+
         return planner_response
 
     def run(self, task: str, conversation_limit: int = 10) -> dict:
-        loop = asyncio.new_event_loop()
 
         planner_response = self.__agent_run(self.planner, f"Produce the initial plan for {task}")
         planner_history = planner_response.all_messages()
@@ -199,5 +201,4 @@ The execution result for the step {step_index} is:
             message_history=planner_history,
         )
 
-        loop.close()
         return final_result.data.dict()
