@@ -6,9 +6,13 @@ __DEPENDENCY_GROUPS = {
     "notification": ["slack_sdk"],
 }
 
+__ALLOWED_MODULES = {"semgrep", "depscan", "slack_sdk"}
+
 
 @lru_cache(maxsize=None)
 def import_with_dependency_group(name):
+    if name not in __ALLOWED_MODULES:
+        raise ImportError("Module not allowed: {}".format(name))
     try:
         return importlib.import_module(name)
     except ImportError:
