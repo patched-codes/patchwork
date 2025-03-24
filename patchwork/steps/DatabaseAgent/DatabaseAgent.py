@@ -1,44 +1,44 @@
-from pathlib import Path
-
 from patchwork.common.client.llm.aio import AioLlmClient
 from patchwork.common.multiturn_strategy.agentic_strategy_v2 import (
     AgentConfig,
     AgenticStrategyV2,
 )
-from patchwork.common.tools.github_tool import GitHubTool
+from patchwork.common.tools.db_query_tool import DatabaseQueryTool
 from patchwork.common.utils.utils import mustache_render
 from patchwork.step import Step
-from patchwork.steps.GitHubAgent.typed import GitHubAgentInputs, GitHubAgentOutputs
+from patchwork.steps.DatabaseAgent.typed import (
+    DatabaseAgentInputs,
+    DatabaseAgentOutputs,
+)
 
 
-class GitHubAgent(Step, input_class=GitHubAgentInputs, output_class=GitHubAgentOutputs):
+class DatabaseAgent(Step, input_class=DatabaseAgentInputs, output_class=DatabaseAgentOutputs):
     def __init__(self, inputs):
         super().__init__(inputs)
-        base_path = inputs.get("base_path", str(Path.cwd()))
         data = inputs.get("prompt_value", {})
         task = mustache_render(inputs["task"], data)
+        db_dialect = inputs["db_dialect"]
         self.agentic_strategy = AgenticStrategyV2(
-            model="claude-3-5-sonnet-latest",
+            model="gemini-2.0-flash",
             llm_client=AioLlmClient.create_aio_client(inputs),
             template_data=dict(),
             system_prompt_template=f"""\
 Please summarise the conversation given and provide the result in the structure that is asked of you.
 """,
             user_prompt_template=f"""\
-Please help me with the following task using the GitHub CLI. You should not do anything extra.
 Please take note of any requirements to the data required to fetch.
 
 {task}
 """,
             agent_configs=[
                 AgentConfig(
-                    name="Assistant",
                     model="gemini-2.0-flash",
-                    tool_set=dict(github_tool=GitHubTool(base_path, inputs["github_api_token"])),
-                    system_prompt="""\
-You are a senior software developer helping the program manager to obtain some data from GitHub. 
-You can access github through the `gh` CLI app. 
-Your `gh` app has already been authenticated.
+                    name="Assistant",
+                    tool_set=dict(db_tool=DatabaseQueryTool(inputs)),
+                    system_prompt=f"""\
+You are a {db_dialect} database query execution assistant. Assist me in completing a task.
+Before you begin you should first try to know all tables currently available.
+Then find out what data is held in the relevant tables.
 """,
                 )
             ],

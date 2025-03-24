@@ -34,11 +34,13 @@ class SendEmail(Step, input_class=SendEmailInputs, output_class=SendEmailOutputs
 
         original_email_data = ReadEmail(dict(eml_file_path=eml_file)).run()
         timestamp: datetime = original_email_data.get("datetime")
-        date_str = timestamp.date().strftime('%-d %b %Y')
-        time_str = timestamp.time().strftime('%H:%M')
+        date_str = timestamp.date().strftime("%-d %b %Y")
+        time_str = timestamp.time().strftime("%H:%M")
         from_ = original_email_data.get("from")
         self.subject = original_email_data.get("subject")
-        self.body += f"\n\nOn {date_str} at {time_str}, {from_} wrote:\n\n" + textwrap.indent(original_email_data.get("body"), "> ")
+        self.body += f"\n\nOn {date_str} at {time_str}, {from_} wrote:\n\n" + textwrap.indent(
+            original_email_data.get("body"), "> "
+        )
         self.reply_message_id = original_email_data.get("message_id")
 
     def run(self) -> dict:
