@@ -13,10 +13,14 @@ class CallLLMInputs(TypedDict, total=False):
     model_args: Annotated[str, StepTypeConfig(is_config=True)]
     client_args: Annotated[str, StepTypeConfig(is_config=True)]
     openai_api_key: Annotated[
-        str, StepTypeConfig(is_config=True, or_op=["patched_api_key", "google_api_key", "client_is_gcp", "anthropic_api_key"])
+        str,
+        StepTypeConfig(
+            is_config=True, or_op=["patched_api_key", "google_api_key", "client_is_gcp", "anthropic_api_key"]
+        ),
     ]
     anthropic_api_key: Annotated[
-        str, StepTypeConfig(is_config=True, or_op=["patched_api_key", "google_api_key", "client_is_gcp", "openai_api_key"])
+        str,
+        StepTypeConfig(is_config=True, or_op=["patched_api_key", "google_api_key", "client_is_gcp", "openai_api_key"]),
     ]
     patched_api_key: Annotated[
         str,
@@ -33,10 +37,16 @@ If you are using a OpenAI API Key, please set `--openai_api_key=<token>`.""",
         ),
     ]
     google_api_key: Annotated[
-        str, StepTypeConfig(is_config=True, or_op=["patched_api_key", "openai_api_key", "anthropic_api_key", "client_is_gcp"])
+        str,
+        StepTypeConfig(
+            is_config=True, or_op=["patched_api_key", "openai_api_key", "anthropic_api_key", "client_is_gcp"]
+        ),
     ]
     client_is_gcp: Annotated[
-        str, StepTypeConfig(is_config=True, or_op=["patched_api_key", "openai_api_key", "anthropic_api_key", "google_api_key"])
+        str,
+        StepTypeConfig(
+            is_config=True, or_op=["patched_api_key", "openai_api_key", "anthropic_api_key", "google_api_key"]
+        ),
     ]
     file: Annotated[str, StepTypeConfig(is_path=True)]
 

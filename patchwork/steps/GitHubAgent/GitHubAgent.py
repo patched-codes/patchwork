@@ -18,7 +18,7 @@ class GitHubAgent(Step, input_class=GitHubAgentInputs, output_class=GitHubAgentO
         data = inputs.get("prompt_value", {})
         task = mustache_render(inputs["task"], data)
         self.agentic_strategy = AgenticStrategyV2(
-            model="claude-3-7-sonnet-latest",
+            model="claude-3-5-sonnet-latest",
             llm_client=AioLlmClient.create_aio_client(inputs),
             template_data=dict(),
             system_prompt_template=f"""\
@@ -33,6 +33,7 @@ Please take note of any requirements to the data required to fetch.
             agent_configs=[
                 AgentConfig(
                     name="Assistant",
+                    model="gemini-2.0-flash",
                     tool_set=dict(github_tool=GitHubTool(base_path, inputs["github_api_token"])),
                     system_prompt="""\
 You are a senior software developer helping the program manager to obtain some data from GitHub. 
