@@ -54,6 +54,7 @@ csvkit = "^2.1.0"
 python-magic = "^0.4.27"
 scikit-learn = "^1.3.2"
 json-repair = "~0.30.0"
+dotenv = "^0.9.9"
 # pinning transitive dependencies
 tree-sitter = "~0.21.3"
 numpy = "1.26.4"
