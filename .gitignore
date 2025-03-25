@@ -168,3 +168,10 @@ benchmark/
 
 # node modules
 node_modules/
+
+tmp/
+
+# Key files
+*.pem
+*.key
+*.gpg
