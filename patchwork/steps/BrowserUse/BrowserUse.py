@@ -10,111 +10,6 @@ from patchwork.steps.SimplifiedLLMOnce.SimplifiedLLMOnce import SimplifiedLLMOnc
 
 logger = logging.getLogger(__name__)
 
-# Global variables to cache browser initialization
-_browser = None
-_controller = None
-
-
-def init_browser():
-    """
-    Initialize and cache browser and controller instances.
-
-    This function uses a singleton pattern to ensure we only create one browser
-    instance throughout the application lifecycle, which saves resources.
-
-    Returns:
-        tuple: (Browser, Controller) instances for web automation
-    """
-    global _browser, _controller
-
-    # Return cached instances if already initialized
-    if _browser is not None and _controller is not None:
-        return _browser, _controller
-
-    from browser_use import Browser, BrowserConfig, BrowserContextConfig, Controller
-    from browser_use.agent.views import ActionResult
-    from browser_use.browser.context import BrowserContext
-
-    # Set up downloads directory for browser operations
-    downloads_path = os.path.join(os.getcwd(), "downloads")
-    if not os.path.exists(downloads_path):
-        os.makedirs(downloads_path)
-
-    context_config = BrowserContextConfig(save_downloads_path=downloads_path)
-    config = BrowserConfig(headless=True, disable_security=True, new_context_config=context_config)
-    controller = Controller()
-
-    # Register custom action to upload files to web elements
-    @controller.action(
-        description="Upload file to interactive element with file path",
-    )
-    async def upload_file(index: int, path: str, browser: BrowserContext):
-        """
-        Upload a file to a file input element identified by its index.
-
-        Args:
-            index: The DOM element index to target
-            path: Local file path to upload
-            browser: Browser context for interaction
-
-        Returns:
-            ActionResult: Result of the upload operation
-        """
-        if not os.path.exists(path):
-            return ActionResult(error=f"File {path} does not exist")
-
-        dom_el = await browser.get_dom_element_by_index(index)
-        file_upload_dom_el = dom_el.get_file_upload_element()
-
-        if file_upload_dom_el is None:
-            msg = f"No file upload element found at index {index}. The element may be hidden or not an input type file"
-            logger.info(msg)
-            return ActionResult(error=msg)
-
-        file_upload_el = await browser.get_locate_element(file_upload_dom_el)
-
-        if file_upload_el is None:
-            msg = f"No file upload element found at index {index}. The element may be hidden or not an input type file"
-            logger.info(msg)
-            return ActionResult(error=msg)
-
-        try:
-            await file_upload_el.set_input_files(path)
-            msg = f"Successfully uploaded file to index {index}"
-            logger.info(msg)
-            return ActionResult(extracted_content=msg, include_in_memory=True)
-        except Exception as e:
-            msg = f"Failed to upload file to index {index}: {str(e)}"
-            logger.info(msg)
-            return ActionResult(error=msg)
-
-    # Register custom action to read file contents
-    @controller.action(description="Read the file content of a file given a path")
-    async def read_file(path: str):
-        """
-        Read and return the contents of a file at the specified path.
-
-        Args:
-            path: Path to the file to read
-
-        Returns:
-            ActionResult: File contents or error message
-        """
-        if not os.path.exists(path):
-            return ActionResult(error=f"File {path} does not exist")
-
-        with open(path, "r") as f:
-            content = f.read()
-        msg = f"File content: {content}"
-        logger.info(msg)
-        return ActionResult(extracted_content=msg, include_in_memory=True)
-
-    # Cache the initialized instances
-    _browser = Browser(config=config)
-    _controller = controller
-
-    return _browser, _controller
-
 
 class BrowserUse(Step, input_class=BrowserUseInputs, output_class=BrowserUseOutputs):
     """
@@ -155,9 +50,13 @@ class BrowserUse(Step, input_class=BrowserUseInputs, output_class=BrowserUseOutp
                 api_key=self.inputs["anthropic_api_key"],
             )
 
+        gifs_base_path = os.path.join(os.path.dirname(__file__), "../../../tmp/gifs")
+        if not os.path.exists(gifs_base_path):
+            os.makedirs(gifs_base_path)
+
         # Configure GIF generation for debugging/visualization
         self.generate_gif = (
-            f"agent_history_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.gif"
+            f"{gifs_base_path}/agent_history_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.gif"
             if ("generate_gif" in self.inputs and self.inputs["generate_gif"])
             or ("debug" in self.inputs and self.inputs["debug"])
             else False
@@ -173,21 +72,37 @@ class BrowserUse(Step, input_class=BrowserUseInputs, output_class=BrowserUseOutp
         Returns:
             dict: Results of the browser automation task
         """
-        from browser_use import Agent
+        from browser_use import Agent, BrowserConfig
 
-        browser, controller = init_browser()
+        from patchwork.common.utils.browser_initializer import BrowserInitializer
+
+        browser_config = BrowserConfig(
+            headless=self.inputs.get("headless", True),
+            disable_security=True,
+        )
+        browser_context = BrowserInitializer.init_browser_context(
+            browser_config, self.inputs.get("downloads_path", None)
+        )
+        controller = BrowserInitializer.init_controller()
+        logger.info("Browser initialized")
+
         agent = Agent(
-            browser=browser,
+            browser_context=browser_context,
             controller=controller,
             task=mustache_render(self.inputs["task"], self.inputs["task_value"]),
             llm=self.llm,
             generate_gif=self.generate_gif,
             validate_output=True,
+            initial_actions=self.inputs.get("initial_actions", None),
+            use_vision=self.inputs.get("use_vision", True),
         )
 
         # Run the agent in an event loop
         loop = asyncio.new_event_loop()
         self.history = loop.run_until_complete(agent.run())
+        loop.run_until_complete(browser_context.close())
+        loop.run_until_complete(browser_context.browser.close())
+        loop.close()
 
         # Format results as JSON if schema provided
         if "example_json" in self.inputs:
