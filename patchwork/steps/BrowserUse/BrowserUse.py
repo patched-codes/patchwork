@@ -99,10 +99,16 @@ class BrowserUse(Step, input_class=BrowserUseInputs, output_class=BrowserUseOutp
 
         # Run the agent in an event loop
         loop = asyncio.new_event_loop()
-        self.history = loop.run_until_complete(agent.run())
-        loop.run_until_complete(browser_context.close())
-        loop.run_until_complete(browser_context.browser.close())
-        loop.close()
+        timeout = self.inputs.get("timeout", 600)  # default timeout of 10 minutes
+        try:
+            self.history = loop.run_until_complete(asyncio.wait_for(agent.run(), timeout=timeout))
+        except asyncio.TimeoutError:
+            logger.error(f"Agent timed out after {timeout} seconds")
+            raise
+        finally:
+            loop.run_until_complete(browser_context.close())
+            loop.run_until_complete(browser_context.browser.close())
+            loop.close()
 
         # Format results as JSON if schema provided
         if "example_json" in self.inputs:

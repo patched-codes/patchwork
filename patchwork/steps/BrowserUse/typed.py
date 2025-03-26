@@ -18,6 +18,7 @@ class BrowserUseInputs(__BrowserUseInputsRequired, total=False):
     initial_actions: Optional[List[Dict[str, Dict[str, Any]]]]
     downloads_path: Optional[str]
     use_vision: Optional[bool]
+    timeout: Optional[int]  # optional timeout in seconds, defaults to 600 if not provided
 
 
 class BrowserUseOutputs(TypedDict):
