@@ -13,7 +13,7 @@ class BrowserUseInputs(__BrowserUseInputsRequired, total=False):
     openai_api_key: Annotated[str, StepTypeConfig(or_op=["google_api_key", "anthropic_api_key"])]
     anthropic_api_key: Annotated[str, StepTypeConfig(or_op=["google_api_key", "openai_api_key"])]
     google_api_key: Annotated[str, StepTypeConfig(or_op=["openai_api_key", "anthropic_api_key"])]
-    generate_gif: Optional[bool]
+    gif_path: Optional[str]
     headless: Optional[bool]
     initial_actions: Optional[List[Dict[str, Dict[str, Any]]]]
     downloads_path: Optional[str]
