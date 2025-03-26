@@ -50,15 +50,12 @@ class BrowserUse(Step, input_class=BrowserUseInputs, output_class=BrowserUseOutp
                 api_key=self.inputs["anthropic_api_key"],
             )
 
-        gifs_base_path = os.path.join(os.path.dirname(__file__), "../../../tmp/gifs")
-        if not os.path.exists(gifs_base_path):
-            os.makedirs(gifs_base_path)
-
         # Configure GIF generation for debugging/visualization
-        self.generate_gif = (
-            f"{gifs_base_path}/agent_history_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.gif"
-            if ("generate_gif" in self.inputs and self.inputs["generate_gif"])
-            or ("debug" in self.inputs and self.inputs["debug"])
+        self.gif_path = (
+            self.inputs.get("gif_path", None)
+            if "gif_path" in self.inputs
+            else os.path.join(os.getcwd(), f"agent_history_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.gif")
+            if ("debug" in self.inputs and self.inputs["debug"])
             else False
         )
 
@@ -91,7 +88,7 @@ class BrowserUse(Step, input_class=BrowserUseInputs, output_class=BrowserUseOutp
             controller=controller,
             task=mustache_render(self.inputs["task"], self.inputs["task_value"]),
             llm=self.llm,
-            generate_gif=self.generate_gif,
+            generate_gif=self.gif_path,
             validate_output=True,
             initial_actions=self.inputs.get("initial_actions", None),
             use_vision=self.inputs.get("use_vision", True),
@@ -117,7 +114,7 @@ class BrowserUse(Step, input_class=BrowserUseInputs, output_class=BrowserUseOutp
         return {
             "history": self.history,
             "result": self.history.final_result(),
-            "generated_gif": self.generate_gif,
+            "generated_gif": self.gif_path,
         }
 
     def __format_history_as_json(self):
