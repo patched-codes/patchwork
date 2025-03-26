@@ -158,8 +158,8 @@ def cli(
     debug: bool,
 ):
     setup_cli()
-
-    init_cli_logger(log, plain)
+    is_plain_console = plain or debug
+    init_cli_logger(log, is_plain_console)
 
     if "::" in patchflow:
         module_path, _, patchflow_name = patchflow.partition("::")
@@ -169,7 +169,7 @@ def cli(
 
     possbile_module_paths = deque((module_path,))
 
-    panel = nullcontext() if plain or not debug else logger.panel("Initializing Patchwork CLI")
+    panel = nullcontext() if is_plain_console else logger.panel("Initializing Patchwork CLI")
 
     with panel:
         inputs = {}
@@ -229,7 +229,7 @@ def cli(
             # treat --key=value as a key-value pair
             inputs[key] = value
 
-    patchflow_panel = nullcontext() if plain or not debug else logger.panel(f"Patchflow {patchflow} inputs")
+    patchflow_panel = nullcontext() if is_plain_console else logger.panel(f"Patchflow {patchflow} inputs")
 
     with patchflow_panel as _:
         if debug is True:
