@@ -46,7 +46,8 @@ class CallShell(Step, input_class=CallShellInputs, output_class=CallShellOutputs
         return env
 
     def run(self) -> dict:
-        p = subprocess.run(self.script, shell=True, capture_output=True, text=True, cwd=self.working_dir, env=self.env)
+        command = shlex.split(self.script)
+        p = subprocess.run(command, shell=False, capture_output=True, text=True, cwd=self.working_dir, env=self.env)
         try:
             p.check_returncode()
         except subprocess.CalledProcessError as e:
@@ -57,3 +58,4 @@ class CallShell(Step, input_class=CallShellInputs, output_class=CallShellOutputs
         logger.info(f"stdout: \n{p.stdout}")
         logger.info(f"stderr:\n{p.stderr}")
         return dict(stdout_output=p.stdout, stderr_output=p.stderr)
+
