@@ -56,7 +56,8 @@ GenerateUnitTests
 LogAnalysis
 PRReview
 ResolveIssue
-SonarFix"""
+SonarFix
+TestSlackAgent"""
     )
 
 
@@ -79,6 +80,7 @@ LogAnalysis
 PRReview
 ResolveIssue
 SonarFix
+TestSlackAgent
 {name_without_ext}"""
     )
 
