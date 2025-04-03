@@ -11,6 +11,7 @@ class __SlackAgentInputsRequired(TypedDict):
 
 class SlackAgentInputs(__SlackAgentInputsRequired, total=False):
     max_agent_calls: int
+    model: str
     openai_api_key: Annotated[str, StepTypeConfig(or_op=["google_api_key", "anthropic_api_key"])]
     anthropic_api_key: Annotated[str, StepTypeConfig(or_op=["google_api_key", "openai_api_key"])]
     google_api_key: Annotated[str, StepTypeConfig(or_op=["openai_api_key", "anthropic_api_key"])]
