@@ -51,6 +51,7 @@ from patchwork.steps.ScanSonar.ScanSonar import ScanSonar
 from patchwork.steps.SendEmail.SendEmail import SendEmail
 from patchwork.steps.SimplifiedLLM.SimplifiedLLM import SimplifiedLLM
 from patchwork.steps.SimplifiedLLMOnce.SimplifiedLLMOnce import SimplifiedLLMOnce
+from patchwork.steps.SlackAgent.SlackAgent import SlackAgent
 from patchwork.steps.SlackMessage.SlackMessage import SlackMessage
 from patchwork.steps.ZohoDeskAgent.ZohoDeskAgent import ZohoDeskAgent
 
@@ -107,6 +108,7 @@ __all__ = [
     "SimplifiedLLM",
     "SimplifiedLLMOnce",
     "SimplifiedLLMOncePB",
+    "SlackAgent",
     "SlackMessage",
     "JoinList",
     "JoinListPB",
