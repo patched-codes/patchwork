@@ -20,10 +20,8 @@ class SlackAgent(Step, input_class=SlackAgentInputs, output_class=SlackAgentOutp
         if not inputs.get("user_prompt"):
             raise ValueError("user_prompt is required")
 
-        # Configure conversation limit
         self.conversation_limit = int(inputs.get("max_agent_calls", 1))
 
-        # Prepare system prompt with Slack context
         system_prompt = inputs.get(
             "system_prompt",
             "Please summarise the conversation given and provide the result in the structure that is asked of you.",
@@ -40,7 +38,6 @@ class SlackAgent(Step, input_class=SlackAgentInputs, output_class=SlackAgentOutp
         # Get model from inputs or use default
         model = inputs.get("model", "claude-3-7-sonnet-latest")
         
-        # Check if using Google API
         is_google_api = "google_api_key" in inputs
         
         # Configure API tool based on the LLM provider
@@ -82,7 +79,6 @@ class SlackAgent(Step, input_class=SlackAgentInputs, output_class=SlackAgentOutp
                 headers=self.headers,
             )
 
-        # Configure agentic strategy with Slack-specific context
         self.agentic_strategy = AgenticStrategyV2(
             model=model,
             llm_client=llm_client,
@@ -116,8 +112,8 @@ Common Slack API endpoints:
 - POST /reactions.add - Add a reaction to a message
 - POST /reactions.remove - Remove a reaction from a message
 
-IMPORTANT: For the conversations.history endpoint, you MUST include the channel ID in the params object, not in the URL.
-Example: For GET /conversations.history, use params={"channel": "C08JSCM9H52"} instead of appending to the URL.
+IMPORTANT: GET requests the prompt_value will contain the params to pass instead of data
+Example: For GET /conversations.history, use params={"channel": "C08..."} instead of appending to the URL.
 
 For modifying or creating data, the data should be a JSON string.
 When you have the result of the information user requested, return the response of the final result tool as is.
@@ -132,15 +128,11 @@ If 'ok' is false, check the 'error' field for details about what went wrong.
 
     def run(self) -> dict:
         try:
-            # Execute the agentic strategy
             result = self.agentic_strategy.execute(limit=self.conversation_limit)
             
-            # Return results with usage information
             return {**result, **self.agentic_strategy.usage()}
         except Exception as e:
-            # If there's an error but the API request was successful, return a success response
             if "status_code: 400" in str(e) and "model_name: gemini" in str(e):
-                # Extract the API response from the error message if possible
                 try:
                     error_body = json.loads(str(e).split("body: ")[1])
                     if "error" in error_body and "code" in error_body["error"]:
@@ -155,5 +147,4 @@ If 'ok' is false, check the 'error' field for details about what went wrong.
                 except:
                     pass
             
-            # If we can't extract the API response, re-raise the exception
             raise 
