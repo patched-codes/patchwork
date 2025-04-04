@@ -22,5 +22,4 @@ __all__ = [
     "GenerateCodeUsageExample",
     "SonarFix",
     "LogAnalysis",
-    "SlackAgent",
 ]
