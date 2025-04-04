@@ -9,7 +9,6 @@ from .LogAnalysis.LogAnalysis import LogAnalysis
 from .PRReview.PRReview import PRReview
 from .ResolveIssue.ResolveIssue import ResolveIssue
 from .SonarFix.SonarFix import SonarFix
-from .TestSlackAgent.TestSlackAgent import TestSlackAgent
 
 __all__ = [
     "AutoFix",
@@ -24,5 +23,4 @@ __all__ = [
     "SonarFix",
     "LogAnalysis",
     "SlackAgent",
-    "TestSlackAgent",
 ]
