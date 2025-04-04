@@ -175,3 +175,5 @@ tmp/
 *.pem
 *.key
 *.gpg
+
+./patchwork/patchflows/TestSlackAgent
