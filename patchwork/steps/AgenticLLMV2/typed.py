@@ -9,13 +9,32 @@ class AgenticLLMV2Inputs(TypedDict, total=False):
     system_prompt: str
     user_prompt: str
     max_agent_calls: Annotated[int, StepTypeConfig(is_config=True)]
-    google_api_key: str
-    anthropic_api_key: str
-    openai_api_key: str
     strategy_model: str
     agent_model: str
     agent_system_prompt: str
     example_json: str
+    openai_api_key: Annotated[
+        str,
+        StepTypeConfig(
+            is_config=True, or_op=["patched_api_key", "google_api_key", "client_is_gcp", "anthropic_api_key"]
+        ),
+    ]
+    anthropic_api_key: Annotated[
+        str,
+        StepTypeConfig(is_config=True, or_op=["patched_api_key", "google_api_key", "client_is_gcp", "openai_api_key"]),
+    ]
+    google_api_key: Annotated[
+        str,
+        StepTypeConfig(
+            is_config=True, or_op=["patched_api_key", "openai_api_key", "client_is_gcp", "anthropic_api_key"]
+        ),
+    ]
+    client_is_gcp: Annotated[
+        str,
+        StepTypeConfig(
+            is_config=True, or_op=["patched_api_key", "openai_api_key", "anthropic_api_key", "google_api_key"]
+        ),
+    ]
 
 
 class AgenticLLMV2Outputs(TypedDict):
