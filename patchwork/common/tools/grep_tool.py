@@ -115,7 +115,7 @@ class FindTextTool(Tool, tool_name="find_text"):
             "name": "find_text",
             "description": f"""\
 Tool to find text in a file or files in a directory using a pattern based on the Unix shell style.
-The current working directory is always {self.__working_dir}. 
+The current working directory is always {self.__working_dir}.
 The path provided should either be absolute or relative to the current working directory.
 
 This tool will match each line of the file with the provided pattern and prints the line number and the line content.
@@ -135,18 +135,25 @@ Unix shell style:
     [!seq]  matches any char not in seq
 
 Example:
-* '*macs' will match the file '.emacs'
-* '*.py' will match all files with the '.py' extension
+* 'class T*' will match the line 'class Team:' but not '    class Team:' because the second line is indented.
+* '*var1: str' will match the line '    var1: str' but not 'var1: str = "test"'
+* '*class Team*' will match both the lines 'class Team:' and 'class TeamMember(BaseTeam):'
+* 'TeamMember' will not match 'class TeamMember:' because the pattern should match the entire line
+
 """,
                         "type": "string",
                     },
                     "path": {
                         "description": """\
-The path to the file to find text in. 
+The path to the file to find text in.
 If not given, will search all file content in the current working directory.
 If the path is a directory, will search all file content in the directory.
 """,
                         "type": "string",
+                    },
+                    "recursive": {
+                        "description": "Set as False to only search specified file or immediate files in the specified directory. Default is True.",
+                        "type": "boolean",
                     },
                     "is_case_sensitive": {
                         "description": "Whether the pattern should be case-sensitive.",
@@ -162,6 +169,7 @@ If the path is a directory, will search all file content in the directory.
         pattern: Optional[str] = None,
         path: Optional[Path] = None,
         is_case_sensitive: bool = False,
+        recursive: bool = True,
     ) -> str:
         if pattern is None:
             return "`pattern` argument is required!"
@@ -176,12 +184,14 @@ If the path is a directory, will search all file content in the directory.
         try:
             path = Path(path).resolve()
         except FileNotFoundError:
-            return f"`path` does not exist"
+            return "`path` does not exist"
         if not path.is_relative_to(self.__working_dir):
             return f"Path must be relative to working dir {self.__working_dir}"
 
         if path.is_file():
             paths = [path]
+        elif recursive:
+            paths = list(set(p for p in path.rglob("*") if p.is_file()))
         else:
             paths = [p for p in path.iterdir() if p.is_file()]
 
@@ -200,17 +210,17 @@ If the path is a directory, will search all file content in the directory.
                             content = f"Line {i + 1}: {self.__CHAR_LIMIT_TEXT}"
 
                         file_matches[str(path)].append(content)
-            except Exception as e:
+            except Exception:
                 pass
 
         total_file_matches = ""
         for path_str, matches in file_matches.items():
-            total_file_matches += f"\nPattern matches found in '{path}':\n" + "\n".join(matches)
+            total_file_matches += f"\nPattern matches found in '{path_str}':\n" + "\n".join(matches)
 
         if len(total_file_matches) <= 5000:
             return total_file_matches
 
         total_file_matches = ""
         for path_str, matches in file_matches.items():
-            total_file_matches += f"\n {len(matches)} Pattern matches found in '{path}': <TRUNCATED>\n"
+            total_file_matches += f"\n {len(matches)} Pattern matches found in '{path_str}': <TRUNCATED>\n"
         return total_file_matches
