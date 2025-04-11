@@ -15,7 +15,7 @@ class AgenticLLMV2Inputs(TypedDict, total=False):
     strategy_model: str
     agent_model: str
     agent_system_prompt: str
-    example_json: Dict
+    example_json: str
 
 
 class AgenticLLMV2Outputs(TypedDict):
