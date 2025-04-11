@@ -28,7 +28,7 @@ class DatabaseAgentInputs(__DatabaseAgentOutputsRequiredInputs, total=False):
     google_api_key: Annotated[
         str, StepTypeConfig(is_config=True, or_op=["patched_api_key", "openai_api_key", "anthropic_api_key"])
     ]
-    example_json: str
+    example_json: Dict
 
 
 class DatabaseAgentOutputs(TypedDict):
