@@ -1,4 +1,4 @@
-from typing_extensions import Annotated, Any, Dict, TypedDict
+from typing_extensions import Annotated, Any, Dict, Optional, TypedDict
 
 from patchwork.common.utils.step_typing import StepTypeConfig
 
@@ -11,6 +11,8 @@ class GitHubAgentInputs(__GitHubAgentRequiredInputs, total=False):
     base_path: str
     prompt_value: Dict[str, Any]
     max_llm_calls: Annotated[int, StepTypeConfig(is_config=True)]
+    github_api_key: str
+    example_json: Optional[Dict]
     openai_api_key: Annotated[
         str,
         StepTypeConfig(
