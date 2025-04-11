@@ -108,7 +108,15 @@ def validate_step_type_config_with_inputs(
 def validate_step_with_inputs(input_keys: Set[str], step: Type[Step]) -> Tuple[Set[str], Dict[str, str]]:
     module_path, _, _ = step.__module__.rpartition(".")
     step_name = step.__name__
-    type_module = importlib.import_module(f"{module_path}.typed")
+    
+    # Whitelist of allowed modules
+    allowed_modules = {"allowed_module1.typed", "allowed_module2.typed"}
+    full_module_path = f"{module_path}.typed"
+
+    if full_module_path not in allowed_modules:
+        raise ImportError(f"Attempt to import disallowed module {full_module_path}")
+
+    type_module = importlib.import_module(full_module_path)
     step_input_model = getattr(type_module, f"{step_name}Inputs", __NOT_GIVEN)
     step_output_model = getattr(type_module, f"{step_name}Outputs", __NOT_GIVEN)
     if step_input_model is __NOT_GIVEN:
