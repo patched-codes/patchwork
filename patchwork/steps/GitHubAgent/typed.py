@@ -4,6 +4,7 @@ from patchwork.common.utils.step_typing import StepTypeConfig
 
 
 class __GitHubAgentRequiredInputs(TypedDict):
+    github_api_key: str
     task: str
 
 
@@ -11,8 +12,7 @@ class GitHubAgentInputs(__GitHubAgentRequiredInputs, total=False):
     base_path: str
     prompt_value: Dict[str, Any]
     max_llm_calls: Annotated[int, StepTypeConfig(is_config=True)]
-    github_api_key: str
-    example_json: Optional[str]
+    example_json: str
     openai_api_key: Annotated[
         str,
         StepTypeConfig(
