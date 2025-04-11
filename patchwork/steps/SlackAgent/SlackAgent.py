@@ -27,7 +27,6 @@ class SlackAgent(Step, input_class=SlackAgentInputs, output_class=SlackAgentOutp
             "Please summarise the conversation given and provide the result in the structure that is asked of you.",
         )
 
-        # Set up headers for Slack API
         self.headers = {
             "Authorization": f"Bearer {inputs.get('slack_bot_token')}",
             "Content-Type": "application/json",
@@ -35,49 +34,11 @@ class SlackAgent(Step, input_class=SlackAgentInputs, output_class=SlackAgentOutp
 
         llm_client = AioLlmClient.create_aio_client(inputs)
 
-        # Get model from inputs or use default
-        model = inputs.get("model", "claude-3-7-sonnet-latest")
+        model = inputs.get("model", "gemini-2.0-flash")
         
-        is_google_api = "google_api_key" in inputs
-        
-        # Configure API tool based on the LLM provider
-        if is_google_api:
-            # For Google API, use a simpler tool configuration
-            api_tool = APIRequestTool(
-                headers=self.headers,
-                function_schema={
-                    "name": "make_api_request",
-                    "description": "Make an API request to the Slack API",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "url": {
-                                "type": "string",
-                                "description": "The URL to send the request to"
-                            },
-                            "method": {
-                                "type": "string",
-                                "description": "The HTTP method to use",
-                                "enum": ["GET", "POST", "PUT", "DELETE"]
-                            },
-                            "data": {
-                                "type": "string",
-                                "description": "The data to send in the request body (for POST/PUT)"
-                            },
-                            "params": {
-                                "type": "object",
-                                "description": "Query parameters to include in the URL (for GET requests)"
-                            }
-                        },
-                        "required": ["url", "method"]
-                    }
-                }
-            )
-        else:
-            # For other APIs, use the default configuration
-            api_tool = APIRequestTool(
-                headers=self.headers,
-            )
+        api_tool = APIRequestTool(
+            headers=self.headers,
+        )
 
         self.agentic_strategy = AgenticStrategyV2(
             model=model,
@@ -127,24 +88,7 @@ If 'ok' is false, check the 'error' field for details about what went wrong.
         )
 
     def run(self) -> dict:
-        try:
-            result = self.agentic_strategy.execute(limit=self.conversation_limit)
+        result = self.agentic_strategy.execute(limit=self.conversation_limit)
             
-            return {**result, **self.agentic_strategy.usage()}
-        except Exception as e:
-            if "status_code: 400" in str(e) and "model_name: gemini" in str(e):
-                try:
-                    error_body = json.loads(str(e).split("body: ")[1])
-                    if "error" in error_body and "code" in error_body["error"]:
-                        # This is likely a Google API error, but the Slack API request might have succeeded
-                        return {
-                            "conversation_history": [],
-                            "tool_records": [],
-                            "request_tokens": 0,
-                            "response_tokens": 0,
-                            "slack_response": {"ok": True, "message": "Message sent successfully despite API error"}
-                        }
-                except:
-                    pass
-            
-            raise 
+        return {**result, **self.agentic_strategy.usage()}
+        
