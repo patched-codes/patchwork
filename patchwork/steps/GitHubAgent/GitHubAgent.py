@@ -21,7 +21,7 @@ class GitHubAgent(Step, input_class=GitHubAgentInputs, output_class=GitHubAgentO
             model="claude-3-5-sonnet-latest",
             llm_client=AioLlmClient.create_aio_client(inputs),
             template_data=dict(),
-            system_prompt_template=f"""\
+            system_prompt_template="""\
 Please summarise the conversation given and provide the result in the structure that is asked of you.
 """,
             user_prompt_template=f"""\
@@ -34,15 +34,17 @@ Please take note of any requirements to the data required to fetch.
                 AgentConfig(
                     name="Assistant",
                     model="gemini-2.0-flash",
-                    tool_set=dict(github_tool=GitHubTool(base_path, inputs["github_api_token"])),
+                    tool_set=dict(github_tool=GitHubTool(base_path, inputs["github_api_key"])),
                     system_prompt="""\
-You are a senior software developer helping the program manager to obtain some data from GitHub. 
-You can access github through the `gh` CLI app. 
+You are a senior software developer helping the program manager to obtain some data from GitHub.
+You can access github through the `gh` CLI app.
 Your `gh` app has already been authenticated.
 """,
                 )
             ],
-            example_json=inputs.get("example_json"),
+            example_json=inputs.get(
+                "example_json", '{"summary_of_actions": "1. Retrieved the list of repositories. 2. ..."}'
+            ),
         )
 
     def run(self) -> dict:
