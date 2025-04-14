@@ -18,7 +18,7 @@ class GitHubAgent(Step, input_class=GitHubAgentInputs, output_class=GitHubAgentO
         data = inputs.get("prompt_value", {})
         task = mustache_render(inputs["task"], data)
         self.agentic_strategy = AgenticStrategyV2(
-            model="claude-3-5-sonnet-latest",
+            model="gemini-2.0-flash",
             llm_client=AioLlmClient.create_aio_client(inputs),
             template_data=dict(),
             system_prompt_template="""\
