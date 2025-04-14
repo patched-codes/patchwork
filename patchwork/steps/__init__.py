@@ -28,9 +28,6 @@ from patchwork.steps.ExtractPackageManagerFile.ExtractPackageManagerFile import 
 from patchwork.steps.FileAgent.FileAgent import FileAgent
 from patchwork.steps.FilterBySimilarity.FilterBySimilarity import FilterBySimilarity
 from patchwork.steps.FixIssue.FixIssue import FixIssue
-from patchwork.steps.GetTypescriptTypeInfo.GetTypescriptTypeInfo import (
-    GetTypescriptTypeInfo,
-)
 from patchwork.steps.GitHubAgent.GitHubAgent import GitHubAgent
 from patchwork.steps.JoinList.JoinList import JoinList
 from patchwork.steps.LLM.LLM import LLM
@@ -110,7 +107,6 @@ __all__ = [
     "SlackMessage",
     "JoinList",
     "JoinListPB",
-    "GetTypescriptTypeInfo",
     "BrowserUse",
     "ManageEngineAgent",
     "ZohoDeskAgent",
