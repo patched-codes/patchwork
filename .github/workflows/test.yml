@@ -108,7 +108,8 @@ jobs:
           --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
           --branch_prefix=patchwork-ci-autofix- \
           --force_pr_creation \
-          --disable_telemetry
+          --disable_telemetry \
+          --plain
 
       - name: Dependency Upgrade
         run: |
@@ -120,7 +121,8 @@ jobs:
           --branch_prefix=patchwork-ci-dependencyupgrade- \
           --language=python \
           --force_pr_creation \
-          --disable_telemetry
+          --disable_telemetry \
+          --plain
 
   main-test:
     runs-on: ubuntu-latest
@@ -164,7 +166,8 @@ jobs:
           --anthropic_api_key=${{ secrets.ANTHROPIC_API_KEY }} \
           --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
           --pr_url=https://github.com/patched-codes/patchwork/pull/${{ steps.findPr.outputs.number }} \
-          --disable_telemetry
+          --disable_telemetry \
+          --plain
 
       - name: Generate Docstring
         run: |
@@ -174,7 +177,8 @@ jobs:
           --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
           --base_path=tests/cicd/generate_docstring \
           --branch_prefix=patchwork-ci-generatedocstring- \
-          --disable_telemetry
+          --disable_telemetry \
+          --plain
 
       - name: Generate Diagram
         run: |
@@ -184,7 +188,8 @@ jobs:
           --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
           --folder_path=patchwork/steps \
           --branch_prefix=patchwork-ci-generatediagram- \
-          --disable_telemetry
+          --disable_telemetry \
+          --plain
 
       - name: Generate UnitTests
         run: |
@@ -194,7 +199,8 @@ jobs:
           --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
           --folder_path=tests/cicd/generate_docstring \
           --branch_prefix=patchwork-ci-generateunittests- \
-          --disable_telemetry
+          --disable_telemetry \
+          --plain
 
       - name: Generate Code Usage Example
         run: |
@@ -204,7 +210,8 @@ jobs:
           --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
           --folder_path=tests/cicd/generate_docstring \
           --branch_prefix=patchwork-ci-generatecodeusageexample- \
-          --disable_telemetry
+          --disable_telemetry \
+          --plain
 
       - name: Generate README
         run: |
@@ -227,7 +234,8 @@ jobs:
               --filter=*.py \
               --folder_path=$dir \
               --branch_prefix=patchwork-ci-generatereadme \
-              --disable_telemetry
+              --disable_telemetry \
+              --plain
             else
               echo "Found README.md in $dir"
             fi
