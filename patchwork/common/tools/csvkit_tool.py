@@ -118,14 +118,15 @@ If the output is larger than 5000 characters, the remaining characters are repla
         if db_path.is_file():
             with sqlite3.connect(str(db_path)) as conn:
                 for file in files:
+                    table_name = file.removesuffix('.csv')
                     res = conn.execute(
-                        f"SELECT 1 from {file.removesuffix('.csv')}",
+                        "SELECT 1 FROM sqlite_master WHERE type='table' AND name=?", (table_name,)
                     )
                     if res.fetchone() is None:
                         files_to_insert.append(file)
         else:
             files_to_insert = files
-
+            
         if len(files_to_insert) > 0:
             p = subprocess.run(
                 ["csvsql", *files_to_insert, "--db", db_url, "--insert"], capture_output=True, text=True, cwd=self.path
