@@ -6,9 +6,11 @@ __DEPENDENCY_GROUPS = {
     "notification": ["slack_sdk"],
 }
 
-
 @lru_cache(maxsize=None)
 def import_with_dependency_group(name):
+    allowed_modules = {mod for mods in __DEPENDENCY_GROUPS.values() for mod in mods}
+    if name not in allowed_modules:
+        raise ImportError(f"Module {name} is not allowed to be imported.")
     try:
         return importlib.import_module(name)
     except ImportError:
@@ -19,7 +21,6 @@ def import_with_dependency_group(name):
         if dependency_group is not None:
             error_msg = f"Please `pip install patchwork-cli[{dependency_group}]` to use this step"
         raise ImportError(error_msg)
-
 
 def slack_sdk():
     return import_with_dependency_group("slack_sdk")
