@@ -25,8 +25,11 @@ class GenerateDiagram(Step):
         if "prompt_template_file" not in final_inputs:
             final_inputs["prompt_template_file"] = _DEFAULT_PROMPT_JSON
 
-        final_inputs["pr_title"] = f"PatchWork System Architecture Diagram"
-        final_inputs["branch_prefix"] = f"{self.__class__.__name__.lower()}-"
+        if "pr_title" not in final_inputs.keys():
+            final_inputs["pr_title"] = "PatchWork System Architecture Diagram"
+
+        if "branch_prefix" not in final_inputs.keys():
+            final_inputs["branch_prefix"] = f"{self.__class__.__name__.lower()}-"
 
         validate_steps_with_inputs(
             set(final_inputs.keys()).union({"prompt_values", "files_to_patch"}), LLM, CallCode2Prompt, ModifyCode, PR
@@ -44,7 +47,7 @@ class GenerateDiagram(Step):
         self.inputs.update(outputs)
         outputs = ModifyCode(self.inputs).run()
         self.inputs.update(outputs)
-        self.inputs["pr_header"] = f"This pull request from patchwork generates system architecture diagram."
+        self.inputs["pr_header"] = "This pull request from patchwork generates system architecture diagram."
         outputs = PR(self.inputs).run()
         self.inputs.update(outputs)
 

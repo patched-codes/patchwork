@@ -1,0 +1,67 @@
+name: Close Stale CI PRs
+
+on:
+  schedule:
+    # Run every hour
+    - cron: "0 * * * *"
+  workflow_dispatch:
+
+jobs:
+  close-stale-prs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Close stale PRs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Get all open PRs with patchwork-ci- branches
+          prs=$(gh pr list --state open --json number,headRefName,createdAt --jq '.[] | select(.headRefName | startswith("patchwork-ci-")) | "\(.number) \(.createdAt)"')
+
+          while IFS= read -r line; do
+            if [ -z "$line" ]; then
+              continue
+            fi
+
+            pr_number=$(echo "$line" | awk '{print $1}')
+            created_at=$(echo "$line" | awk '{print $2}')
+
+            # Convert to Unix timestamp
+            created_ts=$(date -d "$created_at" +%s)
+            current_ts=$(date +%s)
+            age_hours=$(( (current_ts - created_ts) / 3600 ))
+
+            if [ $age_hours -gt 1 ]; then
+              echo "Closing PR #$pr_number (age: $age_hours hours)"
+              gh pr comment $pr_number --body "This PR has been automatically closed because it's been open for more than 1 hour. This is a CI-generated PR and should be reviewed and merged promptly if valid."
+              gh pr close $pr_number
+            fi
+          done <<< "$prs"
+
+      - name: Delete stale branches
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Get all branches with patchwork-ci- prefix
+          branches=$(gh api repos/${{ github.repository }}/branches --jq '.[] | select(.name | startswith("patchwork-ci-")) | "\(.name) \(.commit.commit.committer.date)"')
+
+          while IFS= read -r line; do
+            if [ -z "$line" ]; then
+              continue
+            fi
+
+            branch_name=$(echo "$line" | awk '{print $1}')
+            created_at=$(echo "$line" | awk '{print $2}')
+
+            # Convert to Unix timestamp
+            created_ts=$(date -d "$created_at" +%s)
+            current_ts=$(date +%s)
+            age_days=$(( (current_ts - created_ts) / 86400 ))
+
+            if [ $age_days -gt 7 ]; then
+              echo "Deleting branch $branch_name (age: $age_days days)"
+              gh api -X DELETE repos/${{ github.repository }}/git/refs/heads/$branch_name
+            fi
+          done <<< "$branches"

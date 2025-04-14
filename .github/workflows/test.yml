@@ -4,10 +4,12 @@ on:
   push:
     branches-ignore:
       - main
+      - patchwork-ci-*
       - autofix-*
       - dependencyupgrade-*
       - generatereadme-*
       - generatedocstring-*
+      - generatediagram-*
       - generateunittests-*
       - generatecodeusageexample-*
       - resolveissue-*
@@ -104,8 +106,10 @@ jobs:
           patchwork AutoFix --log debug \
           --patched_api_key=${{ secrets.PATCHED_API_KEY }} \
           --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
+          --branch_prefix=patchwork-ci-autofix- \
           --force_pr_creation \
-          --disable_telemetry
+          --disable_telemetry \
+          --plain
 
       - name: Dependency Upgrade
         run: |
@@ -114,9 +118,11 @@ jobs:
           --libraries_api_key=${{ secrets.LIBRARIES_KEY }} \
           --patched_api_key=${{ secrets.PATCHED_API_KEY }} \
           --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
+          --branch_prefix=patchwork-ci-dependencyupgrade- \
           --language=python \
           --force_pr_creation \
-          --disable_telemetry
+          --disable_telemetry \
+          --plain
 
   main-test:
     runs-on: ubuntu-latest
@@ -160,7 +166,8 @@ jobs:
           --anthropic_api_key=${{ secrets.ANTHROPIC_API_KEY }} \
           --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
           --pr_url=https://github.com/patched-codes/patchwork/pull/${{ steps.findPr.outputs.number }} \
-          --disable_telemetry
+          --disable_telemetry \
+          --plain
 
       - name: Generate Docstring
         run: |
@@ -169,7 +176,9 @@ jobs:
           --patched_api_key=${{ secrets.PATCHED_API_KEY }} \
           --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
           --base_path=tests/cicd/generate_docstring \
-          --disable_telemetry
+          --branch_prefix=patchwork-ci-generatedocstring- \
+          --disable_telemetry \
+          --plain
 
       - name: Generate Diagram
         run: |
@@ -178,7 +187,9 @@ jobs:
           --patched_api_key=${{ secrets.PATCHED_API_KEY }} \
           --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
           --folder_path=patchwork/steps \
-          --disable_telemetry
+          --branch_prefix=patchwork-ci-generatediagram- \
+          --disable_telemetry \
+          --plain
 
       - name: Generate UnitTests
         run: |
@@ -187,7 +198,9 @@ jobs:
           --patched_api_key=${{ secrets.PATCHED_API_KEY }} \
           --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
           --folder_path=tests/cicd/generate_docstring \
-          --disable_telemetry
+          --branch_prefix=patchwork-ci-generateunittests- \
+          --disable_telemetry \
+          --plain
 
       - name: Generate Code Usage Example
         run: |
@@ -196,7 +209,9 @@ jobs:
           --patched_api_key=${{ secrets.PATCHED_API_KEY }} \
           --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
           --folder_path=tests/cicd/generate_docstring \
-          --disable_telemetry
+          --branch_prefix=patchwork-ci-generatecodeusageexample- \
+          --disable_telemetry \
+          --plain
 
       - name: Generate README
         run: |
@@ -218,8 +233,9 @@ jobs:
               --github_api_key=${{ secrets.SCM_GITHUB_KEY }} \
               --filter=*.py \
               --folder_path=$dir \
-              --branch_prefix=generatereadme-$branch_name \
-              --disable_telemetry
+              --branch_prefix=patchwork-ci-generatereadme \
+              --disable_telemetry \
+              --plain
             else
               echo "Found README.md in $dir"
             fi
