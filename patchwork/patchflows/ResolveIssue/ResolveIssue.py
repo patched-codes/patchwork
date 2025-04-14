@@ -20,8 +20,11 @@ class ResolveIssue(Step):
         final_inputs = yaml.safe_load(_DEFAULT_INPUT_FILE.read_text()) or dict()
         final_inputs.update(inputs)
 
-        final_inputs["pr_title"] = f"PatchWork {self.__class__.__name__}"
-        final_inputs["branch_prefix"] = f"{self.__class__.__name__.lower()}-"
+        if "pr_title" not in final_inputs.keys():
+            final_inputs["pr_title"] = f"PatchWork {self.__class__.__name__}"
+
+        if "branch_prefix" not in final_inputs.keys():
+            final_inputs["branch_prefix"] = f"{self.__class__.__name__.lower()}-"
 
         validate_steps_with_inputs(
             {"issue_description"}.union(final_inputs.keys()),
@@ -46,8 +49,8 @@ class ResolveIssue(Step):
                     issue=outputs["issue_description"],
                 ),
                 system_prompt="""\
-You are a senior software engineer tasked to analyze a issue. 
-Your analysis will be used to guide the junior engineer to resolve this issue. 
+You are a senior software engineer tasked to analyze a issue.
+Your analysis will be used to guide the junior engineer to resolve this issue.
 """,
                 user_prompt="""\
 <uploaded_files>
@@ -130,7 +133,7 @@ Let's implement the necessary changes:
 1. Edit the sourcecode of the repo to resolve the issue
 2. Think about edge cases and make sure your fix handles them as well
 
-I've already taken care of all changes to any of the test files described in the PR. 
+I've already taken care of all changes to any of the test files described in the PR.
 This means you DON'T have to modify the testing logic or any of the tests in any way!
 """,
                 max_llm_calls=200,

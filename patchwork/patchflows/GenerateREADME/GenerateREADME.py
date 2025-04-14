@@ -51,7 +51,8 @@ class GenerateREADME(Step):
         else:
             final_inputs["folder_path"] = Path(final_inputs["folder_path"])
 
-        final_inputs["pr_title"] = f"PatchWork {self.__class__.__name__}"
+        if "pr_title" not in final_inputs.keys():
+            final_inputs["pr_title"] = f"PatchWork {self.__class__.__name__}"
 
         validate_steps_with_inputs(
             set(final_inputs.keys()).union({"prompt_values", "files_to_patch"}), CallCode2Prompt, LLM, ModifyCode, PR

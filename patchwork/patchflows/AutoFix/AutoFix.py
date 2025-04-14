@@ -72,8 +72,11 @@ class AutoFix(Step):
             "compatibility": ["C. Compatibility Risk:", "D. Fixed Code:"],
             "patch": ["D. Fixed Code:", "```", "\n", "```"],
         }
-        final_inputs["pr_title"] = f"PatchWork {self.__class__.__name__}"
-        final_inputs["branch_prefix"] = f"{self.__class__.__name__.lower()}-"
+        if "pr_title" not in final_inputs.keys():
+            final_inputs["pr_title"] = f"PatchWork {self.__class__.__name__}"
+
+        if "branch_prefix" not in final_inputs.keys():
+            final_inputs["branch_prefix"] = f"{self.__class__.__name__.lower()}-"
 
         validate_steps_with_inputs(
             set(final_inputs.keys()).union({"prompt_values"}), ScanSemgrep, ExtractCode, LLM, ModifyCode, PR

@@ -47,8 +47,12 @@ class GenerateDocstring(Step):
         if "prompt_template_file" not in final_inputs.keys():
             final_inputs["prompt_template_file"] = _DEFAULT_PROMPT_JSON
 
-        final_inputs["pr_title"] = f"PatchWork {self.__class__.__name__}"
-        final_inputs["branch_prefix"] = f"{self.__class__.__name__.lower()}-"
+        if "pr_title" not in final_inputs.keys():
+            final_inputs["pr_title"] = f"PatchWork {self.__class__.__name__}"
+
+        if "branch_prefix" not in final_inputs.keys():
+            final_inputs["branch_prefix"] = f"{self.__class__.__name__.lower()}-"
+
         final_inputs["context_grouping"] = "FUNCTION"
         final_inputs["allow_overlap_contexts"] = False
         final_inputs["force_code_contexts"] = final_inputs.get("rewrite_existing", False)
@@ -75,9 +79,9 @@ class GenerateDocstring(Step):
         self.inputs.update(outputs)
 
         # Commit changes and create PR
-        self.inputs[
-            "pr_header"
-        ] = f'This pull request from patchwork fixes {len(self.inputs["prompt_values"])} docstrings.'
+        self.inputs["pr_header"] = (
+            f"This pull request from patchwork fixes {len(self.inputs['prompt_values'])} docstrings."
+        )
         outputs = PR(self.inputs).run()
         self.inputs.update(outputs)
 
