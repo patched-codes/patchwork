@@ -39,3 +39,29 @@ jobs:
               gh pr close $pr_number
             fi
           done <<< "$prs"
+
+      - name: Delete stale branches
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Get all branches with patchwork-ci- prefix
+          branches=$(gh api repos/${{ github.repository }}/branches --jq '.[] | select(.name | startswith("patchwork-ci-")) | "\(.name) \(.commit.commit.committer.date)"')
+
+          while IFS= read -r line; do
+            if [ -z "$line" ]; then
+              continue
+            fi
+
+            branch_name=$(echo "$line" | awk '{print $1}')
+            created_at=$(echo "$line" | awk '{print $2}')
+
+            # Convert to Unix timestamp
+            created_ts=$(date -d "$created_at" +%s)
+            current_ts=$(date +%s)
+            age_days=$(( (current_ts - created_ts) / 86400 ))
+
+            if [ $age_days -gt 7 ]; then
+              echo "Deleting branch $branch_name (age: $age_days days)"
+              gh api -X DELETE repos/${{ github.repository }}/git/refs/heads/$branch_name
+            fi
+          done <<< "$branches"
