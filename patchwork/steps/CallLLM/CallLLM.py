@@ -26,43 +26,7 @@ class _InnerCallLLMResponse:
 
 
 class CallLLM(Step, input_class=CallLLMInputs, output_class=CallLLMOutputs):
-    def __init__(self, inputs: dict):
-        super().__init__(inputs)
-        # Set 'openai_key' from inputs or environment if not already set
-        inputs.setdefault("openai_api_key", os.environ.get("OPENAI_API_KEY"))
 
-        prompt_file = inputs.get("prompt_file")
-        if prompt_file is not None:
-            prompt_file_path = Path(prompt_file)
-            if not prompt_file_path.is_file():
-                raise ValueError(f'Unable to find Prompt file: "{prompt_file}"')
-            try:
-                with open(prompt_file_path, "r") as fp:
-                    self.prompts = json.load(fp)
-            except json.JSONDecodeError as e:
-                raise ValueError(f'Invalid Json Prompt file "{prompt_file}": {e}')
-        elif "prompts" in inputs.keys():
-            self.prompts = inputs["prompts"]
-        else:
-            raise ValueError('Missing required data: "prompt_file" or "prompts"')
-
-        self.call_limit = int(inputs.get("max_llm_calls", -1))
-        self.model_args = {key[len("model_") :]: value for key, value in inputs.items() if key.startswith("model_")}
-        self.save_responses_to_file = inputs.get("save_responses_to_file", None)
-        self.model = inputs.get("model", "gpt-4o-mini")
-        self.allow_truncated = inputs.get("allow_truncated", False)
-        self.file = inputs.get("file", None)
-        self.client = AioLlmClient.create_aio_client(inputs)
-        if self.client is None:
-            raise ValueError(
-                f"Model API key not found.\n"
-                f'Please login at: "{TOKEN_URL}",\n'
-                "Please go to the Integration's tab and generate an API key.\n"
-                "Please copy the access token that is generated, "
-                "and add `--patched_api_key=<token>` to the command line.\n"
-                "\n"
-                "If you are using an OpenAI API Key, please set `--openai_api_key=<token>`.\n"
-            )
 
     def __persist_to_file(self, contents):
         # Convert relative path to absolute path
@@ -121,10 +85,22 @@ class CallLLM(Step, input_class=CallLLMInputs, output_class=CallLLMOutputs):
             kwargs["file"] = Path(self.file)
 
         for prompt in prompts:
-            is_input_accepted = self.client.is_prompt_supported(model=self.model, messages=prompt, **kwargs) > 0
+            available_tokens = self.client.is_prompt_supported(model=self.model, messages=prompt, **kwargs)
+            is_input_accepted = available_tokens > 0
+            
             if not is_input_accepted:
                 self.set_status(StepStatus.WARNING, "Input token limit exceeded.")
                 prompt = self.client.truncate_messages(prompt, self.model)
+            
+            # Handle the case where model_max_tokens was set to -1
+            # Calculate max_tokens based on available tokens from the model after prompt
+            if hasattr(self, '_use_max_tokens') and self._use_max_tokens:
+                if available_tokens > 0:
+                    kwargs['max_tokens'] = available_tokens
+                    logger.info(f"Setting max_tokens to {available_tokens} based on available model context")
+                else:
+                    # If we can't determine available tokens, set a reasonable default
+                    logger.warning("Could not determine available tokens. Using model default.")
 
             logger.trace(f"Message sent: \n{escape(indent(pformat(prompt), '  '))}")
             try:
@@ -183,5 +159,14 @@ class CallLLM(Step, input_class=CallLLMInputs, output_class=CallLLMOutputs):
                 new_model_args[key] = arg.lower() == "true"
             else:
                 new_model_args[key] = arg
+
+        # Handle special case for max_tokens = -1 (use maximum available tokens)
+        if 'max_tokens' in new_model_args and new_model_args['max_tokens'] == -1:
+            # Will be handled during the chat completion call
+            logger.info("Using maximum available tokens for the model")
+            del new_model_args['max_tokens']  # Remove it for now, we'll calculate it later
+            self._use_max_tokens = True
+        else:
+            self._use_max_tokens = False
 
         return new_model_args
