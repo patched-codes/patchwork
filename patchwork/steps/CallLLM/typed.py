@@ -1,4 +1,4 @@
-from typing_extensions import Annotated, Dict, List, TypedDict
+from typing_extensions import Annotated, Dict, List, TypedDict, Literal
 
 from patchwork.common.constants import TOKEN_URL
 from patchwork.common.utils.step_typing import StepTypeConfig
@@ -12,6 +12,13 @@ class CallLLMInputs(TypedDict, total=False):
     allow_truncated: Annotated[bool, StepTypeConfig(is_config=True)]
     model_args: Annotated[str, StepTypeConfig(is_config=True)]
     client_args: Annotated[str, StepTypeConfig(is_config=True)]
+    model_max_tokens: Annotated[
+        int | Literal[-1],
+        StepTypeConfig(
+            is_config=True, 
+            description="Maximum number of tokens to generate. Use -1 to use maximum available tokens for the model."
+        )
+    ]
     openai_api_key: Annotated[
         str,
         StepTypeConfig(
