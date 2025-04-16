@@ -6,10 +6,27 @@
 
 
 template<typename T>
+/**
+ * Adds two values of the same type.
+ * 
+ * @param a The first value to be added.
+ * @param b The second value to be added.
+ * @return The result of adding a and b.
+ */
 T a_plus_b(T a, T b) {
     return a + b;
 }
 
+
+/**
+ * Executes a SQL query on the given SQLite database and returns the results.
+ * 
+ * @param db A pointer to the SQLite database object.
+ * @param query A string containing the SQL query to be executed.
+ * @return A vector of vectors of strings where each sub-vector represents a row from the query result,
+ *         with each string in the sub-vector corresponding to a column value. Returns an empty vector
+ *         if the query fails to prepare.
+ */
 
 std::vector<std::vector<std::string>> sqlite(sqlite3* db, const std::string& query) {
     std::vector<std::vector<std::string>> results;
@@ -38,6 +55,15 @@ std::vector<std::vector<std::string>> sqlite(sqlite3* db, const std::string& que
 
 
 template<typename T, typename F>
+/**
+ * Compares two items based on a key mapping function and returns an integer indicating their order.
+ * 
+ * @param key_map A function that extracts a comparison key from an item.
+ * @param item1 The first item to be compared.
+ * @param item2 The second item to be compared.
+ * @return -1 if the first item is less than the second, 1 if the first item is greater than the second, 
+ *         and 0 if they are equal based on the mapping function.
+ */
 int compare(F key_map, const T& item1, const T& item2) {
     auto val1 = key_map(item1);
     auto val2 = key_map(item2);
@@ -48,6 +74,12 @@ int compare(F key_map, const T& item1, const T& item2) {
 }
 
 
+/**
+ * Generates a random string composed of lowercase and uppercase alphabets.
+ * 
+ * @param length The length of the random string to be generated.
+ * @return A random string containing only alphabetic characters with the specified length.
+ */
 std::string random_alphabets(int length) {
     static const std::string chars =
         "abcdefghijklmnopqrstuvwxyz"
