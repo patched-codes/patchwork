@@ -16,7 +16,7 @@ class GitTool(Tool, tool_name="git_tool",  abc_register=False):
         return {
             "name": "git_tool",
             "description": """\
-Access to the Git CLI, the command is also `git` all args provided are used as is
+Access to the Git CLI, the command is also `git` all args provided are used as is.
 """,
             "input_schema": {
                 "type": "object",
@@ -24,7 +24,12 @@ Access to the Git CLI, the command is also `git` all args provided are used as i
                     "args": {
                         "type": "array",
                         "items": {"type": "string"},
-                        "description": "The args to run `git` command with.",
+                        "description": """
+The args to run `git` command with. 
+E.g. 
+[\"commit\", \"-m\", \"A commit message\"] to commit changes with a commit message.
+[\"add\", \".\"] to stage all changed files.
+""",
                     }
                 },
                 "required": ["args"],
@@ -34,7 +39,7 @@ Access to the Git CLI, the command is also `git` all args provided are used as i
     def execute(self, args: list[str]) -> str:
         env = os.environ.copy()
         p = subprocess.run(
-            ["gh", *args],
+            ["git", *args],
             env=env,
             cwd=self.path,
             text=True,
