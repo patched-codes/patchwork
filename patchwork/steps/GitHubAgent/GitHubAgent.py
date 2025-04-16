@@ -5,6 +5,7 @@ from patchwork.common.multiturn_strategy.agentic_strategy_v2 import (
     AgentConfig,
     AgenticStrategyV2,
 )
+from patchwork.common.tools.git_tool import GitTool
 from patchwork.common.tools.github_tool import GitHubTool
 from patchwork.common.utils.utils import mustache_render
 from patchwork.step import Step
@@ -34,7 +35,10 @@ Please take note of any requirements to the data required to fetch.
                 AgentConfig(
                     name="Assistant",
                     model="gemini-2.0-flash",
-                    tool_set=dict(github_tool=GitHubTool(base_path, inputs["github_api_key"])),
+                    tool_set=dict(
+                        github_tool=GitHubTool(base_path, inputs["github_api_key"]),
+                        git_tool=GitTool(base_path),
+                    ),
                     system_prompt="""\
 You are a senior software developer helping the program manager to obtain some data from GitHub.
 You can access github through the `gh` CLI app.
