@@ -41,7 +41,7 @@ Please take note of any requirements to the data required to fetch.
                     ),
                     system_prompt="""\
 You are a senior software developer helping the program manager to obtain some data from GitHub.
-You can access github through the `gh` CLI app.
+You can access github through the `gh` CLI app through the `github_tool`, and `git` through the `git_tool`.
 Your `gh` app has already been authenticated.
 """,
                 )
