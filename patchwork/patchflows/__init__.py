@@ -9,6 +9,7 @@ from .LogAnalysis.LogAnalysis import LogAnalysis
 from .PRReview.PRReview import PRReview
 from .ResolveIssue.ResolveIssue import ResolveIssue
 from .SonarFix.SonarFix import SonarFix
+
 __all__ = [
     "AutoFix",
     "DependencyUpgrade",
