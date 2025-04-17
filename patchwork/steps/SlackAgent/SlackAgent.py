@@ -34,11 +34,12 @@ class SlackAgent(Step, input_class=SlackAgentInputs, output_class=SlackAgentOutp
 
         llm_client = AioLlmClient.create_aio_client(inputs)
 
-        model = inputs.get("model", "gemini-2.0-flash")
+        model = inputs.get("model")
         
         api_tool = APIRequestTool(
             headers=self.headers,
         )
+
 
         self.agentic_strategy = AgenticStrategyV2(
             model=model,
@@ -53,7 +54,7 @@ class SlackAgent(Step, input_class=SlackAgentInputs, output_class=SlackAgentOutp
                     tool_set=dict(
                         make_api_request=api_tool
                     ),
-                    system_prompt="""\
+                    system_prompt=f"""\
 You are a senior software developer helping users interact with Slack via the Slack Web API.
 Your goal is to retrieve, create, or modify messages, channels, and other Slack resources.
 Use the `make_api_request` tool to interact with the Slack API.
@@ -64,7 +65,7 @@ The base URL for the Slack Web API is https://slack.com/api
 Common Slack API endpoints:
 - POST /chat.postMessage - Send a message to a channel
 - GET /conversations.list - List all channels in the workspace
-- GET /conversations.history - Get message history from a channel
+- GET /conversations.history - Get message history from a channel (requires 'channel' parameter)
 - POST /conversations.create - Create a new channel
 - POST /conversations.join - Join a channel
 - POST /conversations.leave - Leave a channel
@@ -72,15 +73,15 @@ Common Slack API endpoints:
 - GET /users.info - Get information about a specific user
 - POST /reactions.add - Add a reaction to a message
 - POST /reactions.remove - Remove a reaction from a message
-
-IMPORTANT: GET requests the prompt_value will contain the params to pass instead of data
-Example: For GET /conversations.history, use params={"channel": "C08..."} instead of appending to the URL.
+- GET /users.info - Get information about a specific user (requires 'user' parameter)
+IMPORTANT: For GET requests the prompt_value will contain the params to pass instead of data
 
 For modifying or creating data, the data should be a JSON string.
 When you have the result of the information user requested, return the response of the final result tool as is.
 
 Note: All API responses include a boolean 'ok' field indicating success/failure.
 If 'ok' is false, check the 'error' field for details about what went wrong.
+
 """,
                 )
             ],
@@ -91,4 +92,3 @@ If 'ok' is false, check the 'error' field for details about what went wrong.
         result = self.agentic_strategy.execute(limit=self.conversation_limit)
             
         return {**result, **self.agentic_strategy.usage()}
-        

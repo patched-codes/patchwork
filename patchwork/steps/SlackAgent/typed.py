@@ -7,6 +7,7 @@ class __SlackAgentInputsRequired(TypedDict):
     slack_bot_token: str
     user_prompt: str
     prompt_value: Dict[str, Any]
+    example_json: Dict[str, Any]
 
 
 class SlackAgentInputs(__SlackAgentInputsRequired, total=False):
@@ -18,11 +19,10 @@ class SlackAgentInputs(__SlackAgentInputsRequired, total=False):
 
     # Prompt and strategy configuration
     system_prompt: Optional[str]
-    example_json: Optional[Dict]
 
 
 class SlackAgentOutputs(TypedDict):
     conversation_history: List[Dict]
     tool_records: List[Dict]
     request_tokens: int
-    response_tokens: int 
+    response_tokens: int
