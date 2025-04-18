@@ -34,15 +34,15 @@ class SlackAgent(Step, input_class=SlackAgentInputs, output_class=SlackAgentOutp
 
         llm_client = AioLlmClient.create_aio_client(inputs)
 
-        model = inputs.get("model")
-        
+        agent_model = inputs.get("agent_model", "gemini-2.0-flash")
+        strategy_model = inputs.get("strategy_model", "gemini-2.0-flash")  
         api_tool = APIRequestTool(
             headers=self.headers,
         )
 
 
         self.agentic_strategy = AgenticStrategyV2(
-            model=model,
+            model=agent_model,
             llm_client=llm_client,
             system_prompt_template=system_prompt,
             template_data={},
@@ -50,7 +50,7 @@ class SlackAgent(Step, input_class=SlackAgentInputs, output_class=SlackAgentOutp
             agent_configs=[
                 AgentConfig(
                     name="Slack Assistant",
-                    model=model,
+                    model=strategy_model,
                     tool_set=dict(
                         make_api_request=api_tool
                     ),
