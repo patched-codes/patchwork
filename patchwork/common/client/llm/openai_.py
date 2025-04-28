@@ -110,46 +110,22 @@ class OpenAiLlmClient(LlmClient):
         return model in _cached_list_models_from_openai(self.__api_key)
 
     def __get_model_limits(self, model: str) -> int:
+        """Return the token limit for a given model."""
         return self.__MODEL_LIMITS.get(model, 128_000)
+        
+    def get_model_limit(self, model: str) -> int:
+        """
+        Public method to get the model's context length limit.
+        
+        Args:
+            model: The model name
+            
+        Returns:
+            The maximum context length in tokens
+        """
+        return self.__get_model_limits(model)
 
-    def is_prompt_supported(
-        self,
-        messages: Iterable[ChatCompletionMessageParam],
-        model: str,
-        frequency_penalty: Optional[float] | NotGiven = NOT_GIVEN,
-        logit_bias: Optional[Dict[str, int]] | NotGiven = NOT_GIVEN,
-        logprobs: Optional[bool] | NotGiven = NOT_GIVEN,
-        max_tokens: Optional[int] | NotGiven = NOT_GIVEN,
-        n: Optional[int] | NotGiven = NOT_GIVEN,
-        presence_penalty: Optional[float] | NotGiven = NOT_GIVEN,
-        response_format: dict | completion_create_params.ResponseFormat | NotGiven = NOT_GIVEN,
-        stop: Union[Optional[str], List[str]] | NotGiven = NOT_GIVEN,
-        temperature: Optional[float] | NotGiven = NOT_GIVEN,
-        tools: Iterable[ChatCompletionToolParam] | NotGiven = NOT_GIVEN,
-        tool_choice: ChatCompletionToolChoiceOptionParam | NotGiven = NOT_GIVEN,
-        top_logprobs: Optional[int] | NotGiven = NOT_GIVEN,
-        top_p: Optional[float] | NotGiven = NOT_GIVEN,
-        file: Path | NotGiven = NOT_GIVEN,
-    ) -> int:
-        # might not implement model endpoint
-        if self.__is_not_openai_url():
-            return 1
 
-        model_limit = self.__get_model_limits(model)
-        token_count = 0
-        encoding = None
-        try:
-            encoding = tiktoken.encoding_for_model(model)
-        except Exception as e:
-            logger.error(f"Error getting encoding for model {model}: {e}, using gpt-4o as fallback")
-            encoding = tiktoken.encoding_for_model("gpt-4o")
-        for message in messages:
-            message_token_count = len(encoding.encode(message.get("content")))
-            token_count = token_count + message_token_count
-            if token_count > model_limit:
-                return -1
-
-        return model_limit - token_count
 
     def truncate_messages(
         self, messages: Iterable[ChatCompletionMessageParam], model: str

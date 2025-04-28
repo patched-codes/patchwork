@@ -11,7 +11,7 @@
 # model: codellama/CodeLlama-70b-Instruct-hf
 # model_temperature: 0.2
 # model_top_p: 0.95
-# model_max_tokens: 2000
+# model_max_tokens: 2000  # Use -1 to automatically use the maximum tokens available for the model
 
 # CommitChanges Inputs
 disable_branch: false

@@ -99,6 +99,23 @@ class AioLlmClient(LlmClient):
 
     def is_model_supported(self, model: str) -> bool:
         return any(client.is_model_supported(model) for client in self.__clients)
+        
+    def get_model_limit(self, model: str) -> int:
+        """
+        Get the model's context length limit from the appropriate client.
+        
+        Args:
+            model: The model name
+            
+        Returns:
+            The maximum context length in tokens, or a default value if not found
+        """
+        for client in self.__clients:
+            if client.is_model_supported(model) and hasattr(client, 'get_model_limit'):
+                return client.get_model_limit(model)
+        
+        # Default value if no client found or client doesn't have the method
+        return 128_000
 
     def is_prompt_supported(
         self,
@@ -119,6 +136,13 @@ class AioLlmClient(LlmClient):
         top_p: Optional[float] | NotGiven = NOT_GIVEN,
         file: Path | NotGiven = NOT_GIVEN,
     ) -> int:
+        """
+        Check if the prompt is supported by the model and return available tokens.
+        
+        Returns:
+            int: If > 0, represents available tokens remaining after prompt.
+                 If <= 0, indicates that prompt is too large.
+        """
         for client in self.__clients:
             if client.is_model_supported(model):
                 inputs = dict(
