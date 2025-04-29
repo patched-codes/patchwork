@@ -105,8 +105,14 @@ def validate_step_type_config_with_inputs(
     return True, step_type_config.msg
 
 
+ALLOWED_MODULES = {"expected_module1", "expected_module2"}
+
 def validate_step_with_inputs(input_keys: Set[str], step: Type[Step]) -> Tuple[Set[str], Dict[str, str]]:
     module_path, _, _ = step.__module__.rpartition(".")
+    
+    if module_path not in ALLOWED_MODULES:
+        raise ValueError(f"Unauthorized module path: {module_path}")
+    
     step_name = step.__name__
     type_module = importlib.import_module(f"{module_path}.typed")
     step_input_model = getattr(type_module, f"{step_name}Inputs", __NOT_GIVEN)
