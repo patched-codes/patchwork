@@ -521,7 +521,7 @@ class GithubClient(ScmPlatformClientProtocol):
                 comments=[issue_comment.body for issue_comment in issue.get_comments()],
             )
         except GithubException as e:
-            logger.warn(f"Failed to get issue: {e}")
+            logger.warning(f"Failed to get issue: {e}")
             return None
 
     def get_pr_by_url(self, url: str) -> GithubPullRequest | None:
@@ -534,7 +534,7 @@ class GithubClient(ScmPlatformClientProtocol):
             pr = repo.get_pull(pr_id)
             return GithubPullRequest(pr)
         except GithubException as e:
-            logger.warn(f"Failed to get PR: {e}")
+            logger.warning(f"Failed to get PR: {e}")
             return None
 
     def find_prs(
@@ -650,7 +650,7 @@ class GitlabClient(ScmPlatformClientProtocol):
                 comments=[note["body"] for note in issue.notes.list()],
             )
         except GitlabError as e:
-            logger.warn(f"Failed to get issue: {e}")
+            logger.warning(f"Failed to get issue: {e}")
             return None
 
     def get_pr_by_url(self, url: str) -> GitlabMergeRequest | None:
@@ -663,7 +663,7 @@ class GitlabClient(ScmPlatformClientProtocol):
             mr = project.mergerequests.get(pr_id)
             return GitlabMergeRequest(mr)
         except GitlabError as e:
-            logger.warn(f"Failed to get MR: {e}")
+            logger.warning(f"Failed to get MR: {e}")
             return None
 
     def find_prs(

@@ -30,7 +30,7 @@ class ExtractModelResponse(Step):
 
         extracted_response_func = self.response_partitioned_dict
         if len(self.partitions) == 0:
-            logger.warn("No partitions specified for model response, will default to using the entire response.")
+            logger.warning("No partitions specified for model response, will default to using the entire response.")
             extracted_response_func = self.auto_pass_dict
 
         outputs = []

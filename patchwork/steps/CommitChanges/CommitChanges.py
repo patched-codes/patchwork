@@ -116,7 +116,7 @@ class CommitChanges(Step):
 
         self.modified_code_files = inputs["modified_code_files"]
         if len(self.modified_code_files) < 1:
-            logger.warn("No modified files to commit changes for.")
+            logger.warning("No modified files to commit changes for.")
             self.enabled = False
 
         self.force = inputs.get("force_branch_creation", True)
@@ -134,7 +134,7 @@ class CommitChanges(Step):
             repo_changed_file = Path(item.a_path)
             possible_ignored_grok = path_filter.get_grok_ignored(repo_changed_file)
             if possible_ignored_grok is not None:
-                logger.warn(f'Ignoring file: {item.a_path} because of "{possible_ignored_grok}" in .gitignore file.')
+                logger.warning(f'Ignoring file: {item.a_path} because of "{possible_ignored_grok}" in .gitignore file.')
                 continue
             repo_changed_files.add(repo_dir_path / repo_changed_file)
 
