@@ -55,11 +55,11 @@ class CreatePR(Step):
         self.force = bool(inputs.get("force_pr_creation", False))
         self.base_branch = inputs.get("base_branch")
         if self.enabled and self.base_branch is None:
-            logger.warn("Base branch not provided. Skipping PR creation.")
+            logger.warning("Base branch not provided. Skipping PR creation.")
             self.enabled = False
         self.target_branch = inputs["target_branch"]
         if self.enabled and self.base_branch == self.target_branch:
-            logger.warn("Base branch and target branch are the same. Skipping PR creation.")
+            logger.warning("Base branch and target branch are the same. Skipping PR creation.")
             self.enabled = False
 
     def __push(self, repo):

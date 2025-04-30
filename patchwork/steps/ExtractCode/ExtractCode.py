@@ -31,8 +31,8 @@ def get_source_code_context(
         if count_openai_tokens(context) <= context_token_length:
             return position.start, position.end
         else:
-            logger.warn(
-                f"The selected context is larger than the contex_size limit of {context_token_length}. You can increase the context_size and try again. "
+            logger.warning(
+                f"The selected context is larger than the context_size limit of {context_token_length}. You can increase the context_size and try again. "
             )
 
     return None, None
@@ -77,7 +77,7 @@ def read_and_get_source_code_context(file_path: str, start_line: int, end_line: 
 def parse_sarif_location(base_path: Path, location_str: str) -> Path | None:
     uri = urlparse(location_str)
     if uri.scheme != "file" and uri.scheme != "":
-        logger.warn(f'Unsupported URI scheme "{uri.scheme}" for location: "{location_str}"')
+        logger.warning(f'Unsupported URI scheme "{uri.scheme}" for location: "{location_str}"')
         return None
 
     path = Path(uri.path)
@@ -118,7 +118,7 @@ def resolve_artifact_location(
         if location is not None:
             return location
 
-        logger.warn(f"Unable to find file for artifact index: {artifact_index}")
+        logger.warning(f"Unable to find file for artifact index: {artifact_index}")
 
     uri = artifact_location.get("uri")
     if uri is not None:
@@ -240,7 +240,7 @@ def transform_sarif_results(
                 artifact_location = physical_location.get("artifactLocation", {})
                 uri = resolve_artifact_location(base_path, artifact_location, artifact_locations)
                 if uri is None:
-                    logger.warn(
+                    logger.warning(
                         f'Unable to find file for ".runs[{run_idx}].results[{result_idx}].locations[{location_idx}]"'
                     )
                     continue
