@@ -226,6 +226,13 @@ class AioLlmClient(LlmClient):
             client = AnthropicLlmClient(anthropic_key)
             clients.append(client)
 
+        litellm_key = inputs.get("litellm_api_key")
+        if litellm_key is not None:
+            from patchwork.common.client.llm.litellm_ import LiteLLMClient
+
+            client = LiteLLMClient(litellm_key)
+            clients.append(client)
+
         if len(clients) == 0:
             return None
 
