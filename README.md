@@ -74,7 +74,7 @@ For an AutoFix patchflow which patches vulnerabilities based on a scan using Sem
 patchwork AutoFix openai_api_key=<YOUR_OPENAI_API_KEY> github_api_key=<YOUR_GITHUB_TOKEN>
 ```
 
-The above command defaults to patching code in the current directory by running Semgrep to identify the vulnerabilities. You can view the `default.yml` [file](patchwork/patchflows/AutoFix/defaults.yml) for the list of configurations you can set to manage the AutoFix patchflow. For more details on how you can use a personal access token from GitHub on CLI, can read [this](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#using-a-personal-access-token-on-the-command-line). 
+The above command defaults to patching code in the current directory by running Semgrep to identify the vulnerabilities. You can view the `defaults.yml` [file](patchwork/patchflows/AutoFix/defaults.yml) for the list of configurations you can set to manage the AutoFix patchflow. For more details on how you can use a personal access token from GitHub on CLI, can read [this](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#using-a-personal-access-token-on-the-command-line). 
 
 You can replace the OpenAI key with a key from our managed service
 by signing in at [https://app.patched.codes/signin](https://app.patched.codes/signin) and generating an API key from the integrations tab. You can then call the patchflow with the key as follows:
