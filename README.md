@@ -10,7 +10,6 @@
 <div align="center">
 
 [![Build](https://github.com/patched-codes/patchwork/actions/workflows/release.yml/badge.svg)](https://github.com/patched-codes/patchwork/actions/workflows/release.yml)
-[![Discord](https://dcbadge.limes.pink/api/server/XDxA3mJyhE?style=flat&theme=clean-inverted)](https://discord.gg/XDxA3mJyhE)
 [![Downloads](https://img.shields.io/pypi/v/patchwork-cli)](https://pypi.org/project/patchwork-cli/)
 [![Downloads](https://static.pepy.tech/badge/patchwork-cli)](https://pepy.tech/projects/patchwork-cli)
 
@@ -19,13 +18,13 @@
 
 </div>
 
-Patchwork automates development gruntwork like PR reviews, bug fixing, security patching, and more using a self-hosted CLI agent and your preferred LLMs. Try the hosted version [here](https://app.patched.codes/signin).
+Patchwork automates operational workflows via LLMs.
 
 ## Key Components
 
 - **Steps**: Reusable atomic actions like create PR, commit changes or call an LLM.
-- **Prompt Templates**: Customizable LLM prompts optimized for a chore like library updates, code generation, issue analysis or vulnerability remediation.
-- **Patchflows**: LLM-assisted automations such as PR reviews, code fixing, documentation etc. built by combining steps and prompts.
+- **Prompt Templates**: Customizable LLM prompts optimized for operational tasks.
+- **Patchflows**: LLM-assisted automations built by combining steps and prompts.
 
 Patchflows can be run locally in your CLI and IDE, or as part of your CI/CD pipeline. There are [several patchflows available](#patchflows) out of the box, and you can always [create your own](#contributing).
 
@@ -126,17 +125,6 @@ Then run your patchflow:
 ```
 patchwork AutoFix client_base_url=http://localhost:8080/v1 openai_api_key=no_key_local_model
 ```
-
-## Patchflows
-
-Patchwork comes with predefined patchflows, with more added over time. Sample patchflows include:
-
-- [**GenerateDocstring**](patchwork/patchflows/GenerateDocstring): Generate docstrings for methods in your code.
-- [**AutoFix**](patchwork/patchflows/AutoFix): Generate and apply fixes to code vulnerabilities in a repository.
-- [**PRReview**](patchwork/patchflows/PRReview): On PR creation, extract code diff, summarize changes, and comment on PR.
-- [**GenerateREADME**](patchwork/patchflows/GenerateREADME): Create a README markdown file for a given folder, to add documentation to your repository.
-- [**DependencyUpgrade**](patchwork/patchflows/DependencyUpgrade): Update your dependencies from vulnerable to fixed versions.
-- [**ResolveIssue**](patchwork/patchflows/ResolveIssue): Identify the files in your repository that need to be updated to resolve an issue (or bug) and create a PR to fix it.
 
 ## Prompt Templates
 
