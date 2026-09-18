@@ -68,6 +68,8 @@ def find_patchflow(possible_module_paths: Iterable[str], patchflow: str) -> Any 
             return getattr(module, patchflow)
         except AttributeError:
             logger.debug(f"Patchflow {patchflow} not found in {module_path}")
+        except ImportError:
+            raise
         except Exception:
             logger.debug(f"Patchflow {patchflow} not found as a file/directory in {module_path}")
 
@@ -75,8 +77,11 @@ def find_patchflow(possible_module_paths: Iterable[str], patchflow: str) -> Any 
             module = importlib.import_module(module_path)
             logger.info(f"Patchflow {patchflow} loaded from {module_path}")
             return getattr(module, patchflow)
-        except ModuleNotFoundError:
-            logger.debug(f"Patchflow {patchflow} not found as a module in {module_path}")
+        except ModuleNotFoundError as e:
+            if e.name == module_path:
+                logger.debug(f"Patchflow {patchflow} not found as a module in {module_path}")
+            else:
+                raise
         except AttributeError:
             logger.debug(f"Patchflow {patchflow} not found in {module_path}")
 
@@ -213,7 +218,13 @@ def cli(
         if debug:
             inputs["debug"] = True
 
-        patchflow_class = find_patchflow(possbile_module_paths, patchflow_name)
+        patchflow_class = None
+        try:
+            patchflow_class = find_patchflow(possbile_module_paths, patchflow_name)
+        except Exception as e:
+            logger.debug(traceback.format_exc())
+            logger.error(f"Error loading patchflow {patchflow_name}: {e}")
+            exit(1)
         if patchflow_class is None:
             logger.error(f"Patchflow {patchflow_name} not found in {possbile_module_paths}")
             exit(1)
