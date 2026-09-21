@@ -15,3 +15,5 @@
 
 ### Description
 This code module defines a class `CommitChanges` that inherits `Step` class. It includes methods for transition between branches, getting a branch slug from a remote URL, and committing changes with a provided message. The `CommitChanges` class is instantiated with input data about modified code files, branch creation settings, and more. Upon execution, the `run` method commits the changes to the repository based on the modified files, creating a new branch if enabled, and returns information about the base and target branches.
+
+If `force_branch_creation` recreates a branch that already has commits not yet merged into the base branch (e.g. a previous run whose PR push failed), those commits are preserved on a `<branch>-backup-<sha>` branch before the target branch is reset, so a retry never silently discards prior work.

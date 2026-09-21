@@ -82,7 +82,10 @@ class CreatePR(Step):
                 if not is_push_success:
                     self.set_status(
                         StepStatus.FAILED,
-                        f"Failed to push to {self.original_remote_name}/{self.target_branch}. Skipping PR creation.",
+                        f'Failed to push to "{self.original_remote_name}/{self.target_branch}". Skipping PR creation. '
+                        f'Your changes are committed locally on branch "{self.target_branch}" and were not lost. '
+                        f"Fix your credentials, then push manually with "
+                        f"`git push {self.original_remote_name} {self.target_branch}` or re-run patchwork.",
                     )
                 return dict()
 
@@ -94,7 +97,10 @@ class CreatePR(Step):
         if not is_push_success:
             self.set_status(
                 StepStatus.FAILED,
-                f"Failed to push to {self.original_remote_name}/{self.target_branch}. Skipping PR creation.",
+                f'Failed to push to "{self.original_remote_name}/{self.target_branch}". Skipping PR creation. '
+                f'Your changes are committed locally on branch "{self.target_branch}" and were not lost. '
+                f"Fix your credentials, then push manually with "
+                f"`git push {self.original_remote_name} {self.target_branch}` or re-run patchwork.",
             )
             return dict()
 
