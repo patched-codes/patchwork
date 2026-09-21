@@ -3,19 +3,21 @@ from __future__ import annotations
 import difflib
 from pathlib import Path
 
+from patchwork.common.utils.utils import detect_newline
 from patchwork.logger import logger
 from patchwork.step import Step, StepStatus
 
 
-def save_file_contents(file_path: str | Path, content: str) -> None:
+def save_file_contents(file_path: str | Path, content: str, newline: str | None = None) -> None:
     """Utility function to save content to a file.
 
     Args:
         file_path: Path to the file to save content to (str or Path)
         content: Content to write to the file
+        newline: Line ending to write with, preserving the file's original style
     """
     path = Path(file_path)
-    with path.open("w") as file:
+    with path.open("w", newline=newline) as file:
         file.write(content)
 
 
@@ -59,7 +61,9 @@ def replace_code_in_file(
     if len(new_code_lines) > 0 and not new_code_lines[-1].endswith("\n"):
         new_code_lines[-1] += "\n"
 
+    newline = None
     if path.exists() and start_line is not None and end_line is not None:
+        newline = detect_newline(path)
         text = path.read_text()
         lines = text.splitlines(keepends=True)
 
@@ -68,8 +72,8 @@ def replace_code_in_file(
     else:
         lines = new_code_lines
 
-    # Save the modified contents back to the file
-    save_file_contents(path, "".join(lines))
+    # Save the modified contents back to the file, preserving its original line endings
+    save_file_contents(path, "".join(lines), newline=newline)
 
 
 class ModifyCode(Step):

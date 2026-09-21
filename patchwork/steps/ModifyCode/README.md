@@ -2,6 +2,8 @@
 
 This module provides functionality to modify code files based on extracted responses. It contains functions for loading and saving JSON files, handling indentation, and replacing code in files. The main class `ModifyCode` is a step that takes inputs containing code snippets and extracted responses, and then modifies the specified lines in code files with the new extracted code.
 
+When a file already exists, its original line-ending style (`\n`, `\r\n`, or `\r`) is detected and preserved on write, so patched files don't get their untouched lines flagged as changed in a diff just because of a line-ending mismatch.
+
 ## Inputs
 - `file_path`: The path to the JSON file containing code snippets.
 - `content`: The content to be saved to a file.
