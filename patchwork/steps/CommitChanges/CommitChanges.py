@@ -31,6 +31,16 @@ def transitioning_branches(
     if next_branch_name in repo.remote("origin").refs and not force:
         raise ValueError(f'Remote Branch "{next_branch_name}" already exists.')
 
+    if next_branch_name in repo.heads:
+        existing_head = repo.heads[next_branch_name]
+        if not repo.is_ancestor(existing_head.commit, from_branch.commit):
+            backup_branch_name = f"{next_branch_name}-backup-{existing_head.commit.hexsha[:8]}"
+            repo.create_head(backup_branch_name, existing_head.commit)
+            logger.warning(
+                f'Branch "{next_branch_name}" has commits not yet merged into "{from_branch_name}"; '
+                f'preserved them as "{backup_branch_name}" before recreating "{next_branch_name}".'
+            )
+
     logger.info(f'Creating new branch "{next_branch_name}".')
     to_branch = repo.create_head(next_branch_name, force=force)
 
