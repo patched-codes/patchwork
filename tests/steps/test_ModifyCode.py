@@ -33,6 +33,15 @@ def test_handle_indent(src, target, expected):
     assert indented_target == expected
 
 
+def test_replace_code_in_file_preserves_crlf_line_endings(tmp_path):
+    file_path = tmp_path / "test.txt"
+    file_path.write_bytes(b"line 1\r\nline 2\r\nline 3\r\n")
+
+    replace_code_in_file(str(file_path), 1, 2, "new line 1\n")
+
+    assert file_path.read_bytes() == b"line 1\r\nnew line 1\r\nline 3\r\n"
+
+
 def test_replace_code_in_file(tmp_path):
     file_path = tmp_path / "test.txt"
     file_path.write_text("line 1\nline 2\nline 3")
