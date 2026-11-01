@@ -3,7 +3,7 @@ import abc
 import click
 from typing_extensions import Type
 
-_internal_map: dict[str, Type["Patchflow"]]
+_internal_map: dict[str, Type["Patchflow"]] = {}
 
 
 class PatchflowCommands(click.MultiCommand):
